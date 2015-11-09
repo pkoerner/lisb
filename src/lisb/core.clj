@@ -10,6 +10,7 @@
                                                AIdentifierExpression
                                                TIntegerLiteral
                                                TIdentifierLiteral
+                                               AConjunctPredicate
                                                ALessPredicate)))
 
 
@@ -44,6 +45,28 @@
 
 (defn less [l r]
   (ALessPredicate. l r))
+
+(defn conjunct [l r]
+  (AConjunctPredicate. l r))
+
+
+
+(def lisp->b {<              {:fn less :type :chain}
+              (symbol "and") {:fn conjunct :type :interleave}})
+
+(defmacro to-b [ast]
+  (if-not (seq? ast)
+          `(integer ~ast) ;; TODO: could be something else than an integer
+          (let [[f a b & r] ast]
+            (if-not (seq r)
+                    `((:fn (lisp->b ~f)) (to-b ~a) (to-b ~b))
+                    `(case (:type (lisp->b ~f))
+                           :chain (conjunct ((:fn (lisp->b ~f)) (to-b ~a) (to-b ~b))
+                                            (to-b (~f ~b ~@r)))))))) ;; TODO: implement interleave
+
+
+
+
 
 (defn eval [state-space ast]
   (let [cmd (CbcSolveCommand. (predicate ast))
