@@ -2,18 +2,6 @@
   (:require [clojure.test :refer :all]
             [lisb.representation :refer :all]))
 
-(deftest conjunct-test
-  (testing "conjunction of two values works"
-    (is (= {:tag :and
-            :children [:a :b]}
-           (conjunct :a :b)))))
-
-
-(deftest chaining-test
-  (testing "chaining generates conjunctions"
-    (is (= {:tag :and
-            :children [[:a :b] [:b :c]]}
-           (chain vector [:a :b :c])))))
 
 (deftest less-test
   (testing "less works with two arguments"

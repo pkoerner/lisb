@@ -1,56 +1,34 @@
 (ns lisb.representation)
 
-(defn conjunct [l r]
-  {:tag :and
-   :children [l r]})
 
+(defn node [tag & children]
+  {:tag tag
+   :children children})
 
-(defn plus [l r]
-  {:tag :plus
-   :children [l r]})
-
-
-(defn less [l r]
-  {:tag :less
-   :children [l r]})
-
-(defn minus [l r]
-  {:tag :minus
-   :children [l r]})
-
-(defn unaryminus [n]
-  {:tag :unaryminus
-   :children [n]})
-
-(defn equals [l r]
-  {:tag :equals
-   :children [l r]})
-
-(defn equivalence [l r]
-  {:tag :equivalence
-   :children [l r]})
-
-(defn chain 
-  [f nodes]
+(defn chain-arity-two
+  [tag nodes]
   (let [tuples (partition 2 1 nodes)]
-    (reduce conjunct (map (partial apply f) tuples))))
+    (reduce (partial node :and) (map (partial apply node tag) tuples))))
+
 
 (defn b< [& args]
-  (chain less args))
+  (chain-arity-two :less args))
+
 
 (defn b+ [& args]
-  (reduce plus args))
+  (reduce (partial node :plus) args))
+
 
 (defn b- [a & r]
   (if (seq r)
-    (reduce minus a r)
-    (unaryminus a)))
+    (reduce (partial node :minus) a r)
+    (node :unaryminus a)))
 
 (defn band [& args]
-  (reduce conjunct args))
+  (reduce (partial node :and) args))
 
 (defn b= [& args]
-  (chain equals args))
+  (chain-arity-two :equals args))
 
 (defn b<=> [& args]
-  (chain equivalence args))
+  (chain-arity-two :equivalence args))
