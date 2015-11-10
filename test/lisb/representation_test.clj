@@ -1,6 +1,6 @@
-(ns lisb.core-test
+(ns lisb.representation-test
   (:require [clojure.test :refer :all]
-            [lisb.core :refer :all]))
+            [lisb.representation :refer :all]))
 
 (deftest conjunct-test
   (testing "conjunction of two values works"
