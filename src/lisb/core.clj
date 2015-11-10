@@ -5,6 +5,8 @@
            de.prob.animator.domainobjects.ClassicalB
            (de.be4.classicalb.core.parser.node Start
                                                EOF
+                                               Node
+                                               AAddExpression
                                                APredicateParseUnit
                                                AIntegerExpression
                                                AIdentifierExpression
@@ -43,30 +45,51 @@
   (let [token (TIntegerLiteral. (str n))]
     (AIntegerExpression. token)))
 
-(defn less [l r]
-  (ALessPredicate. l r))
 
 (defn conjunct [l r]
   (AConjunctPredicate. l r))
 
 
-
-(def lisp->b {<              {:fn less :type :chain}
-              (symbol "and") {:fn conjunct :type :interleave}})
-
-(defmacro to-b [ast]
-  (if-not (seq? ast)
-          `(integer ~ast) ;; TODO: could be something else than an integer
-          (let [[f a b & r] ast]
-            (if-not (seq r)
-                    `((:fn (lisp->b ~f)) (to-b ~a) (to-b ~b))
-                    `(case (:type (lisp->b ~f))
-                           :chain (conjunct ((:fn (lisp->b ~f)) (to-b ~a) (to-b ~b))
-                                            (to-b (~f ~b ~@r)))))))) ;; TODO: implement interleave
+(defn plus [l r]
+  (AAddExpression. l r))
 
 
+(defn less [l r]
+  (ALessPredicate. l r))
+
+(defn node?
+  "checks whether x already is an AST node"
+  [x]
+  (instance? Node x))
+
+(defn literal [x]
+  (cond (number? x) (integer x)
+        (keyword? x) (identifier (name x))))
 
 
+(defn process-literals [arglist]
+  (map (fn [x] (if (node? x)
+                   x
+                   (literal x)))
+       arglist))
+
+(defn chain 
+  "chains a list of nodes [n1 n2 n3 ...] into (and (f n1 n2) (and (f n2 n3) (and (f n3 ...))))"
+  [f nodes]
+  (let [tuples (partition 2 1 nodes)]
+    (reduce conjunct (map (partial apply f) tuples))))
+
+(defn b<
+  "generates a B AST equivalent to (and (< arg1 arg2) (and (< arg2 arg3) (and (...))))"
+  [& args]
+  (let [nodes (process-literals args)]
+    (chain less nodes)))
+
+(defn b+
+  "generates a B AST equivalent to (+ arg1 (+ arg2 (+ arg3 (+ ... argN))))"
+  [& args]
+  (let [nodes (process-literals args)]
+    (reduce plus nodes)))
 
 (defn eval [state-space ast]
   (let [cmd (CbcSolveCommand. (predicate ast))
