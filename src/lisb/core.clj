@@ -1,4 +1,5 @@
 (ns lisb.core
+  (:require [clojure.walk :refer [walk]])
   (:import de.prob.Main
            de.prob.scripting.Api
            de.prob.animator.command.CbcSolveCommand
@@ -32,6 +33,9 @@
     (.b_load api machine)))
 
 
+
+
+
 (defn predicate [ast]
   (let [p (APredicateParseUnit. ast)
         start (Start. p (EOF.))]
@@ -45,33 +49,37 @@
   (let [token (TIntegerLiteral. (str n))]
     (AIntegerExpression. token)))
 
+(defn lessnode [l r]
+  (ALessPredicate. l r))
 
-(defn conjunct [l r]
+(defn plusnode [l r]
+  (AAddExpression. l r))
+
+(defn conjunctionnode [l r]
   (AConjunctPredicate. l r))
 
 
+
+(defn conjunct [l r]
+  {:tag :and
+   :children [l r]})
+
+
 (defn plus [l r]
-  (AAddExpression. l r))
+  {:tag :plus
+   :children [l r]})
 
 
 (defn less [l r]
-  (ALessPredicate. l r))
-
-(defn node?
-  "checks whether x already is an AST node"
-  [x]
-  (instance? Node x))
-
-(defn literal [x]
-  (cond (number? x) (integer x)
-        (keyword? x) (identifier (name x))))
+  {:tag :less
+   :children [l r]})
 
 
-(defn process-literals [arglist]
-  (map (fn [x] (if (node? x)
-                   x
-                   (literal x)))
-       arglist))
+(def to-ast-map {:less lessnode
+                 :plus plusnode
+                 :and  conjunctionnode
+                 })
+
 
 (defn chain 
   "chains a list of nodes [n1 n2 n3 ...] into (and (f n1 n2) (and (f n2 n3) (and (f n3 ...))))"
@@ -82,14 +90,31 @@
 (defn b<
   "generates a B AST equivalent to (and (< arg1 arg2) (and (< arg2 arg3) (and (...))))"
   [& args]
-  (let [nodes (process-literals args)]
-    (chain less nodes)))
+    (chain less args))
 
 (defn b+
   "generates a B AST equivalent to (+ arg1 (+ arg2 (+ arg3 (+ ... argN))))"
   [& args]
-  (let [nodes (process-literals args)]
-    (reduce plus nodes)))
+    (reduce plus args))
+
+
+(defn literal [x]
+  (cond (keyword? x) (identifier (name x))
+        (number? x) (integer x)))
+
+
+
+(defn to-ast-inner [data]
+  (if (map? data)
+      (let [processed-args (walk to-ast-inner identity (:children data))]
+        (apply (to-ast-map (:tag data)) processed-args))
+      (literal data)))
+
+
+(defn to-ast [data]
+  (walk to-ast-inner  identity [ data]))
+
+
 
 (defn eval [state-space ast]
   (let [cmd (CbcSolveCommand. (predicate ast))
@@ -99,4 +124,5 @@
         ]
     (when (.. result getValue booleanValue)
       (into {} (map (fn [k][k (.getSolution result k)]) free)))))
+
 
