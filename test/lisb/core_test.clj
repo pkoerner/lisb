@@ -38,3 +38,14 @@
            (b+ :a :b :c)))))
 
 
+(deftest and-test
+  (testing "and works with two arguments"
+    (is (= {:tag :and
+            :children [:a :b]}
+           (band :a :b))))
+  (testing "and works with more than two arguments"
+    (is (= {:tag :and
+            :children [{:tag :and :children [:a :b]}
+                       :c]}
+           (band :a :b :c)))))
+

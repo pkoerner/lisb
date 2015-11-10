@@ -92,6 +92,9 @@
 (defn b+ [& args]
   (reduce plus args))
 
+(defn band [& args]
+  (reduce conjunct args))
+
 
 
 
