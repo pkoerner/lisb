@@ -16,6 +16,8 @@
                                                TIntegerLiteral
                                                TIdentifierLiteral
                                                AConjunctPredicate
+                                               AEqualPredicate
+                                               AEquivalencePredicate
                                                ALessPredicate)))
 
 
@@ -66,6 +68,11 @@
 (defn conjunctionnode [l r]
   (AConjunctPredicate. l r))
 
+(defn equalnode [l r]
+  (AEqualPredicate. l r))
+
+(defn equivalencenode [l r]
+  (AEquivalencePredicate. l r))
 
 
 (defn conjunct [l r]
@@ -90,11 +97,21 @@
   {:tag :unaryminus
    :children [n]})
 
+(defn equals [l r]
+  {:tag :equals
+   :children [l r]})
+
+(defn equivalence [l r]
+  {:tag :equivalence
+   :children [l r]})
+
 (def to-ast-map {:less lessnode
                  :plus plusnode
                  :and conjunctionnode
                  :minus minusnode
                  :unaryminus unaryminusnode
+                 :equals equalnode
+                 :equivalence equivalencenode
                  })
 
 
@@ -117,6 +134,11 @@
 (defn band [& args]
   (reduce conjunct args))
 
+(defn b= [& args]
+  (chain equals args))
+
+(defn b<=> [& args]
+    (chain equivalence args))
 
 (defn literal [x]
   (cond (keyword? x) (identifier (name x))

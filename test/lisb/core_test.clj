@@ -64,3 +64,25 @@
                        :c]}
            (b- :a :b :c)))))
 
+(deftest equals-test
+  (testing "equals works with two arguments"
+    (is (= {:tag :equals
+            :children [:a :b]}
+           (b= :a :b))))
+  (testing "equals works with more than two arguments"
+    (is (= {:tag :and
+            :children [{:tag :equals :children [:a :b]}
+                       {:tag :equals :children [:b :c]}]}
+           (b= :a :b :c)))))
+
+
+(deftest equivalence-test
+  (testing "equals works with two arguments"
+    (is (= {:tag :equivalence
+            :children [:a :b]}
+           (b<=> :a :b))))
+  (testing "equals works with more than two arguments"
+    (is (= {:tag :and
+            :children [{:tag :equivalence :children [:a :b]}
+                       {:tag :equivalence :children [:b :c]}]}
+           (b<=> :a :b :c)))))
