@@ -9,6 +9,8 @@
                                                Node
                                                AAddExpression
                                                APredicateParseUnit
+                                               AMinusExpression
+                                               AUnaryMinusExpression
                                                AIntegerExpression
                                                AIdentifierExpression
                                                TIntegerLiteral
@@ -55,6 +57,12 @@
 (defn plusnode [l r]
   (AAddExpression. l r))
 
+(defn minusnode [l r]
+  (AMinusExpression. l r))
+
+(defn unaryminusnode [n]
+  (AUnaryMinusExpression. n))
+
 (defn conjunctionnode [l r]
   (AConjunctPredicate. l r))
 
@@ -74,10 +82,19 @@
   {:tag :less
    :children [l r]})
 
+(defn minus [l r]
+  {:tag :minus
+   :children [l r]})
+
+(defn unaryminus [n]
+  {:tag :unaryminus
+   :children [n]})
 
 (def to-ast-map {:less lessnode
                  :plus plusnode
-                 :and  conjunctionnode
+                 :and conjunctionnode
+                 :minus minusnode
+                 :unaryminus unaryminusnode
                  })
 
 
@@ -92,10 +109,13 @@
 (defn b+ [& args]
   (reduce plus args))
 
+(defn b- [a & r]
+  (if (seq r)
+    (reduce minus a r)
+    (unaryminus a)))
+
 (defn band [& args]
   (reduce conjunct args))
-
-
 
 
 (defn literal [x]
@@ -114,8 +134,6 @@
 (defn to-ast [data]
   (walk to-ast-inner  identity [ data]))
 
-
-
 (defn eval [state-space ast]
   (let [cmd (CbcSolveCommand. (predicate ast))
         _ (.execute state-space cmd)
@@ -124,5 +142,4 @@
         ]
     (when (.. result getValue booleanValue)
       (into {} (map (fn [k][k (.getSolution result k)]) free)))))
-
 

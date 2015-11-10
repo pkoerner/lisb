@@ -49,3 +49,18 @@
                        :c]}
            (band :a :b :c)))))
 
+(deftest minus-test
+  (testing "minus is special and must have a unary version"
+    (is (= {:tag :unaryminus
+            :children [:a]}
+           (b- :a))))
+  (testing "minus also works with two arguments"
+    (is (= {:tag :minus
+            :children [:a :b]}
+           (b- :a :b))))
+  (testing "minus also works as expected with more than two arguments"
+    (is (= {:tag :minus
+            :children [{:tag :minus :children [:a :b]}
+                       :c]}
+           (b- :a :b :c)))))
+
