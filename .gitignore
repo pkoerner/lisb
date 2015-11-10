@@ -11,4 +11,4 @@ pom.xml.asc
 .hg/
 *.log
 prob_log.txt
-core_test.clj
+.*.swp
