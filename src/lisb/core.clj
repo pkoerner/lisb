@@ -82,20 +82,17 @@
 
 
 (defn chain 
-  "chains a list of nodes [n1 n2 n3 ...] into (and (f n1 n2) (and (f n2 n3) (and (f n3 ...))))"
   [f nodes]
   (let [tuples (partition 2 1 nodes)]
     (reduce conjunct (map (partial apply f) tuples))))
 
-(defn b<
-  "generates a B AST equivalent to (and (< arg1 arg2) (and (< arg2 arg3) (and (...))))"
-  [& args]
-    (chain less args))
+(defn b< [& args]
+  (chain less args))
 
-(defn b+
-  "generates a B AST equivalent to (+ arg1 (+ arg2 (+ arg3 (+ ... argN))))"
-  [& args]
-    (reduce plus args))
+(defn b+ [& args]
+  (reduce plus args))
+
+
 
 
 (defn literal [x]
