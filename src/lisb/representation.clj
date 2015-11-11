@@ -38,3 +38,6 @@
 
 (defn bor [& args]
   (interleave-arity-two :or args))
+
+(defn bnot [a]
+  (node :not a))

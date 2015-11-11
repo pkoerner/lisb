@@ -9,6 +9,7 @@
                                                TIdentifierLiteral
                                                AConjunctPredicate
                                                ADisjunctPredicate
+                                               ANegationPredicate
                                                AEqualPredicate
                                                AEquivalencePredicate
                                                ALessPredicate)))
@@ -46,6 +47,9 @@
 (defn disjunction-node [l r]
   (ADisjunctPredicate. l r))
 
+(defn not [p]
+  (ANegationPredicate. p))
+
 (defn literal [x]
   (cond (keyword? x) (identifier (name x))
         (number? x) (integer x)))
@@ -58,6 +62,7 @@
                  :equals equal-node
                  :equivalence equivalence-node
                  :or disjunction-node
+                 :not not-node
                  })
 
 

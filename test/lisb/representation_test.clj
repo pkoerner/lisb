@@ -87,3 +87,9 @@
             :children [{:tag :or :children [:a :b]}
                        :c]}
            (bor :a :b :c)))))
+
+(deftest not-test
+  (testing "not is unary"
+    (is (= {:tag :not
+            :children [:a]}
+           (bnot :a)))))
