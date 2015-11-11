@@ -14,6 +14,8 @@
       (apply eval ss (to-ast (b= 1 1)))
       (apply eval ss (to-ast (b= :x 1)))
       (apply eval ss (to-ast (b= 1 1 1)))
+      (apply eval ss (to-ast (b= :x true)))
+      (apply eval ss (to-ast (b= :x false)))
 
       (apply eval ss (to-ast (bnot= :x 1)))
       (apply eval ss (to-ast (bnot= :x 1 2)))
@@ -38,3 +40,4 @@
 
       (apply eval ss (to-ast (bnot (b< 2 1))))
       )))
+

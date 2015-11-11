@@ -4,6 +4,8 @@
                                                AMinusExpression
                                                AUnaryMinusExpression
                                                AIntegerExpression
+                                               ABooleanTrueExpression
+                                               ABooleanFalseExpression
                                                AIdentifierExpression
                                                TIntegerLiteral
                                                TIdentifierLiteral
@@ -23,6 +25,12 @@
 (defn integer [n]
   (let [token (TIntegerLiteral. (str n))]
     (AIntegerExpression. token)))
+
+(defn boolean-true []
+  (ABooleanTrueExpression.))
+
+(defn boolean-false []
+  (ABooleanFalseExpression.))
 
 (defn less-node [l r]
   (ALessPredicate. l r))
@@ -56,7 +64,10 @@
 
 (defn literal [x]
   (cond (keyword? x) (identifier (name x))
-        (number? x) (integer x)))
+        (number? x) (integer x)
+        (true? x) (boolean-true)
+        (false? x) (boolean-false)
+        ))
 
 (def to-ast-map {:less less-node
                  :plus plus-node
