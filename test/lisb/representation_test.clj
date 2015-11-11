@@ -147,3 +147,9 @@
     (is (= {:tag :finite1-subset
             :children [#{1 2}]}
            (bfin1 #{1 2})))))
+
+(deftest card-test
+  (testing "cardinality operator representation"
+    (is (= {:tag :card
+            :children [#{1 2}]}
+           (bcount #{1 2})))))

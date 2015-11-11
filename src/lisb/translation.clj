@@ -15,6 +15,7 @@
                                                APow1SubsetExpression
                                                AFinSubsetExpression
                                                AFin1SubsetExpression
+                                               ACardExpression
                                                TIntegerLiteral
                                                TIdentifierLiteral
                                                AConjunctPredicate
@@ -96,6 +97,9 @@
 (defn finite1-subset-node [s]
   (AFin1SubsetExpression. s))
 
+(defn card-node [s]
+  (ACardExpression. s))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -120,6 +124,7 @@
                  :power1-set power1-set-node
                  :finite-subset finite-subset-node
                  :finite1-subset finite1-subset-node
+                 :card card-node
                  })
 
 
