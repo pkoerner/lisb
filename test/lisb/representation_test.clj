@@ -115,3 +115,11 @@
     (is (= {:tag :to-bool
             :children [:a]}
            (bpred->bool :a)))))
+
+(deftest bset-test
+  (testing "construction of a comprehension set"
+    (is (= {:tag :comp-set
+            :children [[:x]
+                       {:tag :and :children [{:tag :less :children [1 :x]}
+                                             {:tag :less :children [:x 5]}]}]}
+           (bset [:x] (b< 1 :x 5))))))

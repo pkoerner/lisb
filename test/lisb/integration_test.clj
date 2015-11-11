@@ -44,5 +44,6 @@
 
       (is (apply eval ss (to-ast (b= :x #{1 2}))))
       (is (apply eval ss (to-ast (b= :x #{1 2 (b+ 1 2)}))))
+      (is (apply eval ss (to-ast (b= #{1 2 3} (bset [:x] (b< 0 :x 4))))))
       )))
 

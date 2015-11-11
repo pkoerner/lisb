@@ -10,6 +10,7 @@
                                                AIdentifierExpression
                                                AEmptySetExpression
                                                ASetExtensionExpression
+                                               AComprehensionSetExpression
                                                TIntegerLiteral
                                                TIdentifierLiteral
                                                AConjunctPredicate
@@ -75,6 +76,10 @@
 (defn to-bool-node [p]
   (AConvertBoolExpression. p))
 
+(defn comprehension-set [v p]
+  (let [vars (map identifier v)]
+    (AComprehensionSetExpression. vars p)))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -94,6 +99,7 @@
                  :not not-node
                  :not-equals not-equals-node
                  :to-bool to-bool-node
+                 :comp-set comprehension-set
                  })
 
 

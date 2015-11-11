@@ -53,6 +53,9 @@
 (defn bpred->bool [a]
   (node :to-bool a))
 
+(defn bset [v p]
+  (node :comp-set v p))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall
