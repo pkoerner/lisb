@@ -165,3 +165,13 @@
                        #{3 4}]}
            (bx #{1 2} #{2 3} #{3 4})))))
 
+(deftest set-union-test
+  (testing "set union with two arguments"
+    (is (= {:tag :set-union
+            :children [#{1 2} #{2 3}]}
+           (bunion #{1 2} #{2 3}))))
+  (testing "set union with more than two arguments"
+    (is (= {:tag :set-union
+            :children [{:tag :set-union :children [ #{1 2} #{2 3}]}
+                       #{3 4}]}
+           (bunion #{1 2} #{2 3} #{3 4})))))

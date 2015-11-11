@@ -63,4 +63,8 @@
       (is (apply eval ss (to-ast (b= :x #{(bx #{1 2} #{2 3})}))))
 
       (is (apply eval ss (to-ast (b= :x #{(bx #{1 2} #{2 3} #{3 4})}))))
+
+      (is (apply eval ss (to-ast (b= #{1 2 3} (bunion #{1 2} #{2 3})))))
+      (is (apply eval ss (to-ast (b= #{1 2 3 4} (bunion #{1 2} #{2 3} #{3 4})))))
+
       )))

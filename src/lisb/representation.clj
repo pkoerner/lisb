@@ -74,6 +74,9 @@
 (defn bx [& args]
   (interleave-arity-two :cartesian-product args))
 
+(defn bunion [& args]
+  (interleave-arity-two :set-union args))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

@@ -17,6 +17,7 @@
                                                AFin1SubsetExpression
                                                ACardExpression
                                                ACartesianProductExpression
+                                               AUnionExpression
                                                TIntegerLiteral
                                                TIdentifierLiteral
                                                AConjunctPredicate
@@ -104,6 +105,9 @@
 (defn cartesian-product-node [l r]
   (ACartesianProductExpression. l r))
 
+(defn set-union-node [l r]
+  (AUnionExpression. l r))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -130,6 +134,7 @@
                  :finite1-subset finite1-subset-node
                  :card card-node
                  :cartesian-product cartesian-product-node
+                 :set-union set-union-node
                  })
 
 
