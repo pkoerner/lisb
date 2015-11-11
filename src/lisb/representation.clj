@@ -105,4 +105,6 @@
 ;       - exists
 ;       - forall
 ;       - bool-set
+;       - negations for subset/superset, strict/non-strict
+;       - generalized union/intersection, with/without predicate
 
