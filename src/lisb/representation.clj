@@ -77,6 +77,9 @@
 (defn bunion [& args]
   (interleave-arity-two :set-union args))
 
+(defn bintersect [& args]
+  (interleave-arity-two :set-intersection args))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

@@ -18,6 +18,7 @@
                                                ACardExpression
                                                ACartesianProductExpression
                                                AUnionExpression
+                                               AIntersectionExpression
                                                TIntegerLiteral
                                                TIdentifierLiteral
                                                AConjunctPredicate
@@ -108,6 +109,9 @@
 (defn set-union-node [l r]
   (AUnionExpression. l r))
 
+(defn set-intersection-node [l r]
+  (AIntersectionExpression. l r))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -135,6 +139,7 @@
                  :card card-node
                  :cartesian-product cartesian-product-node
                  :set-union set-union-node
+                 :set-intersection set-intersection-node
                  })
 
 

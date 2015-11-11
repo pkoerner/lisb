@@ -175,3 +175,14 @@
             :children [{:tag :set-union :children [ #{1 2} #{2 3}]}
                        #{3 4}]}
            (bunion #{1 2} #{2 3} #{3 4})))))
+
+(deftest set-intersection-test
+  (testing "set intersection with two arguments"
+    (is (= {:tag :set-intersection
+            :children [#{1 2} #{2 3}]}
+           (bintersect #{1 2} #{2 3}))))
+  (testing "set intersection with more than two arguments"
+    (is (= {:tag :set-intersection
+            :children [{:tag :set-intersection :children [ #{1 2} #{2 3}]}
+                       #{3 4}]}
+           (bintersect #{1 2} #{2 3} #{3 4})))))
