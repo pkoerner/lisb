@@ -48,7 +48,7 @@
 (defn disjunction-node [l r]
   (ADisjunctPredicate. l r))
 
-(defn not [p]
+(defn not-node [p]
   (ANegationPredicate. p))
 
 (defn not-equals-node [l r]
