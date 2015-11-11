@@ -304,3 +304,13 @@
   (testing "have a set of nat1"
     (is (= {:tag :nat1-set :children []}
            (bnat1-set)))))
+
+(deftest max-test
+  (testing "max with a set"
+    (is (= {:tag :max :children [#{1 2 3}]}
+           (bmax #{1 2 3}))))
+  (testing "max with more arguments"
+    (is (= {:tag :max :children [#{1 2}]}
+           (bmax 1 2)))
+    (is (= {:tag :max :children [#{1 2 3}]}
+           (bmax 1 2 3)))))

@@ -106,4 +106,8 @@
       (is (apply eval ss (to-ast (bmember -1 (bint-set)))))
       (is (apply eval ss (to-ast (bmember 0 (bnat-set)))))
       (is (apply eval ss (to-ast (bmember 1 (bnat1-set)))))
+
+      (is (apply eval ss (to-ast (b= 3 (bmax #{1 2 3})))))
+      (is (apply eval ss (to-ast (b= 3 (bmax 1 2 3)))))
+      (is (apply eval ss (to-ast (b= 3 (bmax 2 3)))))
       )))

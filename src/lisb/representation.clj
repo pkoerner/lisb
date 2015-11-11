@@ -128,6 +128,13 @@
 (defn bnat1-set []
   (node :nat1-set))
 
+(defn bmax
+  ([s]
+   (node :max s))
+  ([a b & r]
+   (let [args (conj (conj (set r) b a))]
+     (bmax args))))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall
