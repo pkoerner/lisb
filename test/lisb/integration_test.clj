@@ -56,5 +56,11 @@
       (is (apply eval ss (to-ast (b= :x (bfin1 #{1 2})))))
 
       (is (apply eval ss (to-ast (b= 2 (bcount #{1 2})))))
-      )))
 
+      (is (apply eval ss (to-ast (b= #{} (bx #{} #{})))))
+
+      ;; FIXME: without the additional set the translator breaks
+      (is (apply eval ss (to-ast (b= :x #{(bx #{1 2} #{2 3})}))))
+
+      (is (apply eval ss (to-ast (b= :x #{(bx #{1 2} #{2 3} #{3 4})}))))
+      )))

@@ -71,6 +71,9 @@
 (defn bcount [s]
   (node :card s))
 
+(defn bx [& args]
+  (interleave-arity-two :cartesian-product args))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

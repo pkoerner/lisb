@@ -153,3 +153,15 @@
     (is (= {:tag :card
             :children [#{1 2}]}
            (bcount #{1 2})))))
+
+(deftest cartesian-product-test
+  (testing "cartesian product with two arguments"
+    (is (= {:tag :cartesian-product
+            :children [#{1 2} #{2 3}]}
+           (bx #{1 2} #{2 3}))))
+  (testing "cartesian product with more than two arguments"
+    (is (= {:tag :cartesian-product
+            :children [{:tag :cartesian-product :children [#{1 2} #{2 3}]}
+                       #{3 4}]}
+           (bx #{1 2} #{2 3} #{3 4})))))
+
