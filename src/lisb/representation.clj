@@ -53,5 +53,8 @@
 (defn bpred->bool [a]
   (node :to-bool a))
 
-; TODO: implication (is it left- or right-associate?), exists, forall
+; TODO: - implication (is it left- or right-associative?)
+;       - exists
+;       - forall
+;       - bool-set
 
