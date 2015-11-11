@@ -110,3 +110,8 @@
             :children [{:tag :not-equals :children [:a :a]}
                        {:tag :not-equals :children [:a :b]}]}))))
 
+(deftest to-bool-test
+  (testing "to-bool works as intended"
+    (is (= {:tag :to-bool
+            :children [:a]}
+           (bpred->bool :a)))))

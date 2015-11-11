@@ -6,6 +6,7 @@
                                                AIntegerExpression
                                                ABooleanTrueExpression
                                                ABooleanFalseExpression
+                                               AConvertBoolExpression
                                                AIdentifierExpression
                                                TIntegerLiteral
                                                TIdentifierLiteral
@@ -62,6 +63,9 @@
 (defn not-equals-node [l r]
   (ANotEqualPredicate. l r))
 
+(defn to-bool-node [p]
+  (AConvertBoolExpression. p))
+
 (defn literal [x]
   (cond (keyword? x) (identifier (name x))
         (number? x) (integer x)
@@ -79,6 +83,7 @@
                  :or disjunction-node
                  :not not-node
                  :not-equals not-equals-node
+                 :to-bool to-bool-node
                  })
 
 

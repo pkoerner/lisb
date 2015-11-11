@@ -39,5 +39,7 @@
       (is (apply eval ss (to-ast (b<=> (b< 1 2) (b< 2 3) (b< 3 4)))))
 
       (is (apply eval ss (to-ast (bnot (b< 2 1)))))
+
+      (is (apply eval ss (to-ast (b= true (bpred->bool (b< 1 2))))))
       )))
 

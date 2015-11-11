@@ -50,5 +50,8 @@
 (defn bnot= [& args]
   (combine-and-chain :not-equals args))
 
+(defn bpred->bool [a]
+  (node :to-bool a))
+
 ; TODO: implication (is it left- or right-associate?), exists, forall
 
