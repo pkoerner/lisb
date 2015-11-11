@@ -12,6 +12,7 @@
                                                ASetExtensionExpression
                                                AComprehensionSetExpression
                                                APowSubsetExpression
+                                               APow1SubsetExpression
                                                TIntegerLiteral
                                                TIdentifierLiteral
                                                AConjunctPredicate
@@ -84,6 +85,9 @@
 (defn power-set-node [s]
   (APowSubsetExpression. s))
 
+(defn power1-set-node [s]
+  (APow1SubsetExpression. s))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -105,6 +109,7 @@
                  :to-bool to-bool-node
                  :comp-set comprehension-set-node
                  :power-set power-set-node
+                 :power1-set power1-set-node
                  })
 
 

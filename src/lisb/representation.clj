@@ -59,6 +59,9 @@
 (defn bpow [s]
   (node :power-set s))
 
+(defn bpow1 [s]
+  (node :power1-set s))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

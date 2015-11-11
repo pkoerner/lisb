@@ -129,3 +129,9 @@
     (is (= {:tag :power-set
             :children [#{1 2}]}
            (bpow #{1 2})))))
+
+(deftest powerset1-test
+  (testing "powerset1 representation"
+    (is (= {:tag :power1-set
+            :children [#{1 2}]}
+           (bpow1 #{1 2})))))
