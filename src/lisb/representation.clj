@@ -80,6 +80,9 @@
 (defn bintersect [& args]
   (interleave-arity-two :set-intersection args))
 
+(defn bset- [& args]
+  (interleave-arity-two :set-difference args))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

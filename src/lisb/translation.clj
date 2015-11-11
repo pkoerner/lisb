@@ -19,6 +19,7 @@
                                                ACartesianProductExpression
                                                AUnionExpression
                                                AIntersectionExpression
+                                               ASetSubtractionExpression
                                                TIntegerLiteral
                                                TIdentifierLiteral
                                                AConjunctPredicate
@@ -112,6 +113,9 @@
 (defn set-intersection-node [l r]
   (AIntersectionExpression. l r))
 
+(defn set-difference-node [l r]
+  (ASetSubtractionExpression. l r))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -140,6 +144,7 @@
                  :cartesian-product cartesian-product-node
                  :set-union set-union-node
                  :set-intersection set-intersection-node
+                 :set-difference set-difference-node
                  })
 
 

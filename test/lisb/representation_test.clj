@@ -186,3 +186,14 @@
             :children [{:tag :set-intersection :children [ #{1 2} #{2 3}]}
                        #{3 4}]}
            (bintersect #{1 2} #{2 3} #{3 4})))))
+
+(deftest set-difference-test
+  (testing "set difference with two arguments"
+    (is (= {:tag :set-difference
+            :children [#{1 2} #{2 3}]}
+           (bset- #{1 2} #{2 3}))))
+  (testing "set intersection with more than two arguments"
+    (is (= {:tag :set-difference
+            :children [{:tag :set-difference :children [ #{1 2} #{2 3}]}
+                       #{3 4}]}
+           (bset- #{1 2} #{2 3} #{3 4})))))
