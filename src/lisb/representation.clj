@@ -151,6 +151,12 @@
 (defn bmod [n m]
   (node :mod n m))
 
+(defn binc [n]
+  (b+ n 1))
+
+(defn bdec [n]
+  (b- n 1))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall
@@ -158,4 +164,5 @@
 ;       - negations for subset/superset, strict/non-strict
 ;       - generalized union/intersection, with/without predicate
 ;       - power (right-associative)
+;       - set product / summation
 

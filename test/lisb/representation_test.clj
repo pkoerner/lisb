@@ -350,3 +350,13 @@
   (testing "modulo"
     (is (= {:tag :mod :children [5 3]}
            (bmod 5 3)))))
+
+(deftest inc-test
+  (testing "inc adds one"
+    (is (= {:tag :plus :children [5 1]}
+           (binc 5)))))
+
+(deftest dec-test
+  (testing "dec subtracts one"
+    (is (= {:tag :minus :children [5 1]}
+           (bdec 5)))))

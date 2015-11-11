@@ -122,4 +122,8 @@
       (is (apply eval ss (to-ast (b= 2 (bmin 2 3)))))
 
       (is (apply eval ss (to-ast (b= 2 (bmod 5 3)))))
+
+      (is (apply eval ss (to-ast (b= 2 (binc 1)))))
+
+      (is (apply eval ss (to-ast (b= 0 (bdec 1)))))
       )))
