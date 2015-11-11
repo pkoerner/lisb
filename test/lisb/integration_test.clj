@@ -90,4 +90,6 @@
 
       (is (apply eval ss (to-ast (bsuperset-strict #{1 2} #{1}))))
       (is (apply eval ss (to-ast (bsuperset-strict #{1 2 3} #{1 2} #{1}))))
+
+      (is (apply eval ss (to-ast (bmember true (bbool-set)))))
       )))

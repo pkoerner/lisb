@@ -4,7 +4,7 @@
 
 (defn node [tag & children]
   {:tag tag
-   :children children})
+   :children (if children children [])})
 
 
 (defn chain [tag tuples]
@@ -100,6 +100,9 @@
 
 (defn bsuperset-strict [& args]
   (apply bsubset-strict (reverse args)))
+
+(defn bbool-set []
+  (node :bool-set))
 
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists

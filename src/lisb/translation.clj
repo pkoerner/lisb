@@ -23,6 +23,7 @@
                                                AMemberPredicate
                                                ASubsetPredicate
                                                ASubsetStrictPredicate
+                                               ABoolSetExpression
                                                TIntegerLiteral
                                                TIdentifierLiteral
                                                AConjunctPredicate
@@ -128,6 +129,9 @@
 (defn subset-strict-node [l r]
   (ASubsetStrictPredicate. l r))
 
+(defn bool-set-node []
+  (ABoolSetExpression.))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -160,6 +164,7 @@
                  :member member-node
                  :subset subset-node
                  :subset-strict subset-strict-node
+                 :bool-set bool-set-node
                  })
 
 

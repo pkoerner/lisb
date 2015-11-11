@@ -241,3 +241,8 @@
                                  {:tag :subset-strict :children [#{2} #{3}]}]}
            (bsubset-strict #{1} #{2} #{3})
            (bsuperset-strict #{3} #{2} #{1})))))
+
+(deftest bool-set-test
+  (testing "have a set of booleans"
+    (is (= {:tag :bool-set :children []}
+           (bbool-set)))))
