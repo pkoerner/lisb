@@ -7,14 +7,14 @@
    :children children})
 
 
-(defn chain-arity-two
-  [tag nodes]
-  (let [tuples (partition 2 1 nodes)]
-    (reduce (partial node :and) (map (partial apply node tag) tuples))))
+(defn chain [tag tuples]
+  (reduce (partial node :and) (map (partial apply node tag) tuples)))
+
+(defn chain-arity-two [tag nodes]
+  (chain tag (partition 2 1 nodes)))
 
 (defn combine-and-chain [tag nodes]
-  (let [tuples (combinations nodes 2)]
-    (reduce (partial node :and) (map (partial apply node tag) tuples))))
+  (chain tag (combinations nodes 2)))
 
 (defn interleave-arity-two [tag nodes]
   (reduce (partial node tag) nodes))
@@ -82,6 +82,12 @@
 
 (defn bset- [& args]
   (interleave-arity-two :set-difference args))
+
+(defn bmember [e & sets]
+  (chain :member (map (fn [s] [e s]) sets)))
+
+(defn bmembers [s & elements]
+  (chain :member (map (fn [e] [e s]) elements)))
 
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists

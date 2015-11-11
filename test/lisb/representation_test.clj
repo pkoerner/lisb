@@ -197,3 +197,23 @@
             :children [{:tag :set-difference :children [ #{1 2} #{2 3}]}
                        #{3 4}]}
            (bset- #{1 2} #{2 3} #{3 4})))))
+
+(deftest member-test
+  (testing "member representation with two arguments"
+    (is (= {:tag :member
+            :children [1 #{1}]}
+           (bmember 1 #{1}))))
+  (testing "member representation with more than two arguments"
+    (is (= {:tag :and :children [{:tag :member :children [1 #{1}]}
+                                 {:tag :member :children [1 #{2}]}]}
+           (bmember 1 #{1} #{2})))))
+
+(deftest members-test
+  (testing "membesr representation with two arguments"
+    (is (= {:tag :member
+            :children [1 #{1}]}
+           (bmembers #{1} 1))))
+  (testing "member representation with more than two arguments"
+    (is (= {:tag :and :children [{:tag :member :children [1 #{1}]}
+                                 {:tag :member :children [2 #{1}]}]}
+           (bmembers #{1} 1 2)))))

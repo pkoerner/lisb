@@ -20,6 +20,7 @@
                                                AUnionExpression
                                                AIntersectionExpression
                                                ASetSubtractionExpression
+                                               AMemberPredicate
                                                TIntegerLiteral
                                                TIdentifierLiteral
                                                AConjunctPredicate
@@ -116,6 +117,9 @@
 (defn set-difference-node [l r]
   (ASetSubtractionExpression. l r))
 
+(defn member-node [e s]
+  (AMemberPredicate. e s))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -145,6 +149,7 @@
                  :set-union set-union-node
                  :set-intersection set-intersection-node
                  :set-difference set-difference-node
+                 :member member-node
                  })
 
 
