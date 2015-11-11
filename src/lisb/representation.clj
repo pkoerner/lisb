@@ -1,4 +1,5 @@
-(ns lisb.representation)
+(ns lisb.representation
+  (require [clojure.math.combinatorics :refer [combinations]]))
 
 
 (defn node [tag & children]
@@ -9,6 +10,10 @@
 (defn chain-arity-two
   [tag nodes]
   (let [tuples (partition 2 1 nodes)]
+    (reduce (partial node :and) (map (partial apply node tag) tuples))))
+
+(defn combine-and-chain [tag nodes]
+  (let [tuples (combinations nodes 2)]
     (reduce (partial node :and) (map (partial apply node tag) tuples))))
 
 (defn interleave-arity-two [tag nodes]
@@ -41,3 +46,9 @@
 
 (defn bnot [a]
   (node :not a))
+
+(defn bnot= [& args]
+  (combine-and-chain :not-equals args))
+
+; TODO: implication (is it left- or right-associate?), exists, forall
+

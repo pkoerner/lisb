@@ -93,3 +93,20 @@
     (is (= {:tag :not
             :children [:a]}
            (bnot :a)))))
+
+(deftest not-equals-test
+  (testing "not-equals works with two arguments"
+    (is (= {:tag :not-equals
+            :children [:a :b]}
+           (bnot= :a :b))))
+  (testing "not-equals works with more than two arguments"
+    (is (= {:tag :and,
+            :children [{:tag :and, :children [{:tag :not-equals, :children [:a :b]}
+                                              {:tag :not-equals, :children [:a :c]}]}
+                       {:tag :not-equals :children [:b :c]}]}
+           (bnot= :a :b :c))))
+  (testing "not-equals generates data in a set-like semantics"
+    (is (= {:tag :and
+            :children [{:tag :not-equals :children [:a :a]}
+                       {:tag :not-equals :children [:a :b]}]}))))
+

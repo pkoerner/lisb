@@ -11,6 +11,7 @@
                                                ADisjunctPredicate
                                                ANegationPredicate
                                                AEqualPredicate
+                                               ANotEqualPredicate
                                                AEquivalencePredicate
                                                ALessPredicate)))
 
@@ -50,6 +51,9 @@
 (defn not [p]
   (ANegationPredicate. p))
 
+(defn not-equals-node [l r]
+  (ANotEqualPredicate. l r))
+
 (defn literal [x]
   (cond (keyword? x) (identifier (name x))
         (number? x) (integer x)))
@@ -63,6 +67,7 @@
                  :equivalence equivalence-node
                  :or disjunction-node
                  :not not-node
+                 :not-equals not-equals-node
                  })
 
 
