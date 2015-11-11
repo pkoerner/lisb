@@ -38,6 +38,9 @@
       (is (apply eval ss (to-ast (b< 1 (b- 10 2)))))
       (is (apply eval ss (to-ast (b< 1 (b- 10 2 3)))))
 
+      (is (apply eval ss (to-ast (b= 6 (b* 2 3)))))
+      (is (apply eval ss (to-ast (b= 24 (b* 2 3 4)))))
+
       (is (apply eval ss (to-ast (band (b< 1 2) (b< 2 3)))))
       (is (apply eval ss (to-ast (band (b< 1 2) (b< 2 3) (b< 3 4)))))
 

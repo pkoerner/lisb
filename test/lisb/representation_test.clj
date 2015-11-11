@@ -58,6 +58,16 @@
                        :c]}
            (b+ :a :b :c)))))
 
+(deftest mul-test
+  (testing "mul works with two arguments"
+    (is (= {:tag :mul
+            :children [:a :b]}
+           (b* :a :b))))
+  (testing "mul works with more than two arguments"
+    (is (= {:tag :mul
+            :children [{:tag :mul :children [:a :b]}
+                       :c]}
+           (b* :a :b :c)))))
 
 (deftest and-test
   (testing "and works with two arguments"

@@ -2,6 +2,7 @@
   (:require [clojure.walk :refer [walk]])
   (:import (de.be4.classicalb.core.parser.node AAddExpression
                                                AMinusExpression
+                                               AMultiplicationExpression
                                                AUnaryMinusExpression
                                                AIntegerExpression
                                                ABooleanTrueExpression
@@ -84,6 +85,9 @@
 
 (defn minus-node [l r]
   (AMinusExpression. l r))
+
+(defn mul-node [l r]
+  (AMultiplicationExpression. l r))
 
 (defn unaryminus-node [n]
   (AUnaryMinusExpression. n))
@@ -186,6 +190,7 @@
                  :less-eq less-eq-node
                  :greater-eq greater-eq-node
                  :plus plus-node
+                 :mul mul-node
                  :and conjunction-node
                  :minus minus-node
                  :unaryminus unaryminus-node

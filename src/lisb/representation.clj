@@ -41,6 +41,9 @@
     (interleave-arity-two :minus (conj r a))
     (node :unaryminus a)))
 
+(defn b* [& args]
+  (interleave-arity-two :mul args))
+
 (defn band [& args]
   (interleave-arity-two :and args))
 
