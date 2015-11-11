@@ -44,6 +44,9 @@
 (defn b* [& args]
   (interleave-arity-two :mul args))
 
+(defn bdiv [& args]
+  (interleave-arity-two :div args))
+
 (defn band [& args]
   (interleave-arity-two :and args))
 

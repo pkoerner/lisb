@@ -41,6 +41,9 @@
       (is (apply eval ss (to-ast (b= 6 (b* 2 3)))))
       (is (apply eval ss (to-ast (b= 24 (b* 2 3 4)))))
 
+      (is (apply eval ss (to-ast (b= 6 (bdiv 24 4)))))
+      (is (apply eval ss (to-ast (b= 2 (bdiv 24 4 3)))))
+
       (is (apply eval ss (to-ast (band (b< 1 2) (b< 2 3)))))
       (is (apply eval ss (to-ast (band (b< 1 2) (b< 2 3) (b< 3 4)))))
 

@@ -69,6 +69,17 @@
                        :c]}
            (b* :a :b :c)))))
 
+(deftest div-test
+  (testing "div works with two arguments"
+    (is (= {:tag :div
+            :children [:a :b]}
+           (bdiv :a :b))))
+  (testing "div works with more than two arguments"
+    (is (= {:tag :div
+            :children [{:tag :div :children [:a :b]}
+                       :c]}
+           (bdiv :a :b :c)))))
+
 (deftest and-test
   (testing "and works with two arguments"
     (is (= {:tag :and

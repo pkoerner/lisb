@@ -3,6 +3,7 @@
   (:import (de.be4.classicalb.core.parser.node AAddExpression
                                                AMinusExpression
                                                AMultiplicationExpression
+                                               ADivExpression
                                                AUnaryMinusExpression
                                                AIntegerExpression
                                                ABooleanTrueExpression
@@ -88,6 +89,9 @@
 
 (defn mul-node [l r]
   (AMultiplicationExpression. l r))
+
+(defn div-node [l r]
+  (ADivExpression. l r))
 
 (defn unaryminus-node [n]
   (AUnaryMinusExpression. n))
@@ -191,6 +195,7 @@
                  :greater-eq greater-eq-node
                  :plus plus-node
                  :mul mul-node
+                 :div div-node
                  :and conjunction-node
                  :minus minus-node
                  :unaryminus unaryminus-node
