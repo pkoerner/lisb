@@ -35,3 +35,6 @@
 
 (defn b<=> [& args]
   (chain-arity-two :equivalence args))
+
+(defn bor [& args]
+  (interleave-arity-two :or args))

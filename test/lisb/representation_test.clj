@@ -74,3 +74,16 @@
             :children [{:tag :equivalence :children [:a :b]}
                        {:tag :equivalence :children [:b :c]}]}
            (b<=> :a :b :c)))))
+
+
+
+(deftest or-test
+  (testing "or works with two arguments"
+    (is (= {:tag :or
+            :children [:a :b]}
+           (bor :a :b))))
+  (testing "or works with more than two arguments"
+    (is (= {:tag :or
+            :children [{:tag :or :children [:a :b]}
+                       :c]}
+           (bor :a :b :c)))))

@@ -8,6 +8,7 @@
                                                TIntegerLiteral
                                                TIdentifierLiteral
                                                AConjunctPredicate
+                                               ADisjunctPredicate
                                                AEqualPredicate
                                                AEquivalencePredicate
                                                ALessPredicate)))
@@ -42,6 +43,8 @@
 (defn equivalencenode [l r]
   (AEquivalencePredicate. l r))
 
+(defn disjunction-node [l r]
+  (ADisjunctPredicate. l r))
 
 (defn literal [x]
   (cond (keyword? x) (identifier (name x))
@@ -54,6 +57,7 @@
                  :unaryminus unaryminusnode
                  :equals equalnode
                  :equivalence equivalencenode
+                 :or disjunction-node
                  })
 
 
