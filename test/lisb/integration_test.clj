@@ -78,4 +78,10 @@
 
       (is (apply eval ss (to-ast (bmembers #{1 2 3} 1))))
       (is (apply eval ss (to-ast (bmembers #{1 2 3} 1 2))))
+
+      (is (apply eval ss (to-ast (bsubset #{1} #{1 2}))))
+      (is (apply eval ss (to-ast (bsubset #{1} #{1 2} #{1 2 3}))))
+
+      (is (apply eval ss (to-ast (bsuperset #{1 2} #{1}))))
+      (is (apply eval ss (to-ast (bsuperset #{1 2 3} #{1 2} #{1}))))
       )))

@@ -89,6 +89,12 @@
 (defn bmembers [s & elements]
   (chain :member (map (fn [e] [e s]) elements)))
 
+(defn bsubset [& args]
+  (chain-arity-two :subset args))
+
+(defn bsuperset [& args]
+  (apply bsubset (reverse args)))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

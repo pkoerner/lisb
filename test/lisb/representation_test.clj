@@ -209,11 +209,23 @@
            (bmember 1 #{1} #{2})))))
 
 (deftest members-test
-  (testing "membesr representation with two arguments"
+  (testing "members representation with two arguments"
     (is (= {:tag :member
             :children [1 #{1}]}
            (bmembers #{1} 1))))
-  (testing "member representation with more than two arguments"
+  (testing "members representation with more than two arguments"
     (is (= {:tag :and :children [{:tag :member :children [1 #{1}]}
                                  {:tag :member :children [2 #{1}]}]}
            (bmembers #{1} 1 2)))))
+
+(deftest subset-test
+  (testing "subset representation with two arguments"
+    (is (= {:tag :subset
+            :children [#{1} #{2}]}
+           (bsubset #{1} #{2})
+           (bsuperset #{2} #{1}))))
+  (testing "subset representation with more than two arguments"
+    (is (= {:tag :and :children [{:tag :subset :children [#{1} #{2}]}
+                                 {:tag :subset :children [#{2} #{3}]}]}
+           (bsubset #{1} #{2} #{3})
+           (bsuperset #{3} #{2} #{1})))))

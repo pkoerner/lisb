@@ -21,6 +21,7 @@
                                                AIntersectionExpression
                                                ASetSubtractionExpression
                                                AMemberPredicate
+                                               ASubsetPredicate
                                                TIntegerLiteral
                                                TIdentifierLiteral
                                                AConjunctPredicate
@@ -120,6 +121,9 @@
 (defn member-node [e s]
   (AMemberPredicate. e s))
 
+(defn subset-node [l r]
+  (ASubsetPredicate. l r))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -150,6 +154,7 @@
                  :set-intersection set-intersection-node
                  :set-difference set-difference-node
                  :member member-node
+                 :subset subset-node
                  })
 
 
