@@ -95,6 +95,12 @@
 (defn bsuperset [& args]
   (apply bsubset (reverse args)))
 
+(defn bsubset-strict [& args]
+  (chain-arity-two :subset-strict args))
+
+(defn bsuperset-strict [& args]
+  (apply bsubset-strict (reverse args)))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

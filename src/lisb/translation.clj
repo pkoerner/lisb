@@ -22,6 +22,7 @@
                                                ASetSubtractionExpression
                                                AMemberPredicate
                                                ASubsetPredicate
+                                               ASubsetStrictPredicate
                                                TIntegerLiteral
                                                TIdentifierLiteral
                                                AConjunctPredicate
@@ -124,6 +125,9 @@
 (defn subset-node [l r]
   (ASubsetPredicate. l r))
 
+(defn subset-strict-node [l r]
+  (ASubsetStrictPredicate. l r))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -155,6 +159,7 @@
                  :set-difference set-difference-node
                  :member member-node
                  :subset subset-node
+                 :subset-strict subset-strict-node
                  })
 
 

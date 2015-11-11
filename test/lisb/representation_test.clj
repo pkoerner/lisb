@@ -229,3 +229,15 @@
                                  {:tag :subset :children [#{2} #{3}]}]}
            (bsubset #{1} #{2} #{3})
            (bsuperset #{3} #{2} #{1})))))
+
+(deftest subset-strict-test
+  (testing "subset-strict representation with two arguments"
+    (is (= {:tag :subset-strict
+            :children [#{1} #{2}]}
+           (bsubset-strict #{1} #{2})
+           (bsuperset-strict #{2} #{1}))))
+  (testing "subset-strict representation with more than two arguments"
+    (is (= {:tag :and :children [{:tag :subset-strict :children [#{1} #{2}]}
+                                 {:tag :subset-strict :children [#{2} #{3}]}]}
+           (bsubset-strict #{1} #{2} #{3})
+           (bsuperset-strict #{3} #{2} #{1})))))
