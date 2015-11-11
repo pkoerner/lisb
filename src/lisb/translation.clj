@@ -45,6 +45,7 @@
                                                AGreaterEqualPredicate
                                                AMaxExpression
                                                AMinExpression
+                                               AModuloExpression
                                                )))
 
 (declare to-ast)
@@ -181,6 +182,9 @@
 (defn min-node [s]
   (AMinExpression. s))
 
+(defn mod-node [n m]
+  (AModuloExpression. n m))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -226,6 +230,7 @@
                  :nat1-set nat1-set-node
                  :max max-node
                  :min min-node
+                 :mod mod-node
                  })
 
 

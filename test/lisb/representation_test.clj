@@ -345,3 +345,8 @@
            (bmin 1 2)))
     (is (= {:tag :min :children [#{1 2 3}]}
            (bmin 1 2 3)))))
+
+(deftest mod-test
+  (testing "modulo"
+    (is (= {:tag :mod :children [5 3]}
+           (bmod 5 3)))))

@@ -120,4 +120,6 @@
       (is (apply eval ss (to-ast (b= 1 (bmin #{1 2 3})))))
       (is (apply eval ss (to-ast (b= 1 (bmin 1 2 3)))))
       (is (apply eval ss (to-ast (b= 2 (bmin 2 3)))))
+
+      (is (apply eval ss (to-ast (b= 2 (bmod 5 3)))))
       )))
