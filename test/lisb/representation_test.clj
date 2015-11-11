@@ -246,3 +246,28 @@
   (testing "have a set of booleans"
     (is (= {:tag :bool-set :children []}
            (bbool-set)))))
+
+(deftest natural-set-test
+  (testing "have a set of naturals"
+    (is (= {:tag :natural-set :children []}
+           (bnatural-set)))))
+
+(deftest natural1-set-test
+  (testing "have a set of naturals1"
+    (is (= {:tag :natural1-set :children []}
+           (bnatural1-set)))))
+
+(deftest int-set-test
+  (testing "have a set of integers"
+    (is (= {:tag :int-set :children []}
+           (bint-set)))))
+
+(deftest nat-set-test
+  (testing "have a set of nat"
+    (is (= {:tag :nat-set :children []}
+           (bnat-set)))))
+
+(deftest nat1-set-test
+  (testing "have a set of nat1"
+    (is (= {:tag :nat1-set :children []}
+           (bnat1-set)))))

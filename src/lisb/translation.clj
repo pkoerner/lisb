@@ -24,6 +24,11 @@
                                                ASubsetPredicate
                                                ASubsetStrictPredicate
                                                ABoolSetExpression
+                                               ANaturalSetExpression
+                                               ANatural1SetExpression
+                                               AIntegerSetExpression
+                                               ANatSetExpression
+                                               ANat1SetExpression
                                                TIntegerLiteral
                                                TIdentifierLiteral
                                                AConjunctPredicate
@@ -132,6 +137,21 @@
 (defn bool-set-node []
   (ABoolSetExpression.))
 
+(defn natural-set-node []
+  (ANaturalSetExpression.))
+
+(defn natural1-set-node []
+  (ANatural1SetExpression.))
+
+(defn int-set-node []
+  (AIntegerSetExpression.))
+
+(defn nat-set-node []
+  (ANatSetExpression.))
+
+(defn nat1-set-node []
+  (ANat1SetExpression.))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -165,6 +185,11 @@
                  :subset subset-node
                  :subset-strict subset-strict-node
                  :bool-set bool-set-node
+                 :natural-set natural-set-node
+                 :natural1-set natural1-set-node
+                 :int-set int-set-node
+                 :nat-set nat-set-node
+                 :nat1-set nat1-set-node
                  })
 
 

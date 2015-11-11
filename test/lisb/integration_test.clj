@@ -92,4 +92,9 @@
       (is (apply eval ss (to-ast (bsuperset-strict #{1 2 3} #{1 2} #{1}))))
 
       (is (apply eval ss (to-ast (bmember true (bbool-set)))))
+      (is (apply eval ss (to-ast (bmember 0 (bnatural-set)))))
+      (is (apply eval ss (to-ast (bmember 1 (bnatural1-set)))))
+      (is (apply eval ss (to-ast (bmember -1 (bint-set)))))
+      (is (apply eval ss (to-ast (bmember 0 (bnat-set)))))
+      (is (apply eval ss (to-ast (bmember 1 (bnat1-set)))))
       )))

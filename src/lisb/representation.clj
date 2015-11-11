@@ -104,6 +104,21 @@
 (defn bbool-set []
   (node :bool-set))
 
+(defn bnatural-set []
+  (node :natural-set))
+
+(defn bnatural1-set []
+  (node :natural1-set))
+
+(defn bint-set []
+  (node :int-set))
+
+(defn bnat-set []
+  (node :nat-set))
+
+(defn bnat1-set []
+  (node :nat1-set))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall
