@@ -52,5 +52,7 @@
       (is (apply eval ss (to-ast (b= :x (bpow1 #{1 2})))))
 
       (is (apply eval ss (to-ast (b= :x (bfin #{1 2})))))
+
+      (is (apply eval ss (to-ast (b= :x (bfin1 #{1 2})))))
       )))
 

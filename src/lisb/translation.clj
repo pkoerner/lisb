@@ -14,6 +14,7 @@
                                                APowSubsetExpression
                                                APow1SubsetExpression
                                                AFinSubsetExpression
+                                               AFin1SubsetExpression
                                                TIntegerLiteral
                                                TIdentifierLiteral
                                                AConjunctPredicate
@@ -92,6 +93,9 @@
 (defn finite-subset-node [s]
   (AFinSubsetExpression. s))
 
+(defn finite1-subset-node [s]
+  (AFin1SubsetExpression. s))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -115,6 +119,7 @@
                  :power-set power-set-node
                  :power1-set power1-set-node
                  :finite-subset finite-subset-node
+                 :finite1-subset finite1-subset-node
                  })
 
 

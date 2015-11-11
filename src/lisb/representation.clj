@@ -65,6 +65,9 @@
 (defn bfin [s]
   (node :finite-subset s))
 
+(defn bfin1 [s]
+  (node :finite1-subset s))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

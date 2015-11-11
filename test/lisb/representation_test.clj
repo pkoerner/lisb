@@ -142,3 +142,8 @@
             :children [#{1 2}]}
            (bfin #{1 2})))))
 
+(deftest finset1-test
+  (testing "finite subset representation"
+    (is (= {:tag :finite1-subset
+            :children [#{1 2}]}
+           (bfin1 #{1 2})))))
