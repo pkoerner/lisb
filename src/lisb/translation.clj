@@ -23,7 +23,7 @@
 (declare to-ast)
 
 (defn identifier [n]
-  (let [token (TIdentifierLiteral. n)]
+  (let [token (TIdentifierLiteral. (name n))]
     (AIdentifierExpression. [token])))
 
 (defn integer [n]
@@ -76,12 +76,12 @@
   (AConvertBoolExpression. p))
 
 (defn literal [x]
-  (cond (keyword? x) (identifier (name x))
+  (cond (keyword? x) (identifier x)
         (number? x) (integer x)
         (true? x) (boolean-true)
         (false? x) (boolean-false)
         (set? x) (set-literal x)
-        ))
+        :otherwise x))
 
 (def to-ast-map {:less less-node
                  :plus plus-node
