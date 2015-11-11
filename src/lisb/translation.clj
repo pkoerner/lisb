@@ -22,25 +22,25 @@
   (let [token (TIntegerLiteral. (str n))]
     (AIntegerExpression. token)))
 
-(defn lessnode [l r]
+(defn less-node [l r]
   (ALessPredicate. l r))
 
-(defn plusnode [l r]
+(defn plus-node [l r]
   (AAddExpression. l r))
 
-(defn minusnode [l r]
+(defn minus-node [l r]
   (AMinusExpression. l r))
 
-(defn unaryminusnode [n]
+(defn unaryminus-node [n]
   (AUnaryMinusExpression. n))
 
-(defn conjunctionnode [l r]
+(defn conjunction-node [l r]
   (AConjunctPredicate. l r))
 
-(defn equalnode [l r]
+(defn equal-node [l r]
   (AEqualPredicate. l r))
 
-(defn equivalencenode [l r]
+(defn equivalence-node [l r]
   (AEquivalencePredicate. l r))
 
 (defn disjunction-node [l r]
@@ -50,13 +50,13 @@
   (cond (keyword? x) (identifier (name x))
         (number? x) (integer x)))
 
-(def to-ast-map {:less lessnode
-                 :plus plusnode
-                 :and conjunctionnode
-                 :minus minusnode
-                 :unaryminus unaryminusnode
-                 :equals equalnode
-                 :equivalence equivalencenode
+(def to-ast-map {:less less-node
+                 :plus plus-node
+                 :and conjunction-node
+                 :minus minus-node
+                 :unaryminus unaryminus-node
+                 :equals equal-node
+                 :equivalence equivalence-node
                  :or disjunction-node
                  })
 
