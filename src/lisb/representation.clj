@@ -24,6 +24,15 @@
 (defn b< [& args]
   (chain-arity-two :less args))
 
+(defn b> [& args]
+  (chain-arity-two :greater args))
+
+(defn b<= [& args]
+  (chain-arity-two :less-eq args))
+
+(defn b>= [& args]
+  (chain-arity-two :greater-eq args))
+
 (defn b+ [& args]
   (interleave-arity-two :plus args))
 

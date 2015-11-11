@@ -37,7 +37,11 @@
                                                AEqualPredicate
                                                ANotEqualPredicate
                                                AEquivalencePredicate
-                                               ALessPredicate)))
+                                               ALessPredicate
+                                               AGreaterPredicate
+                                               ALessEqualPredicate
+                                               AGreaterEqualPredicate
+                                               )))
 
 (declare to-ast)
 
@@ -63,6 +67,15 @@
 
 (defn less-node [l r]
   (ALessPredicate. l r))
+
+(defn greater-node [l r]
+  (AGreaterPredicate. l r))
+
+(defn less-eq-node [l r]
+  (ALessEqualPredicate. l r))
+
+(defn greater-eq-node [l r]
+  (AGreaterEqualPredicate. l r))
 
 (defn plus-node [l r]
   (AAddExpression. l r))
@@ -161,6 +174,9 @@
         :otherwise x)) ;; FIXME: can/should lists just be passed? looking at comprehension-sets
 
 (def to-ast-map {:less less-node
+                 :greater greater-node
+                 :less-eq less-eq-node
+                 :greater-eq greater-eq-node
                  :plus plus-node
                  :and conjunction-node
                  :minus minus-node

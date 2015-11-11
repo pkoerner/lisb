@@ -23,6 +23,15 @@
       (is (apply eval ss (to-ast (b< 1 2))))
       (is (apply eval ss (to-ast (b< 1 2 3))))
 
+      (is (apply eval ss (to-ast (b> 2 1))))
+      (is (apply eval ss (to-ast (b> 3 2 1))))
+
+      (is (apply eval ss (to-ast (b<= 1 2))))
+      (is (apply eval ss (to-ast (b<= 1 1 3))))
+
+      (is (apply eval ss (to-ast (b>= 2 1))))
+      (is (apply eval ss (to-ast (b>= 3 3 1))))
+
       (is (apply eval ss (to-ast (b< 1 (b+ 1 2)))))
       (is (apply eval ss (to-ast (b< 1 (b+ 1 2 3)))))
 

@@ -14,6 +14,39 @@
                        {:tag :less :children [:b :c]}]}
            (b< :a :b :c)))))
 
+(deftest greater
+  (testing "greater works with two arguments"
+    (is (= {:tag :greater
+            :children [:a :b]}
+           (b> :a :b))))
+  (testing "greater works with more than two arguments"
+    (is (= {:tag :and
+            :children [{:tag :greater :children [:a :b]}
+                       {:tag :greater :children [:b :c]}]}
+           (b> :a :b :c)))))
+
+(deftest less-eq-test
+  (testing "less-eq works with two arguments"
+    (is (= {:tag :less-eq
+            :children [:a :b]}
+           (b<= :a :b))))
+  (testing "less-eq works with more than two arguments"
+    (is (= {:tag :and
+            :children [{:tag :less-eq :children [:a :b]}
+                       {:tag :less-eq :children [:b :c]}]}
+           (b<= :a :b :c)))))
+
+(deftest greater-eq
+  (testing "greater-eq works with two arguments"
+    (is (= {:tag :greater-eq
+            :children [:a :b]}
+           (b>= :a :b))))
+  (testing "greater-eq works with more than two arguments"
+    (is (= {:tag :and
+            :children [{:tag :greater-eq :children [:a :b]}
+                       {:tag :greater-eq :children [:b :c]}]}
+           (b>= :a :b :c)))))
+
 (deftest plus-test
   (testing "plus works with two arguments"
     (is (= {:tag :plus
