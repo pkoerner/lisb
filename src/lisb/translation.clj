@@ -76,7 +76,7 @@
 (defn to-bool-node [p]
   (AConvertBoolExpression. p))
 
-(defn comprehension-set [v p]
+(defn comprehension-set-node [v p]
   (let [vars (map identifier v)]
     (AComprehensionSetExpression. vars p)))
 
@@ -99,7 +99,7 @@
                  :not not-node
                  :not-equals not-equals-node
                  :to-bool to-bool-node
-                 :comp-set comprehension-set
+                 :comp-set comprehension-set-node
                  })
 
 
