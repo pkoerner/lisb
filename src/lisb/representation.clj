@@ -135,6 +135,13 @@
    (let [args (conj (conj (set r) b a))]
      (bmax args))))
 
+(defn bmin
+  ([s]
+   (node :min s))
+  ([a b & r]
+   (let [args (conj (conj (set r) b a))]
+     (bmin args))))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

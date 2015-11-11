@@ -314,3 +314,13 @@
            (bmax 1 2)))
     (is (= {:tag :max :children [#{1 2 3}]}
            (bmax 1 2 3)))))
+
+(deftest min-test
+  (testing "min with a set"
+    (is (= {:tag :min :children [#{1 2 3}]}
+           (bmin #{1 2 3}))))
+  (testing "min with more arguments"
+    (is (= {:tag :min :children [#{1 2}]}
+           (bmin 1 2)))
+    (is (= {:tag :min :children [#{1 2 3}]}
+           (bmin 1 2 3)))))

@@ -42,6 +42,7 @@
                                                ALessEqualPredicate
                                                AGreaterEqualPredicate
                                                AMaxExpression
+                                               AMinExpression
                                                )))
 
 (declare to-ast)
@@ -169,6 +170,9 @@
 (defn max-node [s]
   (AMaxExpression. s))
 
+(defn min-node [s]
+  (AMinExpression. s))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -211,6 +215,7 @@
                  :nat-set nat-set-node
                  :nat1-set nat1-set-node
                  :max max-node
+                 :min min-node
                  })
 
 
