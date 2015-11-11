@@ -8,6 +8,8 @@
                                                ABooleanFalseExpression
                                                AConvertBoolExpression
                                                AIdentifierExpression
+                                               AEmptySetExpression
+                                               ASetExtensionExpression
                                                TIntegerLiteral
                                                TIdentifierLiteral
                                                AConjunctPredicate
@@ -18,6 +20,7 @@
                                                AEquivalencePredicate
                                                ALessPredicate)))
 
+(declare to-ast)
 
 (defn identifier [n]
   (let [token (TIdentifierLiteral. n)]
@@ -26,6 +29,12 @@
 (defn integer [n]
   (let [token (TIntegerLiteral. (str n))]
     (AIntegerExpression. token)))
+
+(defn set-literal [s]
+  (if-not (seq s)
+    (AEmptySetExpression.)
+    (ASetExtensionExpression. (mapcat to-ast s))))
+
 
 (defn boolean-true []
   (ABooleanTrueExpression.))
@@ -71,6 +80,7 @@
         (number? x) (integer x)
         (true? x) (boolean-true)
         (false? x) (boolean-false)
+        (set? x) (set-literal x)
         ))
 
 (def to-ast-map {:less less-node
