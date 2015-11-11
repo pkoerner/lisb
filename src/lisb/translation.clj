@@ -13,6 +13,7 @@
                                                AComprehensionSetExpression
                                                APowSubsetExpression
                                                APow1SubsetExpression
+                                               AFinSubsetExpression
                                                TIntegerLiteral
                                                TIdentifierLiteral
                                                AConjunctPredicate
@@ -88,6 +89,9 @@
 (defn power1-set-node [s]
   (APow1SubsetExpression. s))
 
+(defn finite-subset-node [s]
+  (AFinSubsetExpression. s))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -110,6 +114,7 @@
                  :comp-set comprehension-set-node
                  :power-set power-set-node
                  :power1-set power1-set-node
+                 :finite-subset finite-subset-node
                  })
 
 

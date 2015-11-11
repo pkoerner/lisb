@@ -135,3 +135,10 @@
     (is (= {:tag :power1-set
             :children [#{1 2}]}
            (bpow1 #{1 2})))))
+
+(deftest finset-test
+  (testing "finite subset representation"
+    (is (= {:tag :finite-subset
+            :children [#{1 2}]}
+           (bfin #{1 2})))))
+

@@ -62,6 +62,9 @@
 (defn bpow1 [s]
   (node :power1-set s))
 
+(defn bfin [s]
+  (node :finite-subset s))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall
