@@ -56,6 +56,9 @@
 (defn bset [v p]
   (node :comp-set v p))
 
+(defn bpow [s]
+  (node :power-set s))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

@@ -11,6 +11,7 @@
                                                AEmptySetExpression
                                                ASetExtensionExpression
                                                AComprehensionSetExpression
+                                               APowSubsetExpression
                                                TIntegerLiteral
                                                TIdentifierLiteral
                                                AConjunctPredicate
@@ -77,8 +78,11 @@
   (AConvertBoolExpression. p))
 
 (defn comprehension-set-node [v p]
-  (let [vars (map identifier v)]
+  (let [vars (map identifier v)] ;; FIXME: see literal
     (AComprehensionSetExpression. vars p)))
+
+(defn power-set-node [s]
+  (APowSubsetExpression. s))
 
 (defn literal [x]
   (cond (keyword? x) (identifier x)
@@ -86,7 +90,7 @@
         (true? x) (boolean-true)
         (false? x) (boolean-false)
         (set? x) (set-literal x)
-        :otherwise x))
+        :otherwise x)) ;; FIXME: can/should lists just be passed? looking at comprehension-sets
 
 (def to-ast-map {:less less-node
                  :plus plus-node
@@ -100,6 +104,7 @@
                  :not-equals not-equals-node
                  :to-bool to-bool-node
                  :comp-set comprehension-set-node
+                 :power-set power-set-node
                  })
 
 

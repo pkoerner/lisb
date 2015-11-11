@@ -123,3 +123,9 @@
                        {:tag :and :children [{:tag :less :children [1 :x]}
                                              {:tag :less :children [:x 5]}]}]}
            (bset [:x] (b< 1 :x 5))))))
+
+(deftest powerset-test
+  (testing "powerset representation"
+    (is (= {:tag :power-set
+            :children [#{1 2}]}
+           (bpow #{1 2})))))
