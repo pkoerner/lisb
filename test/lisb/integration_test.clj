@@ -126,4 +126,8 @@
       (is (apply eval ss (to-ast (b= 2 (binc 1)))))
 
       (is (apply eval ss (to-ast (b= 0 (bdec 1)))))
+      
+      (is (apply eval ss (to-ast (b= :x #{[1 2]}))))
+ 
       )))
+

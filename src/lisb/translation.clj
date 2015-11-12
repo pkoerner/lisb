@@ -46,6 +46,7 @@
                                                AMaxExpression
                                                AMinExpression
                                                AModuloExpression
+                                               ACoupleExpression
                                                )))
 
 (declare to-ast)
@@ -187,6 +188,11 @@
 (defn mod-node [n m]
   (AModuloExpression. n m))
 
+(defn maplet-node [[l r]] 
+  (let [[l'] (to-ast l)
+        [r'] (to-ast r)]
+    (ACoupleExpression. [l' r'])))
+
 
 (defn literal [x]
   (cond (keyword? x) (identifier x)
@@ -194,6 +200,7 @@
         (true? x) (boolean-true)
         (false? x) (boolean-false)
         (set? x) (set-literal x)
+        (sequential? x) (maplet-node x)
         :otherwise (println :unhandled-literal x)
         
         ))
