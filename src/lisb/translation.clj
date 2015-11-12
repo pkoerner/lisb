@@ -118,9 +118,11 @@
 (defn to-bool-node [p]
   (AConvertBoolExpression. p))
 
+(defn varlist [& args]
+  args)
+
 (defn comprehension-set-node [v p]
-  (let [vars (map identifier v)] ;; FIXME: see literal
-    (AComprehensionSetExpression. vars p)))
+  (AComprehensionSetExpression. v p))
 
 (defn power-set-node [s]
   (APowSubsetExpression. s))
@@ -192,7 +194,9 @@
         (true? x) (boolean-true)
         (false? x) (boolean-false)
         (set? x) (set-literal x)
-        :otherwise x)) ;; FIXME: can/should lists just be passed? looking at comprehension-sets
+        :otherwise (println :unhandled-literal x)
+        
+        ))
 
 (def to-ast-map {:less less-node
                  :greater greater-node
@@ -232,6 +236,7 @@
                  :max max-node
                  :min min-node
                  :mod mod-node
+                 :var-list varlist
                  })
 
 

@@ -69,7 +69,7 @@
   (node :to-bool a))
 
 (defn bset [v p]
-  (node :comp-set v p))
+  (node :comp-set (apply node :var-list v) p))
 
 (defn bpow [s]
   (node :power-set s))
