@@ -166,5 +166,8 @@
       (is (eval ss (to-ast (b= #{[[1 3] 1] [[1 4] 1]} (bprj1 #{1} #{3, 4})))))
       (is (eval ss (to-ast (b= #{[[1 3] 3] [[1 4] 4]} (bprj2 #{1} #{3, 4})))))
 
+      (is (eval ss (to-ast (b= #{[1 1] [1 2] [2 2]} (bclosure #{[1 2]})))))
+      (is (eval ss (to-ast (b= #{[1 2]} (bclosure1 #{[1 2]})))))
+
       )))
 

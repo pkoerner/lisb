@@ -488,3 +488,15 @@
     (is (= {:tag :proj2
             :children [#{3 1} #{0 1 2}]}
            (bprj2 #{3 1} #{0 1 2})))))
+
+(deftest closure-test
+  (testing "transitive closure representation"
+    (is (= {:tag :closure
+            :children [#{[1 2]}]}
+           (bclosure #{[1 2]})))))
+
+(deftest closure1-test
+  (testing "transitive closure1 representation"
+    (is (= {:tag :closure1
+            :children [#{[1 2]}]}
+           (bclosure1 #{[1 2]})))))

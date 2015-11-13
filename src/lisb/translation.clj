@@ -63,6 +63,8 @@
                                                AParallelProductExpression
                                                AFirstProjectionExpression
                                                ASecondProjectionExpression
+                                               AClosureExpression
+                                               AReflexiveClosureExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -257,6 +259,12 @@
 (defn projection2-node [s t]
   (ASecondProjectionExpression. s t))
 
+(defn closure-node [r]
+  (AReflexiveClosureExpression. r))
+
+(defn closure1-node [r]
+  (AClosureExpression. r))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -323,6 +331,8 @@
                  :parallel-product parallel-product-node
                  :proj1 projection1-node
                  :proj2 projection2-node
+                 :closure closure-node
+                 :closure1 closure1-node
                  })
 
 

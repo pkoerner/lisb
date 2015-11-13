@@ -206,6 +206,12 @@
 (defn bprj2 [s t]
   (node :proj2 s t))
 
+(defn bclosure [r]
+  (node :closure r))
+
+(defn bclosure1 [r]
+  (node :closure1 r))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall
