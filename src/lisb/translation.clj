@@ -67,6 +67,7 @@
                                                AReflexiveClosureExpression
                                                AIterationExpression
                                                ATransFunctionExpression
+                                               ATransRelationExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -273,6 +274,9 @@
 (defn functionise-node [r]
   (ATransFunctionExpression. r))
 
+(defn relationise-node [r]
+  (ATransRelationExpression. r))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -343,6 +347,7 @@
                  :closure1 closure1-node
                  :iterate iterate-node
                  :functionise functionise-node
+                 :relationise relationise-node
                  })
 
 

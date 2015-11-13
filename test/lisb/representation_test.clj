@@ -512,3 +512,9 @@
     (is (= {:tag :functionise
             :children [#{[1 2]}]}
            (bfnc #{[1 2]})))))
+
+(deftest rel-test
+  (testing "function translation representation"
+    (is (= {:tag :relationise
+            :children [#{[1 #{2}]}]}
+           (brel #{[1 #{2}]})))))

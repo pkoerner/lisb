@@ -218,6 +218,9 @@
 (defn bfnc [r]
   (node :functionise r))
 
+(defn brel [r]
+  (node :relationise r))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall
