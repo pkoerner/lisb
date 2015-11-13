@@ -166,6 +166,10 @@
 (defn bran [r]
   (node :range r))
 
+(defn bid [s]
+  (node :identity-relation s))
+
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

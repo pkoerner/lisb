@@ -50,6 +50,7 @@
                                                ARelationsExpression
                                                ADomainExpression
                                                ARangeExpression
+                                               AIdentityExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -205,6 +206,8 @@
 (defn range-node [r]
   (ARangeExpression. r))
 
+(defn identity-node [s]
+  (AIdentityExpression. s))
 
 (defn literal [x]
   (cond (keyword? x) (identifier x)
@@ -259,6 +262,7 @@
                  :relation relations-node
                  :domain domain-node
                  :range range-node
+                 :identity-relation identity-node
                  })
 
 

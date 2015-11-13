@@ -385,3 +385,9 @@
     (is (= {:tag :range
             :children [:a]}
            (bran :a)))))
+
+(deftest identity-test
+  (testing "id works"
+    (is (= {:tag :identity-relation
+            :children [:a]}
+           (bid :a)))))
