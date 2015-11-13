@@ -428,3 +428,16 @@
     (is (= {:tag :relational-image
             :children [#{[1 0] [3 1]} #{0 1 2}]}
            (bimage #{[1 0] [3 1]} #{0 1 2})))))
+
+(deftest override-test
+  (testing "relational override representation with two args"
+    (is (= {:tag :relational-override
+            :children [#{[1 0] [3 1]} #{[1 1]}]}
+           (b<+ #{[1 0] [3 1]} #{[1 1]}))))
+  (testing "relational override representation with more than two args"
+    (is (= {:tag :relational-override
+            :children [{:tag :relational-override :children [#{[1 0] [3 1]} #{[1 1]}]}
+                       #{[2 2]}
+                        ]}
+           (b<+ #{[1 0] [3 1]} #{[1 1]} #{[2 2]})))))
+

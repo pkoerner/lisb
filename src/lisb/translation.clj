@@ -57,6 +57,7 @@
                                                ARangeSubtractionExpression
                                                AReverseExpression
                                                AImageExpression
+                                               AOverwriteExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -233,6 +234,9 @@
 (defn image-node [r s]
   (AImageExpression. r s))
 
+(defn override-node [l r]
+  (AOverwriteExpression. l r))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -293,6 +297,7 @@
                  :range-subtraction range-subtract-node
                  :inverse-relation inverse-node
                  :relational-image image-node
+                 :relational-override override-node
                  })
 
 

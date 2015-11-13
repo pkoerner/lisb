@@ -188,6 +188,9 @@
 (defn bimage [r s]
   (node :relational-image r s))
 
+(defn b<+ [& args]
+  (interleave-arity-two :relational-override args))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall
