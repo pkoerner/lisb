@@ -162,7 +162,8 @@
   (testing "not-equals generates data in a set-like semantics"
     (is (= {:tag :and
             :children [{:tag :not-equals :children [:a :a]}
-                       {:tag :not-equals :children [:a :b]}]}))))
+                       {:tag :not-equals :children [:a :b]}]}
+           (bnot= :a :b :a)))))
 
 (deftest to-bool-test
   (testing "to-bool works as intended"

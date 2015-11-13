@@ -1,5 +1,5 @@
 (ns lisb.representation
-  (require [clojure.math.combinatorics :refer [combinations]]))
+  (:require [clojure.math.combinatorics :refer [combinations]]))
 
 
 (defn node [tag & children]
@@ -138,14 +138,14 @@
   ([s]
    (node :max s))
   ([a b & r]
-   (let [args (conj (conj (set r) b a))]
+   (let [args (conj (set r) b a)]
      (bmax args))))
 
 (defn bmin
   ([s]
    (node :min s))
   ([a b & r]
-   (let [args (conj (conj (set r) b a))]
+   (let [args (conj (set r) b a)]
      (bmin args))))
 
 (defn bmod [n m]
