@@ -453,3 +453,14 @@
                        #{[2 2]}
                         ]}
            (b>< #{[1 0] [3 1]} #{[1 1]} #{[2 2]})))))
+
+(deftest composition-test
+  (testing "relational composition representation with two args"
+    (is (= {:tag :relational-composition
+            :children [#{[1 0] [3 1]} #{[1 1]}]}
+           (bcomp #{[1 0] [3 1]} #{[1 1]}))))
+  (testing "relational composition representation with more than two args"
+    (is (= {:tag :relational-composition
+            :children [{:tag :relational-composition :children [#{[1 0] [3 1]} #{[1 1]}]}
+                       #{[2 2]}]}
+           (bcomp #{[1 0] [3 1]} #{[1 1]} #{[2 2]})))))
