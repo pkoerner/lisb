@@ -404,3 +404,15 @@
     (is (= {:tag :domain-subtraction
             :children [#{1 2} #{[1 0] [3 1]}]}
            (b<<| #{1 2} #{[1 0] [3 1]})))))
+
+(deftest range-restriction-test
+  (testing "range restriction representation"
+    (is (= {:tag :range-restriction
+            :children [#{[1 0] [3 1]} #{1 2}]}
+           (b|> #{[1 0] [3 1]} #{1 2})))))
+
+(deftest range-subtraction-test
+  (testing "range subtraction representation"
+    (is (= {:tag :range-subtraction
+            :children [#{[1 0] [3 1]} #{1 2}]}
+           (b|>> #{[1 0] [3 1]} #{1 2})))))

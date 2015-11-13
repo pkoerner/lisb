@@ -176,6 +176,12 @@
 (defn b<<| [s r]
   (node :domain-subtraction s r))
 
+(defn b|> [r s]
+  (node :range-restriction r s))
+
+(defn b|>> [r s]
+  (node :range-subtraction r s))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall
