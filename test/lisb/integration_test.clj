@@ -147,5 +147,7 @@
       (is (eval ss (to-ast (b= #{[3 0]} (b|>> #{[1 1] [3 0]} #{1 2})))))
 
       (is (eval ss (to-ast (b= #{[3 0]} (binverse #{[0 3]})))))
+
+      (is (eval ss (to-ast (b= #{2} (bimage #{[1 2] [0 3]} #{1 2})))))
       )))
 

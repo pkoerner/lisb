@@ -185,6 +185,9 @@
 (defn binverse [r]
   (node :inverse-relation r))
 
+(defn bimage [r s]
+  (node :relational-image r s))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

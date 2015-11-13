@@ -422,3 +422,9 @@
     (is (= {:tag :inverse-relation
             :children [#{[1 0] [3 1]}]}
            (binverse #{[1 0] [3 1]})))))
+
+(deftest image-test
+  (testing "relational image representation"
+    (is (= {:tag :relational-image
+            :children [#{[1 0] [3 1]} #{0 1 2}]}
+           (bimage #{[1 0] [3 1]} #{0 1 2})))))

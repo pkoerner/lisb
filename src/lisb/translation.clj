@@ -56,6 +56,7 @@
                                                ARangeRestrictionExpression
                                                ARangeSubtractionExpression
                                                AReverseExpression
+                                               AImageExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -229,6 +230,9 @@
 (defn inverse-node [r]
   (AReverseExpression. r))
 
+(defn image-node [r s]
+  (AImageExpression. r s))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -288,6 +292,7 @@
                  :range-restriction range-restrict-node
                  :range-subtraction range-subtract-node
                  :inverse-relation inverse-node
+                 :relational-image image-node
                  })
 
 
