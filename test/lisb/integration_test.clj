@@ -159,5 +159,9 @@
 
       (is (eval ss (to-ast (b= #{[0 0]} (bcomp #{[0 1]} #{[1 0]})))))
       (is (eval ss (to-ast (b= #{[0 5]} (bcomp #{[0 1]} #{[1 2]} #{[2 5]})))))
+
+      (is (eval ss (to-ast (b= #{[[0 0] [1 1]] [[0 0] [2 1]]} (b|| #{[0 1] [0 2]} #{[0 1]})))))
+      (is (eval ss (to-ast (b= :a (b|| #{[0 1] [0 2]} #{[0 1]} #{[1 1]}))))) ;; if it works, that's good enough for me
+
       )))
 

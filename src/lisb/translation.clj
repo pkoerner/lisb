@@ -60,6 +60,7 @@
                                                AOverwriteExpression
                                                ADirectProductExpression
                                                ACompositionExpression
+                                               AParallelProductExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -245,6 +246,9 @@
 (defn comp-node [l r]
   (ACompositionExpression. l r))
 
+(defn parallel-product-node [l r]
+  (AParallelProductExpression. l r))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -308,6 +312,7 @@
                  :relational-override override-node
                  :direct-product direct-product-node
                  :relational-composition comp-node
+                 :parallel-product parallel-product-node
                  })
 
 

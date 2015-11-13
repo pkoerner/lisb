@@ -464,3 +464,14 @@
             :children [{:tag :relational-composition :children [#{[1 0] [3 1]} #{[1 1]}]}
                        #{[2 2]}]}
            (bcomp #{[1 0] [3 1]} #{[1 1]} #{[2 2]})))))
+
+(deftest parallel-product-test
+  (testing "parallel product representation with two args"
+    (is (= {:tag :parallel-product
+            :children [#{[1 0] [3 1]} #{[1 1]}]}
+           (b|| #{[1 0] [3 1]} #{[1 1]}))))
+  (testing "parallel product representation with more than two args"
+    (is (= {:tag :parallel-product
+            :children [{:tag :parallel-product :children [#{[1 0] [3 1]} #{[1 1]}]}
+                       #{[2 2]}]}
+           (b|| #{[1 0] [3 1]} #{[1 1]} #{[2 2]})))))

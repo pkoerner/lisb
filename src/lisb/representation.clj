@@ -197,6 +197,9 @@
 (defn bcomp [& args]
   (interleave-arity-two :relational-composition args))
 
+(defn b|| [& args]
+  (interleave-arity-two :parallel-product args))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall
