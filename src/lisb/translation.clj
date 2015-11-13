@@ -49,7 +49,7 @@
                                                ACoupleExpression
                                                )))
 
-(declare to-ast)
+(declare to-ast-wrapped to-ast)
 
 (defn identifier [n]
   (let [token (TIdentifierLiteral. (name n))]
@@ -62,7 +62,7 @@
 (defn set-literal [s]
   (if-not (seq s)
     (AEmptySetExpression.)
-    (ASetExtensionExpression. (mapcat to-ast s))))
+    (ASetExtensionExpression. (map to-ast s))))
 
 
 (defn boolean-true []
@@ -189,8 +189,8 @@
   (AModuloExpression. n m))
 
 (defn maplet-node [[l r]] 
-  (let [[l'] (to-ast l)
-        [r'] (to-ast r)]
+  (let [l' (to-ast l)
+        r' (to-ast r)]
     (ACoupleExpression. [l' r'])))
 
 
@@ -249,10 +249,13 @@
 
 (defn to-ast-inner [data]
   (if (map? data)
-      (let [processed-args (walk to-ast-inner identity (:children data))]
+      (let [processed-args (to-ast-wrapped (:children data))]
         (apply (to-ast-map (:tag data)) processed-args))
       (literal data)))
 
+(defn to-ast-wrapped [datav]
+  (walk to-ast-inner identity datav))
 
 (defn to-ast [data]
-  (walk to-ast-inner  identity [ data]))
+  (first (to-ast-wrapped [data]))) ; wraps data into a list and unwraps it on return
+
