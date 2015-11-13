@@ -506,3 +506,9 @@
     (is (= {:tag :iterate
             :children [#{[1 2] [2 3]} 2]}
            (biterate #{[1 2] [2 3]} 2)))))
+
+(deftest fnc-test
+  (testing "function translation representation"
+    (is (= {:tag :functionise
+            :children [#{[1 2]}]}
+           (bfnc #{[1 2]})))))

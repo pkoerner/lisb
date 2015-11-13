@@ -215,6 +215,9 @@
 (defn biterate [r n]
   (node :iterate r n))
 
+(defn bfnc [r]
+  (node :functionise r))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall
