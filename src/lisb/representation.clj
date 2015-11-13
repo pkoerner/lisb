@@ -157,6 +157,9 @@
 (defn bdec [n]
   (b- n 1))
 
+(defn b<-> [& args]
+  (interleave-arity-two :relation args))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

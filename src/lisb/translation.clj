@@ -47,6 +47,7 @@
                                                AMinExpression
                                                AModuloExpression
                                                ACoupleExpression
+                                               ARelationsExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -193,6 +194,8 @@
         r' (to-ast r)]
     (ACoupleExpression. [l' r'])))
 
+(defn relations-node [l r]
+  (ARelationsExpression. l r))
 
 (defn literal [x]
   (cond (keyword? x) (identifier x)
@@ -244,6 +247,7 @@
                  :min min-node
                  :mod mod-node
                  :var-list varlist
+                 :relation relations-node
                  })
 
 

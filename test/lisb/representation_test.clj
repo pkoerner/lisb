@@ -361,3 +361,14 @@
     (is (= {:tag :minus :children [5 1]}
            (bdec 5)))))
 
+
+(deftest relation-test
+  (testing "relation works with two arguments"
+    (is (= {:tag :relation
+            :children [#{1 2} #{2 3}]}
+           (b<-> #{1 2} #{2 3}))))
+  (testing "relation works with more than two arguments"
+    (is (= {:tag :relation
+            :children [{:tag :relation :children [ #{1 2} #{2 3}]}
+                       #{3 4}]}
+           (b<-> #{1 2} #{2 3} #{3 4})))))

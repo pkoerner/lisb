@@ -128,6 +128,9 @@
       (is (eval ss (to-ast (b= 0 (bdec 1)))))
       
       (is (eval ss (to-ast (b= :x #{[1 2]}))))
+
+      (is (eval ss (to-ast (bmember :x (b<-> #{1 2} #{3 4})))))
+      (is (eval ss (to-ast (bmember :x (b<-> #{1 2} #{3 4} #{5 6})))))
  
       )))
 
