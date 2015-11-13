@@ -163,5 +163,8 @@
       (is (eval ss (to-ast (b= #{[[0 0] [1 1]] [[0 0] [2 1]]} (b|| #{[0 1] [0 2]} #{[0 1]})))))
       (is (eval ss (to-ast (b= :a (b|| #{[0 1] [0 2]} #{[0 1]} #{[1 1]}))))) ;; if it works, that's good enough for me
 
+      (is (eval ss (to-ast (b= #{[[1 3] 1] [[1 4] 1]} (bprj1 #{1} #{3, 4})))))
+      (is (eval ss (to-ast (b= #{[[1 3] 3] [[1 4] 4]} (bprj2 #{1} #{3, 4})))))
+
       )))
 

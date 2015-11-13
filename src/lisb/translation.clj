@@ -61,6 +61,8 @@
                                                ADirectProductExpression
                                                ACompositionExpression
                                                AParallelProductExpression
+                                               AFirstProjectionExpression
+                                               ASecondProjectionExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -249,6 +251,12 @@
 (defn parallel-product-node [l r]
   (AParallelProductExpression. l r))
 
+(defn projection1-node [s t]
+  (AFirstProjectionExpression. s t))
+
+(defn projection2-node [s t]
+  (ASecondProjectionExpression. s t))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -313,6 +321,8 @@
                  :direct-product direct-product-node
                  :relational-composition comp-node
                  :parallel-product parallel-product-node
+                 :proj1 projection1-node
+                 :proj2 projection2-node
                  })
 
 

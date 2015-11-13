@@ -475,3 +475,16 @@
             :children [{:tag :parallel-product :children [#{[1 0] [3 1]} #{[1 1]}]}
                        #{[2 2]}]}
            (b|| #{[1 0] [3 1]} #{[1 1]} #{[2 2]})))))
+
+
+(deftest prj1-test
+  (testing "projection1 function representation"
+    (is (= {:tag :proj1
+            :children [#{3 1} #{0 1 2}]}
+           (bprj1 #{3 1} #{0 1 2})))))
+
+(deftest prj2-test
+  (testing "projection2 function representation"
+    (is (= {:tag :proj2
+            :children [#{3 1} #{0 1 2}]}
+           (bprj2 #{3 1} #{0 1 2})))))

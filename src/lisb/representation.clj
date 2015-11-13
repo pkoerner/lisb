@@ -200,6 +200,12 @@
 (defn b|| [& args]
   (interleave-arity-two :parallel-product args))
 
+(defn bprj1 [s t]
+  (node :proj1 s t))
+
+(defn bprj2 [s t]
+  (node :proj2 s t))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall
