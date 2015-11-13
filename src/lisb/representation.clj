@@ -182,6 +182,9 @@
 (defn b|>> [r s]
   (node :range-subtraction r s))
 
+(defn binverse [r]
+  (node :inverse-relation r))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

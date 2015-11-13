@@ -55,6 +55,7 @@
                                                ADomainSubtractionExpression
                                                ARangeRestrictionExpression
                                                ARangeSubtractionExpression
+                                               AReverseExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -225,6 +226,9 @@
 (defn range-subtract-node [r s]
   (ARangeSubtractionExpression. r s))
 
+(defn inverse-node [r]
+  (AReverseExpression. r))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -283,6 +287,7 @@
                  :domain-subtraction dom-subtract-node
                  :range-restriction range-restrict-node
                  :range-subtraction range-subtract-node
+                 :inverse-relation inverse-node
                  })
 
 

@@ -416,3 +416,9 @@
     (is (= {:tag :range-subtraction
             :children [#{[1 0] [3 1]} #{1 2}]}
            (b|>> #{[1 0] [3 1]} #{1 2})))))
+
+(deftest inverse-test
+  (testing "inverse relation representation"
+    (is (= {:tag :inverse-relation
+            :children [#{[1 0] [3 1]}]}
+           (binverse #{[1 0] [3 1]})))))
