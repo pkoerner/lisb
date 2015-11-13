@@ -131,6 +131,10 @@
 
       (is (eval ss (to-ast (bmember :x (b<-> #{1 2} #{3 4})))))
       (is (eval ss (to-ast (bmember :x (b<-> #{1 2} #{3 4} #{5 6})))))
- 
+
+      (is (eval ss (to-ast (b= #{1 2} (bdom #{[1 0] [1 1] [2 42]})))))
+
+      (is (eval ss (to-ast (b= #{0 1 42} (bran #{[1 0] [1 1] [2 42]})))))
+
       )))
 

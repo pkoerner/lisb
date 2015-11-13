@@ -160,6 +160,12 @@
 (defn b<-> [& args]
   (interleave-arity-two :relation args))
 
+(defn bdom [r]
+  (node :domain r))
+
+(defn bran [r]
+  (node :range r))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

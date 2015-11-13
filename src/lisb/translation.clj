@@ -48,6 +48,8 @@
                                                AModuloExpression
                                                ACoupleExpression
                                                ARelationsExpression
+                                               ADomainExpression
+                                               ARangeExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -197,6 +199,13 @@
 (defn relations-node [l r]
   (ARelationsExpression. l r))
 
+(defn domain-node [r]
+  (ADomainExpression. r))
+
+(defn range-node [r]
+  (ARangeExpression. r))
+
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -248,6 +257,8 @@
                  :mod mod-node
                  :var-list varlist
                  :relation relations-node
+                 :domain domain-node
+                 :range range-node
                  })
 
 

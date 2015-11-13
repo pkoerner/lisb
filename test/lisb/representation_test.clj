@@ -372,3 +372,16 @@
             :children [{:tag :relation :children [ #{1 2} #{2 3}]}
                        #{3 4}]}
            (b<-> #{1 2} #{2 3} #{3 4})))))
+
+
+(deftest domain-test
+  (testing "domain works"
+    (is (= {:tag :domain
+            :children [:a]}
+           (bdom :a)))))
+
+(deftest range-test
+  (testing "range works"
+    (is (= {:tag :range
+            :children [:a]}
+           (bran :a)))))
