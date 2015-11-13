@@ -170,6 +170,9 @@
   (node :identity-relation s))
 
 
+(defn b<| [s r]
+  (node :domain-restriction s r))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

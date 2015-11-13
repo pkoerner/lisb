@@ -391,3 +391,10 @@
     (is (= {:tag :identity-relation
             :children [:a]}
            (bid :a)))))
+
+
+(deftest domain-restriction-test
+  (testing "domain restriction representation"
+    (is (= {:tag :domain-restriction
+            :children [#{1 2} #{[1 0] [3 1]}]}
+           (b<| #{1 2} #{[1 0] [3 1]})))))
