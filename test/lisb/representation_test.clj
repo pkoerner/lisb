@@ -500,3 +500,9 @@
     (is (= {:tag :closure1
             :children [#{[1 2]}]}
            (bclosure1 #{[1 2]})))))
+
+(deftest iteration-test
+  (testing "iteration representation"
+    (is (= {:tag :iterate
+            :children [#{[1 2] [2 3]} 2]}
+           (biterate #{[1 2] [2 3]} 2)))))

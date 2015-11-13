@@ -212,6 +212,9 @@
 (defn bclosure1 [r]
   (node :closure1 r))
 
+(defn biterate [r n]
+  (node :iterate r n))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

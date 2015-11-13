@@ -65,6 +65,7 @@
                                                ASecondProjectionExpression
                                                AClosureExpression
                                                AReflexiveClosureExpression
+                                               AIterationExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -265,6 +266,9 @@
 (defn closure1-node [r]
   (AClosureExpression. r))
 
+(defn iterate-node [r n]
+  (AIterationExpression. r n))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -333,6 +337,7 @@
                  :proj2 projection2-node
                  :closure closure-node
                  :closure1 closure1-node
+                 :iterate iterate-node
                  })
 
 

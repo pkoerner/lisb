@@ -169,5 +169,7 @@
       (is (eval ss (to-ast (b= #{[1 1] [1 2] [2 2]} (bclosure #{[1 2]})))))
       (is (eval ss (to-ast (b= #{[1 2]} (bclosure1 #{[1 2]})))))
 
+      (is (eval ss (to-ast (b= #{[1 3] [4 2] [5 3]} (biterate #{[1 2] [2 3] [4 5] [5 2]} 2)))))
+
       )))
 
