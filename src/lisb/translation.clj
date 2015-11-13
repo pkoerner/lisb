@@ -58,6 +58,7 @@
                                                AReverseExpression
                                                AImageExpression
                                                AOverwriteExpression
+                                               ADirectProductExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -237,6 +238,9 @@
 (defn override-node [l r]
   (AOverwriteExpression. l r))
 
+(defn direct-product-node [l r]
+  (ADirectProductExpression. l r))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -298,6 +302,7 @@
                  :inverse-relation inverse-node
                  :relational-image image-node
                  :relational-override override-node
+                 :direct-product direct-product-node
                  })
 
 

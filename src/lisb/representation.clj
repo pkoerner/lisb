@@ -191,6 +191,9 @@
 (defn b<+ [& args]
   (interleave-arity-two :relational-override args))
 
+(defn b>< [& args]
+  (interleave-arity-two :direct-product args))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

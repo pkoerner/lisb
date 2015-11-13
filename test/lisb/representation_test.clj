@@ -441,3 +441,15 @@
                         ]}
            (b<+ #{[1 0] [3 1]} #{[1 1]} #{[2 2]})))))
 
+
+(deftest product-test
+  (testing "direct product representation with two args"
+    (is (= {:tag :direct-product
+            :children [#{[1 0] [3 1]} #{[1 1]}]}
+           (b>< #{[1 0] [3 1]} #{[1 1]}))))
+  (testing "direct product representation with more than two args"
+    (is (= {:tag :direct-product
+            :children [{:tag :direct-product :children [#{[1 0] [3 1]} #{[1 1]}]}
+                       #{[2 2]}
+                        ]}
+           (b>< #{[1 0] [3 1]} #{[1 1]} #{[2 2]})))))
