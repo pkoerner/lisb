@@ -398,3 +398,9 @@
     (is (= {:tag :domain-restriction
             :children [#{1 2} #{[1 0] [3 1]}]}
            (b<| #{1 2} #{[1 0] [3 1]})))))
+
+(deftest domain-subtraction-test
+  (testing "domain subtraction representation"
+    (is (= {:tag :domain-subtraction
+            :children [#{1 2} #{[1 0] [3 1]}]}
+           (b<<| #{1 2} #{[1 0] [3 1]})))))

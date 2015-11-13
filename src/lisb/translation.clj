@@ -52,6 +52,7 @@
                                                ARangeExpression
                                                AIdentityExpression
                                                ADomainRestrictionExpression
+                                               ADomainSubtractionExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -213,6 +214,9 @@
 (defn dom-restrict-node [s r]
   (ADomainRestrictionExpression. s r))
 
+(defn dom-subtract-node [s r]
+  (ADomainSubtractionExpression. s r))
+
 
 (defn literal [x]
   (cond (keyword? x) (identifier x)
@@ -269,6 +273,7 @@
                  :range range-node
                  :identity-relation identity-node
                  :domain-restriction dom-restrict-node
+                 :domain-subtraction dom-subtract-node
                  })
 
 
