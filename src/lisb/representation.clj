@@ -261,9 +261,7 @@
 (defn binterval [from to]
   (node :interval from to))
 
-; TODO: - implication (is it left- or right-associative?)
-;       - exists
-;       - forall
+; TODO: - exists
 ;       - negations for subset/superset, strict/non-strict
 ;       - generalized union/intersection, with/without predicate
 ;       - power (right-associative)
