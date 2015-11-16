@@ -591,3 +591,27 @@
                         :children [#{1 2} #{3 4}]}
                         #{5 6}]}
            (b>-> #{1 2} #{3 4} #{5 6})))))
+
+(deftest partial-bij-test
+  (testing "partial bijection with two arguments"
+    (is (= {:tag :partial-bijection
+            :children [#{1 2} #{3 4}]}
+           (b>+>> #{1 2} #{3 4}))))
+  (testing "partial bijection with more than two arguments"
+    (is (= {:tag :partial-bijection
+            :children [{:tag :partial-bijection
+                        :children [#{1 2} #{3 4}]}
+                        #{5 6}]}
+           (b>+>> #{1 2} #{3 4} #{5 6})))))
+
+(deftest total-bij-test
+  (testing "total bijection with two arguments"
+    (is (= {:tag :total-bijection
+            :children [#{1 2} #{3 4}]}
+           (b>->> #{1 2} #{3 4}))))
+  (testing "total bijection with more than two arguments"
+    (is (= {:tag :total-bijection
+            :children [{:tag :total-bijection
+                        :children [#{1 2} #{3 4}]}
+                        #{5 6}]}
+           (b>->> #{1 2} #{3 4} #{5 6})))))

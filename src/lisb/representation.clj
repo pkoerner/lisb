@@ -239,6 +239,12 @@
 (defn b>-> [& args]
   (interleave-arity-two :total-injection args))
 
+(defn b>+>> [& args]
+  (interleave-arity-two :partial-bijection args))
+
+(defn b>->> [& args]
+  (interleave-arity-two :total-bijection args))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall
