@@ -230,6 +230,9 @@
 (defn b+->> [& args]
   (interleave-arity-two :partial-surjection args))
 
+(defn b-->> [& args]
+  (interleave-arity-two :total-surjection args))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

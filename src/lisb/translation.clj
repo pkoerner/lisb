@@ -71,6 +71,7 @@
                                                APartialFunctionExpression
                                                ATotalFunctionExpression
                                                APartialSurjectionExpression
+                                               ATotalSurjectionExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -289,6 +290,9 @@
 (defn partial-surjection-node [l r]
   (APartialSurjectionExpression. l r))
 
+(defn total-surjection-node [l r]
+  (ATotalSurjectionExpression. l r))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -363,6 +367,7 @@
                  :partial-fn partial-function-node
                  :total-fn total-function-node
                  :partial-surjection partial-surjection-node
+                 :total-surjection total-surjection-node
                  })
 
 

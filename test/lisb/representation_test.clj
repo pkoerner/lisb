@@ -555,3 +555,15 @@
                         :children [#{1 2} #{3 4}]}
                         #{5 6}]}
            (b+->> #{1 2} #{3 4} #{5 6})))))
+
+(deftest total-surj-test
+  (testing "total surjection with two arguments"
+    (is (= {:tag :total-surjection
+            :children [#{1 2} #{3 4}]}
+           (b-->> #{1 2} #{3 4}))))
+  (testing "total surjection with more than two arguments"
+    (is (= {:tag :total-surjection
+            :children [{:tag :total-surjection
+                        :children [#{1 2} #{3 4}]}
+                        #{5 6}]}
+           (b-->> #{1 2} #{3 4} #{5 6})))))
