@@ -530,3 +530,14 @@
                         :children [#{1 2} #{3 4}]}
                         #{5 6}]}
            (b+-> #{1 2} #{3 4} #{5 6})))))
+
+(deftest total-fn-test
+  (testing "total function with two arguments"
+    (is (= {:tag :total-fn
+            :children [#{1 2} #{3 4}]}
+           (b--> #{1 2} #{3 4})))
+    (is (= {:tag :total-fn
+            :children [{:tag :total-fn
+                        :children [#{1 2} #{3 4}]}
+                        #{5 6}]}
+           (b--> #{1 2} #{3 4} #{5 6})))))

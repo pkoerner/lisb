@@ -224,6 +224,9 @@
 (defn b+-> [& args]
   (interleave-arity-two :partial-fn args))
 
+(defn b--> [& args]
+  (interleave-arity-two :total-fn args))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall
