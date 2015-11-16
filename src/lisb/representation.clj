@@ -255,6 +255,9 @@
 (defn b=> [& args]
   (interleave-arity-two :implication args))
 
+(defn bforall [identifiers impl]
+  (node :forall (apply node :var-list identifiers) impl))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

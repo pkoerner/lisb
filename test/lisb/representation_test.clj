@@ -650,3 +650,11 @@
                        :c]}
            (b=> :a :b :c)))))
 
+(deftest forall-test
+  (testing "universal quantification representation"
+    (is (= {:tag :forall
+            :children [{:tag :var-list
+                        :children [:x]}
+                       {:tag :implication
+                        :children [:a :b]}]}
+           (bforall [:x] (b=> :a :b))))))

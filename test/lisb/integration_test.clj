@@ -208,5 +208,7 @@
       (is (eval ss (to-ast (b=> (b= true true) (b= true true)))))
       (is (eval ss (to-ast (b=> (b= true true) (b= true false) (b= true true)))))
 
+      (is (eval ss (to-ast (bforall [:x] (b=> (b= :x false) (b= true true))))))
+      (is (eval ss (to-ast (bforall [:x :y] (b=> (b< 0 :x :y 3) (b<= (binc :x) :y))))))
       )))
 

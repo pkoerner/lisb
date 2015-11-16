@@ -79,6 +79,7 @@
                                                ALambdaExpression
                                                AFunctionExpression
                                                AImplicationPredicate
+                                               AForallPredicate
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -321,6 +322,9 @@
 (defn implication-node [l r]
   (AImplicationPredicate. l r))
 
+(defn forall-node [identifiers impl]
+  (AForallPredicate. identifiers impl))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -403,6 +407,7 @@
                  :lambda lambda-node
                  :fn-application fn-application-node
                  :implication implication-node
+                 :forall forall-node
                  })
 
 
