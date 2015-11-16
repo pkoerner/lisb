@@ -249,6 +249,9 @@
   (let [vars (apply node :var-list identifiers)]
     (node :lambda vars pred expr)))
 
+(defn bapply [f & args]
+  (apply node :fn-application f args))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

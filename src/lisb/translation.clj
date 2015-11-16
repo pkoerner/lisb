@@ -77,6 +77,7 @@
                                                APartialBijectionExpression
                                                ATotalBijectionExpression
                                                ALambdaExpression
+                                               AFunctionExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -313,6 +314,9 @@
 (defn lambda-node [vs p e]
   (ALambdaExpression. vs p e))
 
+(defn fn-application-node [f & args]
+  (AFunctionExpression. f args))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -393,6 +397,7 @@
                  :partial-bijection partial-bijection-node
                  :total-bijection total-bijection-node
                  :lambda lambda-node
+                 :fn-application fn-application-node
                  })
 
 

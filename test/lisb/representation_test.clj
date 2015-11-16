@@ -629,3 +629,11 @@
                                                {:tag :less :children [:x 5]}]}]}
                        :x]}
            (blambda [:x :y] (band (b= :x :y) (b< 2 :x 5)) :x)))))
+
+(deftest apply-test
+  (testing "function application representation"
+    (is  (= {:tag :fn-application
+             :children [#{[[1 2] 3]}
+                        1
+                        2]}
+            (bapply #{[[1 2] 3]} 1 2)))))

@@ -200,5 +200,10 @@
       (is (eval ss (to-ast (b= :a #{(b>->> #{1 2} #{3 4} #{5 6})}))))
 
       (is (eval ss (to-ast (b= #{[3 9] [4 16]} (blambda [:x] (b< 2 :x 5) (b* :x :x))))))
+
+      (is (eval ss (to-ast (b= 2 (bapply #{[1 2]} 1)))))
+      (is (eval ss (to-ast (b= 3 (bapply #{[[1 2] 3]} 1 2)))))
+      (is (eval ss (to-ast (b= 3 (bapply #{[[1 2] 3]} [1 2])))))
+
       )))
 
