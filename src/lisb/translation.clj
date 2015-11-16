@@ -68,6 +68,7 @@
                                                AIterationExpression
                                                ATransFunctionExpression
                                                ATransRelationExpression
+                                               APartialFunctionExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -277,6 +278,9 @@
 (defn relationise-node [r]
   (ATransRelationExpression. r))
 
+(defn partial-function-node [l r]
+  (APartialFunctionExpression. l r))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -348,6 +352,7 @@
                  :iterate iterate-node
                  :functionise functionise-node
                  :relationise relationise-node
+                 :partial-fn partial-function-node
                  })
 
 

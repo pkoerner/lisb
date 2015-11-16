@@ -519,3 +519,14 @@
     (is (= {:tag :relationise
             :children [#{[1 #{2}]}]}
            (brel #{[1 #{2}]})))))
+
+(deftest partial-fn-test
+  (testing "partial function with two arguments"
+    (is (= {:tag :partial-fn
+            :children [#{1 2} #{3 4}]}
+           (b+-> #{1 2} #{3 4})))
+    (is (= {:tag :partial-fn
+            :children [{:tag :partial-fn
+                        :children [#{1 2} #{3 4}]}
+                        #{5 6}]}
+           (b+-> #{1 2} #{3 4} #{5 6})))))

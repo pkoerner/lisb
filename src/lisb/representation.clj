@@ -221,6 +221,9 @@
 (defn brel [r]
   (node :relationise r))
 
+(defn b+-> [& args]
+  (interleave-arity-two :partial-fn args))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall
