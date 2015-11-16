@@ -4,11 +4,11 @@
   (:require [lisb.translation :refer [to-ast]]))
 
 
+
 (defn nqueens
   "the n-queens problem in B using lisp-like syntax"
-  [size]
-  (let [ss (state-space)
-        width (binterval 1 :n)
+  ([size ss]
+  (let [width (binterval 1 :n)
         repr (band (b= :n size)
                    (bmember :queens (b>-> width width))
                    (bforall [:q1 :q2]
@@ -19,3 +19,8 @@
                                        (bnot= (b+ (bapply :queens :q1) (b- :q1 :q2)) (bapply :queens :q2))))))
         result (eval ss (to-ast repr))]
     (prn result)))
+  ([size]
+   (defonce ss (state-space))
+   (nqueens size ss)))
+
+
