@@ -245,6 +245,10 @@
 (defn b>->> [& args]
   (interleave-arity-two :total-bijection args))
 
+(defn blambda [identifiers pred expr]
+  (let [vars (apply node :var-list identifiers)]
+    (node :lambda vars pred expr)))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

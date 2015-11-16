@@ -615,3 +615,17 @@
                         :children [#{1 2} #{3 4}]}
                         #{5 6}]}
            (b>->> #{1 2} #{3 4} #{5 6})))))
+
+
+(deftest lambda-test
+  (testing "lambda representation"
+    (is (= {:tag :lambda
+            :children [{:tag :var-list
+                        :children [:x :y]}
+                       {:tag :and
+                        :children [{:tag :equals :children [:x :y]}
+                                   {:tag :and
+                                    :children [{:tag :less :children [2 :x]}
+                                               {:tag :less :children [:x 5]}]}]}
+                       :x]}
+           (blambda [:x :y] (band (b= :x :y) (b< 2 :x 5)) :x)))))
