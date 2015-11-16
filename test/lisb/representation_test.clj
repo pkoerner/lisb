@@ -541,3 +541,14 @@
                         :children [#{1 2} #{3 4}]}
                         #{5 6}]}
            (b--> #{1 2} #{3 4} #{5 6})))))
+
+(deftest partial-surj-test
+  (testing "total function with two arguments"
+    (is (= {:tag :partial-surjection
+            :children [#{1 2} #{3 4}]}
+           (b+->> #{1 2} #{3 4})))
+    (is (= {:tag :partial-surjection
+            :children [{:tag :partial-surjection
+                        :children [#{1 2} #{3 4}]}
+                        #{5 6}]}
+           (b+->> #{1 2} #{3 4} #{5 6})))))

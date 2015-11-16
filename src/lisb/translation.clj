@@ -70,6 +70,7 @@
                                                ATransRelationExpression
                                                APartialFunctionExpression
                                                ATotalFunctionExpression
+                                               APartialSurjectionExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -285,6 +286,9 @@
 (defn total-function-node [l r]
   (ATotalFunctionExpression. l r))
 
+(defn partial-surjection-node [l r]
+  (APartialSurjectionExpression. l r))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -358,6 +362,7 @@
                  :relationise relationise-node
                  :partial-fn partial-function-node
                  :total-fn total-function-node
+                 :partial-surjection partial-surjection-node
                  })
 
 
