@@ -524,7 +524,8 @@
   (testing "partial function with two arguments"
     (is (= {:tag :partial-fn
             :children [#{1 2} #{3 4}]}
-           (b+-> #{1 2} #{3 4})))
+           (b+-> #{1 2} #{3 4}))))
+  (testing "partial function with more than two arguments"
     (is (= {:tag :partial-fn
             :children [{:tag :partial-fn
                         :children [#{1 2} #{3 4}]}
@@ -535,7 +536,8 @@
   (testing "total function with two arguments"
     (is (= {:tag :total-fn
             :children [#{1 2} #{3 4}]}
-           (b--> #{1 2} #{3 4})))
+           (b--> #{1 2} #{3 4}))))
+  (testing "total function with more than two arguments"
     (is (= {:tag :total-fn
             :children [{:tag :total-fn
                         :children [#{1 2} #{3 4}]}
@@ -543,10 +545,11 @@
            (b--> #{1 2} #{3 4} #{5 6})))))
 
 (deftest partial-surj-test
-  (testing "total function with two arguments"
+  (testing "partial surjection with two arguments"
     (is (= {:tag :partial-surjection
             :children [#{1 2} #{3 4}]}
-           (b+->> #{1 2} #{3 4})))
+           (b+->> #{1 2} #{3 4}))))
+  (testing "partial surjection with more than two arguments"
     (is (= {:tag :partial-surjection
             :children [{:tag :partial-surjection
                         :children [#{1 2} #{3 4}]}
