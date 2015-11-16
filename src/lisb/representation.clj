@@ -236,6 +236,9 @@
 (defn b>+> [& args]
   (interleave-arity-two :partial-injection args))
 
+(defn b>-> [& args]
+  (interleave-arity-two :total-injection args))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

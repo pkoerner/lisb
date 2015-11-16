@@ -73,6 +73,7 @@
                                                APartialSurjectionExpression
                                                ATotalSurjectionExpression
                                                APartialInjectionExpression
+                                               ATotalInjectionExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -297,6 +298,9 @@
 (defn partial-injection-node [l r]
   (APartialInjectionExpression. l r))
 
+(defn total-injection-node [l r]
+  (ATotalInjectionExpression. l r))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -373,6 +377,7 @@
                  :partial-surjection partial-surjection-node
                  :total-surjection total-surjection-node
                  :partial-injection partial-injection-node
+                 :total-injection total-injection-node
                  })
 
 

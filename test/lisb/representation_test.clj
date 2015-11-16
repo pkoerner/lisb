@@ -579,3 +579,15 @@
                         :children [#{1 2} #{3 4}]}
                         #{5 6}]}
            (b>+> #{1 2} #{3 4} #{5 6})))))
+
+(deftest total-inj-test
+  (testing "total injection with two arguments"
+    (is (= {:tag :total-injection
+            :children [#{1 2} #{3 4}]}
+           (b>-> #{1 2} #{3 4}))))
+  (testing "total injection with more than two arguments"
+    (is (= {:tag :total-injection
+            :children [{:tag :total-injection
+                        :children [#{1 2} #{3 4}]}
+                        #{5 6}]}
+           (b>-> #{1 2} #{3 4} #{5 6})))))
