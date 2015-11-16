@@ -567,3 +567,15 @@
                         :children [#{1 2} #{3 4}]}
                         #{5 6}]}
            (b-->> #{1 2} #{3 4} #{5 6})))))
+
+(deftest partial-inj-test
+  (testing "partial injection with two arguments"
+    (is (= {:tag :partial-injection
+            :children [#{1 2} #{3 4}]}
+           (b>+> #{1 2} #{3 4}))))
+  (testing "partial injection with more than two arguments"
+    (is (= {:tag :partial-injection
+            :children [{:tag :partial-injection
+                        :children [#{1 2} #{3 4}]}
+                        #{5 6}]}
+           (b>+> #{1 2} #{3 4} #{5 6})))))
