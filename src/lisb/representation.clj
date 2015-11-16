@@ -258,6 +258,9 @@
 (defn bforall [identifiers impl]
   (node :forall (apply node :var-list identifiers) impl))
 
+(defn binterval [from to]
+  (node :interval from to))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

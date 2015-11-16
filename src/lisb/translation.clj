@@ -80,6 +80,7 @@
                                                AFunctionExpression
                                                AImplicationPredicate
                                                AForallPredicate
+                                               AIntervalExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -325,6 +326,9 @@
 (defn forall-node [identifiers impl]
   (AForallPredicate. identifiers impl))
 
+(defn interval-node [from to]
+  (AIntervalExpression. from to))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -408,6 +412,7 @@
                  :fn-application fn-application-node
                  :implication implication-node
                  :forall forall-node
+                 :interval interval-node
                  })
 
 

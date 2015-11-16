@@ -210,5 +210,7 @@
 
       (is (eval ss (to-ast (bforall [:x] (b=> (b= :x false) (b= true true))))))
       (is (eval ss (to-ast (bforall [:x :y] (b=> (b< 0 :x :y 3) (b<= (binc :x) :y))))))
+
+      (is (eval ss (to-ast (b= (binterval 1 5) #{1 2 3 4 5}))))
       )))
 

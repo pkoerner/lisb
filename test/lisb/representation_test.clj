@@ -658,3 +658,9 @@
                        {:tag :implication
                         :children [:a :b]}]}
            (bforall [:x] (b=> :a :b))))))
+
+(deftest interval-test
+  (testing "interval representation"
+    (is (= {:tag :interval
+            :children [1 4]}
+           (binterval 1 4)))))
