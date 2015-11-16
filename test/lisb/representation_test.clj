@@ -637,3 +637,16 @@
                         1
                         2]}
             (bapply #{[[1 2] 3]} 1 2)))))
+
+(deftest implication-test
+  (testing "implication representation with two arguments"
+    (is (= {:tag :implication
+            :children [:a :b]}
+           (b=> :a :b))))
+  (testing "implication representation with more than two arguments"
+    (is (= {:tag :implication
+            :children [{:tag :implication
+                        :children [:a :b]}
+                       :c]}
+           (b=> :a :b :c)))))
+

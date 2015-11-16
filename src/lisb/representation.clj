@@ -252,6 +252,9 @@
 (defn bapply [f & args]
   (apply node :fn-application f args))
 
+(defn b=> [& args]
+  (interleave-arity-two :implication args))
+
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall

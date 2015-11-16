@@ -205,5 +205,8 @@
       (is (eval ss (to-ast (b= 3 (bapply #{[[1 2] 3]} 1 2)))))
       (is (eval ss (to-ast (b= 3 (bapply #{[[1 2] 3]} [1 2])))))
 
+      (is (eval ss (to-ast (b=> (b= true true) (b= true true)))))
+      (is (eval ss (to-ast (b=> (b= true true) (b= true false) (b= true true)))))
+
       )))
 

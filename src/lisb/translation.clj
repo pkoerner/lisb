@@ -78,6 +78,7 @@
                                                ATotalBijectionExpression
                                                ALambdaExpression
                                                AFunctionExpression
+                                               AImplicationPredicate
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -317,6 +318,9 @@
 (defn fn-application-node [f & args]
   (AFunctionExpression. f args))
 
+(defn implication-node [l r]
+  (AImplicationPredicate. l r))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -398,6 +402,7 @@
                  :total-bijection total-bijection-node
                  :lambda lambda-node
                  :fn-application fn-application-node
+                 :implication implication-node
                  })
 
 
