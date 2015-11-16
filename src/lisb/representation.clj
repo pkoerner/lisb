@@ -255,7 +255,6 @@
 ; TODO: - implication (is it left- or right-associative?)
 ;       - exists
 ;       - forall
-;       - bool-set
 ;       - negations for subset/superset, strict/non-strict
 ;       - generalized union/intersection, with/without predicate
 ;       - power (right-associative)
