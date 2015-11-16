@@ -18,7 +18,7 @@
                                  (band (bnot= (b+ (bapply :queens :q1) (b- :q2 :q1)) (bapply :queens :q2))
                                        (bnot= (b+ (bapply :queens :q1) (b- :q1 :q2)) (bapply :queens :q2))))))
         result (eval ss (to-ast repr))]
-    (prn result)))
+    result))
   ([size]
    (defonce ss (state-space))
    (nqueens size ss)))
