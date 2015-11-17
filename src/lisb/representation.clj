@@ -258,11 +258,13 @@
 (defn bforall [identifiers impl]
   (node :forall (apply node :var-list identifiers) impl))
 
+(defn bexists [identifiers pred]
+  (node :exists (apply node :var-list identifiers) pred))
+
 (defn binterval [from to]
   (node :interval from to))
 
-; TODO: - exists
-;       - negations for subset/superset, strict/non-strict
+; TODO: - negations for subset/superset, strict/non-strict
 ;       - generalized union/intersection, with/without predicate
 ;       - power (right-associative)
 ;       - set product / summation

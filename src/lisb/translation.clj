@@ -80,6 +80,7 @@
                                                AFunctionExpression
                                                AImplicationPredicate
                                                AForallPredicate
+                                               AExistsPredicate
                                                AIntervalExpression
                                                )))
 
@@ -326,6 +327,9 @@
 (defn forall-node [identifiers impl]
   (AForallPredicate. identifiers impl))
 
+(defn exists-node [identifiers pred]
+  (AExistsPredicate. identifiers pred))
+
 (defn interval-node [from to]
   (AIntervalExpression. from to))
 
@@ -412,6 +416,7 @@
                  :fn-application fn-application-node
                  :implication implication-node
                  :forall forall-node
+                 :exists exists-node
                  :interval interval-node
                  })
 

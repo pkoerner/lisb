@@ -659,6 +659,15 @@
                         :children [:a :b]}]}
            (bforall [:x] (b=> :a :b))))))
 
+(deftest exists-test
+  (testing "existential quantification representation"
+    (is (= {:tag :exists
+            :children [{:tag :var-list
+                        :children [:x]}
+                       {:tag :member
+                        :children [:x #{1}]}]}
+           (bexists [:x] (bmember :x #{1}))))))
+
 (deftest interval-test
   (testing "interval representation"
     (is (= {:tag :interval
