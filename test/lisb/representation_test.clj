@@ -682,3 +682,10 @@
   (testing "empty sequence"
     (is (= {:tag :sequence
             :children []}))))
+
+(deftest iseq-test
+  (testing "set of injective sequences"
+    (is (= {:tag :iseq
+            :children [{:tag :sequence
+                       :children [4 2 3]}]}
+           (biseq (bsequence 4 2 3))))))

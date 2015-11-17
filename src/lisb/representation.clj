@@ -267,11 +267,15 @@
 (defn bsequence [& args]
   (apply node :sequence args))
 
+(defn biseq [s]
+  (node :iseq s))
+
 
 ; TODO: - negations for subset/superset, strict/non-strict
 ;       - generalized union/intersection, with/without predicate
 ;       - power (right-associative)
 ;       - set product / summation
+;       - seq/seq1
 
 
 
@@ -357,5 +361,6 @@
          ~'apply bapply
          
          ~'sequence bsequence
+         ~'seq bseq
          ]
     ~repr))

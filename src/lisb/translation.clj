@@ -84,6 +84,7 @@
                                                AIntervalExpression
                                                ASequenceExtensionExpression
                                                AEmptySequenceExpression
+                                               AIseqExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -340,6 +341,9 @@
       (ASequenceExtensionExpression. elements)
       (AEmptySequenceExpression.)))
 
+(defn iseq-node [s]
+  (AIseqExpression. s))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -426,6 +430,7 @@
                  :exists exists-node
                  :interval interval-node
                  :sequence sequence-node
+                 :iseq iseq-node
                  })
 
 
