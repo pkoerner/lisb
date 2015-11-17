@@ -689,3 +689,10 @@
             :children [{:tag :sequence
                        :children [4 2 3]}]}
            (biseq (bsequence 4 2 3))))))
+
+(deftest iseq1-test
+  (testing "set of non-empty injective sequences"
+    (is (= {:tag :iseq1
+            :children [{:tag :sequence
+                       :children [4 2 3]}]}
+           (biseq1 (bsequence 4 2 3))))))
