@@ -89,6 +89,7 @@
                                                APermExpression
                                                AConcatExpression
                                                AInsertFrontExpression
+                                               AInsertTailExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -360,6 +361,9 @@
 (defn prepend-node [e s]
   (AInsertFrontExpression. e s))
 
+(defn append-node [s e]
+  (AInsertTailExpression. s e))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -451,6 +455,7 @@
                  :perm perm-node
                  :concat concat-node
                  :prepend prepend-node
+                 :append append-node
                  })
 
 

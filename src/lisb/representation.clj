@@ -282,6 +282,9 @@
 (defn b-> [e s]
   (node :prepend e s))
 
+(defn b<- [& args]
+  (interleave-arity-two :append args))
+
 ; TODO: - negations for subset/superset, strict/non-strict
 ;       - generalized union/intersection, with/without predicate
 ;       - power (right-associative)
@@ -377,5 +380,6 @@
          ~'perm bperm
          ~'concat bconcat
          ~'-> b->
+         ~'<- b<-
          ]
     ~repr))

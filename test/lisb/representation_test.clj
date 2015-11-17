@@ -723,3 +723,16 @@
     (is (= {:tag :prepend
             :children [2 {:tag :sequence :children [1 4]}]}
            (b-> 2 (bsequence 1 4))))))
+
+(deftest append-test
+  (testing "append representation with two args"
+    (is (= {:tag :append
+            :children [{:tag :sequence :children [3]}
+                       1]}
+           (b<- (bsequence 3) 1))))
+  (testing "append representation with more than two args"
+    (is (= {:tag :append
+            :children [{:tag :append :children [{:tag :sequence :children [3]}
+                                                1]}
+                       4]}
+           (b<- (bsequence 3) 1 4)))))
