@@ -86,6 +86,7 @@
                                                AEmptySequenceExpression
                                                AIseqExpression
                                                AIseq1Expression
+                                               APermExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -348,6 +349,9 @@
 (defn iseq1-node [s]
   (AIseq1Expression. s))
 
+(defn perm-node [s]
+  (APermExpression. s))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -436,6 +440,7 @@
                  :sequence sequence-node
                  :iseq iseq-node
                  :iseq1 iseq1-node
+                 :perm perm-node
                  })
 
 

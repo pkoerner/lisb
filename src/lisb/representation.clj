@@ -273,6 +273,9 @@
 (defn biseq1 [s]
   (node :iseq1 s))
 
+(defn bperm [s]
+  (node :perm s))
+
 
 ; TODO: - negations for subset/superset, strict/non-strict
 ;       - generalized union/intersection, with/without predicate

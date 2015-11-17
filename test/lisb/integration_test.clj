@@ -220,5 +220,7 @@
 
       (is (eval ss (to-ast (bmember (bsequence [3 3] [2 2] [1 4]) (biseq (bsequence 4 2 3))))))
       (is (eval ss (to-ast (bmember (bsequence [3 3] [2 2] [1 4]) (biseq1 (bsequence 4 2 3))))))
+
+      (is (eval ss (to-ast (b= #{#{[1 [1 4]] [2 [2 2]]} #{[1 [2 2]] [2 [1 4]]}} (bperm (bsequence 4 2))))))
       )))
 

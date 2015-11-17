@@ -696,3 +696,10 @@
             :children [{:tag :sequence
                        :children [4 2 3]}]}
            (biseq1 (bsequence 4 2 3))))))
+
+(deftest perm-test
+  (testing "set of bijective sequences"
+    (is (= {:tag :perm
+            :children [{:tag :sequence
+                       :children [4 2 3]}]}
+           (bperm (bsequence 4 2 3))))))
