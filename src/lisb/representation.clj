@@ -264,6 +264,10 @@
 (defn binterval [from to]
   (node :interval from to))
 
+(defn bsequence [& args]
+  (apply node :sequence args))
+
+
 ; TODO: - negations for subset/superset, strict/non-strict
 ;       - generalized union/intersection, with/without predicate
 ;       - power (right-associative)

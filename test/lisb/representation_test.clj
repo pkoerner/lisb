@@ -673,3 +673,12 @@
     (is (= {:tag :interval
             :children [1 4]}
            (binterval 1 4)))))
+
+(deftest sequence-test
+  (testing "sequence representation"
+    (is (= {:tag :sequence
+            :children [3 2 1]}
+           (bsequence 3 2 1))))
+  (testing "empty sequence"
+    (is (= {:tag :sequence
+            :children []}))))

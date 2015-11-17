@@ -214,5 +214,8 @@
       (is (eval ss (to-ast (b= (binterval 1 5) #{1 2 3 4 5}))))
 
       (is (eval ss (to-ast (bexists [:x :y] (b< :x :y)))))
+
+      (is (eval ss (to-ast (b= (bsequence 3 2 1) #{[1 3] [2 2] [3 1]}))))
+      (is (eval ss (to-ast (b= (bsequence) #{}))))
       )))
 

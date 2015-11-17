@@ -82,6 +82,8 @@
                                                AForallPredicate
                                                AExistsPredicate
                                                AIntervalExpression
+                                               ASequenceExtensionExpression
+                                               AEmptySequenceExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -333,6 +335,11 @@
 (defn interval-node [from to]
   (AIntervalExpression. from to))
 
+(defn sequence-node [& elements]
+  (if (seq elements)
+      (ASequenceExtensionExpression. elements)
+      (AEmptySequenceExpression.)))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -418,6 +425,7 @@
                  :forall forall-node
                  :exists exists-node
                  :interval interval-node
+                 :sequence sequence-node
                  })
 
 
