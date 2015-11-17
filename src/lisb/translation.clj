@@ -90,6 +90,7 @@
                                                AConcatExpression
                                                AInsertFrontExpression
                                                AInsertTailExpression
+                                               ARevExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -364,6 +365,10 @@
 (defn append-node [s e]
   (AInsertTailExpression. s e))
 
+;; TODO: is ARevExpression correct? the parser generates a function expression...
+(defn reverse-node [s]
+  (ARevExpression. s))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -456,6 +461,7 @@
                  :concat concat-node
                  :prepend prepend-node
                  :append append-node
+                 :reverse reverse-node
                  })
 
 
