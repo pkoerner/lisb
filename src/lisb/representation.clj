@@ -370,5 +370,8 @@
          
          ~'sequence bsequence
          ~'seq bseq
+         ~'seq1 bseq1
+         ~'perm bperm
+         ~'concat bconcat
          ]
     ~repr))
