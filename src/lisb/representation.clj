@@ -314,6 +314,7 @@
          ~'=> b=>
          ~'bool bpred->bool
          ~'forall bforall
+         ~'exists bexists
 
          ~'count bcount
          ~'x bx
@@ -354,5 +355,7 @@
          ~'>->> b>->>
          ~'fn blambda
          ~'apply bapply
+         
+         ~'sequence bsequence
          ]
     ~repr))
