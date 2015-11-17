@@ -703,3 +703,17 @@
             :children [{:tag :sequence
                        :children [4 2 3]}]}
            (bperm (bsequence 4 2 3))))))
+
+(deftest concat-test
+  (testing "sequence concatenation with two args"
+    (is (= {:tag :concat
+            :children [{:tag :sequence :children [4 2]}
+                       {:tag :sequence :children [5 9]}]}
+           (bconcat (bsequence 4 2) (bsequence 5 9)))))
+  (testing "sequence concatentation with more than two args"
+    (is (= {:tag :concat
+            :children [{:tag :concat
+                        :children [{:tag :sequence :children [4 2]}
+                                   {:tag :sequence :children [5 9]}]}
+                       {:tag :sequence :children [3 1 4]}]}
+           (bconcat (bsequence 4 2) (bsequence 5 9) (bsequence 3 1 4))))))

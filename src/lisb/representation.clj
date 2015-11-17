@@ -276,6 +276,8 @@
 (defn bperm [s]
   (node :perm s))
 
+(defn bconcat [& args]
+  (interleave-arity-two :concat args))
 
 ; TODO: - negations for subset/superset, strict/non-strict
 ;       - generalized union/intersection, with/without predicate

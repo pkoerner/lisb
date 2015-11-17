@@ -87,6 +87,7 @@
                                                AIseqExpression
                                                AIseq1Expression
                                                APermExpression
+                                               AConcatExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -352,6 +353,9 @@
 (defn perm-node [s]
   (APermExpression. s))
 
+(defn concat-node [l r]
+  (AConcatExpression. l r))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -441,6 +445,7 @@
                  :iseq iseq-node
                  :iseq1 iseq1-node
                  :perm perm-node
+                 :concat concat-node
                  })
 
 
