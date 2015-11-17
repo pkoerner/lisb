@@ -225,5 +225,7 @@
 
       (is (eval ss (to-ast (b= (bsequence 3 4 1 5) (bconcat (bsequence 3 4) (bsequence 1 5))))))
       (is (eval ss (to-ast (b= (bsequence 3 4 1 5 2) (bconcat (bsequence 3 4) (bsequence 1 5) (bsequence 2))))))
+
+      (is (eval ss (to-ast (b= (bsequence 3 1 4) (b-> 3 (bsequence 1 4))))))
       )))
 

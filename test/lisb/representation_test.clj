@@ -717,3 +717,9 @@
                                    {:tag :sequence :children [5 9]}]}
                        {:tag :sequence :children [3 1 4]}]}
            (bconcat (bsequence 4 2) (bsequence 5 9) (bsequence 3 1 4))))))
+
+(deftest prepend-test
+  (testing "prepend representation"
+    (is (= {:tag :prepend
+            :children [2 {:tag :sequence :children [1 4]}]}
+           (b-> 2 (bsequence 1 4))))))

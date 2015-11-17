@@ -88,6 +88,7 @@
                                                AIseq1Expression
                                                APermExpression
                                                AConcatExpression
+                                               AInsertFrontExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -356,6 +357,9 @@
 (defn concat-node [l r]
   (AConcatExpression. l r))
 
+(defn prepend-node [e s]
+  (AInsertFrontExpression. e s))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -446,6 +450,7 @@
                  :iseq1 iseq1-node
                  :perm perm-node
                  :concat concat-node
+                 :prepend prepend-node
                  })
 
 
