@@ -267,3 +267,86 @@
 ;       - power (right-associative)
 ;       - set product / summation
 
+
+
+
+
+
+
+
+
+
+
+
+
+;; TODO: bset, bpow, bpow1, bfin, bfin1,
+;;       sub- and supersets in all colours
+;;       sets of bools, naturals, ints, nats
+(defmacro b
+  [repr]
+  `(let [~'+ b+
+         ~'- b-
+         ~'* b*
+         ~'/ bdiv
+         ~'max bmax
+         ~'min bmin
+         ~'mod bmod
+         ~'inc binc
+         ~'dec bdec
+         ~'range binterval
+         ~'< b<
+         ~'> b>
+         ~'<= b<=
+         ~'>= b>=
+
+         ~'and band
+         ~'or bor
+         ~'not bnot
+         ~'not= bnot=
+         ~'= b=
+         ~'<=> b<=>
+         ~'=> b=>
+         ~'bool bpred->bool
+         ~'forall bforall
+
+         ~'count bcount
+         ~'x bx
+         ~'union bunion
+         ~'intersection bintersect
+         ~'difference bset-
+         ~'contains? bmembers
+         ~'member? bmember
+
+         ~'<-> b<->
+         ~'dom bdom
+         ~'ran bran
+         ~'identity bid
+         ~'<| b<|
+         ~'<<| b<<|
+         ~'|> b|>
+         ~'|>> b|>>
+         ~'inverse binverse
+         ~'image bimage
+         ~'<+ b<+
+         ~'>< b><
+         ~'comp bcomp
+         ~'|| b||
+         ~'prj1 bprj1
+         ~'prj2 bprj2
+         ~'closure bclosure
+         ~'closure1 bclosure1
+         ~'iterate biterate
+         ~'fnc bfnc
+         ~'rel brel
+         ~'+-> b+->
+         ~'--> b-->
+         ~'+->> b+->>
+         ~'-->> b-->>
+         ~'>+> b>+>
+         ~'>-> b>->
+         ~'>+>> b>+>>
+         ~'>->> b>->>
+         ~'fn blambda
+         ~'apply bapply
+         ]
+    ~repr))
