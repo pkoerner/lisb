@@ -24,3 +24,22 @@
    (nqueens size ss)))
 
 
+(defn nqueens2
+  "the n-queens problem in B using the b macro"
+  ([size ss]
+  (let [width (b (range 1 :n))
+        q1pos (b (apply :queens :q1))
+        q2pos (b (apply :queens :q2))
+        repr (b (and (= :n size)
+                     (contains? :queens (>-> width width))
+                     (forall [:q1 :q2]
+                              (=> (and (member? :q1 width)
+                                       (member? :q2 width)
+                                       (> :q2 :q1))
+                                   (and (not= (+ q1pos (- :q2 :q1)) q2pos)
+                                        (not= (+ q1pos (- :q1 :q2)) q2pos))))))
+        result (eval ss (to-ast repr))]
+    result))
+  ([size]
+   (defonce ss (state-space))
+   (nqueens size ss)))
