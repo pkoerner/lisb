@@ -297,6 +297,9 @@
 (defn bfront [s]
   (node :front s))
 
+(defn btail [s]
+  (node :tail s))
+
 ; TODO: - negations for subset/superset, strict/non-strict
 ;       - generalized union/intersection, with/without predicate
 ;       - power (right-associative)
@@ -397,5 +400,6 @@
          ~'first bfirst
          ~'last blast
          ~'butlast front
+         ~'rest btail
          ]
     ~repr))

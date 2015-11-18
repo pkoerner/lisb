@@ -237,5 +237,6 @@
       (is (eval ss (to-ast (b= (blast (bsequence 3 1 4)) 4))))
 
       (is (eval ss (to-ast (b= (bfront (bsequence 3 1 4)) (bsequence 3 1)))))
+      (is (eval ss (to-ast (b= (btail (bsequence 3 1 4)) (bsequence 1 4)))))
       )))
 

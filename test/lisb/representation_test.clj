@@ -762,3 +762,9 @@
     (is (= {:tag :front
             :children [{:tag :sequence :children [3 1 4]}]}
            (bfront (bsequence 3 1 4))))))
+
+(deftest tail-test
+  (testing "tail representation"
+    (is (= {:tag :tail
+            :children [{:tag :sequence :children [3 1 4]}]}
+           (btail (bsequence 3 1 4))))))
