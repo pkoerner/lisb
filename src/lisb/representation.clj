@@ -384,5 +384,6 @@
          ~'concat bconcat
          ~'-> b->
          ~'<- b<-
+         ~'reverse breverse
          ]
     ~repr))
