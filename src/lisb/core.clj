@@ -5,6 +5,8 @@
            de.prob.scripting.Api
            de.prob.animator.command.CbcSolveCommand
            de.prob.animator.domainobjects.ClassicalB
+           de.prob.animator.domainobjects.EvalResult
+           de.prob.animator.domainobjects.ComputationNotCompletedResult
            (de.be4.classicalb.core.parser.node Start
                                                EOF
                                                APredicateParseUnit)))
@@ -35,12 +37,23 @@
     (ClassicalB. start)))
 
 
+(defmulti get-result (comp type first))
+
+(defmethod get-result EvalResult [[v free]]
+  (let [result (.translate v)]
+    (when (.. result getValue booleanValue)
+      (into {} (map (fn [k][k (.getSolution result k)]) free)))))
+
+(defmethod get-result ComputationNotCompletedResult [[v _]]
+  (let [reason-string (.getReason v)]
+    (when (not= reason-string "contradiction found")
+      (throw (Exception. reason-string)))))
+
+
+
 (defn eval [state-space ast]
   (let [cmd (CbcSolveCommand. (predicate ast))
         _ (.execute state-space cmd)
-        free (.getFreeVariables cmd)
-        result (.. cmd getValue translate)
-        ]
-    (when (.. result getValue booleanValue)
-      (into {} (map (fn [k][k (.getSolution result k)]) free)))))
+        free (.getFreeVariables cmd)]
+    (get-result [(.getValue cmd) free])))
 
