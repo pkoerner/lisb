@@ -776,3 +776,11 @@
                        2]}
            (brestrict-front (bsequence 3 1 4) 2)
            (btake 2 (bsequence 3 1 4))))))
+
+(deftest restrict-tail-test
+  (testing "drop first n elements of sequence representation"
+    (is (= {:tag :restrict-tail
+            :children [{:tag :sequence :children [3 1 4]}
+                       2]}
+           (brestrict-tail (bsequence 3 1 4) 2)
+           (bdrop 2 (bsequence 3 1 4))))))

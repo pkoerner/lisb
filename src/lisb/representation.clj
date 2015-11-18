@@ -306,6 +306,12 @@
 (defn btake [n s]
   (brestrict-front s n))
 
+(defn brestrict-tail [s n]
+  (node :restrict-tail s n))
+
+(defn bdrop [n s]
+  (brestrict-tail s n))
+
 ; TODO: - negations for subset/superset, strict/non-strict
 ;       - generalized union/intersection, with/without predicate
 ;       - power (right-associative)
@@ -409,5 +415,6 @@
          ~'butlast front
          ~'rest btail
          ~'take btake
+         ~'drop bdrop
          ]
     ~repr))
