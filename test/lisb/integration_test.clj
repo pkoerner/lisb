@@ -238,5 +238,7 @@
 
       (is (eval ss (to-ast (b= (bfront (bsequence 3 1 4)) (bsequence 3 1)))))
       (is (eval ss (to-ast (b= (btail (bsequence 3 1 4)) (bsequence 1 4)))))
+
+      (is (eval ss (to-ast (b= (btake 3 (bsequence 3 1 4 1 5)) (bsequence 3 1 4)))))
       )))
 

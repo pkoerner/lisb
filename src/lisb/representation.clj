@@ -300,11 +300,18 @@
 (defn btail [s]
   (node :tail s))
 
+(defn brestrict-front [s n]
+  (node :restrict-front s n))
+
+(defn btake [n s]
+  (brestrict-front s n))
+
 ; TODO: - negations for subset/superset, strict/non-strict
 ;       - generalized union/intersection, with/without predicate
 ;       - power (right-associative)
 ;       - set product / summation
 ;       - seq/seq1
+;       - conc
 
 
 
@@ -401,5 +408,6 @@
          ~'last blast
          ~'butlast front
          ~'rest btail
+         ~'take btake
          ]
     ~repr))

@@ -768,3 +768,11 @@
     (is (= {:tag :tail
             :children [{:tag :sequence :children [3 1 4]}]}
            (btail (bsequence 3 1 4))))))
+
+(deftest restrict-front-test
+  (testing "take first n elements of sequence representation"
+    (is (= {:tag :restrict-front
+            :children [{:tag :sequence :children [3 1 4]}
+                       2]}
+           (brestrict-front (bsequence 3 1 4) 2)
+           (btake 2 (bsequence 3 1 4))))))
