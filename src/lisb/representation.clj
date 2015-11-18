@@ -288,6 +288,9 @@
 (defn breverse [s]
   (node :reverse s))
 
+(defn bfirst [s]
+  (node :first s))
+
 ; TODO: - negations for subset/superset, strict/non-strict
 ;       - generalized union/intersection, with/without predicate
 ;       - power (right-associative)
@@ -385,5 +388,6 @@
          ~'-> b->
          ~'<- b<-
          ~'reverse breverse
+         ~'first bfirst
          ]
     ~repr))

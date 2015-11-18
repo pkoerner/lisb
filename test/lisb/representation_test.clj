@@ -743,3 +743,9 @@
     (is (= {:tag :reverse
             :children [{:tag :sequence :children [3 1 4]}]}
            (breverse (bsequence 3 1 4))))))
+
+(deftest first-test
+  (testing "first representation"
+    (is (= {:tag :first
+            :children [{:tag :sequence :children [3 1 4]}]}
+           (bfirst (bsequence 3 1 4))))))
