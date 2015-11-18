@@ -751,7 +751,14 @@
            (bfirst (bsequence 3 1 4))))))
 
 (deftest last-test
-  (testing "lastrepresentation"
+  (testing "last-representation"
     (is (= {:tag :last
             :children [{:tag :sequence :children [3 1 4]}]}
            (blast (bsequence 3 1 4))))))
+
+
+(deftest front-test
+  (testing "front-representation"
+    (is (= {:tag :front
+            :children [{:tag :sequence :children [3 1 4]}]}
+           (bfront (bsequence 3 1 4))))))

@@ -294,6 +294,9 @@
 (defn blast [s]
   (node :last s))
 
+(defn bfront [s]
+  (node :front s))
+
 ; TODO: - negations for subset/superset, strict/non-strict
 ;       - generalized union/intersection, with/without predicate
 ;       - power (right-associative)
@@ -393,5 +396,6 @@
          ~'reverse breverse
          ~'first bfirst
          ~'last blast
+         ~'butlast front
          ]
     ~repr))
