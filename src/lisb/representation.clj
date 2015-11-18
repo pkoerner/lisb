@@ -403,8 +403,8 @@
          ~'apply bapply
          
          ~'sequence bsequence
-         ~'seq bseq
-         ~'seq1 bseq1
+         ~'iseq biseq
+         ~'iseq1 biseq1
          ~'perm bperm
          ~'concat bconcat
          ~'-> b->
@@ -412,7 +412,7 @@
          ~'reverse breverse
          ~'first bfirst
          ~'last blast
-         ~'butlast front
+         ~'butlast bfront
          ~'rest btail
          ~'take btake
          ~'drop bdrop
