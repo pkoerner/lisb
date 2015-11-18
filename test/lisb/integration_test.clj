@@ -243,3 +243,17 @@
       (is (eval ss (to-ast (b= (bdrop 3 (bsequence 3 1 4 1 5)) (bsequence 1 5)))))
       )))
 
+
+(deftest b-haviour
+  (let [ss (state-space)]
+    (testing "satisfiable predicates should have truthy return values"
+      (is (eval ss (to-ast (b (= 1 1)))))
+      (is (eval ss (to-ast (b (= :x 1))))))
+    (testing "the return values should be maps"
+      (is (= {} (eval ss (to-ast (b (= 1 1))))))
+      (is (= {"x" 1} (eval ss (to-ast (b (= :x 1)))))))
+    ;; TODO: test concerning the resulting data structures, i.e. sets, sequences, tuples...
+    (testing "unsatisfiable predicates yield a nil value"
+      (is (nil? (eval ss (to-ast (b (= 1 2)))))))
+    (testing "timeouts / no found solution should throw an exception"
+      (is (thrown? Exception (eval ss (to-ast (b (< :x :y :x)))))))))
