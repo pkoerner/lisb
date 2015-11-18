@@ -749,3 +749,9 @@
     (is (= {:tag :first
             :children [{:tag :sequence :children [3 1 4]}]}
            (bfirst (bsequence 3 1 4))))))
+
+(deftest last-test
+  (testing "lastrepresentation"
+    (is (= {:tag :last
+            :children [{:tag :sequence :children [3 1 4]}]}
+           (blast (bsequence 3 1 4))))))

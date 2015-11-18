@@ -92,6 +92,7 @@
                                                AInsertTailExpression
                                                ARevExpression
                                                AFirstExpression
+                                               ALastExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -373,6 +374,9 @@
 (defn first-node [s]
   (AFirstExpression. s))
 
+(defn last-node [s]
+  (ALastExpression. s))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -467,6 +471,7 @@
                  :append append-node
                  :reverse reverse-node
                  :first first-node
+                 :last last-node
                  })
 
 

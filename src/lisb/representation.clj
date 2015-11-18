@@ -291,6 +291,9 @@
 (defn bfirst [s]
   (node :first s))
 
+(defn blast [s]
+  (node :last s))
+
 ; TODO: - negations for subset/superset, strict/non-strict
 ;       - generalized union/intersection, with/without predicate
 ;       - power (right-associative)
@@ -389,5 +392,6 @@
          ~'<- b<-
          ~'reverse breverse
          ~'first bfirst
+         ~'last blast
          ]
     ~repr))
