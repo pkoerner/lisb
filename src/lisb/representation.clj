@@ -441,3 +441,22 @@
   ([repr so-far]
    (reduce find-vars-helper so-far (:children repr))))
 
+
+(declare replace-vars)
+
+(defn replace-vars-helper [m x]
+  (cond (keyword? x) (if (m x) (m x) x)
+        (set? x) (into #{} (map (partial replace-vars-helper m) x))
+        (sequential? x) (map (partial replace-vars-helper m) x)
+        (map? x) (replace-vars m x)
+        :otherwise x))
+
+(defn replace-vars
+  ([repr]
+   (let [vars (find-vars repr)
+         m (into {} (map (fn [k] [k (generate-varname k)]) vars))]
+     (replace-vars m repr)))
+  ([m repr]
+   (assoc repr
+          :children
+          (map (partial replace-vars-helper m) (:children repr)))))
