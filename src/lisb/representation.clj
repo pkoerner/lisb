@@ -418,3 +418,26 @@
          ~'drop bdrop
          ]
     ~repr))
+
+
+
+(defn generate-varname [k]
+  (keyword (first (drop-while find-keyword ;; TODO: does this require a namespace?
+                              (map (partial str (name k))
+                                   (range))))))
+
+(declare find-vars)
+
+(defn find-vars-helper [so-far x]
+  (cond (keyword? x) (conj so-far x)
+        (set? x) (reduce find-vars-helper so-far x)
+        (sequential? x) (reduce find-vars-helper so-far x)
+        (map? x) (find-vars x so-far)
+        :otherwise so-far))
+
+(defn find-vars
+  ([repr]
+   (find-vars repr #{}))
+  ([repr so-far]
+   (reduce find-vars-helper so-far (:children repr))))
+
