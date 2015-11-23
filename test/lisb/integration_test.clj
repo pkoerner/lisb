@@ -85,6 +85,7 @@
 
       (is (eval ss (to-ast (b= #{2} (bintersect #{1 2} #{2 3})))))
       (is (eval ss (to-ast (b= #{3 4} (bintersect #{1 2 3 4} #{2 3 4} #{3 4})))))
+      (is (eval ss (to-ast (b= #{3 4} (bintersect #{#{1 2 3 4} #{2 3 4} #{3 4}})))))
 
       (is (eval ss (to-ast (b= #{1} (bset- #{1 2} #{2 3})))))
       (is (eval ss (to-ast (b= #{1} (bset- #{1 2} #{2 3} #{3 4})))))

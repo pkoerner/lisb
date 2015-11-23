@@ -224,7 +224,7 @@
             :children [#{#{1} #{2} #{3}}]}
            (bunion #{#{1} #{2} #{3}})))))
 
-(deftest set-intersection-test
+(deftest intersection-test
   (testing "set intersection with two arguments"
     (is (= {:tag :set-intersection
             :children [#{1 2} #{2 3}]}
@@ -233,7 +233,11 @@
     (is (= {:tag :set-intersection
             :children [{:tag :set-intersection :children [ #{1 2} #{2 3}]}
                        #{3 4}]}
-           (bintersect #{1 2} #{2 3} #{3 4})))))
+           (bintersect #{1 2} #{2 3} #{3 4}))))
+  (testing "generalised intersection over set of sets"
+    (is (= {:tag :general-intersection
+            :children [#{#{1} #{2} #{3}}]}
+           (bintersect #{#{1} #{2} #{3}})))))
 
 (deftest set-difference-test
   (testing "set difference with two arguments"

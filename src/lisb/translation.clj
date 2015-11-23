@@ -100,6 +100,7 @@
                                                AGeneralSumExpression
                                                AGeneralProductExpression
                                                AGeneralUnionExpression
+                                               AGeneralIntersectionExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -405,6 +406,9 @@
 (defn general-union-node [s]
   (AGeneralUnionExpression. s))
 
+(defn general-intersection-node [s]
+  (AGeneralIntersectionExpression. s))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -507,6 +511,7 @@
                  :sigma sigma-node
                  :pi pi-node
                  :general-union general-union-node
+                 :general-intersection general-intersection-node
                  })
 
 

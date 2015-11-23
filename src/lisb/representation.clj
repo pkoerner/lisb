@@ -94,7 +94,9 @@
       (apply node :general-union args)))
 
 (defn bintersect [& args]
-  (interleave-arity-two :set-intersection args))
+  (if (seq (rest args))
+      (interleave-arity-two :set-intersection args)
+      (apply node :general-intersection args)))
 
 (defn bset- [& args]
   (interleave-arity-two :set-difference args))
