@@ -96,6 +96,7 @@
                                                ATailExpression
                                                ARestrictFrontExpression
                                                ARestrictTailExpression
+                                               APowerOfExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -389,6 +390,9 @@
 (defn restrict-tail-node [s n]
   (ARestrictTailExpression. s n))
 
+(defn power-of-node [l r]
+  (APowerOfExpression. l r))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -487,6 +491,7 @@
                  :tail tail-node
                  :restrict-front restrict-front-node
                  :restrict-tail restrict-tail-node
+                 :pow power-of-node
                  })
 
 

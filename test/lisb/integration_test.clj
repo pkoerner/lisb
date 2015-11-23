@@ -241,6 +241,9 @@
 
       (is (eval ss (to-ast (b= (btake 3 (bsequence 3 1 4 1 5)) (bsequence 3 1 4)))))
       (is (eval ss (to-ast (b= (bdrop 3 (bsequence 3 1 4 1 5)) (bsequence 1 5)))))
+
+      (is (eval ss (to-ast (b= (b** 2 3) 8))))
+      (is (eval ss (to-ast (b= (b** 2 2 3) 256))))
       )))
 
 

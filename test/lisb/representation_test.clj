@@ -774,6 +774,18 @@
            (brestrict-tail (bsequence 3 1 4) 2)
            (bdrop 2 (bsequence 3 1 4))))))
 
+(deftest pow-test
+  (testing "power representation with two arguments"
+    (is (= {:tag :pow :children [2 3]}
+           (b** 2 3))))
+  (testing "power representation with more than two arguments"
+    (is (= {:tag :pow
+            :children [1
+                       {:tag :pow :children [2 3]}]}
+           (b** 1 2 3)))))
+
+
+
 
 (deftest pred-test
   (testing "the pred macro allows to write b-macrofied expressions

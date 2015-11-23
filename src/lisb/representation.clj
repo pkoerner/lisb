@@ -19,6 +19,8 @@
 (defn interleave-arity-two [tag nodes]
   (reduce (partial node tag) nodes))
 
+(defn interleave-arity-two-right [tag nodes]
+  (reduce #(node tag %2 %1) (reverse nodes)))
 
 
 (defn b< [& args]
@@ -309,9 +311,11 @@
 (defn bdrop [n s]
   (brestrict-tail s n))
 
+(defn b** [& args]
+  (interleave-arity-two-right :pow args))
+
 ; TODO: - negations for subset/superset, strict/non-strict
 ;       - generalized union/intersection, with/without predicate
-;       - power (right-associative)
 ;       - set product / summation
 ;       - seq/seq1
 ;       - conc
@@ -337,6 +341,7 @@
          ~'- b-
          ~'* b*
          ~'/ bdiv
+         ~'** b**
          ~'max bmax
          ~'min bmin
          ~'mod bmod
