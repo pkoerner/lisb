@@ -209,7 +209,7 @@
             :children [#{1 2}]}
            (bcount #{1 2})))))
 
-(deftest set-union-test
+(deftest union-test
   (testing "set union with two arguments"
     (is (= {:tag :set-union
             :children [#{1 2} #{2 3}]}
@@ -218,7 +218,11 @@
     (is (= {:tag :set-union
             :children [{:tag :set-union :children [ #{1 2} #{2 3}]}
                        #{3 4}]}
-           (bunion #{1 2} #{2 3} #{3 4})))))
+           (bunion #{1 2} #{2 3} #{3 4}))))
+  (testing "generalised union over set of sets"
+    (is (= {:tag :general-union
+            :children [#{#{1} #{2} #{3}}]}
+           (bunion #{#{1} #{2} #{3}})))))
 
 (deftest set-intersection-test
   (testing "set intersection with two arguments"

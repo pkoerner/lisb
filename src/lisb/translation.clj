@@ -99,6 +99,7 @@
                                                APowerOfExpression
                                                AGeneralSumExpression
                                                AGeneralProductExpression
+                                               AGeneralUnionExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -401,6 +402,9 @@
 (defn pi-node [ids p e]
   (AGeneralProductExpression. ids p e))
 
+(defn general-union-node [s]
+  (AGeneralUnionExpression. s))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -502,6 +506,7 @@
                  :pow power-of-node
                  :sigma sigma-node
                  :pi pi-node
+                 :general-union general-union-node
                  })
 
 

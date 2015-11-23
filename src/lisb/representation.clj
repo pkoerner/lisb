@@ -89,7 +89,9 @@
   (node :card s))
 
 (defn bunion [& args]
-  (interleave-arity-two :set-union args))
+  (if (seq (rest args))
+      (interleave-arity-two :set-union args)
+      (apply node :general-union args)))
 
 (defn bintersect [& args]
   (interleave-arity-two :set-intersection args))
