@@ -86,9 +86,6 @@
 (defn bcount [s]
   (node :card s))
 
-(defn bx [& args]
-  (interleave-arity-two :cartesian-product args))
-
 (defn bunion [& args]
   (interleave-arity-two :set-union args))
 
@@ -363,7 +360,6 @@
          ~'exists bexists
 
          ~'count bcount
-         ~'x bx
          ~'union bunion
          ~'intersection bintersect
          ~'difference bset-

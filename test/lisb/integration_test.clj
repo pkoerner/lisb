@@ -72,12 +72,12 @@
 
       (is (eval ss (to-ast (b= 2 (bcount #{1 2})))))
 
-      (is (eval ss (to-ast (b= #{} (bx #{} #{})))))
+      (is (eval ss (to-ast (b= #{} (b* #{} #{})))))
 
       ;; FIXME: without the additional set the translator breaks
-      (is (eval ss (to-ast (b= :x #{(bx #{1 2} #{2 3})}))))
+      (is (eval ss (to-ast (b= :x #{(b* #{1 2} #{2 3})}))))
 
-      (is (eval ss (to-ast (b= :x #{(bx #{1 2} #{2 3} #{3 4})}))))
+      (is (eval ss (to-ast (b= :x #{(b* #{1 2} #{2 3} #{3 4})}))))
 
       (is (eval ss (to-ast (b= #{1 2 3} (bunion #{1 2} #{2 3})))))
       (is (eval ss (to-ast (b= #{1 2 3 4} (bunion #{1 2} #{2 3} #{3 4})))))

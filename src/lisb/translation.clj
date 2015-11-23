@@ -2,7 +2,7 @@
   (:require [clojure.walk :refer [walk]])
   (:import (de.be4.classicalb.core.parser.node AAddExpression
                                                AMinusExpression
-                                               AMultiplicationExpression
+                                               AMultOrCartExpression
                                                ADivExpression
                                                AUnaryMinusExpression
                                                AIntegerExpression
@@ -18,7 +18,6 @@
                                                AFinSubsetExpression
                                                AFin1SubsetExpression
                                                ACardExpression
-                                               ACartesianProductExpression
                                                AUnionExpression
                                                AIntersectionExpression
                                                ASetSubtractionExpression
@@ -140,7 +139,7 @@
   (AMinusExpression. l r))
 
 (defn mul-node [l r]
-  (AMultiplicationExpression. l r))
+  (AMultOrCartExpression. l r))
 
 (defn div-node [l r]
   (ADivExpression. l r))
@@ -189,9 +188,6 @@
 
 (defn card-node [s]
   (ACardExpression. s))
-
-(defn cartesian-product-node [l r]
-  (ACartesianProductExpression. l r))
 
 (defn set-union-node [l r]
   (AUnionExpression. l r))
@@ -426,7 +422,6 @@
                  :finite-subset finite-subset-node
                  :finite1-subset finite1-subset-node
                  :card card-node
-                 :cartesian-product cartesian-product-node
                  :set-union set-union-node
                  :set-intersection set-intersection-node
                  :set-difference set-difference-node
