@@ -420,43 +420,24 @@
     ~repr))
 
 
+(defn wrap [ctx node]
+  (cond
+    (keyword? node) `(~node ~ctx)
+    (map? node) (into {} (map (fn f [[k v]]  [k (wrap ctx v)]) node))
+    (set? node) (into #{} (map (partial wrap ctx) node))
+    (list? node) (apply list (map (partial wrap ctx) node))
+    (vector? node) (into []  (map (partial wrap ctx) node))
+    :otherwise node))
 
-(defn generate-varname [k]
-  (keyword (first (drop-while find-keyword ;; TODO: does this require a namespace?
-                              (map (partial str (name k))
-                                   (range))))))
+(defmacro pred [name & args]
+  (let [body (last args)
+        params (drop-last args)
+        ctx (gensym 'lisb_ctx_)
+        wrapped-body (wrap ctx body)
+        keywords (set (filter keyword? (flatten body)))]
+    `(fn ~name ~@params
+       (let [~ctx (into {} (mapv (fn [x#] [x# (keyword (gensym "lisb_"))]) ~keywords))]
+         (do (b ~wrapped-body))))))
 
-(declare find-vars)
-
-(defn find-vars-helper [so-far x]
-  (cond (keyword? x) (conj so-far x)
-        (set? x) (reduce find-vars-helper so-far x)
-        (sequential? x) (reduce find-vars-helper so-far x)
-        (map? x) (find-vars x so-far)
-        :otherwise so-far))
-
-(defn find-vars
-  ([repr]
-   (find-vars repr #{}))
-  ([repr so-far]
-   (reduce find-vars-helper so-far (:children repr))))
-
-
-(declare replace-vars)
-
-(defn replace-vars-helper [m x]
-  (cond (keyword? x) (if (m x) (m x) x)
-        (set? x) (into #{} (map (partial replace-vars-helper m) x))
-        (sequential? x) (map (partial replace-vars-helper m) x)
-        (map? x) (replace-vars m x)
-        :otherwise x))
-
-(defn replace-vars
-  ([repr]
-   (let [vars (find-vars repr)
-         m (into {} (map (fn [k] [k (generate-varname k)]) vars))]
-     (replace-vars m repr)))
-  ([m repr]
-   (assoc repr
-          :children
-          (map (partial replace-vars-helper m) (:children repr)))))
+(defmacro defpred [name & args]
+  `(def ~name (pred ~name ~@args)))

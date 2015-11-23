@@ -786,34 +786,3 @@
            (bdrop 2 (bsequence 3 1 4))))))
 
 
-(deftest generate-varname-test
-  (testing "generate-varname generates a different keyword than the one provided"
-    (let [input :foobar
-          output (generate-varname input)]
-      (is (not= output :foobar))
-      (is (keyword? output))))
-  (testing "generate-varname is not omnipotent"
-    (let [input :foobar
-          once (generate-varname input)
-          twice (generate-varname once)]
-      (is (not= once twice)))))
-
-
-(deftest find-vars-test
-  (testing "find-vars finds keywords in a representation"
-    (let [repr {:tag :foobar
-                :children [:a :b 1]}]
-      (is (= #{:a :b} (find-vars repr)))))
-  (testing "find-vars find keywords even in nested structures"
-    (let [repr {:tag :foo
-                :children [{:tag :bar :children [:nested]}
-                           :a]}]
-      (is (= #{:a :nested} (find-vars repr)))))
-  (testing "find-vars is able to cope deal with sets"
-    (let [repr {:tag :foo
-                :children [#{:in-set} :b]}]
-      (is (= #{:in-set :b} (find-vars repr)))))
-  (testing "maplets are fine, too"
-    (let [repr {:tag :foo
-                :children [:a #{[:from 2] [#{} :to] :in-set} :o]}]
-      (is (= #{:a :from :to :in-set :o} (find-vars repr))))))
