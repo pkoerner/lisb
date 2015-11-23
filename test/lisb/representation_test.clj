@@ -785,6 +785,25 @@
            (b** 1 2 3)))))
 
 
+(deftest sigma-test
+  (testing "set summation representation"
+    (is (= {:tag :sigma
+            :children [{:tag :var-list :children [:a]}
+                       {:tag :and :children [{:tag :less :children [1 :a]}
+                                             {:tag :less :children [:a 4]}]}
+                       :a]}
+           (bsigma [:a] (b< 1 :a 4) :a)))))
+
+
+(deftest pi-test
+  (testing "set product representation"
+    (is (= {:tag :pi
+            :children [{:tag :var-list :children [:a]}
+                       {:tag :and :children [{:tag :less :children [1 :a]}
+                                             {:tag :less :children [:a 4]}]}
+                       :a]}
+           (bpi [:a] (b< 1 :a 4) :a)))))
+
 
 
 (deftest pred-test

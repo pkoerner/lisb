@@ -314,9 +314,14 @@
 (defn b** [& args]
   (interleave-arity-two-right :pow args))
 
+(defn bsigma [identifiers p e]
+  (node :sigma (apply node :var-list identifiers) p e))
+
+(defn bpi [identifiers p e]
+  (node :pi (apply node :var-list identifiers) p e))
+
 ; TODO: - negations for subset/superset, strict/non-strict
 ;       - generalized union/intersection, with/without predicate
-;       - set product / summation
 ;       - seq/seq1
 ;       - conc
 
@@ -352,6 +357,8 @@
          ~'> b>
          ~'<= b<=
          ~'>= b>=
+         ~'sigma bsigma
+         ~'pi bpi
 
          ~'and band
          ~'or bor

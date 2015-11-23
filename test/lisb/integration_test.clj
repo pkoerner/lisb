@@ -244,6 +244,9 @@
 
       (is (eval ss (to-ast (b= (b** 2 3) 8))))
       (is (eval ss (to-ast (b= (b** 2 2 3) 256))))
+
+      (is (eval ss (to-ast (b= (bsigma [:a] (b<= 1 :a 4) :a) 10))))
+      (is (eval ss (to-ast (b= (bpi    [:a] (b<= 1 :a 4) :a) 24))))
       )))
 
 

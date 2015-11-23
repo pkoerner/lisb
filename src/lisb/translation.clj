@@ -97,6 +97,8 @@
                                                ARestrictFrontExpression
                                                ARestrictTailExpression
                                                APowerOfExpression
+                                               AGeneralSumExpression
+                                               AGeneralProductExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -393,6 +395,12 @@
 (defn power-of-node [l r]
   (APowerOfExpression. l r))
 
+(defn sigma-node [ids p e]
+  (AGeneralSumExpression. ids p e))
+
+(defn pi-node [ids p e]
+  (AGeneralProductExpression. ids p e))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -492,6 +500,8 @@
                  :restrict-front restrict-front-node
                  :restrict-tail restrict-tail-node
                  :pow power-of-node
+                 :sigma sigma-node
+                 :pi pi-node
                  })
 
 
