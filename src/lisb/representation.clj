@@ -325,7 +325,7 @@
   (node :pi (apply node :var-list identifiers) p e))
 
 ; TODO: - negations for subset/superset, strict/non-strict
-;       - generalized union/intersection, with/without predicate
+;       - generalized union/intersection, with predicate
 ;       - seq/seq1
 ;       - conc
 
