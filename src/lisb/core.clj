@@ -34,7 +34,9 @@
 (defn predicate [ast]
   (let [p (APredicateParseUnit. ast)
         start (Start. p (EOF.))]
-    (ClassicalB. start)))
+    (ClassicalB. start
+                 de.prob.animator.domainobjects.FormulaExpand/truncate
+                 "")))
 
 
 (defmulti get-result (comp type first))
