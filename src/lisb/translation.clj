@@ -103,6 +103,7 @@
                                                AGeneralIntersectionExpression
                                                ASeqExpression
                                                ASeq1Expression
+                                               AGeneralConcatExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -417,6 +418,9 @@
 (defn seq1-node [s]
   (ASeq1Expression. s))
 
+(defn conc-node [s]
+  (AGeneralConcatExpression. s))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -522,6 +526,7 @@
                  :general-intersection general-intersection-node
                  :seq seq-node
                  :seq1 seq1-node
+                 :conc conc-node
                  })
 
 

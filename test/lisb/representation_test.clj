@@ -824,6 +824,13 @@
             :children [{:tag :sequence :children [3 1 4]}]}
            (bseq1 (bsequence 3 1 4))))))
 
+(deftest conc-test
+  (testing "conc representation"
+    (is (= {:tag :conc
+            :children [{:tag :sequence :children [{:tag :sequence :children [3 1 4]}
+                                                  {:tag :sequence :children [1 5 9 2]}]}]}
+           (bconc (bsequence (bsequence 3 1 4) (bsequence 1 5 9 2)))))))
+
 
 (deftest pred-test
   (testing "the pred macro allows to write b-macrofied expressions

@@ -330,9 +330,11 @@
 (defn bseq1 [s]
   (node :seq1 s))
 
+(defn bconc [s]
+  (node :conc s))
+
 ; TODO: - negations for subset/superset, strict/non-strict
 ;       - generalized union/intersection, with predicate
-;       - conc
 
 
 
