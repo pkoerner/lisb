@@ -349,7 +349,6 @@
 
 
 ;; TODO: bset, bpow, bpow1, bfin, bfin1,
-;;       sub- and supersets in all colours
 ;;       sets of bools, naturals, ints, nats
 (defmacro b
   [repr]
@@ -388,6 +387,8 @@
          ~'difference bset-
          ~'contains? bmembers
          ~'member? bmember
+         ~'subset? bsubset
+         ~'superset? bsuperset
 
          ~'<-> b<->
          ~'dom bdom
