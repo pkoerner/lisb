@@ -812,6 +812,17 @@
                        :a]}
            (bpi [:a] (b< 1 :a 4) :a)))))
 
+(deftest seq-test
+  (testing "seq representation"
+    (is (= {:tag :seq
+            :children [{:tag :sequence :children [3 1 4]}]}
+           (bseq (bsequence 3 1 4))))))
+
+(deftest seq1-test
+  (testing "seq1 representation"
+    (is (= {:tag :seq1
+            :children [{:tag :sequence :children [3 1 4]}]}
+           (bseq1 (bsequence 3 1 4))))))
 
 
 (deftest pred-test

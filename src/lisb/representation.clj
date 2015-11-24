@@ -324,9 +324,14 @@
 (defn bpi [identifiers p e]
   (node :pi (apply node :var-list identifiers) p e))
 
+(defn bseq [s]
+  (node :seq s))
+
+(defn bseq1 [s]
+  (node :seq1 s))
+
 ; TODO: - negations for subset/superset, strict/non-strict
 ;       - generalized union/intersection, with predicate
-;       - seq/seq1
 ;       - conc
 
 

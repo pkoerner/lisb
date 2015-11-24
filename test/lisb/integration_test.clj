@@ -249,6 +249,12 @@
 
       (is (eval ss (to-ast (b= (bsigma [:a] (b<= 1 :a 4) :a) 10))))
       (is (eval ss (to-ast (b= (bpi    [:a] (b<= 1 :a 4) :a) 24))))
+
+      (is (eval ss (to-ast (bmember (bsequence 0 2 2 0 1 0 0) (bseq #{0 1 2})))))
+      (is (eval ss (to-ast (bmember #{} (bseq #{0 1 2})))))
+
+      (is (eval ss (to-ast (bmember (bsequence 0 2 2 0 1 0 0) (bseq1 #{0 1 2})))))
+      (is (eval ss (to-ast (bnot (bmember #{} (bseq1 #{0 1 2}))))))
       )))
 
 

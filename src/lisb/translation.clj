@@ -101,6 +101,8 @@
                                                AGeneralProductExpression
                                                AGeneralUnionExpression
                                                AGeneralIntersectionExpression
+                                               ASeqExpression
+                                               ASeq1Expression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -409,6 +411,12 @@
 (defn general-intersection-node [s]
   (AGeneralIntersectionExpression. s))
 
+(defn seq-node [s]
+  (ASeqExpression. s))
+
+(defn seq1-node [s]
+  (ASeq1Expression. s))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -512,6 +520,8 @@
                  :pi pi-node
                  :general-union general-union-node
                  :general-intersection general-intersection-node
+                 :seq seq-node
+                 :seq1 seq1-node
                  })
 
 
