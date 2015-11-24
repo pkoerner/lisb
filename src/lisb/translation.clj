@@ -104,6 +104,7 @@
                                                ASeqExpression
                                                ASeq1Expression
                                                AGeneralConcatExpression
+                                               AIfThenElseExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -421,6 +422,9 @@
 (defn conc-node [s]
   (AGeneralConcatExpression. s))
 
+(defn if-node [c t e]
+  (AIfThenElseExpression. c t e))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -527,6 +531,7 @@
                  :seq seq-node
                  :seq1 seq1-node
                  :conc conc-node
+                 :if if-node
                  })
 
 

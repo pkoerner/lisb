@@ -831,6 +831,13 @@
                                                   {:tag :sequence :children [1 5 9 2]}]}]}
            (bconc (bsequence (bsequence 3 1 4) (bsequence 1 5 9 2)))))))
 
+(deftest ite-test
+  (testing "if then else representation"
+    (is (= {:tag :if
+            :children [{:tag :less :children [1 2]}
+                       3
+                       4]}
+           (bif (b< 1 2) 3 4)))))
 
 (deftest pred-test
   (testing "the pred macro allows to write b-macrofied expressions

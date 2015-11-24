@@ -333,6 +333,9 @@
 (defn bconc [s]
   (node :conc s))
 
+(defn bif [condition then else]
+  (node :if condition then else))
+
 ; TODO: - negations for subset/superset, strict/non-strict
 ;       - generalized union/intersection, with predicate
 
@@ -436,6 +439,7 @@
          ~'rest btail
          ~'take btake
          ~'drop bdrop
+         ~'if bif
          ]
     ~repr))
 
