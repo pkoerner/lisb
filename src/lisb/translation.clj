@@ -109,6 +109,7 @@
                                                AQuantifiedUnionExpression
                                                ARecEntry
                                                AStructExpression
+                                               ARecExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -435,9 +436,13 @@
 (defn quantified-intersection-node [v p e]
   (AQuantifiedIntersectionExpression. v p e))
 
-
 (defn struct-node [ks vs]
   (AStructExpression. (map (fn [k v] (ARecEntry. k v)) ks vs)))
+
+(defn record-node [ks vs]
+  (ARecExpression. (map (fn [k v] (ARecEntry. k v)) ks vs)))
+
+
 
 (defn literal [x]
   (cond (keyword? x) (identifier x)
@@ -549,6 +554,7 @@
                  :union-pe quantified-union-node
                  :intersection-pe quantified-intersection-node
                  :struct struct-node
+                 :record record-node
                  })
 
 

@@ -870,6 +870,14 @@
                          {:tag :list :children (map second (seq m))}]}
              (bstruct m))))))
 
+(deftest record-test
+  (testing "record representation"
+    (let [m {:a (bint-set) :b (bbool-set)}]
+      (is (= {:tag :record
+              :children [{:tag :list :children (map first (seq m))}
+                         {:tag :list :children (map second (seq m))}]}
+             (brecord m))))))
+
 
 (deftest pred-test
   (testing "the pred macro allows to write b-macrofied expressions

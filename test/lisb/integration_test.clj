@@ -266,6 +266,8 @@
 
       (is (eval ss (to-ast (b= :x (bstruct :x #{1 2 3})))))
 
+      (is (eval ss (to-ast (bmember (brecord :x 1) (bstruct :x #{1 2 3})))))
+
       ;; FIXME: they fail
 (comment
       (is (eval ss (to-ast (b= (bif (b< 1 2) 3 4) 3))))

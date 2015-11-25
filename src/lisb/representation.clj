@@ -354,6 +354,7 @@
      (bstructy k m))))
 
 (def bstruct (partial bstructy :struct))
+(def brecord (partial bstructy :record))
 
 
 
