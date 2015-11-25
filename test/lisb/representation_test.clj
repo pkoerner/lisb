@@ -861,6 +861,16 @@
                        4]}
            (bif (b< 1 2) 3 4)))))
 
+
+(deftest struct-test
+  (testing "struct representation"
+    (let [m {:a (bint-set) :b (bbool-set)}]
+      (is (= {:tag :struct
+              :children [{:tag :list :children (map first (seq m))}
+                         {:tag :list :children (map second (seq m))}]}
+             (bstruct m))))))
+
+
 (deftest pred-test
   (testing "the pred macro allows to write b-macrofied expressions
             and returns a function"

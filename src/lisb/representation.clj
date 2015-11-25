@@ -344,6 +344,15 @@
 (defn bif [condition then else]
   (node :if condition then else))
 
+(defn bstruct
+  ([k v & keyvals]
+   (let [m (apply hash-map k v keyvals)]
+     (bstruct m)))
+  ([m]
+   (node :struct 
+         (apply node :list (keys m))
+         (apply node :list (vals m)))))
+
 ; TODO: - negations for subset/superset, strict/non-strict
 
 

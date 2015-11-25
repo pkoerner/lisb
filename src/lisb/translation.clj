@@ -107,6 +107,8 @@
                                                AIfThenElseExpression
                                                AQuantifiedIntersectionExpression
                                                AQuantifiedUnionExpression
+                                               ARecEntry
+                                               AStructExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -433,6 +435,10 @@
 (defn quantified-intersection-node [v p e]
   (AQuantifiedIntersectionExpression. v p e))
 
+
+(defn struct-node [ks vs]
+  (AStructExpression. (map (fn [k v] (ARecEntry. k v)) ks vs)))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -542,6 +548,7 @@
                  :if if-node
                  :union-pe quantified-union-node
                  :intersection-pe quantified-intersection-node
+                 :struct struct-node
                  })
 
 
