@@ -105,6 +105,8 @@
                                                ASeq1Expression
                                                AGeneralConcatExpression
                                                AIfThenElseExpression
+                                               AQuantifiedIntersectionExpression
+                                               AQuantifiedUnionExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -425,6 +427,12 @@
 (defn if-node [c t e]
   (AIfThenElseExpression. c t e))
 
+(defn quantified-union-node [v p e]
+  (AQuantifiedUnionExpression. v p e))
+
+(defn quantified-intersection-node [v p e]
+  (AQuantifiedIntersectionExpression. v p e))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (number? x) (integer x)
@@ -532,6 +540,8 @@
                  :seq1 seq1-node
                  :conc conc-node
                  :if if-node
+                 :union-pe quantified-union-node
+                 :intersection-pe quantified-intersection-node
                  })
 
 

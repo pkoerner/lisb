@@ -94,11 +94,17 @@
 (defn bunite-sets [s]
   (node :general-union s))
 
+(defn bunion-pe [identifiers pred expr]
+  (node :union-pe (apply node :var-list identifiers) pred expr))
+
 (defn bintersection [& args]
   (interleave-arity-two :set-intersection args))
 
 (defn bintersect-sets [s]
   (node :general-intersection s))
+
+(defn bintersection-pe [identifiers pred expr]
+  (node :intersection-pe (apply node :var-list identifiers) pred expr))
 
 (defn bset- [& args]
   (interleave-arity-two :set-difference args))
@@ -339,7 +345,6 @@
   (node :if condition then else))
 
 ; TODO: - negations for subset/superset, strict/non-strict
-;       - generalized union/intersection, with predicate
 
 
 

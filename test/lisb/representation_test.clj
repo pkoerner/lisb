@@ -226,6 +226,15 @@
             :children [#{#{1} #{2} #{3}}]}
            (bunite-sets #{#{1} #{2} #{3}})))))
 
+(deftest union-pe-test
+  (testing "generalised intersection with predicate"
+    (is (= {:tag :union-pe
+            :children [{:tag :var-list :children [:x]}
+                       {:tag :and :children [{:tag :less :children [0 :x]}
+                                             {:tag :less :children [:x 5]}]}
+                       #{:x {:tag :mul :children [:x :x]}}]}
+           (bunion-pe [:x] (b< 0 :x 5) #{:x (b* :x :x)})))))
+
 (deftest intersection-test
   (testing "set intersection with two arguments"
     (is (= {:tag :set-intersection
@@ -242,6 +251,15 @@
     (is (= {:tag :general-intersection
             :children [#{#{1} #{2} #{3}}]}
            (bintersect-sets #{#{1} #{2} #{3}})))))
+
+(deftest intersection-pe-test
+  (testing "generalised intersection with predicate"
+    (is (= {:tag :intersection-pe
+            :children [{:tag :var-list :children [:x]}
+                       {:tag :and :children [{:tag :less :children [0 :x]}
+                                             {:tag :less :children [:x 5]}]}
+                       #{:x {:tag :mul :children [:x :x]}}]}
+           (bintersection-pe [:x] (b< 0 :x 5) #{:x (b* :x :x)})))))
 
 (deftest set-difference-test
   (testing "set difference with two arguments"
