@@ -344,14 +344,21 @@
 (defn bif [condition then else]
   (node :if condition then else))
 
-(defn bstruct
-  ([k v & keyvals]
-   (let [m (apply hash-map k v keyvals)]
-     (bstruct m)))
-  ([m]
-   (node :struct 
+(defn- bstructy 
+  ([k m]
+   (node k 
          (apply node :list (keys m))
-         (apply node :list (vals m)))))
+         (apply node :list (vals m))))
+  ([k k1 v1 & keyvals]
+   (let [m (apply hash-map k1 v1 keyvals)]
+     (bstructy k m))))
+
+(def bstruct (partial bstructy :struct))
+
+
+
+
+
 
 ; TODO: - negations for subset/superset, strict/non-strict
 
