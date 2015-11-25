@@ -465,6 +465,10 @@
          ~'rest btail
          ~'take btake
          ~'drop bdrop
+
+         ~'struct bstruct
+         ~'record brecord
+
          ~'if bif
          ]
     ~repr))
