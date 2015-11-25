@@ -218,26 +218,30 @@
     (is (= {:tag :set-union
             :children [{:tag :set-union :children [ #{1 2} #{2 3}]}
                        #{3 4}]}
-           (bunion #{1 2} #{2 3} #{3 4}))))
+           (bunion #{1 2} #{2 3} #{3 4})))))
+
+(deftest unite-sets-test
   (testing "generalised union over set of sets"
     (is (= {:tag :general-union
             :children [#{#{1} #{2} #{3}}]}
-           (bunion #{#{1} #{2} #{3}})))))
+           (bunite-sets #{#{1} #{2} #{3}})))))
 
 (deftest intersection-test
   (testing "set intersection with two arguments"
     (is (= {:tag :set-intersection
             :children [#{1 2} #{2 3}]}
-           (bintersect #{1 2} #{2 3}))))
+           (bintersection #{1 2} #{2 3}))))
   (testing "set intersection with more than two arguments"
     (is (= {:tag :set-intersection
             :children [{:tag :set-intersection :children [ #{1 2} #{2 3}]}
                        #{3 4}]}
-           (bintersect #{1 2} #{2 3} #{3 4}))))
+           (bintersection #{1 2} #{2 3} #{3 4})))))
+
+(deftest intersect-sets-test
   (testing "generalised intersection over set of sets"
     (is (= {:tag :general-intersection
             :children [#{#{1} #{2} #{3}}]}
-           (bintersect #{#{1} #{2} #{3}})))))
+           (bintersect-sets #{#{1} #{2} #{3}})))))
 
 (deftest set-difference-test
   (testing "set difference with two arguments"

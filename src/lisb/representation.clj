@@ -89,14 +89,16 @@
   (node :card s))
 
 (defn bunion [& args]
-  (if (seq (rest args))
-      (interleave-arity-two :set-union args)
-      (apply node :general-union args)))
+  (interleave-arity-two :set-union args))
 
-(defn bintersect [& args]
-  (if (seq (rest args))
-      (interleave-arity-two :set-intersection args)
-      (apply node :general-intersection args)))
+(defn bunite-sets [s]
+  (node :general-union s))
+
+(defn bintersection [& args]
+  (interleave-arity-two :set-intersection args))
+
+(defn bintersect-sets [s]
+  (node :general-intersection s))
 
 (defn bset- [& args]
   (interleave-arity-two :set-difference args))
@@ -386,7 +388,9 @@
 
          ~'count bcount
          ~'union bunion
-         ~'intersection bintersect
+         ~'unite-sets bunite-sets
+         ~'intersection bintersection
+         ~'intersect-sets bintersect-sets
          ~'difference bset-
          ~'contains? bmembers
          ~'member? bmember

@@ -81,11 +81,13 @@
 
       (is (eval ss (to-ast (b= #{1 2 3} (bunion #{1 2} #{2 3})))))
       (is (eval ss (to-ast (b= #{1 2 3 4} (bunion #{1 2} #{2 3} #{3 4})))))
-      (is (eval ss (to-ast (b= #{1 2 3 4} (bunion #{#{1 2} #{2 3} #{3 4}})))))
 
-      (is (eval ss (to-ast (b= #{2} (bintersect #{1 2} #{2 3})))))
-      (is (eval ss (to-ast (b= #{3 4} (bintersect #{1 2 3 4} #{2 3 4} #{3 4})))))
-      (is (eval ss (to-ast (b= #{3 4} (bintersect #{#{1 2 3 4} #{2 3 4} #{3 4}})))))
+      (is (eval ss (to-ast (b= #{1 2 3 4} (bunite-sets #{#{1 2} #{2 3} #{3 4}})))))
+
+      (is (eval ss (to-ast (b= #{2} (bintersection #{1 2} #{2 3})))))
+      (is (eval ss (to-ast (b= #{3 4} (bintersection #{1 2 3 4} #{2 3 4} #{3 4})))))
+
+      (is (eval ss (to-ast (b= #{3 4} (bintersect-sets #{#{1 2 3 4} #{2 3 4} #{3 4}})))))
 
       (is (eval ss (to-ast (b= #{1} (bset- #{1 2} #{2 3})))))
       (is (eval ss (to-ast (b= #{1} (bset- #{1 2} #{2 3} #{3 4})))))
