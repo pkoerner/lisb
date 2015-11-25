@@ -174,7 +174,7 @@
 (deftest bset-test
   (testing "construction of a comprehension set"
     (is (= {:tag :comp-set
-            :children [{:tag :var-list :children [:x]}
+            :children [{:tag :list :children [:x]}
                        {:tag :and :children [{:tag :less :children [1 :x]}
                                              {:tag :less :children [:x 5]}]}]}
            (bset [:x] (b< 1 :x 5))))))
@@ -229,7 +229,7 @@
 (deftest union-pe-test
   (testing "generalised intersection with predicate"
     (is (= {:tag :union-pe
-            :children [{:tag :var-list :children [:x]}
+            :children [{:tag :list :children [:x]}
                        {:tag :and :children [{:tag :less :children [0 :x]}
                                              {:tag :less :children [:x 5]}]}
                        #{:x {:tag :mul :children [:x :x]}}]}
@@ -255,7 +255,7 @@
 (deftest intersection-pe-test
   (testing "generalised intersection with predicate"
     (is (= {:tag :intersection-pe
-            :children [{:tag :var-list :children [:x]}
+            :children [{:tag :list :children [:x]}
                        {:tag :and :children [{:tag :less :children [0 :x]}
                                              {:tag :less :children [:x 5]}]}
                        #{:x {:tag :mul :children [:x :x]}}]}
@@ -639,7 +639,7 @@
 (deftest lambda-test
   (testing "lambda representation"
     (is (= {:tag :lambda
-            :children [{:tag :var-list
+            :children [{:tag :list
                         :children [:x :y]}
                        {:tag :and
                         :children [{:tag :equals :children [:x :y]}
@@ -672,7 +672,7 @@
 (deftest forall-test
   (testing "universal quantification representation"
     (is (= {:tag :forall
-            :children [{:tag :var-list
+            :children [{:tag :list
                         :children [:x]}
                        {:tag :implication
                         :children [:a :b]}]}
@@ -681,7 +681,7 @@
 (deftest exists-test
   (testing "existential quantification representation"
     (is (= {:tag :exists
-            :children [{:tag :var-list
+            :children [{:tag :list
                         :children [:x]}
                        {:tag :member
                         :children [:x #{1}]}]}
@@ -818,7 +818,7 @@
 (deftest sigma-test
   (testing "set summation representation"
     (is (= {:tag :sigma
-            :children [{:tag :var-list :children [:a]}
+            :children [{:tag :list :children [:a]}
                        {:tag :and :children [{:tag :less :children [1 :a]}
                                              {:tag :less :children [:a 4]}]}
                        :a]}
@@ -828,7 +828,7 @@
 (deftest pi-test
   (testing "set product representation"
     (is (= {:tag :pi
-            :children [{:tag :var-list :children [:a]}
+            :children [{:tag :list :children [:a]}
                        {:tag :and :children [{:tag :less :children [1 :a]}
                                              {:tag :less :children [:a 4]}]}
                        :a]}

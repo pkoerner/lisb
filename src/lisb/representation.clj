@@ -71,7 +71,7 @@
   (node :to-bool a))
 
 (defn bset [v p]
-  (node :comp-set (apply node :var-list v) p))
+  (node :comp-set (apply node :list v) p))
 
 (defn bpow [s]
   (node :power-set s))
@@ -95,7 +95,7 @@
   (node :general-union s))
 
 (defn bunion-pe [identifiers pred expr]
-  (node :union-pe (apply node :var-list identifiers) pred expr))
+  (node :union-pe (apply node :list identifiers) pred expr))
 
 (defn bintersection [& args]
   (interleave-arity-two :set-intersection args))
@@ -104,7 +104,7 @@
   (node :general-intersection s))
 
 (defn bintersection-pe [identifiers pred expr]
-  (node :intersection-pe (apply node :var-list identifiers) pred expr))
+  (node :intersection-pe (apply node :list identifiers) pred expr))
 
 (defn bset- [& args]
   (interleave-arity-two :set-difference args))
@@ -257,7 +257,7 @@
   (interleave-arity-two :total-bijection args))
 
 (defn blambda [identifiers pred expr]
-  (let [vars (apply node :var-list identifiers)]
+  (let [vars (apply node :list identifiers)]
     (node :lambda vars pred expr)))
 
 (defn bapply [f & args]
@@ -267,10 +267,10 @@
   (interleave-arity-two :implication args))
 
 (defn bforall [identifiers impl]
-  (node :forall (apply node :var-list identifiers) impl))
+  (node :forall (apply node :list identifiers) impl))
 
 (defn bexists [identifiers pred]
-  (node :exists (apply node :var-list identifiers) pred))
+  (node :exists (apply node :list identifiers) pred))
 
 (defn binterval [from to]
   (node :interval from to))
@@ -327,10 +327,10 @@
   (interleave-arity-two-right :pow args))
 
 (defn bsigma [identifiers p e]
-  (node :sigma (apply node :var-list identifiers) p e))
+  (node :sigma (apply node :list identifiers) p e))
 
 (defn bpi [identifiers p e]
-  (node :pi (apply node :var-list identifiers) p e))
+  (node :pi (apply node :list identifiers) p e))
 
 (defn bseq [s]
   (node :seq s))

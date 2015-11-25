@@ -179,7 +179,7 @@
 (defn to-bool-node [p]
   (AConvertBoolExpression. p))
 
-(defn varlist [& args]
+(defn list-node [& args]
   args)
 
 (defn comprehension-set-node [v p]
@@ -481,7 +481,7 @@
                  :max max-node
                  :min min-node
                  :mod mod-node
-                 :var-list varlist
+                 :list list-node
                  :relation relations-node
                  :domain domain-node
                  :range range-node
