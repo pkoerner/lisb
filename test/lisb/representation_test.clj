@@ -879,6 +879,14 @@
              (brecord m))))))
 
 
+(deftest rec-get-test
+  (testing "record get representation"
+    (is (= {:tag :record-get
+            :children [{:tag :record :children [{:tag :list :children [:a]} 
+                                                {:tag :list :children [1]}]}
+                       :a]}
+           (brec-get (brecord :a 1) :a)))))
+
 (deftest pred-test
   (testing "the pred macro allows to write b-macrofied expressions
             and returns a function"

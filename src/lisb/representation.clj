@@ -356,6 +356,9 @@
 (def bstruct (partial bstructy :struct))
 (def brecord (partial bstructy :record))
 
+(defn brec-get [r e]
+  (node :record-get r e))
+
 
 
 

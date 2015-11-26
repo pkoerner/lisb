@@ -110,6 +110,7 @@
                                                ARecEntry
                                                AStructExpression
                                                ARecExpression
+                                               ARecordFieldExpression
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -442,6 +443,8 @@
 (defn record-node [ks vs]
   (ARecExpression. (map (fn [k v] (ARecEntry. k v)) ks vs)))
 
+(defn record-get-node [s id]
+  (ARecordFieldExpression. s id))
 
 
 (defn literal [x]
@@ -555,6 +558,7 @@
                  :intersection-pe quantified-intersection-node
                  :struct struct-node
                  :record record-node
+                 :record-get record-get-node
                  })
 
 
