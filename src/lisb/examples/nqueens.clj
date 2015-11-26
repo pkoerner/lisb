@@ -63,7 +63,7 @@
 (defn nqueens3
   "the n-queens problem using a predicate definition"
   ([size ss]
-   (eval ss (to-ast (nqueens-p 8 :queens))))
+   (eval ss (to-ast (nqueens-p size :queens))))
   ([size]
    (defonce ss (state-space))
    (nqueens3 size ss)))
