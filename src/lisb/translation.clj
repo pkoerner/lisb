@@ -129,9 +129,6 @@
     (AEmptySetExpression.)
     (ASetExtensionExpression. args)))
 
-(defn set-literal [s]
-  (apply enumerated-set-node (map to-ast s)))
-
 (defn boolean-true []
   (ABooleanTrueExpression.))
 
@@ -252,14 +249,8 @@
 (defn mod-node [n m]
   (AModuloExpression. n m))
 
-;;; TODO: this smells like it could be done nicer
 (defn tuple-node [l r]
   (ACoupleExpression. [l r]))
-
-(defn maplet-node [[l r]] 
-  (let [l' (to-ast l)
-        r' (to-ast r)]
-    (tuple-node l' r')))
 
 (defn relations-node [l r]
   (ARelationsExpression. l r))
@@ -459,8 +450,8 @@
         (number? x) (integer x)
         (true? x) (boolean-true)
         (false? x) (boolean-false)
-        (set? x) (set-literal x)
-        (sequential? x) (maplet-node x)
+        (set? x) (apply enumerated-set-node (map to-ast x))
+        (sequential? x) (apply tuple-node (map to-ast x))
         :otherwise (println :unhandled-literal x)
         
         ))
