@@ -272,6 +272,8 @@
 
 
       (is (eval ss (to-ast (b= #{1 2 3} (bset-enum 1 2 3)))))
+
+      (is (eval ss (to-ast (b= #{[1 2]} (bset-enum (btuple 1 2))))))
       ;; FIXME: they fail
 (comment
       (is (eval ss (to-ast (b= (bif (b< 1 2) 3 4) 3))))

@@ -904,3 +904,10 @@
     (is (= {:tag :enumerated-set
             :children [1 2 3]}
            (bset-enum 1 2 3)))))
+
+
+(deftest tuple-test
+  (testing "alternative non-syntactical representation of a tuple"
+    (is (= {:tag :tuple
+            :children [1 2]}
+           (btuple 1 2)))))

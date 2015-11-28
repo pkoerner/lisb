@@ -364,6 +364,8 @@
 
 
 
+(defn btuple [l r]
+  (node :tuple l r))
 
 
 

@@ -123,6 +123,7 @@
   (let [token (TIntegerLiteral. (str n))]
     (AIntegerExpression. token)))
 
+;;; TODO: this smells like it could be done nicer
 (defn enumerated-set-node [& args]
   (if-not (seq args)
     (AEmptySetExpression.)
@@ -251,10 +252,14 @@
 (defn mod-node [n m]
   (AModuloExpression. n m))
 
+;;; TODO: this smells like it could be done nicer
+(defn tuple-node [l r]
+  (ACoupleExpression. [l r]))
+
 (defn maplet-node [[l r]] 
   (let [l' (to-ast l)
         r' (to-ast r)]
-    (ACoupleExpression. [l' r'])))
+    (tuple-node l' r')))
 
 (defn relations-node [l r]
   (ARelationsExpression. l r))
@@ -562,6 +567,7 @@
                  :record record-node
                  :record-get record-get-node
                  :enumerated-set enumerated-set-node
+                 :tuple tuple-node
                  })
 
 
