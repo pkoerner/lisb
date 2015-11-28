@@ -44,4 +44,10 @@
     (is (= (convert [#{true} #{1}] :tuple [[:set []] [:set []]])
            (btuple (bset-enum true) (bset-enum 1))))
 
+    (is (= (convert [#{1} #{2} #{3}] :sequence [:set []])
+           (bsequence (bset-enum 1) (bset-enum 2) (bset-enum 3))))
+
+    (is (= (convert [#{1}] :set [:set []])
+           (bset-enum (bset-enum 1))))
+
     ))

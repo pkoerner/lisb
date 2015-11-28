@@ -17,6 +17,6 @@
                  [lt lr] inner-type
                  [rt rr] inner-rest]
              (btuple (convert l lt lr) (convert r rt rr)))
-    :sequence (apply bsequence data)
+    :sequence (apply bsequence (map #(convert % inner-type inner-rest) data))
     :record (apply brecord [data])
     :fn (apply bset-enum (map #(convert % :tuple inner-rest) data))))
