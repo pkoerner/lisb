@@ -123,11 +123,13 @@
   (let [token (TIntegerLiteral. (str n))]
     (AIntegerExpression. token)))
 
-(defn set-literal [s]
-  (if-not (seq s)
+(defn enumerated-set-node [& args]
+  (if-not (seq args)
     (AEmptySetExpression.)
-    (ASetExtensionExpression. (map to-ast s))))
+    (ASetExtensionExpression. args)))
 
+(defn set-literal [s]
+  (apply enumerated-set-node (map to-ast s)))
 
 (defn boolean-true []
   (ABooleanTrueExpression.))
@@ -559,6 +561,7 @@
                  :struct struct-node
                  :record record-node
                  :record-get record-get-node
+                 :enumerated-set enumerated-set-node
                  })
 
 

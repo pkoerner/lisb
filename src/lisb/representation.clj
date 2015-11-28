@@ -73,6 +73,9 @@
 (defn bset [v p]
   (node :comp-set (apply node :list v) p))
 
+(defn bset-enum [& args]
+  (apply node :enumerated-set args))
+
 (defn bpow [s]
   (node :power-set s))
 

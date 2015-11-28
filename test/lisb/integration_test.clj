@@ -270,6 +270,8 @@
 
       (is (eval ss (to-ast (b= 1 (brec-get (brecord :x 1) :x)))))
 
+
+      (is (eval ss (to-ast (b= #{1 2 3} (bset-enum 1 2 3)))))
       ;; FIXME: they fail
 (comment
       (is (eval ss (to-ast (b= (bif (b< 1 2) 3 4) 3))))

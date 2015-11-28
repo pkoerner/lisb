@@ -898,3 +898,9 @@
     (is (= ((pred [x y] (< x y)) 1 2)
            {:tag :less :children [1 2]})))) 
 
+
+(deftest enumerated-set-test
+  (testing "alternative non-syntactical representation of a set"
+    (is (= {:tag :enumerated-set
+            :children [1 2 3]}
+           (bset-enum 1 2 3)))))
