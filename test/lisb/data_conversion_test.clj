@@ -48,6 +48,11 @@
            (bsequence (bset-enum 1) (bset-enum 2) (bset-enum 3))))
 
     (is (= (convert [#{1}] :set [:set []])
-           (bset-enum (bset-enum 1))))
-
-    ))
+           (bset-enum (bset-enum 1)))))
+  
+  (testing "conversion of nested maps"
+    (is (= (convert {#{1} #{2}} :fn [[:set []] [:set []]])
+           (bset-enum (btuple (bset-enum 1) (bset-enum 2)))))
+    
+    )
+  )
