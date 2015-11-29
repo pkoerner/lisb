@@ -1,23 +1,23 @@
 (ns lisb.data-conversion
-  (:require [lisb.representation :refer [bsequence bset-enum btuple brecord
-                                         b+-> b-->
-                                         b+->> b-->>
-                                         b>+> b>->
-                                         b>+>> b>->>]]))
+  (:require [lisb.representation :refer [bsequence bset-enum btuple brecord]]))
 
-(defn convert [data btype [inner-type inner-rest]]
-  (case btype
-    nil data
-    :bool data
-    :int data
-    :number data
-    :literal data
-    :set (apply bset-enum (map #(convert % inner-type inner-rest) data))
-    :tuple (let [[l r] data
-                 [lt lr] inner-type
-                 [rt rr] inner-rest]
-             (btuple (convert l lt lr) (convert r rt rr)))
-    :sequence (apply bsequence (map #(convert % inner-type inner-rest) data))
-    :record (let [ks (keys inner-type)]
-              (apply brecord (mapcat (fn [k] [k (convert (data k) (first (inner-type k)) (second (inner-type k)))]) ks)))
-    :fn (apply bset-enum (map #(convert % :tuple [inner-type inner-rest]) data))))
+(defn ensure-list [maybe-k]
+  (if (keyword? maybe-k) [maybe-k] maybe-k))
+
+(defn convert [data btype type-arg #_[inner-type inner-rest]]
+  (if (or (not (#{:fn :set :tuple :sequence :record} btype)))
+    data
+    (let [[typel typer] (ensure-list type-arg)]
+      (case btype
+        :set (apply bset-enum (map #(convert % typel typer) data))
+        :tuple (let [[l r] data
+                     [lt lr] (ensure-list typel)
+                     [rt rr] (ensure-list typer)]
+                 (btuple (convert l lt lr) (convert r rt rr)))
+        :sequence (apply bsequence (map #(convert % typel typer) data))
+        :record (let [ks (keys typel)]
+                  (apply brecord
+                         (mapcat (fn [k]
+                                   (let [[typl typr] (ensure-list (typel k))]
+                                     [k (convert (data k) typl typr)])) ks)))
+        :fn (apply bset-enum (map #(convert % :tuple [typel typer]) data))))))
