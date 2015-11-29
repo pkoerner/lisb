@@ -26,8 +26,13 @@
     (is (= (convert {1 2} :fn [])
            (bset-enum (btuple 1 2))))
     
-    (is (= (convert {:x 1} :record [])
+    (is (= (convert {:x 1} :record [{:x []}])
+           (brecord :x 1)))
+  
+    (is (= (convert {:x 1 :y 2} :record [{:x []}])
            (brecord :x 1)))))
+
+
 
 (deftest nested-conversion
   (testing "conversion of sets of something else"
@@ -54,5 +59,8 @@
     (is (= (convert {#{1} #{2}} :fn [[:set []] [:set []]])
            (bset-enum (btuple (bset-enum 1) (bset-enum 2)))))
     
-    )
-  )
+    (is (= (convert {:x #{1}} :record [{:x [:set []]}])
+           (brecord :x (bset-enum 1))))
+
+    (is (= (convert {:x #{1} :y 2} :record [{:x [:set []]}])
+           (brecord :x (bset-enum 1))))))
