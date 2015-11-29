@@ -350,7 +350,7 @@
 (defn- bstructy 
   ([k m]
    (node k 
-         (apply node :list (keys m))
+         (apply node :list (map name (keys m)))
          (apply node :list (vals m))))
   ([k k1 v1 & keyvals]
    (let [m (apply hash-map k1 v1 keyvals)]

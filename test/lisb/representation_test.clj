@@ -866,7 +866,7 @@
   (testing "struct representation"
     (let [m {:a (bint-set) :b (bbool-set)}]
       (is (= {:tag :struct
-              :children [{:tag :list :children (map first (seq m))}
+              :children [{:tag :list :children (map (comp name first) (seq m))}
                          {:tag :list :children (map second (seq m))}]}
              (bstruct m))))))
 
@@ -874,7 +874,7 @@
   (testing "record representation"
     (let [m {:a (bint-set) :b (bbool-set)}]
       (is (= {:tag :record
-              :children [{:tag :list :children (map first (seq m))}
+              :children [{:tag :list :children (map (comp name first) (seq m))}
                          {:tag :list :children (map second (seq m))}]}
              (brecord m))))))
 
@@ -882,10 +882,10 @@
 (deftest rec-get-test
   (testing "record get representation"
     (is (= {:tag :record-get
-            :children [{:tag :record :children [{:tag :list :children [:a]} 
+            :children [{:tag :record :children [{:tag :list :children ["a"]} 
                                                 {:tag :list :children [1]}]}
-                       :a]}
-           (brec-get (brecord :a 1) :a)))))
+                       "a"]}
+           (brec-get (brecord "a" 1) "a")))))
 
 (deftest pred-test
   (testing "the pred macro allows to write b-macrofied expressions

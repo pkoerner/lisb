@@ -436,17 +436,19 @@
   (AQuantifiedIntersectionExpression. v p e))
 
 (defn struct-node [ks vs]
-  (AStructExpression. (map (fn [k v] (ARecEntry. k v)) ks vs)))
+  (AStructExpression. (map (fn [k v] (ARecEntry. (identifier k) v)) ks vs)))
 
 (defn record-node [ks vs]
-  (ARecExpression. (map (fn [k v] (ARecEntry. k v)) ks vs)))
+  (ARecExpression. (map (fn [k v] (ARecEntry. (identifier k) v)) ks vs)))
 
 (defn record-get-node [s id]
-  (ARecordFieldExpression. s id))
+  (ARecordFieldExpression. s (identifier id)))
 
 
 (defn literal [x]
   (cond (keyword? x) (identifier x)
+        (string? x) x ;; hack-y thing to avoid renaming
+                      ;; of rec-get parameters in preds
         (number? x) (integer x)
         (true? x) (boolean-true)
         (false? x) (boolean-false)
