@@ -19,8 +19,13 @@
       (is (eval ss (to-ast (b= :x true))))
       (is (eval ss (to-ast (b= :x false))))
 
-      (is (eval ss (to-ast (bnot= :x 1))))
-      (is (eval ss (to-ast (bnot= :x 1 2))))
+      (is (eval ss (to-ast (bnone= 0 1))))
+      (is (eval ss (to-ast (bnone= 0 1 2))))
+      (is (eval ss (to-ast (bnot (bnone= 0 1 1)))))
+
+      (is (eval ss (to-ast (bnot= 0 1))))
+      (is (eval ss (to-ast (bnot= 0 1 2))))
+      (is (eval ss (to-ast (bnot= 0 1 1))))
 
       (is (eval ss (to-ast (b< 1 2))))
       (is (eval ss (to-ast (b< 1 2 3))))
@@ -288,6 +293,7 @@
       (is (eval ss (to-ast (b= #{2 3 4} (bmap-set (pred [x] (+ 1 x)) #{1 2 3})))))
       (is (eval ss (to-ast (b= (bif (b< 1 2) 3 4) 3))))
       (is (eval ss (to-ast (b= (bif (b> 1 2) 3 4) 4))))
+      (is (eval ss (to-ast (b= (brange 1 5) #{1 2 3 4}))))
           )))
 
 

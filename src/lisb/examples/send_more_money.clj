@@ -5,8 +5,8 @@
 
 (defpred send-more-money-p [s e n d m o r y]
   (and (subset? #{s e n d m o r y} (range 0 9))
-       (not= 0 s m)
-       (not= s e n d m o r y)
+       (none= 0 s m)
+       (none= s e n d m o r y)
        (= (+ (* 1000 s) (* 100 e) (* 10 n) d
              (* 1000 m) (* 100 o) (* 10 r) e)
           (+ (* 10000 m) (* 1000 o) (* 100 n) (* 10 e) y))))

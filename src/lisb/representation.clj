@@ -64,7 +64,7 @@
 (defn bnot [a]
   (node :not a))
 
-(defn bnot= [& args]
+(defn bnone= [& args]
   (combine-and-chain :not-equals args))
 
 (defn bpred->bool [a]
@@ -371,6 +371,11 @@
 (defn bmap-set [p s]
   (bran (blambda [:x] (bmember :x s) (p :x))))
 
+(defn brange [from to]
+  (node :interval from (bdec to)))
+
+(defn bnot= [& args]
+  (bnot (apply b= args)))
 
 ; TODO: - negations for subset/superset, strict/non-strict
 
@@ -400,7 +405,8 @@
          ~'mod bmod
          ~'inc binc
          ~'dec bdec
-         ~'range binterval
+         ~'range brange
+         ~'interval binterval
          ~'< b<
          ~'> b>
          ~'<= b<=
@@ -411,6 +417,7 @@
          ~'and band
          ~'or bor
          ~'not bnot
+         ~'none= bnone=
          ~'not= bnot=
          ~'= b=
          ~'<=> b<=>

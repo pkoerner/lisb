@@ -24,7 +24,7 @@ See src/lisb/examples
 - [ ] exhaustive implementation of B operators
 - [ ] more examples
 - [ ] support for external functions
-- [ ] make semantics or not= and range clearer / clojure-y
+- [X] make semantics or not= and range clearer / clojure-y
 - [ ] use B machines as contexts
 
 ## License
