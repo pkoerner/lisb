@@ -277,10 +277,7 @@
       (is (eval ss (to-ast (b= #{1 2 3} (bset-enum 1 2 3)))))
 
       (is (eval ss (to-ast (b= #{[1 2]} (bset-enum (btuple 1 2))))))
-      ;; FIXME: they fail
-(comment
-      (is (eval ss (to-ast (b= (bif (b< 1 2) 3 4) 3))))
-      (is (eval ss (to-ast (b= (bif (b> 1 2) 3 4) 4)))))
+
       )))
 
 
@@ -288,7 +285,10 @@
 (deftest fancy-fns-test
   (testing "fancier functions"
     (let [ss te-ss-t]
-      (is (eval ss (to-ast (b= #{2 3 4} (bmap-set (pred [x] (+ 1 x)) #{1 2 3}))))))))
+      (is (eval ss (to-ast (b= #{2 3 4} (bmap-set (pred [x] (+ 1 x)) #{1 2 3})))))
+      (is (eval ss (to-ast (b= (bif (b< 1 2) 3 4) 3))))
+      (is (eval ss (to-ast (b= (bif (b> 1 2) 3 4) 4))))
+          )))
 
 
 (deftest b-haviour
