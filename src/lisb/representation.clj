@@ -494,12 +494,16 @@
     (vector? node) (into []  (map (partial wrap ctx) node))
     :otherwise node))
 
+(defn almost-flatten [x]
+  (filter (complement coll?)
+          (rest (tree-seq coll? seq x))))
+
 (defmacro pred [name & args]
   (let [body (last args)
         params (drop-last args)
         ctx (gensym 'lisb_ctx_)
         wrapped-body (wrap ctx body)
-        keywords (set (filter keyword? (flatten body)))]
+        keywords (set (filter keyword? (almost-flatten body)))]
     `(fn ~name ~@params
        (let [~ctx (into {} (mapv (fn [x#] [x# (keyword (gensym "lisb_"))]) ~keywords))]
          (do (b ~wrapped-body))))))

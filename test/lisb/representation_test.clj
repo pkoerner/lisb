@@ -891,12 +891,18 @@
   (testing "the pred macro allows to write b-macrofied expressions
             and returns a function"
     (is (fn? (pred [] (+ 1 2)))))
+  
   (testing "the pred macro has a parameter list just like fn"
     (is (fn? (pred [x y] (+ 1 2)))))
+
   (testing "the resulting function generates a representation
             which replaces the parameter symbols with the values provided"
     (is (= ((pred [x y] (< x y)) 1 2)
-           {:tag :less :children [1 2]})))) 
+           {:tag :less :children [1 2]})))
+  
+  (testing "the pred macro flattens sets properly"
+    (is (= (count ((pred [] #{:x :y})))
+            2)))) 
 
 
 (deftest enumerated-set-test

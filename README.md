@@ -8,11 +8,8 @@ Write B in Clojure. Interact with the ProB constraint solver.
 See src/lisb/examples
 
 
-### Bugs
+### Known Bugs
 
-- the pred macro messes up sets consisting of variables,
- e.g. ((pred foo [] #{:x :y})) yields an error.
- This is because flatten only works on sequential items, i.e. not sets.
 
 
 ### To Do
