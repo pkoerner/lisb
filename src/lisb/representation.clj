@@ -368,6 +368,9 @@
   (node :tuple l r))
 
 
+(defn bmap-set [p s]
+  (bran (blambda [:x] (bmember :x s) (p :x))))
+
 
 ; TODO: - negations for subset/superset, strict/non-strict
 

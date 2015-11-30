@@ -4,13 +4,15 @@
   (:require [lisb.representation :refer :all])
   (:require [lisb.translation :refer [to-ast]]))
 
+(defonce te-ss-t (state-space))
+
 (deftest integration
   (testing "no exception is thrown when executing implemented command;
             this test only checks that a valid (i.e. accepted) AST is constructed
             without concern about semantics
             for now only 'truish' predicates are evaluated because eval cannot handle
             ComputationNotCompletedResults yet"
-    (let [ss (state-space)]
+    (let [ss te-ss-t]
       (is (eval ss (to-ast (b= 1 1))))
       (is (eval ss (to-ast (b= :x 1))))
       (is (eval ss (to-ast (b= 1 1 1))))
@@ -280,6 +282,13 @@
       (is (eval ss (to-ast (b= (bif (b< 1 2) 3 4) 3))))
       (is (eval ss (to-ast (b= (bif (b> 1 2) 3 4) 4)))))
       )))
+
+
+
+(deftest fancy-fns-test
+  (testing "fancier functions"
+    (let [ss te-ss-t]
+      (is (eval ss (to-ast (b= #{2 3 4} (bmap-set (pred [x] (+ 1 x)) #{1 2 3}))))))))
 
 
 (deftest b-haviour
