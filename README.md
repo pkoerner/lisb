@@ -23,6 +23,9 @@ See src/lisb/examples
 - [ ] strings containing B code
 - [ ] exhaustive implementation of B operators
 - [ ] more examples
+- [ ] support for external functions
+- [ ] make semantics or not= and range clearer / clojure-y
+- [ ] use B machines as contexts
 
 ## License
 
