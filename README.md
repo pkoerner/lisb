@@ -21,6 +21,8 @@ See src/lisb/examples
     - [ ] let (B)
     - [ ] choose
 - [ ] strings containing B code
+    - [X] parsing of B strings
+    - [ ] matching of variables
 - [ ] exhaustive implementation of B operators
 - [ ] more examples
 - [ ] support for external functions

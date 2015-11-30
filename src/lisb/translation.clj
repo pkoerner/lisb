@@ -1,6 +1,7 @@
 (ns lisb.translation
   (:require [clojure.walk :refer [walk]])
-  (:import (de.be4.classicalb.core.parser.node AAddExpression
+  (:import de.prob.animator.domainobjects.ClassicalB
+           (de.be4.classicalb.core.parser.node AAddExpression
                                                AMinusExpression
                                                AMultOrCartExpression
                                                ADivExpression
@@ -445,6 +446,16 @@
   (ARecordFieldExpression. s (identifier id)))
 
 
+
+
+
+
+(defn bpredcode-node [code]
+  (.. (ClassicalB. code) getAst getPParseUnit getPredicate))
+
+(defn bexprcode-node [code]
+  (.. (ClassicalB. code) getAst getPParseUnit getExpression))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (string? x) x ;; hack-y thing to avoid renaming
@@ -561,6 +572,8 @@
                  :record-get record-get-node
                  :enumerated-set enumerated-set-node
                  :tuple tuple-node
+                 :bexpr bexprcode-node
+                 :bpred bpredcode-node
                  })
 
 

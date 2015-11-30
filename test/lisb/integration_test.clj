@@ -294,6 +294,8 @@
       (is (eval ss (to-ast (b= (bif (b< 1 2) 3 4) 3))))
       (is (eval ss (to-ast (b= (bif (b> 1 2) 3 4) 4))))
       (is (eval ss (to-ast (b= (brange 1 5) #{1 2 3 4}))))
+      (is (eval ss (to-ast (bpred "1<2"))))
+      (is (eval ss (to-ast (b= 2 (bexpr "1+1")))))
           )))
 
 

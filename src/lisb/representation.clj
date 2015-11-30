@@ -377,6 +377,12 @@
 (defn bnot= [& args]
   (bnot (apply b= args)))
 
+
+(defn bexpr [s]
+  (node :bexpr s))
+
+(defn bpred [s]
+  (node :bpred s))
 ; TODO: - negations for subset/superset, strict/non-strict
 
 
