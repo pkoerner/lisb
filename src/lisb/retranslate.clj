@@ -7,4 +7,6 @@
     de.prob.translator.types.Boolean    (.booleanValue data)
     de.prob.translator.types.Sequence   (set (map retranslate data)) 
     de.prob.translator.types.Set        (set (map retranslate data))
-    de.prob.translator.types.Tuple      (mapv retranslate data)))
+    de.prob.translator.types.Tuple      (mapv retranslate data)
+    de.prob.translator.types.String     (.getValue data)
+    ))
