@@ -269,8 +269,11 @@
 (defn b=> [& args]
   (interleave-arity-two :implication args))
 
-(defn bforall [identifiers impl]
-  (node :forall (apply node :list identifiers) impl))
+(defn bforall
+  ([identifiers impl]
+    (node :forall (apply node :list identifiers) impl))
+  ([identifiers impl-left impl-right]
+   (bforall identifiers (b=> impl-left impl-right))))
 
 (defn bexists [identifiers pred]
   (node :exists (apply node :list identifiers) pred))
