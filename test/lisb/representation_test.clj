@@ -917,3 +917,10 @@
     (is (= {:tag :tuple
             :children [1 2]}
            (btuple 1 2)))))
+
+
+
+(deftest string-test
+  (testing "string expression representation"
+    (is (= {:tag :string :children ["foo"]}
+           (bstr "foo")))))

@@ -383,6 +383,9 @@
 
 (defn bpred [s]
   (node :bpred s))
+
+(defn bstr [s]
+  (node :string s))
 ; TODO: - negations for subset/superset, strict/non-strict
 
 

@@ -112,6 +112,8 @@
                                                AStructExpression
                                                ARecExpression
                                                ARecordFieldExpression
+                                               AStringExpression
+                                               TStringLiteral
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -447,6 +449,8 @@
 
 
 
+(defn string-node [s]
+  (AStringExpression. (TStringLiteral. s)))
 
 
 
@@ -574,6 +578,7 @@
                  :tuple tuple-node
                  :bexpr bexprcode-node
                  :bpred bpredcode-node
+                 :string string-node
                  })
 
 

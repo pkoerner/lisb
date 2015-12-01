@@ -283,6 +283,8 @@
 
       (is (eval ss (to-ast (b= #{[1 2]} (bset-enum (btuple 1 2))))))
 
+      (is (eval ss (to-ast (b= :x (bstr "foo")))))
+
       )))
 
 
