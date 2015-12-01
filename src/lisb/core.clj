@@ -52,10 +52,14 @@
       (throw (Exception. reason-string)))))
 
 
+(defonce ^:private secret-state-space (state-space))
 
-(defn eval [state-space ast]
-  (let [cmd (CbcSolveCommand. (predicate ast))
-        _ (.execute state-space cmd)
-        free (.getFreeVariables cmd)]
-    (get-result [(.getValue cmd) free])))
+(defn eval
+  ([ast]
+    (eval secret-state-space ast))
+  ([state-space ast]
+    (let [cmd (CbcSolveCommand. (predicate ast))
+          _ (.execute state-space cmd)
+          free (.getFreeVariables cmd)]
+      (get-result [(.getValue cmd) free]))))
 
