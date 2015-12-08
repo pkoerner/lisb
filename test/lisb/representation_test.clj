@@ -924,3 +924,29 @@
   (testing "string expression representation"
     (is (= {:tag :string :children ["foo"]}
            (bstr "foo")))))
+
+(deftest let-tests
+  (testing "one binding and predicate"
+    (is (= {:tag :let-pred
+            :children [{:tag :list :children [:foo]}
+                       {:tag :list :children [1]}
+                       {:tag :less :children [:foo 2]}]}
+           (blet-pred [:foo 1] (b< :foo 2)))))
+  (testing "more bindings and a predicate"
+    (is (= {:tag :let-pred
+            :children [{:tag :list :children [:foo :bar]}
+                       {:tag :list :children [1 2]}
+                       {:tag :less :children [:foo :bar]}]}
+           (blet-pred [:foo 1 :bar 2] (b< :foo :bar)))))
+  (testing "one binding and expression"
+    (is (= {:tag :let-pred
+            :children [{:tag :list :children [:foo]}
+                       {:tag :list :children [1]}
+                       {:tag :plus :children [:foo 2]}]}
+           (blet-pred [:foo 1] (b+ :foo 2)))))
+  (testing "more bindings and an expression"
+    (is (= {:tag :let-pred
+            :children [{:tag :list :children [:foo :bar]}
+                       {:tag :list :children [1 2]}
+                       {:tag :plus :children [:foo :bar]}]}
+           (blet-pred [:foo 1 :bar 2] (b+ :foo :bar))))))

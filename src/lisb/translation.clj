@@ -114,6 +114,8 @@
                                                ARecordFieldExpression
                                                AStringExpression
                                                TStringLiteral
+                                               ALetExpressionExpression
+                                               ALetPredicatePredicate
                                                )))
 
 (declare to-ast-wrapped to-ast)
@@ -453,6 +455,11 @@
   (AStringExpression. (TStringLiteral. s)))
 
 
+(defn let-pred-node [ks vs p]
+  (ALetPredicatePredicate. ks vs p))
+
+(defn let-expr-node [ks vs e]
+  (ALetExpressionExpression. ks vs e))
 
 (defn bpredcode-node [code]
   (.. (ClassicalB. code) getAst getPParseUnit getPredicate))
@@ -579,6 +586,8 @@
                  :bexpr bexprcode-node
                  :bpred bpredcode-node
                  :string string-node
+                 :let-pred let-pred-node
+                 :let-expr let-expr-node
                  })
 
 

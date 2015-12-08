@@ -389,6 +389,21 @@
 
 (defn bstr [s]
   (node :string s))
+
+
+(defn blet [tag kvs p]
+  (let [[identifiers vs] (apply map list (partition 2 kvs))]
+    (node tag (apply node :list identifiers)
+              (apply node :list vs)
+              p))) 
+
+(defn blet-pred [kvs p] 
+  (blet :let-pred kvs p))
+
+
+(defn blet-expr [kvs e] 
+  (blet :let-expr kvs e))
+
 ; TODO: - negations for subset/superset, strict/non-strict
 
 

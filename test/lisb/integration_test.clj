@@ -298,6 +298,10 @@
       (is (eval ss (to-ast (b= (brange 1 5) #{1 2 3 4}))))
       (is (eval ss (to-ast (bpred "1<2"))))
       (is (eval ss (to-ast (b= 2 (bexpr "1+1")))))
+      (is (eval ss (to-ast (blet-pred [:foo 1] (b< :foo 2)))))
+      (is (eval ss (to-ast (blet-pred [:foo 1 :bar 2] (b< :foo :bar)))))
+      (is (eval ss (to-ast (b= 1 (blet-expr [:foo 1] :foo)))))
+      (is (eval ss (to-ast (b= 3 (blet-expr [:foo 1 :bar 2] (b+ :foo :bar))))))
           )))
 
 
