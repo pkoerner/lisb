@@ -18,7 +18,7 @@ See src/lisb/examples
 - [ ] painless conversion from B data into Clojure data structures
 - [ ] special nodes
     - [x] if-then-else
-    - [ ] let (B)
+    - [x] let (B)
     - [ ] choose
 - [ ] strings containing B code
     - [X] parsing of B strings
