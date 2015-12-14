@@ -1,5 +1,5 @@
 (ns lisb.core-test
-  (:require [lisb.core :refer [unsat-core choose-rest sat-conjuncts?]]
+  (:require [lisb.core :refer [unsat-core unsat-core-predicate choose-rest sat-conjuncts?]]
             [lisb.representation :refer :all])
   (:require [clojure.test :refer :all]))
 
@@ -34,3 +34,9 @@
           (and
             (apply (complement sat-conjuncts?) uc)
             (every? #(apply sat-conjuncts? %) (map second (choose-rest uc))))))))
+
+(deftest unsat-core-predicate-test
+  (testing "unsat core works with predicates that minimize a parameter set"
+    (is (= (unsat-core-predicate (pred [c] (not (contains? c 4 5 7)))
+                                 (set (range 10)))
+           #{4 5 7}))))

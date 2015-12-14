@@ -82,18 +82,24 @@
   ([c & r]
    (eval (to-ast (apply band c r)))))
 
-(defn unsat-core-aux [conjuncts]
-  (let [poss (choose-rest conjuncts)
-        [_ r] (first (drop-while (comp (partial apply sat-conjuncts?)
+(defn unsat-core-aux [sat? c]
+  (let [poss (choose-rest c)
+        [_ r] (first (drop-while (comp sat?
                                        second)
                                  poss))]
     (if r
-      (unsat-core-aux r)
-      (set conjuncts))))
+      (unsat-core-aux sat? r)
+      (set c))))
+
 
 (defn unsat-core [& conjuncts]
   {:pre [(seq (rest conjuncts))
          (not (eval (to-ast (apply band conjuncts))))]}
-  (unsat-core-aux conjuncts))
+  (unsat-core-aux (partial apply sat-conjuncts?) conjuncts))
 
+
+(defn unsat-core-predicate [p c]
+  {:pre [(not (eval (to-ast (p c))))
+         (set? c)]}
+  (unsat-core-aux #(eval (to-ast (p (set %)))) c))
 
