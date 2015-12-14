@@ -63,3 +63,37 @@
           free (.getFreeVariables cmd)]
       (get-result [(.getValue cmd) free]))))
 
+
+(defn choose-rest
+  ([c]
+   (let [cc (cycle c)
+         n (count c)]
+     (choose-rest cc (dec n) n)))
+  ([[h & t] tailsize n]
+   (if (= n 0)
+     '()
+     (lazy-seq (cons [h (take tailsize t)]
+                     (choose-rest t tailsize (dec n)))))))
+
+
+(defn sat-conjuncts?
+  ([c]
+   (eval (to-ast c)))
+  ([c & r]
+   (eval (to-ast (apply band c r)))))
+
+(defn unsat-core-aux [conjuncts]
+  (let [poss (choose-rest conjuncts)
+        [_ r] (first (drop-while (comp (partial apply sat-conjuncts?)
+                                       second)
+                                 poss))]
+    (if r
+      (unsat-core-aux r)
+      (set conjuncts))))
+
+(defn unsat-core [& conjuncts]
+  {:pre [(seq (rest conjuncts))
+         (not (eval (to-ast (apply band conjuncts))))]}
+  (unsat-core-aux conjuncts))
+
+
