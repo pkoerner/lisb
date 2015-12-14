@@ -64,16 +64,13 @@
       (get-result [(.getValue cmd) free]))))
 
 
-(defn choose-rest
-  ([c]
-   (let [cc (cycle c)
-         n (count c)]
-     (choose-rest cc (dec n) n)))
-  ([[h & t] tailsize n]
-   (if (= n 0)
-     '()
-     (lazy-seq (cons [h (take tailsize t)]
-                     (choose-rest t tailsize (dec n)))))))
+
+(defn choose-rest [c]
+  (let [n (count c)]
+    (->> (concat c c)
+         (partition n 1)
+         (map (fn [[h & t]] [h t]))
+         butlast)))
 
 
 (defn sat-conjuncts?
