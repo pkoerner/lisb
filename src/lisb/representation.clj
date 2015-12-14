@@ -391,6 +391,10 @@
   (node :string s))
 
 
+(defn bcall [f & args]
+  (apply node :fn-call f args))
+
+
 (defn blet [tag kvs p]
   (let [[identifiers vs] (apply map list (partition 2 kvs))]
     (node tag (apply node :list identifiers)

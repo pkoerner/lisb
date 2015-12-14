@@ -114,6 +114,7 @@
                                                ARecordFieldExpression
                                                AStringExpression
                                                TStringLiteral
+                                               ADefinitionExpression
                                                ALetExpressionExpression
                                                ALetPredicatePredicate
                                                )))
@@ -454,6 +455,8 @@
 (defn string-node [s]
   (AStringExpression. (TStringLiteral. s)))
 
+(defn fn-call-node [f & args]
+  (ADefinitionExpression. (TIdentifierLiteral. (name f)) args))
 
 (defn let-pred-node [ks vs p]
   (ALetPredicatePredicate. ks vs p))
@@ -586,6 +589,7 @@
                  :bexpr bexprcode-node
                  :bpred bpredcode-node
                  :string string-node
+                 :fn-call fn-call-node
                  :let-pred let-pred-node
                  :let-expr let-expr-node
                  })

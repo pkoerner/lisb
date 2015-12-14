@@ -19,7 +19,7 @@
         tn (.getAbsolutePath tf)
         ]
     (.deleteOnExit tf)
-    (spit tf "MACHINE empty \n END")
+    (spit tf "MACHINE empty \n DEFINITIONS \"CHOOSE.def\" \n  END")
     tn))
 
 (defn state-space []

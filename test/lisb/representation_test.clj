@@ -925,6 +925,12 @@
     (is (= {:tag :string :children ["foo"]}
            (bstr "foo")))))
 
+
+(deftest external-function
+  (testing "representation of a function call, e.g. choose"
+    (is (= {:tag :fn-call :children ["CHOOSE" #{1 2 3}]}
+           (bcall "CHOOSE" #{1 2 3})))))
+
 (deftest let-tests
   (testing "one binding and predicate"
     (is (= {:tag :let-pred
