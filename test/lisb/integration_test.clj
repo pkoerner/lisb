@@ -106,8 +106,8 @@
       (is (eval ss (to-ast (bmember 1 #{1}))))
       (is (eval ss (to-ast (bmember 1 #{1} #{1 2}))))
 
-      (is (eval ss (to-ast (bmembers #{1 2 3} 1))))
-      (is (eval ss (to-ast (bmembers #{1 2 3} 1 2))))
+      (is (eval ss (to-ast (bcontains #{1 2 3} 1))))
+      (is (eval ss (to-ast (bcontains #{1 2 3} 1 2))))
 
       (is (eval ss (to-ast (bsubset #{1} #{1 2}))))
       (is (eval ss (to-ast (bsubset #{1} #{1 2} #{1 2 3}))))

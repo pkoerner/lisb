@@ -1,5 +1,4 @@
-(ns lisb.representation
-  (:require [clojure.math.combinatorics :refer [combinations]]))
+(ns lisb.representation)
 
 
 (defn node [tag & children]
@@ -7,65 +6,49 @@
    :children (if children children [])})
 
 
-(defn chain [tag tuples]
-  (reduce (partial node :and) (map (partial apply node tag) tuples)))
-
-(defn chain-arity-two [tag nodes]
-  (chain tag (partition 2 1 nodes)))
-
-(defn combine-and-chain [tag nodes]
-  (chain tag (combinations nodes 2)))
-
-(defn interleave-arity-two [tag nodes]
-  (reduce (partial node tag) nodes))
-
-(defn interleave-arity-two-right [tag nodes]
-  (reduce #(node tag %2 %1) (reverse nodes)))
-
-
 (defn b< [& args]
-  (chain-arity-two :less args))
+  (apply node :less args))
 
 (defn b> [& args]
-  (chain-arity-two :greater args))
+  (apply node :greater args))
 
 (defn b<= [& args]
-  (chain-arity-two :less-eq args))
+  (apply node :less-eq args))
 
 (defn b>= [& args]
-  (chain-arity-two :greater-eq args))
+  (apply node :greater-eq args))
 
 (defn b+ [& args]
-  (interleave-arity-two :plus args))
+  (apply node :plus args))
 
 (defn b- [a & r]
   (if (seq r)
-    (interleave-arity-two :minus (conj r a))
+    (apply node :minus (conj r a))
     (node :unaryminus a)))
 
 (defn b* [& args]
-  (interleave-arity-two :mul args))
+  (apply node :mul args))
 
 (defn bdiv [& args]
-  (interleave-arity-two :div args))
+  (apply node :div args))
 
 (defn band [& args]
-  (interleave-arity-two :and args))
+  (apply node :and args))
 
 (defn b= [& args]
-  (chain-arity-two :equals args))
+  (apply node :equals args))
 
 (defn b<=> [& args]
-  (chain-arity-two :equivalence args))
+  (apply node :equivalence args))
 
 (defn bor [& args]
-  (interleave-arity-two :or args))
+  (apply node :or args))
 
 (defn bnot [a]
   (node :not a))
 
 (defn bnone= [& args]
-  (combine-and-chain :not-equals args))
+  (apply node :not-equals args))
 
 (defn bpred->bool [a]
   (node :to-bool a))
@@ -92,7 +75,7 @@
   (node :card s))
 
 (defn bunion [& args]
-  (interleave-arity-two :set-union args))
+  (apply node :set-union args))
 
 (defn bunite-sets [s]
   (node :general-union s))
@@ -101,7 +84,7 @@
   (node :union-pe (apply node :list identifiers) pred expr))
 
 (defn bintersection [& args]
-  (interleave-arity-two :set-intersection args))
+  (apply node :set-intersection args))
 
 (defn bintersect-sets [s]
   (node :general-intersection s))
@@ -110,22 +93,28 @@
   (node :intersection-pe (apply node :list identifiers) pred expr))
 
 (defn bset- [& args]
-  (interleave-arity-two :set-difference args))
+  (apply node :set-difference args))
 
 (defn bmember [e & sets]
-  (chain :member (map (fn [s] [e s]) sets)))
+  (if (< 1 (count sets))
+    (apply band
+           (map (partial node :member e) sets))
+    (node :member e (first sets))))
 
-(defn bmembers [s & elements]
-  (chain :member (map (fn [e] [e s]) elements)))
+(defn bcontains [s & elements]
+  (if (< 1 (count elements))
+    (apply band
+           (map (fn [e] (node :member e s)) elements)) 
+    (node :member (first elements) s)))
 
 (defn bsubset [& args]
-  (chain-arity-two :subset args))
+  (apply node :subset args))
 
 (defn bsuperset [& args]
   (apply bsubset (reverse args)))
 
 (defn bsubset-strict [& args]
-  (chain-arity-two :subset-strict args))
+  (apply node :subset-strict args))
 
 (defn bsuperset-strict [& args]
   (apply bsubset-strict (reverse args)))
@@ -172,7 +161,7 @@
   (b- n 1))
 
 (defn b<-> [& args]
-  (interleave-arity-two :relation args))
+  (apply node :relation args))
 
 (defn bdom [r]
   (node :domain r))
@@ -203,16 +192,16 @@
   (node :relational-image r s))
 
 (defn b<+ [& args]
-  (interleave-arity-two :relational-override args))
+  (apply node :relational-override args))
 
 (defn b>< [& args]
-  (interleave-arity-two :direct-product args))
+  (apply node :direct-product args))
 
 (defn bcomp [& args]
-  (interleave-arity-two :relational-composition args))
+  (apply node :relational-composition args))
 
 (defn b|| [& args]
-  (interleave-arity-two :parallel-product args))
+  (apply node :parallel-product args))
 
 (defn bprj1 [s t]
   (node :proj1 s t))
@@ -236,28 +225,28 @@
   (node :relationise r))
 
 (defn b+-> [& args]
-  (interleave-arity-two :partial-fn args))
+  (apply node :partial-fn args))
 
 (defn b--> [& args]
-  (interleave-arity-two :total-fn args))
+  (apply node :total-fn args))
 
 (defn b+->> [& args]
-  (interleave-arity-two :partial-surjection args))
+  (apply node :partial-surjection args))
 
 (defn b-->> [& args]
-  (interleave-arity-two :total-surjection args))
+  (apply node :total-surjection args))
 
 (defn b>+> [& args]
-  (interleave-arity-two :partial-injection args))
+  (apply node :partial-injection args))
 
 (defn b>-> [& args]
-  (interleave-arity-two :total-injection args))
+  (apply node :total-injection args))
 
 (defn b>+>> [& args]
-  (interleave-arity-two :partial-bijection args))
+  (apply node :partial-bijection args))
 
 (defn b>->> [& args]
-  (interleave-arity-two :total-bijection args))
+  (apply node :total-bijection args))
 
 (defn blambda [identifiers pred expr]
   (let [vars (apply node :list identifiers)]
@@ -267,7 +256,7 @@
   (apply node :fn-application f args))
 
 (defn b=> [& args]
-  (interleave-arity-two :implication args))
+  (apply node :implication args))
 
 (defn bforall
   ([identifiers impl]
@@ -294,13 +283,13 @@
   (node :perm s))
 
 (defn bconcat [& args]
-  (interleave-arity-two :concat args))
+  (apply node :concat args))
 
 (defn b-> [e s]
   (node :prepend e s))
 
 (defn b<- [& args]
-  (interleave-arity-two :append args))
+  (apply node :append args))
 
 (defn breverse [s]
   (node :reverse s))
@@ -330,7 +319,7 @@
   (brestrict-tail s n))
 
 (defn b** [& args]
-  (interleave-arity-two-right :pow args))
+  (apply node :pow args))
 
 (defn bsigma [identifiers p e]
   (node :sigma (apply node :list identifiers) p e))
@@ -463,7 +452,7 @@
          ~'intersection bintersection
          ~'intersect-sets bintersect-sets
          ~'difference bset-
-         ~'contains? bmembers
+         ~'contains? bcontains
          ~'member? bmember
          ~'subset? bsubset
          ~'superset? bsuperset

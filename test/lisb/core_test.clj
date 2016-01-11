@@ -30,7 +30,7 @@
     (is (let [uc (unsat-core (b= :a 2)
                              (b= :b 3)
                              (b= :c (b+ :a :b))
-                             (bmembers #{1 2 3} :a :b :c))]
+                             (bcontains #{1 2 3} :a :b :c))]
           (and
             (apply (complement sat-conjuncts?) uc)
             (every? #(apply sat-conjuncts? %) (map second (choose-rest uc))))))))

@@ -1,5 +1,7 @@
 (ns lisb.translation
+  (:require [clojure.math.combinatorics :refer [combinations]]) 
   (:require [clojure.walk :refer [walk]])
+  (:require [lisb.representation :refer [node]])
   (:import de.prob.animator.domainobjects.ClassicalB
            (de.be4.classicalb.core.parser.node AAddExpression
                                                AMinusExpression
@@ -118,6 +120,7 @@
                                                ALetExpressionExpression
                                                ALetPredicatePredicate
                                                )))
+
 
 (declare to-ast-wrapped to-ast)
 
@@ -601,8 +604,50 @@
         (apply (to-ast-map (:tag data)) processed-args))
       (literal data)))
 
+
+(def chaining-ops #{:less :greater :less-eq :greater-eq
+                    :equals :equivalence
+                    :subset :subset-strict})
+(def interleaving-ops #{:plus :minus :mul :div
+                        :and :or
+                        :set-union :set-intersection :set-difference
+                        :relation
+                        :relational-override :direct-product
+                        :relational-composition :parallel-product
+                        :partial-fn :total-fn
+                        :partial-surjection :total-surjection
+                        :partial-injection :total-injection
+                        :partial-bijection :total-bijection
+                        :implication
+                        :concat :append})
+(def interleaving-right-ops #{:pow})
+(def combinations-ops #{:not-equals})
+
+(defn chain [tag tuples]
+  (reduce (partial node :and) (map (partial apply node tag) tuples)))
+
+(defn chain-arity-two [tag nodes]
+  (chain tag (partition 2 1 nodes)))
+
+(defn interleave-arity-two [tag nodes]
+  (reduce (partial node tag) nodes))
+
+(defn interleave-arity-two-right [tag nodes]
+  (reduce #(node tag %2 %1) (reverse nodes)))
+
+(defn combine-and-chain [tag nodes]
+  (chain tag (combinations nodes 2)))
+
+(defn make-binary [{:keys [tag children] :as m}]
+  (cond
+    (chaining-ops tag) (chain-arity-two tag children)
+    (interleaving-ops tag) (interleave-arity-two tag children)
+    (interleaving-right-ops tag) (interleave-arity-two-right tag children)
+    (combinations-ops tag) (combine-and-chain tag children)
+    :otherwise m))
+
 (defn to-ast-wrapped [datav]
-  (walk to-ast-inner identity datav))
+  (walk (comp to-ast-inner make-binary) identity datav))
 
 (defn to-ast [data]
   (first (to-ast-wrapped [data]))) ; wraps data into a list and unwraps it on return
