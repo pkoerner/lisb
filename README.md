@@ -28,6 +28,7 @@ See src/lisb/examples
 - [ ] support for external functions
 - [X] make semantics or not= and range clearer / clojure-y
 - [ ] use B machines as contexts
+- [ ] something like (+ 1) should result in 1 when translated
 
 ## License
 
