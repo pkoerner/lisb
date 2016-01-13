@@ -104,7 +104,7 @@
       (is (eval ss (to-ast (b= #{1} (bset- #{1 2} #{2 3} #{3 4})))))
 
       (is (eval ss (to-ast (bmember 1 #{1}))))
-      (is (eval ss (to-ast (bmember 1 #{1} #{1 2}))))
+      (is (eval ss (to-ast (bmember 1 #{1}))))
 
       (is (eval ss (to-ast (bcontains #{1 2 3} 1))))
 

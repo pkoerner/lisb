@@ -95,12 +95,8 @@
 (defn bset- [& args]
   (apply node :set-difference args))
 
-(defn bmember [e & sets]
-  ;; HACK: for now, since (band x) is not simplified to x in the translation yet
-  (if (< 1 (count sets))
-    (apply band
-           (map (partial node :member e) sets))
-    (node :member e (first sets))))
+(defn bmember [e s]
+  (node :member e s))
 
 (defn bcontains [s e]
   (node :member e s))
