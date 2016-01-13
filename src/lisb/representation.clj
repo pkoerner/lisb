@@ -102,11 +102,8 @@
            (map (partial node :member e) sets))
     (node :member e (first sets))))
 
-(defn bcontains [s & elements]
-  (if (< 1 (count elements))
-    (apply band
-           (map (fn [e] (node :member e s)) elements)) 
-    (node :member (first elements) s)))
+(defn bcontains [s e]
+  (node :member e s))
 
 (defn bsubset [& args]
   (apply node :subset args))

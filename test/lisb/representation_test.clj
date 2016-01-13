@@ -33,16 +33,6 @@
                                  {:tag :member :children [1 #{2}]}]}
            (bmember 1 #{1} #{2})))))
 
-(deftest members-test
-  (testing "members representation with two arguments"
-    (is (= {:tag :member
-            :children [1 #{1}]}
-           (bcontains #{1} 1))))
-  (testing "members representation with more than two arguments"
-    (is (= {:tag :and :children [{:tag :member :children [1 #{1}]}
-                                 {:tag :member :children [2 #{1}]}]}
-           (bcontains #{1} 1 2)))))
-
 
 (deftest max-test
   (testing "max with a set"

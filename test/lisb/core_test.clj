@@ -30,13 +30,13 @@
     (is (let [uc (unsat-core (b= :a 2)
                              (b= :b 3)
                              (b= :c (b+ :a :b))
-                             (bcontains #{1 2 3} :a :b :c))]
+                             (bsubset #{:a :b :c} #{1 2 3}))]
           (and
             (apply (complement sat-conjuncts?) uc)
             (every? #(apply sat-conjuncts? %) (map second (choose-rest uc))))))))
 
 (deftest unsat-core-predicate-test
   (testing "unsat core works with predicates that minimize a parameter set"
-    (is (= (unsat-core-predicate (pred [c] (not (contains? c 4 5 7)))
+    (is (= (unsat-core-predicate (pred [c] (not (subset? #{4 5 7} c)))
                                  (set (range 10)))
            #{4 5 7}))))
