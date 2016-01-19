@@ -93,7 +93,7 @@
     (caseASecondProjectionExpression [node] (translate-to-lisb this sb "prj2" (.getExp1 node) (.getExp2 node)))
 
     (caseALambdaExpression       [node] (translate-to-lisb this sb "lambda" (.getIdentifiers node) (.getPredicate node) (.getExpression node)))
-    (caseAFunctionExpression     [node] (apply translate-to-lisb this sb "apply" (.getIdentifier node) (.getParameters node)))
+    (caseAFunctionExpression     [node] (apply translate-to-lisb this sb "apply" (.getIdentifier node) (.getParameters node))) ;; FIXME: this breaks succ and pred...
     ))
 
 (defn fresh-visitor
