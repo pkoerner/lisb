@@ -95,6 +95,11 @@
 (defn bset- [& args]
   (apply node :set-difference args))
 
+(defn bminus-or-set-subtract
+  "For generated code only. I am allowed to use this. You are not."
+  [& args]
+  (apply node :minus-or-set-subtract args))
+
 (defn bmember [e s]
   (node :member e s))
 

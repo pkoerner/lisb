@@ -6,6 +6,7 @@
            (de.be4.classicalb.core.parser.node AAddExpression
                                                AMinusExpression
                                                AMultOrCartExpression
+                                               AMinusOrSetSubtractExpression
                                                ADivExpression
                                                AUnaryMinusExpression
                                                AIntegerExpression
@@ -473,6 +474,9 @@
 (defn bexprcode-node [code]
   (.. (ClassicalB. code) getAst getPParseUnit getExpression))
 
+(defn minus-or-set-subtract-node [a b]
+  (AMinusOrSetSubtractExpression. a b))
+
 (defn literal [x]
   (cond (keyword? x) (identifier x)
         (string? x) x ;; hack-y thing to avoid renaming
@@ -595,6 +599,7 @@
                  :fn-call fn-call-node
                  :let-pred let-pred-node
                  :let-expr let-expr-node
+                 :minus-or-set-subtract minus-or-set-subtract-node
                  })
 
 
@@ -619,7 +624,9 @@
                         :partial-injection :total-injection
                         :partial-bijection :total-bijection
                         :implication
-                        :concat :append})
+                        :concat :append
+                        :minus-or-set-subtract
+                        })
 (def interleaving-right-ops #{:pow})
 (def combinations-ops #{:not-equals})
 
