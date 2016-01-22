@@ -94,7 +94,18 @@
 
     (caseALambdaExpression       [node] (translate-to-lisb this sb "lambda" (.getIdentifiers node) (.getPredicate node) (.getExpression node)))
     (caseAFunctionExpression     [node] (apply translate-to-lisb this sb "apply" (.getIdentifier node) (.getParameters node))) ;; FIXME: this breaks succ and pred...
-    ))
+
+    (caseADefinitionPredicate [node] 
+      (.append sb "(")
+      (.append sb (.getText (.getDefLiteral node)))
+      (doseq [arg (.getParameters node)] (.append sb " ") (.apply arg this))
+      (.append sb ")"))
+    (caseADefinitionExpression [node]
+      (.append sb "(")
+      (.append sb (.getText (.getDefLiteral node)))
+      (doseq [arg (.getParameters node)] (.append sb "") (.apply arg this))
+      (.append sb ")") 
+      )))
 
 (defn fresh-visitor
   ([] (get-visitor (StringBuffer.) #{}))
@@ -111,3 +122,42 @@
 (def parse-print-read
   (comp read-string parse-print))
 
+
+(defn parse-bmachine [filename]
+  (.parseFile (de.be4.classicalb.core.parser.BParser.) (java.io.File. filename) false))
+
+(defn extract-definitions-clause [ast]
+  (->> ast
+       .getPParseUnit
+       .getMachineClauses
+       (filter #(instance? de.be4.classicalb.core.parser.node.ADefinitionsMachineClause %))
+       first))
+
+(defn extract-predicates-from-clause [clause]
+  (filter #(instance? de.be4.classicalb.core.parser.node.APredicateDefinitionDefinition %) (.getDefinitions clause)))
+
+
+(defn prepare-predicate-definition [preddef]
+  {:name (.. preddef getName getText)
+   :params (->> preddef .getParameters (map #(.getText (first (.getIdentifier %)))))
+   :predicate (.getRhs preddef)})
+
+(defn prepared-predef-to-lisb [{:keys [name params predicate]}]
+  (let [pprinter (fresh-visitor (set params))]
+    (.apply predicate pprinter)
+    (str "(defpred " name " [" (apply str (interpose " " params)) "] " (.getPrettyPrint pprinter) ")")))
+
+
+(defn bmachine->lisbfile
+  [bmachine-path output-path]
+  (with-open [out (clojure.java.io/writer output-path)]
+   (doall
+     (->> bmachine-path
+          parse-bmachine
+          extract-definitions-clause
+          extract-predicates-from-clause
+          (map prepare-predicate-definition)
+          (map prepared-predef-to-lisb)
+          (map read-string)
+          (map #(clojure.pprint/pprint % out)))))
+  nil)
