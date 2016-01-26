@@ -1,126 +1,314 @@
-(ns lisb.AST2lisb)
+(ns lisb.AST2lisb
+  (:require [clojure.pprint])
+  (:import (de.be4.classicalb.core.parser.node AAddExpression
+                                               AMinusExpression
+                                               AMultOrCartExpression
+                                               AMinusOrSetSubtractExpression
+                                               ADivExpression
+                                               AUnaryMinusExpression
+                                               AIntegerExpression
+                                               ABooleanTrueExpression
+                                               ABooleanFalseExpression
+                                               AConvertBoolExpression
+                                               AIdentifierExpression
+                                               AEmptySetExpression
+                                               ASetExtensionExpression
+                                               AComprehensionSetExpression
+                                               APowSubsetExpression
+                                               APow1SubsetExpression
+                                               AFinSubsetExpression
+                                               AFin1SubsetExpression
+                                               ACardExpression
+                                               AUnionExpression
+                                               AIntersectionExpression
+                                               ASetSubtractionExpression
+                                               AMemberPredicate
+                                               ASubsetPredicate
+                                               ASubsetStrictPredicate
+                                               ABoolSetExpression
+                                               ANaturalSetExpression
+                                               ANatural1SetExpression
+                                               AIntegerSetExpression
+                                               AIntSetExpression
+                                               ANatSetExpression
+                                               ANat1SetExpression
+                                               TIntegerLiteral
+                                               TIdentifierLiteral
+                                               AConjunctPredicate
+                                               ADisjunctPredicate
+                                               ANegationPredicate
+                                               AEqualPredicate
+                                               ANotEqualPredicate
+                                               AEquivalencePredicate
+                                               ALessPredicate
+                                               AGreaterPredicate
+                                               ALessEqualPredicate
+                                               AGreaterEqualPredicate
+                                               AMaxExpression
+                                               AMinExpression
+                                               AModuloExpression
+                                               ACoupleExpression
+                                               ARelationsExpression
+                                               ADomainExpression
+                                               ARangeExpression
+                                               AIdentityExpression
+                                               ADomainRestrictionExpression
+                                               ADomainSubtractionExpression
+                                               ARangeRestrictionExpression
+                                               ARangeSubtractionExpression
+                                               AReverseExpression
+                                               AImageExpression
+                                               AOverwriteExpression
+                                               ADirectProductExpression
+                                               ACompositionExpression
+                                               AParallelProductExpression
+                                               AFirstProjectionExpression
+                                               ASecondProjectionExpression
+                                               AClosureExpression
+                                               AReflexiveClosureExpression
+                                               AIterationExpression
+                                               ATransFunctionExpression
+                                               ATransRelationExpression
+                                               APartialFunctionExpression
+                                               ATotalFunctionExpression
+                                               APartialSurjectionExpression
+                                               ATotalSurjectionExpression
+                                               APartialInjectionExpression
+                                               ATotalInjectionExpression
+                                               APartialBijectionExpression
+                                               ATotalBijectionExpression
+                                               ALambdaExpression
+                                               AFunctionExpression
+                                               AImplicationPredicate
+                                               AForallPredicate
+                                               AExistsPredicate
+                                               AIntervalExpression
+                                               ASequenceExtensionExpression
+                                               AEmptySequenceExpression
+                                               AIseqExpression
+                                               AIseq1Expression
+                                               APermExpression
+                                               AConcatExpression
+                                               AInsertFrontExpression
+                                               AInsertTailExpression
+                                               ARevExpression
+                                               AFirstExpression
+                                               ALastExpression
+                                               AFrontExpression
+                                               ATailExpression
+                                               ARestrictFrontExpression
+                                               ARestrictTailExpression
+                                               APowerOfExpression
+                                               AGeneralSumExpression
+                                               AGeneralProductExpression
+                                               AGeneralUnionExpression
+                                               AGeneralIntersectionExpression
+                                               ASeqExpression
+                                               ASeq1Expression
+                                               AGeneralConcatExpression
+                                               AIfThenElseExpression
+                                               AQuantifiedIntersectionExpression
+                                               AQuantifiedUnionExpression
+                                               ARecEntry
+                                               AStructExpression
+                                               ARecExpression
+                                               ARecordFieldExpression
+                                               AStringExpression
+                                               TStringLiteral
+                                               ADefinitionExpression
+                                               ALetExpressionExpression
+                                               ALetPredicatePredicate
+                                               Start
+                                               APredicateParseUnit
+                                               AExpressionParseUnit
+                                               ADefinitionPredicate
+                                               )))
 
-(defn overwrite-appendstr [instance node s]
-  (.applyLeftAssociative instance
-                         (.getLeft node)
-                         node
-                         (.getRight node)
-                         s))
 
 
-(defn translate-to-lisb [instance sb fname & args]
-  (.append sb (str "(b" (clojure.string/trim fname)))
-  (doseq [arg args]
-    (if (instance? java.util.List arg)
-      (do (.append sb "[")
-          (doseq [e arg] (.append sb " ") (.apply e instance))
-          (.append sb "]"))
-      (do (.append sb " ")
-          (.apply arg instance))))
-  (.append sb ")"))
+(def symbol-repr (partial symbol "lisb.representation"))
+
+(declare AST->lisb)
+
+(defn left-right [node name args]
+  (list (symbol-repr name) (AST->lisb (.getLeft node) args) (AST->lisb (.getRight node) args)))
+
+(defn identifier-list [l args]
+  (map #(AST->lisb % args) l))
 
 
-(defn get-visitor [sb symbols]
-  (proxy [de.prob.model.classicalb.PrettyPrinter] []
-    (getPrettyPrint []
-      (.toString sb))
+(defmulti AST->lisb (fn [node args] (class node)))
+(defmethod AST->lisb AIntegerExpression [node _] (Long/parseLong (.. node getLiteral getText)))
+(defmethod AST->lisb AIdentifierExpression [node args] (let [id (.getText (first (.getIdentifier node)))]
+                                                         (if (args id) (symbol id) (keyword id))))
 
-    (caseAIntegerExpression [expr] (.append sb (.. expr getLiteral getText)))
-    (caseANatSetExpression      [_] (.append sb "(bnat-set)"))
-    (caseANat1SetExpression     [_] (.append sb "(bnat1-set)"))
-    (caseANaturalSetExpression  [_] (.append sb "(bnatural-set)"))
-    (caseANatural1SetExpression [_] (.append sb "(bnatural1-set)"))
-    (caseAIntSetExpression      [_] (.append sb "(bint-set)"))
-    (caseAIntegerSetExpression  [_] (.append sb "(binteger-set)"))
+(defmethod AST->lisb AStringExpression [node _] (.. node getContent getText))
 
-    (caseABooleanTrueExpression  [_] (.append sb " true "))
-    (caseABooleanFalseExpression [_] (.append sb " false "))
-    (caseABoolSetExpression      [_] (.append sb "(bbool-set)"))
-    (caseAConvertBoolExpression  [node] (translate-to-lisb this sb "pred->bool" (.getPredicate node)))
+;;; Equality
+(defmethod AST->lisb AEqualPredicate [node args] (left-right node "b=" args))
+(defmethod AST->lisb ANotEqualPredicate [node args] (left-right node "bnot=" args))
 
-    (caseAEmptySetExpression [_] (.append sb "#{}"))
-    (caseASetExtensionExpression [node]
-      (apply translate-to-lisb this sb "set-enum" (.getExpressions node)))
+;;; Booleans
+(defmethod AST->lisb ABooleanTrueExpression [_ _] true)
+(defmethod AST->lisb ABooleanFalseExpression [_ _] false)
+(defmethod AST->lisb ABoolSetExpression     [_ _] (list (symbol-repr "bbool-set")))
+(defmethod AST->lisb AConvertBoolExpression [node args] (list (symbol-repr "bpred->bool") (AST->lisb (.getPredicate node) args)))
 
-    (caseACoupleExpression [node] (apply translate-to-lisb this sb "couple" (.getList node)))
 
-    (caseTIdentifierLiteral [node]
-      (let [s (.getText node)]
-        (.append sb (if (symbols s) s (str (keyword s))))))
+;;; Numbers
+;; INTEGER
+(defmethod AST->lisb ANaturalSetExpression  [_ _] (list (symbol-repr "bnatural-set")))
+(defmethod AST->lisb ANatural1SetExpression [_ _] (list (symbol-repr "bnatural1-set")))
+;; INT
+(defmethod AST->lisb AIntSetExpression  [_ _] (list (symbol-repr "bint-set")))
+(defmethod AST->lisb AIntegerSetExpression  [_ _] (list (symbol-repr "binteger-set")))
+(defmethod AST->lisb ANatSetExpression      [_ _] (list (symbol-repr "bnat-set")))
+(defmethod AST->lisb ANat1SetExpression     [_ _] (list (symbol-repr "bnat1-set")))
+(defmethod AST->lisb AIntervalExpression [node args] (list (symbol-repr "binterval")
+                                                           (AST->lisb (.getLeftBorder node) args)
+                                                           (AST->lisb (.getRightBorder node) args)))
+;; MININT
+;; MAXINT
+(defmethod AST->lisb AGreaterPredicate [node args] (left-right node "b>" args))
+(defmethod AST->lisb ALessPredicate [node args] (left-right node "b<" args))
+(defmethod AST->lisb AGreaterEqualPredicate [node args] (left-right node "b>=" args))
+(defmethod AST->lisb ALessEqualPredicate [node args] (left-right node "b<=" args))
+(defmethod AST->lisb AMaxExpression [node args] (list (symbol-repr "bmax") (AST->lisb (.getExpression node) args)))
+(defmethod AST->lisb AMinExpression [node args] (list (symbol-repr "bmin") (AST->lisb (.getExpression node) args)))
+(defmethod AST->lisb AAddExpression [node args] (left-right node "b+" args))
+(defmethod AST->lisb AMinusOrSetSubtractExpression [node args] (left-right node "bminus-or-set-subtract" args))
+(defmethod AST->lisb AUnaryMinusExpression [node args] (list (symbol-repr "bminus") (AST->lisb (.getExpression node) args)))
+(defmethod AST->lisb AMultOrCartExpression [node args] (left-right node "b*" args))
+(defmethod AST->lisb ADivExpression [node args] (left-right node "bdiv" args))
+(defmethod AST->lisb APowerOfExpression [node args] (left-right node "b**" args))
+(defmethod AST->lisb AModuloExpression [node args] (left-right node "bmod" args))
+(defmethod AST->lisb AGeneralProductExpression [node args] (list (symbol-repr "bpi")
+                                                                 (identifier-list (.getIdentifiers node) args)
+                                                                 (AST->lisb (.getPredicates node) args)
+                                                                 (AST->lisb (.getExpression node) args)))
+(defmethod AST->lisb AGeneralSumExpression [node args] (list (symbol-repr "bsigma")
+                                                             (identifier-list (.getIdentifiers node) args)
+                                                             (AST->lisb (.getPredicates node) args)
+                                                             (AST->lisb (.getExpression node) args)))
+;; succ
+;; pred
 
-    (applyLeftAssociative [left node right append]
-      (translate-to-lisb this sb append left right))
-    (applyRightAssociative [left node right append]
-      (.applyLeftAssociative this left node right append))
+;;; Logical predicates
+(defmethod AST->lisb AConjunctPredicate [node args] (left-right node "band" args))
+(defmethod AST->lisb ADisjunctPredicate [node args] (left-right node "bor" args))
+(defmethod AST->lisb AImplicationPredicate [node args] (left-right node "b=>" args))
+(defmethod AST->lisb AEquivalencePredicate [node args] (left-right node "b<=>" args))
+(defmethod AST->lisb ANegationPredicate [node args] (list (symbol-repr "bnot") (AST->lisb (.getPredicate node) args)))
+(defmethod AST->lisb AForallPredicate [node args] (list (symbol-repr "bforall")
+                                                        (identifier-list (.getIdentifiers node) args)
+                                                        (AST->lisb (.getImplication node) args)))
+(defmethod AST->lisb AExistsPredicate [node args] (list (symbol-repr "bexists")
+                                                        (identifier-list (.getIdentifiers node) args)
+                                                        (AST->lisb (.getPredicate node) args)))
 
-    (caseAUnaryMinusExpression   [node] (translate-to-lisb this sb "-" (.getExpression node)))
-    (caseADivExpression          [node] (overwrite-appendstr this node "div"))
-    (caseAMaxExpression          [node] (translate-to-lisb this sb "max" (.getExpression node)))
-    (caseAMinExpression          [node] (translate-to-lisb this sb "min" (.getExpression node)))
-    (caseAIntervalExpression     [node] (translate-to-lisb this sb "interval" (.getLeftBorder node) (.getRightBorder node)))
-    (caseAGeneralSumExpression   [node] (translate-to-lisb this sb "sigma" (.getIdentifiers node) (.getPredicates node) (.getExpression node)))
-    (caseAGeneralProductExpression [node] (translate-to-lisb this sb "pi" (.getIdentifiers node) (.getPredicates node) (.getExpression node)))
+;;; Sets
+(defmethod AST->lisb AEmptySetExpression [_ _] #{})
+(defmethod AST->lisb ASetExtensionExpression [node args] (apply list (symbol-repr "bset-enum") (map #(AST->lisb % args) (.getExpressions node))))
+(defmethod AST->lisb AComprehensionSetExpression [node args] (list (symbol-repr "bset")
+                                                                   (identifier-list (.getIdentifiers node) args)
+                                                                   (AST->lisb (.getPredicates node) args)))
+(defmethod AST->lisb APowSubsetExpression [node args] (list (symbol-repr "bpow") (AST->lisb (.getExpression node) args)))
+(defmethod AST->lisb APow1SubsetExpression [node args] (list (symbol-repr "bpow1") (AST->lisb (.getExpression node) args)))
+(defmethod AST->lisb AFinSubsetExpression [node args] (list (symbol-repr "bfin") (AST->lisb (.getExpression node) args)))
+(defmethod AST->lisb AFin1SubsetExpression [node args] (list (symbol-repr "bfin1") (AST->lisb (.getExpression node) args)))
+(defmethod AST->lisb ACardExpression [node args] (list (symbol-repr "bcount") (AST->lisb (.getExpression node) args)))
+(defmethod AST->lisb AUnionExpression [node args] (left-right node "bunion" args))
+(defmethod AST->lisb AIntersectionExpression [node args] (left-right node "bintersection" args))
+(defmethod AST->lisb AMemberPredicate [node args] (left-right node "bmember" args))
+;; not element of
+(defmethod AST->lisb ASubsetPredicate [node args] (left-right node "bsubset" args))
+;; not subset of
+(defmethod AST->lisb ASubsetStrictPredicate [node args] (left-right node "bsubset-strict" args))
+;; not strict subset of
+(defmethod AST->lisb AGeneralUnionExpression [node args] (list (symbol-repr "bunite-sets")
+                                                               (AST->lisb (.getExpression node) args)))
+(defmethod AST->lisb AGeneralIntersectionExpression [node args] (list (symbol-repr "bintersect-sets")
+                                                                      (AST->lisb (.getExpression node) args)))
+(defmethod AST->lisb AQuantifiedUnionExpression [node args] (list (symbol-repr "bunion-pe")
+                                                                  (identifier-list (.getIdentifiers node) args)
+                                                                  (AST->lisb (.getPredicates node) args)
+                                                                  (AST->lisb (.getExpression node) args)))
+(defmethod AST->lisb AQuantifiedIntersectionExpression [node args] (list (symbol-repr "bintersection-pe")
+                                                                         (identifier-list (.getIdentifiers node) args)
+                                                                         (AST->lisb (.getPredicates node) args)
+                                                                         (AST->lisb (.getExpression node) args)))
 
-    (caseAConjunctPredicate      [node] (overwrite-appendstr this node "and"))
-    (caseADisjunctPredicate      [node] (overwrite-appendstr this node "or"))
-    (caseANegationPredicate      [node] (translate-to-lisb this sb "not" (.getPredicate node)))
-    (caseANotEqualPredicate      [node] (overwrite-appendstr this node "not="))
 
-    (caseAForallPredicate        [node] (translate-to-lisb this sb "forall" (.getIdentifiers node) (.getImplication node)))
-    (caseAExistsPredicate        [node] (translate-to-lisb this sb "exists" (.getIdentifiers node) (.getPredicate node)))
+;;; Relations
+(defmethod AST->lisb ARelationsExpression [node args] (left-right node "b<->" args))
+(defmethod AST->lisb ACoupleExpression [node args] (apply list (symbol-repr "btuple") (map #(AST->lisb % args) (.getList node))))
+(defmethod AST->lisb ADomainExpression [node args] (list (symbol-repr "bdom") (AST->lisb (.getExpression node) args)))
+(defmethod AST->lisb ARangeExpression [node args] (list (symbol-repr "bran") (AST->lisb (.getExpression node) args)))
+;; identity relation
+(defmethod AST->lisb ADomainRestrictionExpression [node args] (left-right node "b<|" args))
+(defmethod AST->lisb ADomainSubtractionExpression [node args] (left-right node "b<<|" args))
+(defmethod AST->lisb ARangeRestrictionExpression [node args] (left-right node "b|>" args))
+(defmethod AST->lisb ARangeSubtractionExpression [node args] (left-right node "b|>>" args))
+(defmethod AST->lisb AReverseExpression [node args] (list (symbol-repr "binverse") (AST->lisb (.getExpression node) args)))
+(defmethod AST->lisb AImageExpression [node args] (left-right node "bimage" args))
+(defmethod AST->lisb AOverwriteExpression [node args] (left-right node "b<+" args))
+(defmethod AST->lisb ADirectProductExpression [node args] (left-right node "b><" args))
+(defmethod AST->lisb ACompositionExpression [node args] (left-right node "bcomp" args))
+(defmethod AST->lisb AParallelProductExpression [node args] (left-right node "b||" args))
+(defmethod AST->lisb AFirstProjectionExpression [node args] (list (symbol-repr "bprj1")
+                                                                  (AST->lisb (.getExp1 node) args)
+                                                                  (AST->lisb (.getExp2 node) args)))
+(defmethod AST->lisb ASecondProjectionExpression [node args] (list (symbol-repr "bprj2")
+                                                                   (AST->lisb (.getExp1 node) args)
+                                                                   (AST->lisb (.getExp2 node) args)))
+;; closure1
+;; closure
+(defmethod AST->lisb AIterationExpression [node args] (left-right node "biterate" args))
+;; fnc
+;; rel
 
-    (caseAComprehensionSetExpression [node] (translate-to-lisb this sb "set" (.getIdentifiers node) (.getPredicates node)))
-    (caseASubsetPredicate        [node] (overwrite-appendstr this node "subset"))
-    (caseASubsetStrictPredicate  [node] (overwrite-appendstr this node "subset-strict"))
-    (caseAMemberPredicate        [node] (overwrite-appendstr this node "member"))
-    (caseAUnionExpression        [node] (overwrite-appendstr this node "union"))
-    (caseAIntersectionExpression [node] (overwrite-appendstr this node "intersection"))
-    (caseAPowSubsetExpression    [node] (translate-to-lisb this sb "pow" (.getExpression node)))
-    (caseAPow1SubsetExpression   [node] (translate-to-lisb this sb "pow1" (.getExpression node)))
-    (caseAFinSubsetExpression    [node] (translate-to-lisb this sb "fin" (.getExpression node)))
-    (caseAFin1SubsetExpression   [node] (translate-to-lisb this sb "fin1" (.getExpression node)))
-    (caseACardExpression         [node] (translate-to-lisb this sb "count" (.getExpression node)))
-    (caseAGeneralUnionExpression [node] (translate-to-lisb this sb "unite-sets" (.getExpression node)))
-    (caseAGeneralIntersectionExpression [node] (translate-to-lisb this sb "intersect-sets" (.getExpression node)))
-    (caseAQuantifiedUnionExpression [node] (translate-to-lisb this sb "union-pe" (.getIdentifiers node) (.getPredicates node) (.getExpression node)))
-    (caseAQuantifiedIntersectionExpression [node] (translate-to-lisb this sb "intersection-pe" (.getIdentifiers node) (.getPredicates node) (.getExpression node)))
 
-    (caseADomainExpression       [node] (translate-to-lisb this sb "dom" (.getExpression node)))
-    (caseARangeExpression        [node] (translate-to-lisb this sb "ran" (.getExpression node)))
-    (caseAImageExpression        [node] (translate-to-lisb this sb "image" (.getLeft node) (.getRight node)))
-    (caseAReverseExpression      [node] (translate-to-lisb this sb "inverse" (.getExpression node)))
-    (caseAFirstProjectionExpression [node] (translate-to-lisb this sb "prj1" (.getExp1 node) (.getExp2 node)))
-    (caseASecondProjectionExpression [node] (translate-to-lisb this sb "prj2" (.getExp1 node) (.getExp2 node)))
+;;; Functions
+(defmethod AST->lisb APartialFunctionExpression [node args] (left-right node "b+->" args))
+(defmethod AST->lisb ATotalFunctionExpression [node args] (left-right node "b-->" args))
+(defmethod AST->lisb APartialSurjectionExpression [node args] (left-right node "b+->>" args))
+(defmethod AST->lisb ATotalSurjectionExpression [node args] (left-right node "b-->>" args))
+(defmethod AST->lisb APartialInjectionExpression [node args] (left-right node "b>+>" args))
+(defmethod AST->lisb ATotalInjectionExpression [node args] (left-right node "b>->" args))
+(defmethod AST->lisb APartialBijectionExpression [node args] (left-right node "b>+>>" args))
+(defmethod AST->lisb ATotalBijectionExpression [node args] (left-right node "b>->>" args))
+(defmethod AST->lisb ALambdaExpression [node args] (list (symbol-repr "blambda")
+                                                         (identifier-list (.getIdentifiers node) args)
+                                                         (AST->lisb (.getPredicate node) args)
+                                                         (AST->lisb (.getExpression node) args)))
+(defmethod AST->lisb AFunctionExpression [node args] (apply list (symbol-repr "bapply")
+                                                                 (AST->lisb (.getIdentifier node) args)
+                                                                 (identifier-list (.getParameters node) args)))
 
-    (caseALambdaExpression       [node] (translate-to-lisb this sb "lambda" (.getIdentifiers node) (.getPredicate node) (.getExpression node)))
-    (caseAFunctionExpression     [node] (apply translate-to-lisb this sb "apply" (.getIdentifier node) (.getParameters node))) ;; FIXME: this breaks succ and pred...
 
-    (caseADefinitionPredicate [node] 
-      (.append sb "(")
-      (.append sb (.getText (.getDefLiteral node)))
-      (doseq [arg (.getParameters node)] (.append sb " ") (.apply arg this))
-      (.append sb ")"))
-    (caseADefinitionExpression [node]
-      (.append sb "(")
-      (.append sb (.getText (.getDefLiteral node)))
-      (doseq [arg (.getParameters node)] (.append sb "") (.apply arg this))
-      (.append sb ")") 
-      )))
 
-(defn fresh-visitor
-  ([] (get-visitor (StringBuffer.) #{}))
-  ([symbol-set] (get-visitor (StringBuffer.) symbol-set)))
 
-(defn parse-print
-  ([s] (parse-print s #{}))
-  ([s symbols]
-    (let [ast (de.be4.classicalb.core.parser.BParser/parse (str "#FORMULA " s))
-          v (fresh-visitor symbols)]
-      (.apply ast v)
-      (.getPrettyPrint v))))
 
-(def parse-print-read
-  (comp read-string parse-print))
+
+
+(defmethod AST->lisb Start [node args] (AST->lisb (.getPParseUnit node) args))
+(defmethod AST->lisb APredicateParseUnit [node args] (AST->lisb (.getPredicate node) args))
+(defmethod AST->lisb AExpressionParseUnit [node args] (AST->lisb (.getExpression node) args))
+(defmethod AST->lisb ADefinitionPredicate [node args] (apply list (symbol-repr "bcall")
+                                                                  (.. node getDefLiteral getText)
+                                                                  (identifier-list (.getParameters node) args)))
+(defmethod AST->lisb ADefinitionExpression [node args] (apply list (symbol-repr "bcall")
+                                                                   (.. node getDefLiteral getText)
+                                                                   (identifier-list (.getParameters node) args)))
+
+
+
+
+(defn bstr->lisb
+  ([s] (bstr->lisb s #{}))
+  ([s args]
+   (let [ast (de.be4.classicalb.core.parser.BParser/parse (str "#FORMULA " s))]
+     (AST->lisb ast args))))
 
 
 (defn parse-bmachine [filename]
@@ -143,9 +331,10 @@
    :predicate (.getRhs preddef)})
 
 (defn prepared-predef-to-lisb [{:keys [name params predicate]}]
-  (let [pprinter (fresh-visitor (set params))]
-    (.apply predicate pprinter)
-    (str "(defpred " name " [" (apply str (interpose " " params)) "] " (.getPrettyPrint pprinter) ")")))
+  (list (symbol-repr "defpred")
+        (symbol name)
+        (vec (map symbol params))
+        (AST->lisb predicate (set params))))
 
 
 (defn bmachine->lisbfile
@@ -158,6 +347,5 @@
           extract-predicates-from-clause
           (map prepare-predicate-definition)
           (map prepared-predef-to-lisb)
-          (map read-string)
           (map #(clojure.pprint/pprint % out)))))
   nil)

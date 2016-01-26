@@ -130,6 +130,9 @@
 (defn bint-set []
   (node :int-set))
 
+(defn binteger-set []
+  (node :integer-set))
+
 (defn bnat-set []
   (node :nat-set))
 

@@ -32,6 +32,7 @@
                                                ANaturalSetExpression
                                                ANatural1SetExpression
                                                AIntegerSetExpression
+                                               AIntSetExpression
                                                ANatSetExpression
                                                ANat1SetExpression
                                                TIntegerLiteral
@@ -242,6 +243,9 @@
   (ANatural1SetExpression.))
 
 (defn int-set-node []
+  (AIntSetExpression.))
+
+(defn integer-set-node []
   (AIntegerSetExpression.))
 
 (defn nat-set-node []
@@ -522,6 +526,7 @@
                  :natural-set natural-set-node
                  :natural1-set natural1-set-node
                  :int-set int-set-node
+                 :integer-set integer-set-node
                  :nat-set nat-set-node
                  :nat1-set nat1-set-node
                  :max max-node
