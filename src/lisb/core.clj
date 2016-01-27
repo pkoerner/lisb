@@ -3,7 +3,7 @@
   (:require [lisb.translation :refer [to-ast]])
   (:import de.prob.Main
            de.prob.scripting.Api
-           de.prob.animator.command.CbcSolveCommand
+           de.prob.animator.command.EvaluateFormulaCommand
            de.prob.animator.domainobjects.ClassicalB
            de.prob.animator.domainobjects.EvalResult
            de.prob.animator.domainobjects.ComputationNotCompletedResult
@@ -39,10 +39,11 @@
                  "")))
 
 
-(defmulti get-result (comp type first))
+(defmulti get-result type)
 
-(defmethod get-result EvalResult [[v free]]
-  (let [result (.translate v)]
+(defmethod get-result EvalResult [v]
+  (let [result (.translate v)
+        free (.getKeys result)]
     (when (.. result getValue booleanValue)
       (into {} (map (fn [k][k (.getSolution result k)]) free)))))
 
@@ -58,10 +59,9 @@
   ([ast]
     (eval secret-state-space ast))
   ([state-space ast]
-    (let [cmd (CbcSolveCommand. (predicate ast))
-          _ (.execute state-space cmd)
-          free (.getFreeVariables cmd)]
-      (get-result [(.getValue cmd) free]))))
+    (let [cmd (EvaluateFormulaCommand. (predicate ast) "root")
+          _ (.execute state-space cmd)]
+      (get-result (.getValue cmd)))))
 
 
 
