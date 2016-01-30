@@ -106,5 +106,10 @@
       '(lisb.representation/b>->> #{} #{})  "{} >->> {}"
       '(lisb.representation/blambda [:x] (lisb.representation/b< :x 2) (lisb.representation/b* :x :x)) "%x.(x<2|x*x)"
       '(lisb.representation/bapply (lisb.representation/bset-enum (lisb.representation/btuple 1 2)) 1) "{1|->2}(1)"
-      )))
- 
+      ))
+  (testing "multiple arity"
+    (are [x y] (= x (bstr->lisb y #{}))
+      '(lisb.representation/band (lisb.representation/b= 1 1)
+                                 (lisb.representation/b= 2 2)
+                                 (lisb.representation/b= 3 3)
+                                 (lisb.representation/b= 4 4)) "1=1 & 2=2 & 3=3 & 4=4")))

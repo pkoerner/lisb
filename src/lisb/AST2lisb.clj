@@ -136,6 +136,16 @@
 (defn identifier-list [l args]
   (map #(AST->lisb % args) l))
 
+(defn collect-left-associative [node args]
+  (let [c (class node)]
+    (if (= c (class (.getLeft node)))
+      (conj (collect-left-associative (.getLeft node) args) (.getRight node))
+      [(.getLeft node) (.getRight node)])))
+
+(defn multi-arity [name node args]
+  (apply list
+         (symbol-repr name)
+         (map #(AST->lisb % args) (collect-left-associative node args))))
 
 (defmulti AST->lisb (fn [node args] (class node)))
 (defmethod AST->lisb AIntegerExpression [node _] (Long/parseLong (.. node getLiteral getText)))
@@ -193,8 +203,9 @@
 ;; succ
 ;; pred
 
+
 ;;; Logical predicates
-(defmethod AST->lisb AConjunctPredicate [node args] (left-right node "band" args))
+(defmethod AST->lisb AConjunctPredicate [node args] (multi-arity "band" node args))
 (defmethod AST->lisb ADisjunctPredicate [node args] (left-right node "bor" args))
 (defmethod AST->lisb AImplicationPredicate [node args] (left-right node "b=>" args))
 (defmethod AST->lisb AEquivalencePredicate [node args] (left-right node "b<=>" args))
@@ -349,3 +360,4 @@
           (map prepared-predef-to-lisb)
           (map #(clojure.pprint/pprint % out)))))
   nil)
+
