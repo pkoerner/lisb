@@ -112,4 +112,23 @@
       '(lisb.representation/band (lisb.representation/b= 1 1)
                                  (lisb.representation/b= 2 2)
                                  (lisb.representation/b= 3 3)
-                                 (lisb.representation/b= 4 4)) "1=1 & 2=2 & 3=3 & 4=4")))
+                                 (lisb.representation/b= 4 4)) "1=1 & 2=2 & 3=3 & 4=4"
+      '(lisb.representation/bor (lisb.representation/b= 1 1)
+                                (lisb.representation/b= 2 2)
+                                (lisb.representation/b= 3 3)
+                                (lisb.representation/b= 4 4)) "1=1 or 2=2 or 3=3 or 4=4" 
+      '(lisb.representation/b+ 1 2 3 4) "1+2+3+4"
+      '(lisb.representation/bminus-or-set-subtract 1 2 3 4) "1-2-3-4"
+      '(lisb.representation/b* 1 2 3 4) "1*2*3*4"
+      '(lisb.representation/bdiv 1 2 3 4) "1/2/3/4"
+      '(lisb.representation/b=> (lisb.representation/b= 1 1)
+                                (lisb.representation/b= 2 2)
+                                (lisb.representation/b= 3 3)
+                                (lisb.representation/b= 4 4)) "1=1 => 2=2 => 3=3 => 4=4" 
+      '(lisb.representation/b<=> (lisb.representation/b= 1 1)
+                                 (lisb.representation/b= 2 2)
+                                 (lisb.representation/b= 3 3)
+                                 (lisb.representation/b= 4 4)) "1=1 <=> 2=2 <=> 3=3 <=> 4=4" 
+      '(lisb.representation/bunion #{} #{} #{}) "{} \\/ {} \\/ {}"
+      '(lisb.representation/bintersection #{} #{} #{}) "{} /\\ {} /\\ {}"
+)))
