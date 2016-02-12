@@ -103,6 +103,9 @@
 (defn bmember [e s]
   (node :member e s))
 
+(defn bnot-member [e s]
+  (bnot (bmember e s)))
+
 (defn bcontains [s e]
   (node :member e s))
 
@@ -380,6 +383,9 @@
 
 (defn bstr [s]
   (node :string s))
+
+(defn bstring-set []
+  (node :string-set))
 
 
 (defn bcall [f & args]

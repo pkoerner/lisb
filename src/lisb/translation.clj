@@ -117,6 +117,7 @@
                                                ARecExpression
                                                ARecordFieldExpression
                                                AStringExpression
+                                               AStringSetExpression
                                                TStringLiteral
                                                ADefinitionExpression
                                                ALetExpressionExpression
@@ -463,6 +464,9 @@
 (defn string-node [s]
   (AStringExpression. (TStringLiteral. s)))
 
+(defn string-set-node []
+  (AStringSetExpression.))
+
 (defn fn-call-node [f & args]
   (ADefinitionExpression. (TIdentifierLiteral. (name f)) args))
 
@@ -601,6 +605,7 @@
                  :bexpr bexprcode-node
                  :bpred bpredcode-node
                  :string string-node
+                 :string-set string-set-node
                  :fn-call fn-call-node
                  :let-pred let-pred-node
                  :let-expr let-expr-node
