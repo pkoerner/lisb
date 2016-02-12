@@ -23,6 +23,7 @@
                                                AIntersectionExpression
                                                ASetSubtractionExpression
                                                AMemberPredicate
+                                               ANotMemberPredicate
                                                ASubsetPredicate
                                                ASubsetStrictPredicate
                                                ABoolSetExpression
@@ -122,6 +123,13 @@
                                                APredicateParseUnit
                                                AExpressionParseUnit
                                                ADefinitionPredicate
+                                               ADefinitionsMachineClause 
+                                               ADefinitionFileParseUnit 
+                                               APredicateDefinitionDefinition
+                                               AExpressionDefinitionDefinition
+                                               AFileDefinitionDefinition
+                                               AAbstractMachineParseUnit 
+                                               AStringSetExpression 
                                                )))
 
 
@@ -150,9 +158,10 @@
 (defmulti AST->lisb (fn [node args] (class node)))
 (defmethod AST->lisb AIntegerExpression [node _] (Long/parseLong (.. node getLiteral getText)))
 (defmethod AST->lisb AIdentifierExpression [node args] (let [id (.getText (first (.getIdentifier node)))]
-                                                         (if (args id) (symbol id) (keyword id))))
+                                                         (if ((:symbols args) id) (symbol id) (keyword id))))
 
 (defmethod AST->lisb AStringExpression [node _] (.. node getContent getText))
+(defmethod AST->lisb AStringSetExpression [_ _] (list (symbol-repr "bstring-set")))
 
 ;;; Equality
 (defmethod AST->lisb AEqualPredicate [node args] (left-right node "b=" args))
@@ -231,7 +240,7 @@
 (defmethod AST->lisb AUnionExpression [node args] (multi-arity "bunion" node args))
 (defmethod AST->lisb AIntersectionExpression [node args] (multi-arity "bintersection" node args))
 (defmethod AST->lisb AMemberPredicate [node args] (left-right node "bmember" args))
-;; not element of
+(defmethod AST->lisb ANotMemberPredicate [node args] (left-right node "bnot-member" args))
 (defmethod AST->lisb ASubsetPredicate [node args] (left-right node "bsubset" args))
 ;; not subset of
 (defmethod AST->lisb ASubsetStrictPredicate [node args] (left-right node "bsubset-strict" args))
@@ -312,6 +321,58 @@
                                                                    (.. node getDefLiteral getText)
                                                                    (identifier-list (.getParameters node) args)))
 
+(defmethod AST->lisb ARecordFieldExpression [node args] (list (symbol-repr "brec-get")
+                                                              (AST->lisb (.getRecord node) args)
+                                                              (AST->lisb (.getIdentifier node) args)))
+
+(defmethod AST->lisb AStructExpression [node args] (list (symbol-repr "bstruct")
+                                                         (into #{} (map (fn [recentry] [(AST->lisb (.getIdentifier recentry) args)
+                                                                                        (AST->lisb (.getValue recentry) args)]) (.getEntries node)))))
+(defmethod AST->lisb ASetSubtractionExpression [node args] (multi-arity "bset-" node args))
+
+
+
+(defmethod AST->lisb AFileDefinitionDefinition [node args]
+  (let [filename (AST->lisb (.getFilename node) args)
+        path (str (.getParent (java.io.File. (:path args)))
+                  java.io.File/separator
+                  filename)]
+    (when-not ((:ignore args) filename)
+      {filename (read-bmachine path (:ignore args))})))
+
+(defmethod AST->lisb TStringLiteral [node _]
+  (.getText node))
+
+
+(defn definition [node args]
+  (let [name (.. node getName getText)
+        params (->> node .getParameters (map #(.getText (first (.getIdentifier %)))))
+        predicate (.getRhs node)]
+    (list (symbol-repr "defpred")
+          (symbol name)
+          (vec (map symbol params))
+          (AST->lisb predicate (assoc args :symbols (set params))))))
+
+(defmethod AST->lisb APredicateDefinitionDefinition [node args]
+  (definition node args))
+
+(defmethod AST->lisb AExpressionDefinitionDefinition [node args]
+  (definition node args))
+
+(defmethod AST->lisb AAbstractMachineParseUnit [node args]
+  (let [definition-clause (first (filter #(instance? ADefinitionsMachineClause %)
+                                         (.getMachineClauses node)))]
+    (AST->lisb definition-clause args)))
+
+(defmethod AST->lisb ADefinitionFileParseUnit [node args]
+  (AST->lisb (.getDefinitionsClauses node) args))
+
+(defmethod AST->lisb ADefinitionsMachineClause [node args]
+  (map #(AST->lisb % args) (.getDefinitions node)))
+
+
+
+
 
 
 
@@ -319,7 +380,7 @@
   ([s] (bstr->lisb s #{}))
   ([s args]
    (let [ast (de.be4.classicalb.core.parser.BParser/parse (str "#FORMULA " s))]
-     (AST->lisb ast args))))
+     (AST->lisb ast {:symbols args}))))
 
 
 (defn parse-bmachine [filename]
