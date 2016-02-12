@@ -136,7 +136,7 @@
 
 (def symbol-repr (partial symbol "lisb.representation"))
 
-(declare AST->lisb)
+(declare AST->lisb read-bmachine)
 
 (defn left-right [node name args]
   (list (symbol-repr name) (AST->lisb (.getLeft node) args) (AST->lisb (.getRight node) args)))
@@ -386,39 +386,49 @@
 (defn parse-bmachine [filename]
   (.parseFile (de.be4.classicalb.core.parser.BParser.) (java.io.File. filename) false))
 
-(defn extract-definitions-clause [ast]
-  (->> ast
-       .getPParseUnit
-       .getMachineClauses
-       (filter #(instance? de.be4.classicalb.core.parser.node.ADefinitionsMachineClause %))
-       first))
+(defn read-bmachine [bmachine-path ignore-definition-files]
+  (-> bmachine-path
+      parse-bmachine
+      (AST->lisb {:path bmachine-path
+                  :ignore ignore-definition-files})))
 
-(defn extract-predicates-from-clause [clause]
-  (filter #(instance? de.be4.classicalb.core.parser.node.APredicateDefinitionDefinition %) (.getDefinitions clause)))
-
-
-(defn prepare-predicate-definition [preddef]
-  {:name (.. preddef getName getText)
-   :params (->> preddef .getParameters (map #(.getText (first (.getIdentifier %)))))
-   :predicate (.getRhs preddef)})
-
-(defn prepared-predef-to-lisb [{:keys [name params predicate]}]
-  (list (symbol-repr "defpred")
-        (symbol name)
-        (vec (map symbol params))
-        (AST->lisb predicate (set params))))
-
-
-(defn bmachine->lisbfile
-  [bmachine-path output-path]
+(defn bmachine->lisbfile [bmachine output-path]
   (with-open [out (clojure.java.io/writer output-path)]
-   (doall
-     (->> bmachine-path
-          parse-bmachine
-          extract-definitions-clause
-          extract-predicates-from-clause
-          (map prepare-predicate-definition)
-          (map prepared-predef-to-lisb)
-          (map #(clojure.pprint/pprint % out)))))
+    (doall (map #(clojure.pprint/pprint % out) bmachine)))
   nil)
+
+
+(defn filename-without-extension [s]
+  (first (re-seq #"[^.]*" s)))
+
+(defn namespacify-preds [prefix name dependencies c]
+  (conj c (list
+            'ns
+            (symbol (str prefix "." name))
+            (apply list
+                   :use
+                   ['lisb.representation]
+                   (map (comp vector symbol (partial str prefix ".") filename-without-extension) dependencies)))))
+
+(defn process-definitions-tree [filename data]
+  (reduce (fn deftree-r [acc [filename data]]
+            (let [included (apply merge (filter map? data))
+                  preds (filter sequential? data)]
+              (-> (reduce deftree-r acc included) 
+                  (assoc-in [:files filename] preds)
+                  (assoc-in [:depends-on filename] (keys included)))))
+          {:files {}
+           :depends-on {}}
+          {filename data}))
+
+(defn bpath->lisbfiles [bmachine ignore output-folder prefix]
+  (.mkdirs (java.io.File. output-folder))
+  (let [tree (read-bmachine bmachine ignore)
+        r (process-definitions-tree (.getName (java.io.File. bmachine)) tree)]
+    (doseq [[fname preds] (:files r)]
+      (let [without-ext (filename-without-extension fname)
+            newname (str without-ext ".clj")]
+        (bmachine->lisbfile (namespacify-preds prefix without-ext (get-in r [:depends-on fname]) preds)
+                            (str output-folder java.io.File/separator newname))))))
+
 
