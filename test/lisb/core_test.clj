@@ -20,8 +20,8 @@
                              (b (= :b 1))))))
   (testing "unsat-core finds a trivial unsat core"
     (is (= (unsat-core (b= :a 1)
-                       (b= :a 2)))
-        #{(b= :a 1) (b= :a 2)}))
+                       (b= :a 2))
+        #{(b= :a 1) (b= :a 2)})))
   (testing "unsat-core finds a non-trivial unsat core"
     (is (= (unsat-core (b= :a 1)
                        (b= :b 2)
