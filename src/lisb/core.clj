@@ -12,6 +12,11 @@
                                                APredicateParseUnit)))
 
 
+
+; XXX load an instance of Main.class to ensure Prob 2.0 is properly loaded.
+; Among other things this sets prob.home to load files from the ProB stdlib.
+(def prob-main (.getInstance (Main/getInjector) Main))
+
 (defn get-api [] (.getInstance (Main/getInjector) Api))
 
 (defn create-empty-machine []
