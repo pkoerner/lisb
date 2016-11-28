@@ -393,9 +393,10 @@
 
 
 (defn blet [tag kvs p]
-  (let [[identifiers vs] (apply map list (partition 2 kvs))]
+  (let [kv-pairs (partition 2 kvs)
+        identifiers (map first kv-pairs)]
     (node tag (apply node :list identifiers)
-              (apply node :list vs)
+              (reduce band (map (partial apply b=) kv-pairs))
               p))) 
 
 (defn blet-pred [kvs p] 
