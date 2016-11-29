@@ -74,5 +74,6 @@
   (testing "retranslating a sequence results translated tuples"
     (let [e1 (de.prob.translator.types.BigInteger/build "4")
           e2 (de.prob.translator.types.BigInteger/build "12")]
-      (is (= (not-any? (partial instance? de.prob.translator.types.Tuple)
-                       (retranslate (de.prob.translator.types.Sequence. [e1 e2]))))))))
+      (is (not-any?
+            (partial instance? de.prob.translator.types.Tuple)
+            (retranslate (de.prob.translator.types.Sequence. [e1 e2])))))))
