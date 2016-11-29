@@ -326,7 +326,7 @@
                                                               (AST->lisb (.getIdentifier node) args)))
 
 (defmethod AST->lisb AStructExpression [node args] (list (symbol-repr "bstruct")
-                                                         (into #{} (map (fn [recentry] [(AST->lisb (.getIdentifier recentry) args)
+                                                         (set (map (fn [recentry] [(AST->lisb (.getIdentifier recentry) args)
                                                                                         (AST->lisb (.getValue recentry) args)]) (.getEntries node)))))
 (defmethod AST->lisb ASetSubtractionExpression [node args] (multi-arity "bset-" node args))
 

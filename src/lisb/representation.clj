@@ -497,7 +497,7 @@
          ~'>->> b>->>
          ~'fn blambda
          ~'apply bapply
-         
+
          ~'sequence bsequence
          ~'iseq biseq
          ~'iseq1 biseq1
@@ -525,14 +525,13 @@
   (cond
     (keyword? node) `(~node ~ctx)
     (map? node) (into {} (map (fn f [[k v]]  [k (wrap ctx v)]) node))
-    (set? node) (into #{} (map (partial wrap ctx) node))
+    (set? node) (set (map (partial wrap ctx) node))
     (list? node) (apply list (map (partial wrap ctx) node))
-    (vector? node) (into []  (map (partial wrap ctx) node))
+    (vector? node) (vec  (map (partial wrap ctx) node))
     :otherwise node))
 
 (defn almost-flatten [x]
-  (filter (complement coll?)
-          (rest (tree-seq coll? seq x))))
+  (remove coll? (rest (tree-seq coll? seq x))))
 
 (defmacro pred [name & args]
   (let [body (last args)
