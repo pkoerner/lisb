@@ -7,4 +7,4 @@
                  ["release" "https://oss.sonatype.org/content/repositories/releases"]]
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/math.combinatorics "0.1.3"]
-                 [de.hhu.stups/de.prob2.kernel,"2.0.3"]])
+                 [de.hhu.stups/de.prob2.kernel,"3.2.1"]])
