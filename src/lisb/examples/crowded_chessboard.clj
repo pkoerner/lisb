@@ -1,6 +1,6 @@
 (ns lisb.examples.crowded-chessboard
   (:require [clojure.set :refer [union]])
-  (:require [lisb.core :refer [eval state-space]])
+  (:require [lisb.core :refer [eval state-space get-api]])
   (:require [lisb.representation :refer :all])
   (:require [lisb.translation :refer [to-ast]]))
 
@@ -67,51 +67,54 @@
 
 (def attack-bishop attack-diag)
 
+(defn transform-position [size i j]
+  (+ i (* size (dec j))))
+
+
 (defn attack [size figure attack-fn]
   (clojure.core/apply band (for [i (range 1 (inc size))
                                  j (range 1 (inc size))
                                  [a b] (attack-fn size i j)]
-                             (b=> (b= figure (bapply (bapply :board i) j))
-                                  (bnot= figure (bapply (bapply :board a) b))))))
+                             (b=> (b= figure (bapply :board (transform-position size i j)))
+                                  (bnot= figure (bapply :board (transform-position size a b)))))))
 
 (defn how-many [figure amount]
-  (b= amount (bcount (blambda [:x :y]
-                              (b= (bstr figure) (bapply (bapply :board :x) :y))
-                              (btuple :x :y)))))
+  (b= amount (bcount (blambda [:pos]
+                              (band (bmember :pos (bdom :board)) (b= figure (bapply :board :pos)))
+                              :pos))))
+
+(defn create-machine []
+  (let [tf (java.io.File/createTempFile "lisb" ".mch" nil)
+        tn (.getAbsolutePath tf)]
+    (.deleteOnExit tf)
+    (spit tf "MACHINE chessboard \n DEFINITIONS \"CHOOSE.def\" SETS FIGURES = {queen, rook, bishop, knight, empty} \n  END")
+    tn))
+
+(defn crowded-state-space []
+  (let [machine (create-machine)
+        api (get-api)]
+    (.b_load api machine)))
 
 (defn crowded-chessboard
   "describes the crowded chessboard puzzle"
   ([size amount-knights ss]
-   (let [width (binterval 1 :n)
-         figures #{(bstr "queen")
-                   (bstr "rook")
-                   (bstr "bishop")
-                   (bstr "knight")
-                   (bstr "empty")}
+   (let [field (binterval 1 (b* :n :n))
          repr (b (and (= :n size)
-                      (= :figures figures)
-                      (= (count figures) 5)
-                      (bmember :board (b--> width (--> width :figures)))
-                      (how-many "queen" size)
-                      ;(how-many "rook" size)
-                      ;(how-many "bishop" (- (* 2 size) 2))
-                      (how-many "knight" amount-knights)
-                      ;(attack size (bstr "queen") attack-queen)
-                      ;(attack size (bstr "rook") attack-rook)
-                      ;(attack size (bstr "bishop") attack-bishop)
-                      (attack size (bstr "knight") attack-knight)))
+                      (bmember :board (b--> field :figures))
+                      (how-many :queen size)
+                      (how-many :rook size)
+                      (how-many :bishop 5 #_(- (* 2 size) 2))
+                      (how-many :knight amount-knights)
+                      (attack size :queen attack-queen)
+                      (attack size :rook attack-rook)
+                      (attack size :bishop attack-bishop)
+                      (attack size :knight attack-knight)))
          result (eval ss (to-ast repr))]
-     repr result))
+     result))
   ([size amount-knights]
-   (let [ss (state-space)]
+   (let [ss (crowded-state-space)]
      (crowded-chessboard size amount-knights ss))))
 
-(clojure.repl/pst)
 
-(def ss (state-space))
-;; dis broken
-;;(eval (to-ast (bmember :x (b--> #{1 2 3 4} #{1 2 3 4} #{1 2}))))
-(eval (to-ast (band (bmember :x (b--> #{1 2 3 4} (b--> #{1 2 3 4} #{1 2})))
-                    (b= :y (bapply (bapply :x 1) 2))
-                    )))
-(clojure.pprint/pprint (crowded-chessboard 4 3))
+
+;(time (clojure.pprint/pprint (crowded-chessboard 4 3)))
