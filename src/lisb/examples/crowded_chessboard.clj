@@ -93,7 +93,8 @@
 (defn crowded-state-space []
   (let [machine (create-machine)
         api (get-api)]
-    (.b_load api machine)))
+    (.b_load api machine {"KODKOD" "true"
+                          "TIME_OUT" "50000"})))
 
 (defn crowded-chessboard
   "describes the crowded chessboard puzzle"
@@ -103,7 +104,7 @@
                       (bmember :board (b--> field :figures))
                       (how-many :queen size)
                       (how-many :rook size)
-                      (how-many :bishop 5 #_(- (* 2 size) 2))
+                      (how-many :bishop (if (= size 4) 5 (- (* 2 size) 2)))
                       (how-many :knight amount-knights)
                       (attack size :queen attack-queen)
                       (attack size :rook attack-rook)
@@ -117,4 +118,4 @@
 
 
 
-;(time (clojure.pprint/pprint (crowded-chessboard 4 3)))
+;(time (clojure.pprint/pprint (crowded-chessboard 8 21)))
