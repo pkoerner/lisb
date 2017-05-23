@@ -1,5 +1,6 @@
 (ns lisb.examples.crowded-chessboard
   (:require [clojure.set :refer [union]])
+  (:require [clojure.pprint :refer [print-table]])
   (:require [lisb.core :refer [eval state-space get-api]])
   (:require [lisb.representation :refer :all])
   (:require [lisb.translation :refer [to-ast]]))
@@ -49,13 +50,6 @@
         :when (and (<= 1 a n) (<= 1 b n))]
     [a b]))
 
-(attack-horizontal 8 4 4)
-(attack-vertical 8 4 4)
-(attack-diag1 8 3 4)
-(attack-diag2 8 3 4)
-(attack-diag 8 3 4)
-(attack-knight 8 3 4)
-
 (defn attack-queen [size i j]
   (concat (attack-horizontal size i j)
           (attack-vertical size i j)
@@ -100,11 +94,12 @@
   "describes the crowded chessboard puzzle"
   ([size amount-knights ss]
    (let [field (binterval 1 (b* :n :n))
+         amount-bishops (if (= size 4) 5 (- (* 2 size) 2))
          repr (b (and (= :n size)
                       (bmember :board (b--> field :figures))
                       (how-many :queen size)
                       (how-many :rook size)
-                      (how-many :bishop (if (= size 4) 5 (- (* 2 size) 2)))
+                      (how-many :bishop amount-bishops)
                       (how-many :knight amount-knights)
                       (attack size :queen attack-queen)
                       (attack size :rook attack-rook)
@@ -117,5 +112,14 @@
      (crowded-chessboard size amount-knights ss))))
 
 
+(defn untransform-position [size [n v]]
+  (let [n (dec n)]
+    [(inc (quot n size)) (inc (mod n size)) v]))
 
-;(time (clojure.pprint/pprint (crowded-chessboard 8 21)))
+
+(defn cc [size amount-knights]
+  (let [sol ((crowded-chessboard size amount-knights) "board")
+        sorted-sol (sort-by first (map (fn [x] [(first x) (.getValue (second x))]) sol))]
+    (print-table [0 1 2] (map (partial untransform-position size) sorted-sol))))
+
+;(cc 8 21)
