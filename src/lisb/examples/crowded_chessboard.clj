@@ -81,7 +81,7 @@
   (let [tf (java.io.File/createTempFile "lisb" ".mch" nil)
         tn (.getAbsolutePath tf)]
     (.deleteOnExit tf)
-    (spit tf "MACHINE chessboard \n DEFINITIONS \"CHOOSE.def\" SETS FIGURES = {queen, rook, bishop, knight, empty} \n  END")
+    (spit tf "MACHINE chessboard \n DEFINITIONS SET_PREF_KODKOD_MAX_NR_SOLS == 1; \n SET_PREF_KODKOD_SYMMETRY == 20; \n SETS FIGURES = {queen, rook, bishop, knight, empty} \n  END")
     tn))
 
 (defn crowded-state-space []
@@ -118,8 +118,8 @@
 
 
 (defn cc [size amount-knights]
-  (let [sol ((crowded-chessboard size amount-knights) "board")
-        sorted-sol (sort-by first (map (fn [x] [(first x) (.getValue (second x))]) sol))]
-    (print-table [0 1 2] (map (partial untransform-position size) sorted-sol))))
+  (time (let [sol ((crowded-chessboard size amount-knights) "board")
+              sorted-sol (sort-by first (map (fn [x] [(first x) (.getValue (second x))]) sol))]
+          (print-table [0 1 2] (map (partial untransform-position size) sorted-sol)))))
 
 ;(cc 8 21)
