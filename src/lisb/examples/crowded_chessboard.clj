@@ -81,7 +81,7 @@
   (let [tf (java.io.File/createTempFile "lisb" ".mch" nil)
         tn (.getAbsolutePath tf)]
     (.deleteOnExit tf)
-    (spit tf "MACHINE chessboard \n DEFINITIONS SET_PREF_KODKOD_MAX_NR_SOLS == 1; \n SET_PREF_KODKOD_SYMMETRY == 20; \n SETS FIGURES = {queen, rook, bishop, knight, empty} \n  END")
+    (spit tf "MACHINE chessboard \n DEFINITIONS SET_PREF_KODKOD_MAX_NR_SOLS == 1; \n SET_PREF_KODKOD_SAT_SOLVER == \"glucose\"; \n SET_PREF_KODKOD_SYMMETRY == 20; \n SETS FIGURES = {queen, rook, bishop, knight, empty} \n  END")
     tn))
 
 (defn crowded-state-space []
