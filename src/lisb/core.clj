@@ -47,10 +47,12 @@
 (defmulti get-result type)
 
 (defmethod get-result EvalResult [v]
-  (let [result (.translate v)
-        free (.getKeys result)]
-    (when (.. result getValue booleanValue)
-      (into {} (map (fn [k][k (.getSolution result k)]) free)))))
+  (if (= "time_out" (.getValue v))
+    :timeout
+    (let [result (.translate v)
+          free (.getKeys result)]
+      (when (.. result getValue booleanValue)
+        (into {} (map (fn [k][k (.getSolution result k)]) free))))))
 
 (defmethod get-result ComputationNotCompletedResult [[v _]]
   (let [reason-string (.getReason v)]
