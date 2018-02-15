@@ -47,12 +47,10 @@
 
 
 (defpred nqueens-p [size sol]
-  (let [width (range 1 :n)
+  (let [width (range 1 size)
         q1pos (apply sol :q1)
         q2pos (apply sol :q2)]
-
-        (and (= :n size)
-             (member? sol (>-> width width))
+        (and (member? sol (>-> width width))
              (forall [:q1 :q2]
                      (=> (and (member? :q1 width)
                               (member? :q2 width)
