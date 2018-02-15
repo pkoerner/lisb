@@ -86,6 +86,12 @@
   ([c & r]
    (eval (to-ast (apply band c r)))))
 
+(defn timeout-conjuncts?
+  ([c]
+   (= :timeout (eval (to-ast c))))
+  ([c & r]
+   (= :timeout (eval (to-ast (apply band c r))))))
+
 (defn unsat-core-aux [sat? c]
   (let [poss (choose-rest c)
         [_ r] (first (drop-while (comp sat?
@@ -107,3 +113,7 @@
          (set? c)]}
   (unsat-core-aux #(eval (to-ast (p (set %)))) c))
 
+(defn timeout-core [& conjuncts]
+  {:pre [(seq (rest conjuncts))
+         (= :timeout (eval (to-ast (apply band conjuncts))))]}
+  (unsat-core-aux (partial apply (complement timeout-conjuncts?)) conjuncts))
