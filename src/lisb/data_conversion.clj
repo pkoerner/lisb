@@ -1,5 +1,5 @@
 (ns lisb.data-conversion
-  (:require [lisb.representation :refer [bsequence bset-enum btuple brecord]]))
+  (:require [lisb.frontends.representation :refer [bsequence bset-enum btuple brecord]]))
 
 (defn ensure-list [maybe-k]
   (if (keyword? maybe-k) [maybe-k] maybe-k))

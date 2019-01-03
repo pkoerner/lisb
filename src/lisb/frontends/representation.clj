@@ -1,4 +1,4 @@
-(ns lisb.representation)
+(ns lisb.frontends.representation)
 
 
 (defn node [tag & children]
@@ -344,9 +344,9 @@
 (defn bif [condition then else]
   (node :if condition then else))
 
-(defn- bstructy 
+(defn- bstructy
   ([k m]
-   (node k 
+   (node k
          (apply node :list (map name (keys m)))
          (apply node :list (vals m))))
   ([k k1 v1 & keyvals]
@@ -397,13 +397,13 @@
         identifiers (map first kv-pairs)]
     (node tag (apply node :list identifiers)
               (reduce band (map (partial apply b=) kv-pairs))
-              p))) 
+              p)))
 
-(defn blet-pred [kvs p] 
+(defn blet-pred [kvs p]
   (blet :let-pred kvs p))
 
 
-(defn blet-expr [kvs e] 
+(defn blet-expr [kvs e]
   (blet :let-expr kvs e))
 
 ; TODO: - negations for subset/superset, strict/non-strict

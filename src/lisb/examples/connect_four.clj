@@ -1,9 +1,9 @@
 (ns lisb.examples.connect-four
   (:require [lisb.core :refer [evaluate state-space]])
-  (:require [lisb.representation :refer :all])
+  (:require [lisb.frontends.representation :refer :all])
   (:require [lisb.translation :refer [to-ast]])
   (:require [lisb.data-conversion :refer [convert]])
-  
+
   #_(:require [seesaw.core :refer [repaint! canvas show! frame]]
             [seesaw.graphics :refer [circle style draw]]))
 
@@ -43,7 +43,7 @@
        (= #{:r :y} #{0 1})
        (member? :x #{:r :y})
        (= winners #{[:e1 :x] [:e2 :x] [:e3 :x] [:e4 :x]})
-       (none= :e1 :e2 :e3 :e4)  
+       (none= :e1 :e2 :e3 :e4)
        (let [x1 (brec-get :e1 "x")
              x2 (brec-get :e2 "x")
              x3 (brec-get :e3 "x")
@@ -125,21 +125,21 @@
         board (:board s)]
     (doseq [x (range 0 7) y (range 0 6)]
       (let [color (get-color (board {:x x :y y}))]
-        (draw g (circle (* (inc x) 50) (* (- 6 y) 50) 20) 
+        (draw g (circle (* (inc x) 50) (* (- 6 y) 50) 20)
                 (style :foreground :black
                        :background color))))
     #_(when (:won s)
       (doseq [winner (:won s)
               stone winner]
-          (draw g (circle (* (inc (:x (first stone))) 50) 
+          (draw g (circle (* (inc (:x (first stone))) 50)
                           (* (- 6 (:y (first stone))) 50)
-                          20) 
+                          20)
                   (style :foreground :black
                          :background :lightgreen))))))
 
 
 
-(defn click-event [e] 
+(defn click-event [e]
   (let [col (int (/ (- (.getX e) 25) 50))]
     (when (<= 0 col 6)
       (turn! col (:turn @state)))))

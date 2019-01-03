@@ -1,6 +1,6 @@
 (ns lisb.examples.jobs-puzzle
   (:require [lisb.core :refer [eval]])
-  (:require [lisb.representation :refer :all])
+  (:require [lisb.frontends.representation :refer :all])
   (:require [lisb.translation :refer [to-ast]]))
 
 (defpred jobs-pred [holds-job]
@@ -9,7 +9,7 @@
         thelma (bstr "Thelma")
         steve (bstr "Steve")
         pete (bstr "Pete")
-        
+
         chef (bstr "chef")
         guard (bstr "guard")
         nurse (bstr "nurse")
@@ -22,19 +22,19 @@
     (and
       (= :people #{roberta, thelma, steve, pete})
       (= :jobs #{chef guard nurse clerk police teacher actor boxer})
-      
+
       (= :female #{roberta, thelma})
       (= :male #{steve, pete})
-  
+
       (member? holds-job (-->> :jobs :people))
-  
+
       (forall [:x]
               (member? :x :people)
               (= 2 (count (|> holds-job #{:x}))))
-  
+
       (member? (holds-job-fn nurse) :male)
       (member? (holds-job-fn actor) :male)
-  
+
       (member? :husband (>+> :female :male))
 
       (member? [(holds-job-fn chef) (holds-job-fn clerk)] :husband)

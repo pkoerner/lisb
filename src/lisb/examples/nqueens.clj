@@ -1,6 +1,6 @@
 (ns lisb.examples.nqueens
   (:require [lisb.core :refer [eval state-space]])
-  (:require [lisb.representation :refer :all])
+  (:require [lisb.frontends.representation :refer :all])
   (:require [lisb.translation :refer [to-ast]]))
 
 
@@ -88,6 +88,6 @@
     [boards board-size]
     (for [board boards column-counter (range 1 (inc board-size)) :when (is-valid-addition? board column-counter)]
           (conj board column-counter)))
-          
+
 (defn solve-for-board-size [board-size]
     (nth (iterate (fn [boards] (add-to-boards boards board-size)) [[]]) board-size))

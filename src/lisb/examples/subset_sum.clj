@@ -1,6 +1,6 @@
 (ns lisb.examples.subset-sum
   (:require [lisb.core :refer [eval state-space]])
-  (:require [lisb.representation :refer :all])
+  (:require [lisb.frontends.representation :refer :all])
   (:require [lisb.translation :refer [to-ast]]))
 
 (defpred subset-sum-p [coins target sol]

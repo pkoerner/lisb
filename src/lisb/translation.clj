@@ -1,7 +1,7 @@
 (ns lisb.translation
-  (:require [clojure.math.combinatorics :refer [combinations]]) 
+  (:require [clojure.math.combinatorics :refer [combinations]])
   (:require [clojure.walk :refer [walk]])
-  (:require [lisb.representation :refer [node]])
+  (:require [lisb.frontends.representation :refer [node]])
   (:import de.prob.animator.domainobjects.ClassicalB
            (de.be4.classicalb.core.parser.node AAddExpression
                                                AMinusExpression
@@ -495,7 +495,7 @@
         (set? x) (apply enumerated-set-node (map to-ast x))
         (sequential? x) (apply tuple-node (map to-ast x))
         :otherwise (println :unhandled-literal x)
-        
+
         ))
 
 (def to-ast-map {:less less-node
@@ -668,4 +668,3 @@
 
 (defn to-ast [data]
   (first (to-ast-wrapped [data]))) ; wraps data into a list and unwraps it on return
-

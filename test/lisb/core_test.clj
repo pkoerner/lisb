@@ -1,6 +1,6 @@
 (ns lisb.core-test
   (:require [lisb.core :refer [unsat-core unsat-core-predicate choose-rest sat-conjuncts?]]
-            [lisb.representation :refer :all])
+            [lisb.frontends.representation :refer :all])
   (:require [clojure.test :refer :all]))
 
 

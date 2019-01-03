@@ -2,16 +2,16 @@
   (:require [clojure.set :refer [union]])
   (:require [clojure.pprint :refer [print-table]])
   (:require [lisb.core :refer [eval state-space get-api]])
-  (:require [lisb.representation :refer :all])
+  (:require [lisb.frontends.representation :refer :all])
   (:require [lisb.translation :refer [to-ast]]))
 
 
-(defn attack-horizontal 
+(defn attack-horizontal
   "only considers fields to the right (symmetry optimisation)"
   [n i j]
   (map #(vector % j) (range (inc i) (inc n))) )
 
-(defn attack-vertical 
+(defn attack-vertical
   "only considers fields above (symmetry optimisation)"
   [n i j]
   (map (partial vector i) (range (inc j) (inc n))))
@@ -25,7 +25,7 @@
         :when (and (<= 1 a n) (<= 1 b n) (not= n 0))]
     [a b]))
 
-(defn attack-diag2 
+(defn attack-diag2
   "only considers fields to the right (symmetry optimisation)"
   [n i j]
   (for [k (range 1 #_(- n) (inc n))
