@@ -70,6 +70,10 @@
           _ (.execute state-space cmd)]
       (get-result (.getValue cmd)))))
 
+(defn pretty-b-ast [ast]
+  (let [printer (de.be4.classicalb.core.parser.util.PrettyPrinter.)]
+    (.apply ast printer)
+    (.getPrettyPrint printer)))
 
 
 (defn choose-rest [c]
