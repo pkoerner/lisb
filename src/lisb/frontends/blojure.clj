@@ -453,14 +453,13 @@
     (boolean? data) {:tag :boolean :children [data]}
     :else data))
 
-;; TODO: bset, bpow, bpow1, bfin, bfin1,
-;;       sets of bools, naturals, ints, nats
+;; TODO: functions
 (defmacro blj
   [repr]
   `(let [~'+ b+
          ~'- b-
          ~'* b*
-         ~'/ bdiv
+         ~'quot bdiv
 
          ~'max bmax
          ~'min bmin
@@ -472,6 +471,9 @@
          ~'> b>
          ~'<= b<=
          ~'>= b>=
+
+         ~'keys bdom
+         ~'vals bran
 
          ~'and band
          ~'or bor
@@ -488,7 +490,8 @@
 
          ~'fn blambda
 
-         ~'sequence bsequence
+         ~'vector bsequence
+         ~'list bsequence
          ~'concat bconcat
          ~'reverse breverse
          ~'first bfirst
@@ -507,6 +510,7 @@
          ~'map bmap
          ~'filter bfilter
         ;  ~'reduce breduce
+        ;  ~'str TODO
          ]
      ~(wrap-literals repr)))
 
@@ -531,7 +535,7 @@
         keywords (set (filter keyword? (almost-flatten body)))]
     `(fn ~name ~@params
        (let [~ctx (into {} (mapv (fn [x#] [x# (keyword (gensym "lisb_"))]) ~keywords))]
-         (do (b ~wrapped-body))))))
+         (do (blj ~wrapped-body))))))
 
 (defmacro defpred [name & args]
   `(def ~name (pred ~name ~@args)))
