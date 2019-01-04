@@ -373,7 +373,6 @@
 (defn fresh-var []
   (keyword (str "__lisb-internal-" (swap! var-counter inc))))
 
-#_(bstr->lisb "{r | #m . (m : 1..n>->>dom(intermediary) & !i.(i:dom(m) & i < n => m(i) < m(i+1)) & r : m)}")
 (defn bfilter [p coll]
   (let [intermediary (b|> coll (bset [:x] (band (bmember :x (bran coll)) (b= :x (bapply p :x)))))
         n (bcount intermediary)]
@@ -390,9 +389,9 @@
                  (bapply :m (b+ :i 1))))
             (bmember :r :m))))))
 
-(def ast (blj (= :f (filter  (blambda [:x] (<= 2 :x 4) :x) (bsequence 1 2 3 4 5)))))
-(pretty-b-ast (to-ast ast))
-(eval (to-ast ast))
+#_(-> (blj (= :x {1 2 3 4}))
+    to-ast
+    pretty-b-ast)
 
 (defn brange
   ([to]
@@ -436,18 +435,23 @@
   (blet :let-expr kvs e))
 
 ; TODO: - negations for subset/superset, strict/non-strict
+(defn boolean? [b]
+  (or (= b true) (= b false)))
 
-
-
-
-
-
-
-
-
-
-
-
+(defn wrap-literals
+  [data]
+  (cond
+    (and (seq? data) (empty? data)) {:tag :empty-list :children []}
+    (and (seq? data) (not= (first data) 'quote)) (map wrap-literals data)
+    (sequential? data) {:tag :sequence :children (mapv wrap-literals data)}
+    (map? data) {:tag :map :children
+                 (mapv (fn [[k v]] [(wrap-literals k) (wrap-literals v)]) data)}
+    (set? data) {:tag :set :children (mapv wrap-literals data)}
+    (string? data) {:tag :string :children [data]}
+    (number? data) {:tag :number :children [data]}
+    (keyword? data) {:tag :keyword :children [data]}
+    (boolean? data) {:tag :boolean :children [data]}
+    :else data))
 
 ;; TODO: bset, bpow, bpow1, bfin, bfin1,
 ;;       sets of bools, naturals, ints, nats
@@ -499,12 +503,12 @@
          ;; TODO: clojure.core stuff
          ; let?
         ;  ~'apply bapply
-        ;  ~'do bdo
+        ;  ~'do bdo ; Clojure do would implement side effects to be usefull
          ~'map bmap
          ~'filter bfilter
         ;  ~'reduce breduce
          ]
-     ~repr))
+     ~(wrap-literals repr)))
 
 
 (defn wrap [ctx node]
