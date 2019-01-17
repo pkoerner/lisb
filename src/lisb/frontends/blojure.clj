@@ -389,10 +389,6 @@
                  (bapply :m (b+ :i 1))))
             (bmember :r :m))))))
 
-#_(-> (blj (= :x {1 2 3 4}))
-    to-ast
-    pretty-b-ast)
-
 (defn brange
   ([to]
    (brange 0 to))
