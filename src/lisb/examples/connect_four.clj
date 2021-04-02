@@ -1,7 +1,7 @@
 (ns lisb.examples.connect-four
   (:require [lisb.core :refer [evaluate state-space]])
   (:require [lisb.representation :refer :all])
-  (:require [lisb.translation :refer [to-ast]])
+  (:require [lisb.translationOLD :refer [to-ast]])
   (:require [lisb.data-conversion :refer [convert]])
   
   #_(:require [seesaw.core :refer [repaint! canvas show! frame]]

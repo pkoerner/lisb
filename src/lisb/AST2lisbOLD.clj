@@ -1,4 +1,4 @@
-(ns lisb.AST2lisb
+(ns lisb.AST2lisbOLD
   (:require [clojure.pprint])
   (:import (de.be4.classicalb.core.parser.node AAddExpression
                                                AMinusExpression
@@ -123,14 +123,15 @@
                                                APredicateParseUnit
                                                AExpressionParseUnit
                                                ADefinitionPredicate
-                                               ADefinitionsMachineClause 
-                                               ADefinitionFileParseUnit 
+                                               ADefinitionsMachineClause
+                                               ADefinitionFileParseUnit
                                                APredicateDefinitionDefinition
                                                AExpressionDefinitionDefinition
                                                AFileDefinitionDefinition
-                                               AAbstractMachineParseUnit 
-                                               AStringSetExpression 
-                                               )))
+                                               AAbstractMachineParseUnit
+                                               AStringSetExpression
+                                               AMachineMachineVariant
+                                               AMachineHeader)))
 
 
 
@@ -360,15 +361,31 @@
   (definition node args))
 
 (defmethod AST->lisb AAbstractMachineParseUnit [node args]
+  (list (symbol-repr "bmachine")
+        (AST->lisb (.getVariant node) args)
+        (AST->lisb (.getHeader node) args)
+        (map #(AST->lisb % args) (.getMachineClauses node))))
+#_(defmethod AST->lisb AAbstractMachineParseUnit [node args]
   (let [definition-clause (first (filter #(instance? ADefinitionsMachineClause %)
                                          (.getMachineClauses node)))]
     (AST->lisb definition-clause args)))
+
+(defmethod AST->lisb AMachineMachineVariant [node args]
+  (list (symbol-repr "bmachine-variant")))
+
+(defmethod AST->lisb AMachineHeader [node args]
+  (list (symbol-repr "bmachine-header")
+        (map #(AST->lisb % args) (.getName node))
+        (map #(AST->lisb % args) (.getParameters node))))
 
 (defmethod AST->lisb ADefinitionFileParseUnit [node args]
   (AST->lisb (.getDefinitionsClauses node) args))
 
 (defmethod AST->lisb ADefinitionsMachineClause [node args]
   (map #(AST->lisb % args) (.getDefinitions node)))
+
+(defmethod AST->lisb TIdentifierLiteral [node args]
+  (.getText node))
 
 
 
@@ -430,5 +447,7 @@
             newname (str without-ext ".clj")]
         (bmachine->lisbfile (namespacify-preds prefix without-ext (get-in r [:depends-on fname]) preds)
                             (str output-folder java.io.File/separator newname))))))
+#_(bpath->lisbfiles "C:\\Users\\Florian\\Desktop\\Projektarbeit\\lisb\\resources\\machines\\Lift.mch" #{} "C:\\Users\\Florian\\Desktop\\Projektarbeit\\lisb\\resources\\Lift.mch" "lift")
 
-
+#_(bpath->lisbfiles "/home/philipp/tmp/mäschine/Solver.mch" #{"LibraryIO.def"} "/home/philipp/tmp/courses" "courses")
+#_(bpath->lisbfiles "/home/philipp/tmp/ExampleLarge_Kodkod.mch" #{} "/home/philipp/tmp/" "argumentation")

@@ -5,6 +5,54 @@
   {:tag tag
    :children (if children children [])})
 
+(defn bmachine [variant header & clauses]
+  {:tag :machine
+   :variant variant
+   :header header
+   :clauses clauses})
+
+(defn bmachine-variant []
+  {:tag :machine-variant})
+
+(defn bmachine-header [names parameters]
+  {:tag :machine-header
+   :names names
+   :parameters parameters})
+
+(defn bvariables [& identifiers]
+  {:tag :variables
+   :children identifiers})
+
+(defn binvariants [predicate]
+  {:tag :invariants
+   :predicate predicate})
+
+(defn binit [substitutions]
+  {:tag :init
+   :children substitutions})
+
+; TODO: BlockSubstition müsste entfernt werden können
+(defn bblock [p-substitution]
+  {:tag :block
+   :p-substitution p-substitution})
+
+(defn bassign [lhs-exprs rhs-exprs]
+  {:tag :assign
+   :lhs-exprs lhs-exprs
+   :rhs-exprs rhs-exprs})
+
+(defn bmember [left right]
+  {:tag :member
+   :left left
+   :right right})
+
+(defn bidentifiers [& identifiers]
+  {:tag :identifiers
+   :children identifiers})
+
+(defn bnat-set []
+  {:tag :nat-set})
+
 
 (defn b< [& args]
   (apply node :less args))
@@ -100,9 +148,6 @@
   [& args]
   (apply node :minus-or-set-subtract args))
 
-(defn bmember [e s]
-  (node :member e s))
-
 (defn bnot-member [e s]
   (bnot (bmember e s)))
 
@@ -135,9 +180,6 @@
 
 (defn binteger-set []
   (node :integer-set))
-
-(defn bnat-set []
-  (node :nat-set))
 
 (defn bnat1-set []
   (node :nat1-set))
@@ -424,7 +466,10 @@
 ;;       sets of bools, naturals, ints, nats
 (defmacro b
   [repr]
-  `(let [~'+ b+
+  `(let [~'machine bmachine
+         ~'machine-variant bmachine-variant
+         ~'machine-header bmachine-header
+         ~'+ b+
          ~'- b-
          ~'* b*
          ~'/ bdiv

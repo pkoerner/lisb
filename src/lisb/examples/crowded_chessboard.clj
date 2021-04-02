@@ -3,7 +3,7 @@
   (:require [clojure.pprint :refer [print-table]])
   (:require [lisb.core :refer [eval state-space get-api]])
   (:require [lisb.representation :refer :all])
-  (:require [lisb.translation :refer [to-ast]]))
+  (:require [lisb.translationOLD :refer [to-ast]]))
 
 
 (defn attack-horizontal 
