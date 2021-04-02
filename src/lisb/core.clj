@@ -1,6 +1,6 @@
 (ns lisb.core
   (:require [lisb.representation :refer :all])
-  (:require [lisb.translation :refer [to-ast]])
+  (:require [lisb.translationOLD :refer [to-ast]])
   (:import de.prob.Main
            de.prob.scripting.Api
            de.prob.animator.command.EvaluateFormulaCommand

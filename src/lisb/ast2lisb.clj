@@ -1,26 +1,24 @@
-(ns lisb.translation
-  (:require [clojure.math.combinatorics :refer [combinations]])
-  (:require [clojure.walk :refer [walk]])
-  (:require [lisb.representation :refer [node]])
-  (:import de.prob.animator.domainobjects.ClassicalB
-           (de.be4.classicalb.core.parser.node Start
-                                               EOF
-                                               AAbstractMachineParseUnit
-                                               AMachineMachineVariant
-                                               AMachineHeader
-                                               AVariablesMachineClause
-                                               AInvariantMachineClause
-                                               AInitialisationMachineClause
-                                               ABlockSubstitution
-                                               AAssignSubstitution
-                                               AAddExpression
+(ns lisb.ast2lisb
+  (:require [lisb.representation :refer :all])
+  (:import (de.be4.classicalb.core.parser.node
+             Start
+             AAbstractMachineParseUnit
+             AMachineMachineVariant
+             AMachineHeader
+             AVariablesMachineClause
+             AInvariantMachineClause
+             AInitialisationMachineClause
+             ABlockSubstitution
+             AAssignSubstitution
+             AMemberPredicate
+             AIntegerExpression
+             ANatSetExpression
+             AAddExpression
                                                AMinusExpression
                                                AMultOrCartExpression
                                                AMinusOrSetSubtractExpression
                                                ADivExpression
                                                AUnaryMinusExpression
-                                               AIntegerExpression
-                                               TIntegerLiteral
                                                ABooleanTrueExpression
                                                ABooleanFalseExpression
                                                AConvertBoolExpression
@@ -36,7 +34,7 @@
                                                AUnionExpression
                                                AIntersectionExpression
                                                ASetSubtractionExpression
-                                               AMemberPredicate
+                                               ANotMemberPredicate
                                                ASubsetPredicate
                                                ASubsetStrictPredicate
                                                ABoolSetExpression
@@ -44,7 +42,6 @@
                                                ANatural1SetExpression
                                                AIntegerSetExpression
                                                AIntSetExpression
-                                               ANatSetExpression
                                                ANat1SetExpression
                                                TIntegerLiteral
                                                TIdentifierLiteral
@@ -128,106 +125,77 @@
                                                ARecExpression
                                                ARecordFieldExpression
                                                AStringExpression
-                                               AStringSetExpression
                                                TStringLiteral
                                                ADefinitionExpression
                                                ALetExpressionExpression
-                                               ALetPredicatePredicate)
-           (de.be4.classicalb.core.parser.util PrettyPrinter)
+                                               ALetPredicatePredicate
+                                               APredicateParseUnit
+                                               AExpressionParseUnit
+                                               ADefinitionPredicate
+                                               ADefinitionsMachineClause
+                                               ADefinitionFileParseUnit
+                                               APredicateDefinitionDefinition
+                                               AExpressionDefinitionDefinition
+                                               AFileDefinitionDefinition
+                                               AStringSetExpression)
            (de.be4.classicalb.core.parser BParser)))
 
-(defn identifier [n]
-  (TIdentifierLiteral. (name n)))
+(declare ast->lisb read-bmachine)
 
-(declare lisb->ast)
+(defn process-list [nodes args]
+  (map #(ast->lisb % args) nodes))
 
-(defmulti process-node (fn [node] (:tag node)))
+(defmulti ast->lisb (fn [node args] (class node)))
 
-(defmethod process-node :machine [node]
-  (Start. (AAbstractMachineParseUnit. (lisb->ast (:variant node)) (lisb->ast (:header node)) (map lisb->ast (:clauses node))) (EOF.)))
+(defmethod ast->lisb Start [node args] (ast->lisb (.getPParseUnit node) args))
 
-(defmethod process-node :machine-variant [node]
-  (AMachineMachineVariant.))
+(defmethod ast->lisb AAbstractMachineParseUnit [node args]
+  (apply (partial bmachine
+           (ast->lisb (.getVariant node) args)
+           (ast->lisb (.getHeader node) args))
+         (process-list (.getMachineClauses node) args)))
 
-(defmethod process-node :machine-header [node]
-  (AMachineHeader. (map lisb->ast (:names node)) (map lisb->ast (:parameters node))))
+(defmethod ast->lisb AMachineMachineVariant [node args]
+  (bmachine-variant))
 
-(defmethod process-node :variables [node]
-  (AVariablesMachineClause. (map lisb->ast (:children node))))
+(defmethod ast->lisb AMachineHeader [node args]
+  (bmachine-header
+    (process-list (.getName node) args)
+    (process-list (.getParameters node) args)))
 
-(defmethod process-node :invariants [node]
-  (AInvariantMachineClause. (lisb->ast (:predicate node))))
+(defmethod ast->lisb AVariablesMachineClause [node args]
+  (apply bvariables (process-list (.getIdentifiers node) args)))
 
-(defmethod process-node :init [node]
-  (AInitialisationMachineClause. (lisb->ast (:children node))))
+(defmethod ast->lisb AInvariantMachineClause [node args]
+  (binvariants (ast->lisb (.getPredicates node) args)))     ; (.getPredicates node) returns ONE Predicate and no list!
 
-(defmethod process-node :block [node]
-  (ABlockSubstitution. (lisb->ast (:p-substitution node))))
+(defmethod ast->lisb AInitialisationMachineClause [node args]
+  (binit (ast->lisb (.getSubstitutions node) args)))        ; AInitialisationMachineClause holds one PSubstitution
 
-(defmethod process-node :assign [node]
-  (AAssignSubstitution. (map lisb->ast (:lhs-exprs node)) (map lisb->ast (:rhs-exprs node))))
+; TODO: BlockSubstition müsste entfernt werden können
+(defmethod ast->lisb ABlockSubstitution [node args]
+  (bblock (ast->lisb (.getSubstitution node) args)))        ; ABlockSubstition holds one PSubstitution
 
-(defmethod process-node :member [node]
-  (AMemberPredicate. (lisb->ast (:left node)) (lisb->ast (:right node))))
+(defmethod ast->lisb AAssignSubstitution [node args]
+  (bassign (process-list (.getLhsExpression node) args) (process-list (.getRhsExpressions node) args)))
 
-(defmethod process-node :identifiers [node]
-  (AIdentifierExpression. (map lisb->ast (:children node))))
+(defmethod ast->lisb AMemberPredicate [node args]
+  (bmember (ast->lisb (.getLeft node) args) (ast->lisb (.getRight node) args)))
 
-(defmethod process-node :nat-set [node]
-  (ANatSetExpression.))
+(defmethod ast->lisb AIdentifierExpression [node args]
+  (apply bidentifiers (process-list (.getIdentifier node) args)))
 
-(defmethod process-node :default [node]
-  (println node))
+(defmethod ast->lisb AIntegerExpression [node args]
+  (Long/parseLong (.getText (.getLiteral node))))
 
-(defn literal [x]
-  (cond (keyword? x) (identifier x)
-        (string? x) x ;; hack-y thing to avoid renaming
-        ;; of rec-get parameters in preds
-        (number? x) (AIntegerExpression. (TIntegerLiteral. (str x)))
-        ;(true? x) (boolean-true)
-        ;(false? x) (boolean-false)
-        ;(set? x) (apply enumerated-set-node (map lisb->ast x))
-        ;(sequential? x) (apply tuple-node (map lisb->ast x))
-        :otherwise (println :unhandled-literal x)
+(defmethod ast->lisb ANatSetExpression [node args]
+  (bnat-set))
 
-        ))
+(defmethod ast->lisb TIdentifierLiteral [node args]
+  (keyword (.getText node)))
 
+(defn bmachine->lisb [bmachine-path]
+  (ast->lisb (.parseFile (BParser.) (clojure.java.io/file bmachine-path) false) {:symbols {}}))
 
-(defn lisb->ast [lisb]
-  (cond
-    (map? lisb) (process-node lisb)
-    (seq? lisb) (map lisb->ast lisb)
-    :else (literal lisb)))
-
-#_(defn lisb->ast [lisb]
-  (println "")
-  (println lisb)
-  (println (map? lisb))
-  (println (seq? lisb))
-  (println (empty? lisb))
-  (if (map? lisb)
-    (do
-      (println "Map")
-      (process-node lisb))
-    (if (seq? lisb)
-      (if (empty? lisb)
-        (do
-          (println "Empty seq")
-          '())
-        (do
-          (println "Not empty seq")
-          (map lisb->ast lisb)))
-      (do
-        (println "Literal")
-        (literal lisb)))))
-
-#_(require '[lisb.ast2lisb :refer :all])
-#_(lisb->ast (bmachinestr->lisb "MACHINE Empty\nEND"))
-
-#_(defn get-machine-from-ast [ast]
-  (let [pprinter (PrettyPrinter.)]
-    (.apply ast pprinter)
-    (.getPrettyPrint pprinter)))
-#_(get-machine-from-ast (lisb->ast (bmachinestr->lisb "MACHINE Empty\nEND")))
-
-#_(.getEOF (.parse (BParser.) "MACHINE Empty\nEND" false))
+(defn bmachinestr->lisb [bmachinestr]
+  (ast->lisb (.parse (BParser.) bmachinestr false) {:symbols {}}))

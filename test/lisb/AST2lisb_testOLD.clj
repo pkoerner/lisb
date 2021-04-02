@@ -1,8 +1,18 @@
-(ns lisb.AST2lisb-test
+(ns lisb.AST2lisb-testOLD
   (:require [clojure.test :refer :all]
-            [lisb.AST2lisb :refer :all]))
+            [lisb.AST2lisbOLD :refer :all]))
 
+(import de.be4.classicalb.core.parser.BParser)
+(def bparser (new BParser))
+(defn parse-b-machine [b-machine]
+  (.parse bparser b-machine false))
 
+(deftest machine-test
+  (testing "machine"
+    (is
+      (=
+        '(lisb.representation/bmachine (lisb.representation/bmachine-variant) (lisb.representation/bmachine-header ("Empty") ()) ())
+        (AST->lisb (parse-b-machine "MACHINE Empty\nEND") {})))))
 
 
 (deftest pretty-printer-test

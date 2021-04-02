@@ -1,0 +1,10 @@
+MACHINE Variable
+VARIABLES
+  nat
+INVARIANT
+  nat : NAT
+INITIALISATION
+  BEGIN
+    nat := 0
+  END
+END
