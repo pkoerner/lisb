@@ -14,10 +14,18 @@
 (defn bmachine-variant []
   {:tag :machine-variant})
 
-(defn bmachine-header [names parameters]
+(defn bmachine-header [name parameters]
   {:tag :machine-header
-   :names names
+   :name name
    :parameters parameters})
+
+(defn bconstants [& identifiers]
+  {:tag :constants
+   :children identifiers})
+
+(defn bproperties [predicate]
+  {:tag :properties
+   :predicate predicate})
 
 (defn bvariables [& identifiers]
   {:tag :variables
@@ -41,18 +49,42 @@
    :lhs-exprs lhs-exprs
    :rhs-exprs rhs-exprs})
 
+(defn b= [left right]
+  {:tag :equal
+   :left left
+   :right right})
+
 (defn bmember [left right]
   {:tag :member
    :left left
    :right right})
 
-(defn bidentifiers [& identifiers]
-  {:tag :identifiers
-   :children identifiers})
-
 (defn bnat-set []
   {:tag :nat-set})
 
+(defn brelation [left right]
+  {:tag :relation
+   :left left
+   :right right})
+
+(defn btotal-relation [left right]
+  {:tag :total-relation
+   :left left
+   :right right})
+
+(defn bsurjective-relation [left right]
+  {:tag :surjective-relation
+   :left left
+   :right right})
+
+(defn btotal-surjective-relation [left right]
+  {:tag :total-surjective-relation
+   :left left
+   :right right})
+
+(defn bcouple [& expressions]
+  {:tag :couple
+   :expressions expressions})
 
 (defn b< [& args]
   (apply node :less args))
@@ -83,7 +115,7 @@
 (defn band [& args]
   (apply node :and args))
 
-(defn b= [& args]
+#_(defn b= [& args]
   (apply node :equals args))
 
 (defn b<=> [& args]
@@ -101,8 +133,13 @@
 (defn bpred->bool [a]
   (node :to-bool a))
 
-(defn bset [v p]
-  (node :comp-set (apply node :list v) p))
+;;; Sets
+
+(defn bcomp-set [identifiers predicate]
+  {:tag :comp-set
+   :identifiers identifiers
+   :predicate predicate
+   })
 
 (defn bset-enum [& args]
   (apply node :enumerated-set args))
@@ -157,17 +194,25 @@
 (defn bsubset [& args]
   (apply node :subset args))
 
+(defn bnot-subset [& args]
+  (apply node :not-subset args))
+
 (defn bsuperset [& args]
   (apply bsubset (reverse args)))
 
 (defn bsubset-strict [& args]
   (apply node :subset-strict args))
 
+(defn bnot-subset-strict [& args]
+  (apply node :not-subset-strict args))
+
 (defn bsuperset-strict [& args]
   (apply bsubset-strict (reverse args)))
 
 (defn bbool-set []
   (node :bool-set))
+
+;;; Numbers
 
 (defn bnatural-set []
   (node :natural-set))
@@ -207,60 +252,86 @@
 (defn bdec [n]
   (b- n 1))
 
-(defn b<-> [& args]
-  (apply node :relation args))
+;;; Relations
+
+(defn b<-> [& sets]
+  {:tag :relation
+   :sets sets})
 
 (defn bdom [r]
-  (node :domain r))
+  {:tag :domain
+   :relation r})
 
 (defn bran [r]
-  (node :range r))
+  {:tag :range
+   :relation r})
 
 (defn bid [s]
-  (node :identity-relation s))
-
+  {:tag :identity-relation
+   :set s})
 
 (defn b<| [s r]
-  (node :domain-restriction s r))
+  {:tag :domain-restriction
+   :set s
+   :relation r})
 
 (defn b<<| [s r]
-  (node :domain-subtraction s r))
+  {:tag :domain-subtraction
+   :set s
+   :relation r})
 
 (defn b|> [r s]
-  (node :range-restriction r s))
+  {:tag :range-restriction
+   :relation r
+   :set s})
 
 (defn b|>> [r s]
-  (node :range-subtraction r s))
+  {:tag :range-subtraction
+   :relation r
+   :set s})
 
 (defn binverse [r]
-  (node :inverse-relation r))
+  {:tag :inverse-relation
+   :relation r})
 
 (defn bimage [r s]
-  (node :relational-image r s))
+  {:tag :relational-image
+   :relation r
+   :set s})
 
-(defn b<+ [& args]
-  (apply node :relational-override args))
+(defn b<+ [& relations]
+  {:tag :relational-override
+   :relations relations})
 
-(defn b>< [& args]
-  (apply node :direct-product args))
+(defn b>< [& relations]
+  {:tag :direct-product
+   :relations relations})
 
-(defn bcomp [& args]
-  (apply node :relational-composition args))
+(defn bcomp [& relations]
+  {:tag :relational-composition
+   :relations relations})
 
-(defn b|| [& args]
-  (apply node :parallel-product args))
+(defn b|| [& relations]
+  {:tag :parallel-product
+   :relations relations})
 
 (defn bprj1 [s t]
-  (node :proj1 s t))
+  {:tag :proj1
+   :set1 s
+   :set2 t})
 
 (defn bprj2 [s t]
-  (node :proj2 s t))
+  {:tag :proj2
+   :set1 s
+   :set2 t})
 
 (defn bclosure [r]
-  (node :closure r))
+  {:tag :closure
+   :relation r})
 
 (defn bclosure1 [r]
-  (node :closure1 r))
+  {:tag :closure1
+   :relation r})
 
 (defn biterate [r n]
   (node :iterate r n))
@@ -271,29 +342,39 @@
 (defn brel [r]
   (node :relationise r))
 
-(defn b+-> [& args]
-  (apply node :partial-fn args))
+;;; Functions
 
-(defn b--> [& args]
-  (apply node :total-fn args))
+(defn b+-> [& sets]
+  {:tag :partial-fn
+   :sets sets})
 
-(defn b+->> [& args]
-  (apply node :partial-surjection args))
+(defn b--> [& sets]
+  {:tag :total-fn
+   :sets sets})
 
-(defn b-->> [& args]
-  (apply node :total-surjection args))
+(defn b+->> [& sets]
+  {:tag :partial-surjection
+   :sets sets})
 
-(defn b>+> [& args]
-  (apply node :partial-injection args))
+(defn b-->> [& sets]
+  {:tag :total-surjection
+   :sets sets})
 
-(defn b>-> [& args]
-  (apply node :total-injection args))
+(defn b>+> [& sets]
+  {:tag :partial-injection
+   :sets sets})
 
-(defn b>+>> [& args]
-  (apply node :partial-bijection args))
+(defn b>-> [& sets]
+  {:tag :total-injection
+   :sets sets})
 
-(defn b>->> [& args]
-  (apply node :total-bijection args))
+(defn b>+>> [& sets]
+  {:tag :partial-bijection
+   :sets sets})
+
+(defn b>->> [& sets]
+  {:tag :total-bijection
+   :sets sets})
 
 (defn blambda [identifiers pred expr]
   (let [vars (apply node :list identifiers)]
@@ -302,12 +383,15 @@
 (defn bapply [f & args]
   (apply node :fn-application f args))
 
+
 (defn b=> [& args]
   (apply node :implication args))
 
 (defn bforall
   ([identifiers impl]
-    (node :forall (apply node :list identifiers) impl))
+   {:tag :forall
+    :identifiers identifiers
+    :impl impl})
   ([identifiers impl-left impl-right]
    (bforall identifiers (b=> impl-left impl-right))))
 
@@ -316,6 +400,8 @@
 
 (defn binterval [from to]
   (node :interval from to))
+
+;;; Sequences
 
 (defn bsequence [& args]
   (apply node :sequence args))

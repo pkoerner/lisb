@@ -67,7 +67,7 @@
       (is (eval ss (to-ast (b= :x #{1 2}))))
       (is (eval ss (to-ast (b= :x #{1 2 (b+ 1 2)}))))
 
-      (is (eval ss (to-ast (b= #{1 2 3} (bset [:x] (b< 0 :x 4))))))
+      (is (eval ss (to-ast (b= #{1 2 3} (bcomp-set [:x] (b< 0 :x 4))))))
       
       (is (eval ss (to-ast (b= :x (bpow #{1 2})))))
 

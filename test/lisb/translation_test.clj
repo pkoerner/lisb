@@ -5,8 +5,15 @@
 
 (import de.be4.classicalb.core.parser.BParser)
 (def bparser (new BParser))
+
 (defn parse-b-machine [b-machine]
   (.parse bparser b-machine false))
+
+(defn parse-b-formula [b-formula] (.parse bparser (str "#FORMULA " b-formula) false))
+;(defn b-expression->lisb [b-expression]  (b->lisb (str "#EXPRESSION " b-expression)))
+;(defn b-substitution->lisb [b-substitution]  (b->lisb (str "#SUBSTITUTION " b-substitution)))
+;(defn b-transition->lisb [b-transition] (b->lisb (str "#TRANSITION " b-transition)))
+;(defn b-predicate->lisb [b-predicate] (b->lisb (str "#PREDICATE " b-predicate)))
 
 (import de.be4.classicalb.core.parser.util.PrettyPrinter)
 (defn print-machine-from-ast [ast]
@@ -30,11 +37,30 @@
     (is (= "MACHINE Empty\nEND"
            (get-machine-from-ast (parse-b-machine "MACHINE Empty\nEND"))))
     (is (= "MACHINE Empty\nEND"
-           (get-machine-from-ast (lisb->ast (bmachinestr->lisb "MACHINE Empty\nEND")))))))
+           (get-machine-from-ast (lisb->ast (b->lisb "MACHINE Empty\nEND")))))))
+
+(deftest constants-test
+  (testing "constants"
+    (let [bmachine (slurp (clojure.java.io/resource "machines/Constant.mch"))]
+      (is (= (get-machine-from-ast (parse-b-machine bmachine)) ; formats bmachine
+             (get-machine-from-ast (lisb->ast (b->lisb bmachine))))))))
 
 
-(deftest variable-test
-  (testing "variable"
+(deftest variables-test
+  (testing "variables"
     (let [bmachine (slurp (clojure.java.io/resource "machines/Variable.mch"))]
-      (is (= (get-machine-from-ast (parse-b-machine bmachine))
-             (get-machine-from-ast (lisb->ast (bmachinestr->lisb bmachine))))))))
+      (is (= (get-machine-from-ast (parse-b-machine bmachine)) ; formats bmachine
+             (get-machine-from-ast (lisb->ast (b->lisb bmachine))))))))
+
+(deftest sets-test
+  (testing "sets"
+    (let [empty-set "{}"
+          set-enum1 "{E}"
+          set-enum2 "{E,F}"
+          set-enum2-alt "{F,E}"]
+      (is (= empty-set
+             (get-machine-from-ast (lisb->ast (b-formula->lisb empty-set)))))
+      (is (= set-enum1
+             (get-machine-from-ast (lisb->ast (b-formula->lisb set-enum1)))))
+      (is (let [machine-set-enum2 (get-machine-from-ast (lisb->ast (b-formula->lisb set-enum2-alt)))] ; order doesn't matter
+            (or (= machine-set-enum2 set-enum2) (= machine-set-enum2 set-enum2-alt)))))))

@@ -132,12 +132,18 @@
                                                TStringLiteral
                                                ADefinitionExpression
                                                ALetExpressionExpression
-                                               ALetPredicatePredicate)
+                                               ALetPredicatePredicate AConstantsMachineClause APropertiesMachineClause)
            (de.be4.classicalb.core.parser.util PrettyPrinter)
            (de.be4.classicalb.core.parser BParser)))
 
 (defn identifier [n]
-  (TIdentifierLiteral. (name n)))
+  (AIdentifierExpression. [(TIdentifierLiteral. (name n))]))
+
+;;; TODO: this smells like it could be done nicer
+(defn set-enum [& args]
+  (if-not (seq args)
+    (AEmptySetExpression.)
+    (ASetExtensionExpression. args)))
 
 (declare lisb->ast)
 
@@ -150,7 +156,13 @@
   (AMachineMachineVariant.))
 
 (defmethod process-node :machine-header [node]
-  (AMachineHeader. (map lisb->ast (:names node)) (map lisb->ast (:parameters node))))
+  (AMachineHeader. (.getIdentifier (lisb->ast (:name node))) (map lisb->ast (:parameters node))))
+
+(defmethod process-node :constants [node]
+  (AConstantsMachineClause. (map lisb->ast (:children node))))
+
+(defmethod process-node :properties [node]
+  (APropertiesMachineClause. (lisb->ast (:predicate node))))
 
 (defmethod process-node :variables [node]
   (AVariablesMachineClause. (map lisb->ast (:children node))))
@@ -166,6 +178,9 @@
 
 (defmethod process-node :assign [node]
   (AAssignSubstitution. (map lisb->ast (:lhs-exprs node)) (map lisb->ast (:rhs-exprs node))))
+
+(defmethod process-node :equal [node]
+  (AEqualPredicate. (lisb->ast (:left node)) (lisb->ast (:right node))))
 
 (defmethod process-node :member [node]
   (AMemberPredicate. (lisb->ast (:left node)) (lisb->ast (:right node))))
@@ -186,7 +201,7 @@
         (number? x) (AIntegerExpression. (TIntegerLiteral. (str x)))
         ;(true? x) (boolean-true)
         ;(false? x) (boolean-false)
-        ;(set? x) (apply enumerated-set-node (map lisb->ast x))
+        (set? x) (apply set-enum (map lisb->ast x))
         ;(sequential? x) (apply tuple-node (map lisb->ast x))
         :otherwise (println :unhandled-literal x)
 
