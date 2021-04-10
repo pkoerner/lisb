@@ -1,0 +1,4 @@
+MACHINE Constant
+CONSTANTS con
+PROPERTIES con = 1
+END

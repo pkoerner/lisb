@@ -26,16 +26,16 @@
     (is (= '(lisb.representation/b= a :b) (bstr->lisb "a=b" #{"a"}))))
   (testing "sets"
     (are [x y] (= x (bstr->lisb y #{}))
-     #{}  "{}"
-     '(lisb.representation/bset-enum 1)         "{1}" 
-     '(lisb.representation/bset-enum 1 2)       "{1,2}" 
-     '(lisb.representation/bset [:x] (lisb.representation/b< :x 5)) "{x|x<5}" 
-     '(lisb.representation/btuple 1 2)          "1|->2" 
-     '(lisb.representation/bbool-set)            "BOOL" 
-     '(lisb.representation/bnat-set)             "NAT" 
-     '(lisb.representation/bnat1-set)            "NAT1" 
-     '(lisb.representation/bnatural-set)         "NATURAL" 
-     '(lisb.representation/bnatural1-set)        "NATURAL1" ))
+               #{} "{}"
+               '(lisb.representation/bset-enum 1) "{1}"
+               '(lisb.representation/bset-enum 1 2) "{1,2}"
+               '(lisb.representation/bcomp-set [:x] (lisb.representation/b< :x 5)) "{x|x<5}"
+               '(lisb.representation/btuple 1 2) "1|->2"
+               '(lisb.representation/bbool-set) "BOOL"
+               '(lisb.representation/bnat-set) "NAT"
+               '(lisb.representation/bnat1-set) "NAT1"
+               '(lisb.representation/bnatural-set) "NATURAL"
+               '(lisb.representation/bnatural1-set) "NATURAL1"))
   (testing "some integer operations"
     (are [x y] (= x (bstr->lisb y #{}))
       '(lisb.representation/bminus 1)      "-1"
