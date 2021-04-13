@@ -5,6 +5,8 @@
   {:tag tag
    :children (if children children [])})
 
+;;; machine definition
+
 (defn bmachine [variant header & clauses]
   {:tag :machine
    :variant variant
@@ -19,6 +21,23 @@
    :name name
    :parameters parameters})
 
+;;; machine clauses
+
+(defn bcontraints [& predicates]
+  {:tag :contraints
+   :children predicates})
+
+(defn bsets [& set-definitions]
+  {:tag :sets
+   :children set-definitions})
+(defn bdeferred-set [identifier]
+  {:tag :deferred-set
+   :identifier identifier})
+(defn benumerated-set [identifier elements]
+  {:tag :enumerated-set-set
+   :identifier identifier
+   :elements elements})
+
 (defn bconstants [& identifiers]
   {:tag :constants
    :children identifiers})
@@ -26,6 +45,10 @@
 (defn bproperties [predicate]
   {:tag :properties
    :predicate predicate})
+
+(defn bdefinitions [& definitions]
+  {:tag :definitions
+   :children definitions})
 
 (defn bvariables [& identifiers]
   {:tag :variables
@@ -35,9 +58,22 @@
   {:tag :invariants
    :predicate predicate})
 
-(defn binit [substitutions]
+(defn bassertions [& predicates]
+  {:tag :assertions
+   :children predicates})
+
+(defn binit [substitution]
   {:tag :init
-   :children substitutions})
+   :substitution substitution})
+
+(defn boperations [& operations]
+  {:tag :operations
+   :children operations})
+
+;;; substitutions
+
+(defn bskip []
+  {:tag :skip})
 
 ; TODO: BlockSubstition müsste entfernt werden können
 (defn bblock [p-substitution]
