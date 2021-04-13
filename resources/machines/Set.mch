@@ -1,0 +1,4 @@
+MACHINE Set
+SETS
+  S; T = {E,F}
+END

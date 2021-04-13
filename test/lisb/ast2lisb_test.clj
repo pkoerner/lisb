@@ -20,10 +20,18 @@
 #_(deftest constraint-test
   (testing "constraint"
     (is (=
-          (bmachinestr->lisb (slurp (clojure.java.io/resource "machines/Constraint.mch")))))))
+          (b->lisb (slurp (clojure.java.io/resource "machines/Constraint.mch")))))))
 
-(deftest constant-test
-  (testing "constant"
+(deftest machine-clause-sets-test
+  (testing "machine-clause-sets"
+    (is (= (bmachine
+             (bmachine-variant)
+             (bmachine-header :Set ())
+             (bsets (bdeferred-set :S) (benumerated-set :T #{:E :F})))
+           (b->lisb (slurp (clojure.java.io/resource "machines/Set.mch")))))))
+
+(deftest machine-clause-constants-test
+  (testing "machine-clause-constants"
     (is (= (bmachine
              (bmachine-variant)
              (bmachine-header :Constant ())
@@ -31,8 +39,8 @@
              (bproperties (b= :con 1)))
            (b->lisb (slurp (clojure.java.io/resource "machines/Constant.mch")))))))
 
-(deftest variable-test
-  (testing "variable"
+(deftest machine-clause-variables-test
+  (testing "machine-clause-variables"
     (is (= (bmachine
              (bmachine-variant)
              (bmachine-header :Variable ())

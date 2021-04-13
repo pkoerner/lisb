@@ -137,7 +137,7 @@
              APredicateDefinitionDefinition
              AExpressionDefinitionDefinition
              AFileDefinitionDefinition
-             AStringSetExpression AConstantsMachineClause APropertiesMachineClause AConstraintsMachineClause ASetsMachineClause AConcreteVariablesMachineClause AAssertionsMachineClause AOperationsMachineClause ASkipSubstitution ABecomesElementOfSubstitution ATotalRelationExpression ANotSubsetPredicate ANotSubsetStrictPredicate ASurjectionRelationExpression ATotalSurjectionRelationExpression ASizeExpression)
+             AStringSetExpression AConstantsMachineClause APropertiesMachineClause AConstraintsMachineClause ASetsMachineClause AConcreteVariablesMachineClause AAssertionsMachineClause AOperationsMachineClause ASkipSubstitution ABecomesElementOfSubstitution ATotalRelationExpression ANotSubsetPredicate ANotSubsetStrictPredicate ASurjectionRelationExpression ATotalSurjectionRelationExpression ASizeExpression AEnumeratedSetSet ADeferredSetSet)
            (de.be4.classicalb.core.parser BParser)))
 
 (declare ast->lisb read-bmachine)
@@ -183,51 +183,52 @@
 ;;; machine clauses
 
 (defmethod ast->lisb AConstraintsMachineClause [node args]
-  (bproperties (ast->lisb (.getPredicates node) args)))     ; (.getPredicates node) returns ONE Predicate and no list!
+  (apply bcontraints (ast->lisb (.getPredicates node) args)))     ; (.getPredicates node) returns ONE Predicate and no list!
 
 (defmethod ast->lisb ASetsMachineClause [node args]
-  ; TODO
-  )
+  (apply bsets (ast-list->lisb (.getSetDefinitions node) args)))
+(defmethod ast->lisb ADeferredSetSet [node args]
+  (bdeferred-set (ast->lisb (first (.getIdentifier node)) args))) ; there should be exact one identifier
+(defmethod ast->lisb AEnumeratedSetSet [node args]
+  (benumerated-set (ast->lisb (first (.getIdentifier node)) args) (into #{} (ast-list->lisb (.getElements node) args)))) ; there should be exact one identifier
 
 (defmethod ast->lisb AConstantsMachineClause [node args]
   (apply bconstants (ast-list->lisb (.getIdentifiers node) args)))
 
-; concreate constants (defmethod ast->lisb [node args] )
+; TODO: concrete constants
 
 (defmethod ast->lisb APropertiesMachineClause [node args]
   (bproperties (ast->lisb (.getPredicates node) args)))     ; (.getPredicates node) returns ONE Predicate and no list!
 
 (defmethod ast->lisb ADefinitionsMachineClause [node args]
-  ; TODO
-  )
+  (apply bdefinitions (ast-list->lisb (.getDefinitions node) args)))
 
 (defmethod ast->lisb AVariablesMachineClause [node args]
   (apply bvariables (ast-list->lisb (.getIdentifiers node) args)))
 
-(defmethod ast->lisb AConcreteVariablesMachineClause [node args]
-  ; TODO
-  )
+; TODO: concrete variables
 
 (defmethod ast->lisb AInvariantMachineClause [node args]
   (binvariants (ast->lisb (.getPredicates node) args)))     ; (.getPredicates node) returns ONE Predicate and no list!
 
 (defmethod ast->lisb AAssertionsMachineClause [node args]
-  ; TODO
-  )
+  (apply bassertions (ast-list->lisb (.getPredicates node) args)))
 
 (defmethod ast->lisb AInitialisationMachineClause [node args]
   (binit (ast->lisb (.getSubstitutions node) args)))        ; AInitialisationMachineClause holds one PSubstitution
 
 (defmethod ast->lisb AOperationsMachineClause [node args]
-  ; TODO
-  )
+  (apply boperations (ast-list->lisb (.getOperations node) args)))
 
 ;;; substitutions
 
-(defmethod ast->lisb ASkipSubstitution [node args])
+(defmethod ast->lisb ASkipSubstitution [node args]
+  (bskip))
 
 (defmethod ast->lisb AAssignSubstitution [node args]
   (bassign (ast-list->lisb (.getLhsExpression node) args) (ast-list->lisb (.getRhsExpressions node) args)))
+
+; functional override
 
 (defmethod ast->lisb ABecomesElementOfSubstitution [node args])
 
@@ -276,8 +277,8 @@
 
 (defmethod ast->lisb AStructExpression [node args]
   #_(bstruct
-    (set (map (fn [recentry] [(AST->lisb (.getIdentifier recentry) args)
-                              (AST->lisb (.getValue recentry) args)]) (.getEntries node)))))
+      (set (map (fn [recentry] [(AST->lisb (.getIdentifier recentry) args)
+                                (AST->lisb (.getValue recentry) args)]) (.getEntries node)))))
 
 
 ;;; sequences
@@ -311,7 +312,7 @@
 (defmethod ast->lisb ALastExpression [node args]
   (blast (ast->lisb (.getExpression node) args)))
 (defmethod ast->lisb AFrontExpression [node args]
-          (bfront (ast->lisb (.getExpression node) args)))
+  (bfront (ast->lisb (.getExpression node) args)))
 (defmethod ast->lisb ATailExpression [node args]
   (btail (ast->lisb (.getExpression node) args)))
 (defmethod ast->lisb AGeneralConcatExpression [node args]
@@ -386,7 +387,7 @@
 (defmethod ast->lisb AClosureExpression [node args]
   (bclosure1 (ast->lisb (.getExpression node) args)))
 (defmethod ast->lisb AReflexiveClosureExpression [node args]
-            (bclosure (ast->lisb (.getExpression node) args)))
+  (bclosure (ast->lisb (.getExpression node) args)))
 (defmethod ast->lisb AIterationExpression [node args]
   (left-right biterate node args))
 (defmethod ast->lisb ATransFunctionExpression [node args]
@@ -395,12 +396,12 @@
   (brel (ast->lisb (.getExpression node) args)))
 
 ;;; numbers
-(defmethod ast->lisb AIntegerSetExpression  [_ _] (binteger-set))
-(defmethod ast->lisb ANaturalSetExpression  [_ _] (bnatural-set))
+(defmethod ast->lisb AIntegerSetExpression [_ _] (binteger-set))
+(defmethod ast->lisb ANaturalSetExpression [_ _] (bnatural-set))
 (defmethod ast->lisb ANatural1SetExpression [_ _] (bnatural1-set))
-(defmethod ast->lisb AIntSetExpression  [_ _] (bint-set))
-(defmethod ast->lisb ANatSetExpression      [_ _] (bnat-set))
-(defmethod ast->lisb ANat1SetExpression     [_ _] (bnat1-set))
+(defmethod ast->lisb AIntSetExpression [_ _] (bint-set))
+(defmethod ast->lisb ANatSetExpression [_ _] (bnat-set))
+(defmethod ast->lisb ANat1SetExpression [_ _] (bnat1-set))
 (defmethod ast->lisb AIntervalExpression [node args]
   (binterval
     (ast->lisb (.getLeftBorder node) args)
@@ -519,8 +520,8 @@
 
 (defmethod ast->lisb AForallPredicate [node args]
   (bforall
-        (ast-list->lisb (.getIdentifiers node) args)
-        (ast->lisb (.getImplication node) args)))
+    (ast-list->lisb (.getIdentifiers node) args)
+    (ast->lisb (.getImplication node) args)))
 
 (defmethod ast->lisb AExistsPredicate [node args]
   (bexists
@@ -553,8 +554,9 @@
 
 (defn b-ast->lisb [b-ast->lisb] (ast->lisb b-ast->lisb {:symbols {}}))
 (defn b->lisb [b] (b-ast->lisb (.parse (BParser.) b false)))
-(defn b-formula->lisb [b-formula] (b->lisb (str "#FORMULA " b-formula)))
-(defn b-expression->lisb [b-expression]  (b->lisb (str "#EXPRESSION " b-expression)))
-(defn b-substitution->lisb [b-substitution]  (b->lisb (str "#SUBSTITUTION " b-substitution)))
+(defn b-formula->lisb [b-formula] (b->lisb (str (BParser/FORMULA_PREFIX) b-formula)))
+(defn b-expression->lisb [b-expression] (b->lisb (str (BParser/EXPRESSION_PREFIX) b-expression)))
+(defn b-substitution->lisb [b-substitution] (b->lisb (str (BParser/SUBSTITUTION_PREFIX) b-substitution)))
 (defn b-transition->lisb [b-transition] (b->lisb (str "#TRANSITION " b-transition)))
-(defn b-predicate->lisb [b-predicate] (b->lisb (str "#PREDICATE " b-predicate)))
+(defn b-predicate->lisb [b-predicate] (b->lisb (str (BParser/PREDICATE_PREFIX) b-predicate)))
+(defn b-operation->lisb [b-operation] (b->lisb (str (BParser/OPERATION_PATTERN_PREFIX) b-operation)))
