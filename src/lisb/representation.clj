@@ -5,6 +5,10 @@
   {:tag tag
    :children (if children children [])})
 
+(declare bif)
+(declare blet)
+
+
 ;;; machine definition
 
 (defn bmachine [variant header & clauses]
@@ -80,10 +84,65 @@
   {:tag :block
    :p-substitution p-substitution})
 
+; TODO: Kann wahrscheinlich besser dargestellt werden
 (defn bassign [lhs-exprs rhs-exprs]
   {:tag :assign
    :lhs-exprs lhs-exprs
    :rhs-exprs rhs-exprs})
+
+(defn bbecomes-element-of [identifiers set]
+  {:tag :becomes-element-of
+   :identifiers identifiers
+   :set set})
+
+(defn bbecomes-such [identifiers predicate]
+  {:tag :becomes-such
+   :identifiers identifiers
+   :predicate predicate})
+
+(defn boperation-call [identifiers operation parameters]
+  {:tag :operation-call
+   :identifiers identifiers
+   :operation operation
+   :parameters parameters})
+
+(defn bany [identifiers where then]
+  {:tag :any
+   :identifiers identifiers
+   :where where
+   :then then})
+
+(defn blet-sub
+  ([kvs substitution] (blet {:tag :let-sub :substitution substitution} kvs))
+  ([identifiers predicate substitution]
+                {:tag          :let-sub
+                 :identifiers  identifiers
+                 :predicate    predicate
+                 :substitution substitution}))
+
+(defn bvar [identifiers substitution]
+  {:tag :var
+   :identifiers identifiers
+   :substitution substitution})
+
+(defn bprecondition [predicate substitution]
+  {:tag :precondition
+   :predicate predicate
+   :substitution substitution})
+
+(defn bassert [predicate substitution]
+  {:tag :bassert
+   :predicate predicate
+   :substitution substitution})
+
+(defn bif-sub
+  ([predicate then] (bif {:tag :if-sub} predicate then))
+  ([predicate then else] (bif {:tag :if-sub} predicate then else)))
+
+#_([predicate then & else-ifs]
+   (if (= (mod (count else-ifs) 2) 0)
+     {:tag :if, :predicate predicate, :then then, :else-ifs else-ifs}
+     {:tag :if, :predicate predicate, :then then, :else-ifs (drop-last else-ifs), :else (last else-ifs)}))
 
 (defn b= [left right]
   {:tag :equal
@@ -505,9 +564,6 @@
 (defn bconc [s]
   (node :conc s))
 
-(defn bif [condition then else]
-  (node :if condition then else))
-
 (defn- bstructy 
   ([k m]
    (node k 
@@ -555,29 +611,38 @@
 (defn bcall [f & args]
   (apply node :fn-call f args))
 
+;;; if
 
-(defn blet [tag kvs p]
-  (let [kv-pairs (partition 2 kvs)
-        identifiers (map first kv-pairs)]
-    (node tag (apply node :list identifiers)
-              (reduce band (map (partial apply b=) kv-pairs))
-              p))) 
+(defn bif-expr
+  ([condition then else] (bif {:tag :if-expr} condition then else))) ; else is always present
 
-(defn blet-pred [kvs p] 
-  (blet :let-pred kvs p))
+;;; let
 
+(defn blet-expr
+  ([kvs expression] (blet {:tag :let-expr, :expression expression} kvs))
+  ([identifiers assignment expression] {:tag :let-expr, :identifiers identifiers :assignment assignment :expression expression}))
 
-(defn blet-expr [kvs e] 
-  (blet :let-expr kvs e))
-
+(defn blet-pred
+  ([kvs predicate] (blet {:tag :let-pred, :predicate predicate} kvs))
+  ([identifiers assignment predicate] {:tag :let-pred, :identifiers identifiers :assignment assignment :predicate predicate}))
 ; TODO: - negations for subset/superset, strict/non-strict
 
 
 
 
 
+(defn bif
+  ([node condition then] (assoc node :condition condition :then then))
+  ([node condition then else]
+   (if else
+     (assoc node :condition condition :then then :else else)
+     (bif node condition then))))
 
-
+(defn blet [node kvs]
+  (let [kv-pairs (partition 2 kvs)
+        identifiers (map first kv-pairs)
+        assignment (reduce band (map (partial apply b=) kv-pairs))]
+    (assoc node :identifiers identifiers :assignment assignment)))
 
 
 

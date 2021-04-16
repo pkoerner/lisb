@@ -183,7 +183,7 @@
     (is (= (biseq :S) (b-expression->lisb "iseq(S)")))
     (is (= (biseq1 :S) (b-expression->lisb "iseq1(S)")))
     (is (= (bperm :S) (b-expression->lisb "perm(S)")))
-    (is (=  (b-expression->lisb "size(S)")))                ; TODO
+    (is (= (bcount :S) (b-expression->lisb "size(S)")))
     (is (= (bconcat :s :t) (b-expression->lisb "s^t")))
     (is (= (b-> :E :s) (b-expression->lisb "E->s")))
     (is (= (b<- :s :E) (b-expression->lisb "s<-E")))
@@ -196,21 +196,21 @@
     (is (= (brestrict-front :s :n) (b-expression->lisb "s/|\\n")))
     (is (= (brestrict-tail :s :n) (b-expression->lisb "s\\|/n")))))
 
-#_(deftest records-test
+(deftest records-test
   (testing "records"
-    (is (= (b-formula->lisb "struct(ID:S,...,ID:S")))
-    (is (= (b-formula->lisb "rec(ID:E,...,ID:E")))
-    (is (= (b-formula->lisb "E'ID")))))
+    #_(is (= (b-expression->lisb "struct(ID:S,...,ID:S")))
+    #_(is (= (b-expression->lisb "rec(ID:E,...,ID:E")))
+    #_(is (= (b-expression->lisb "E'ID")))))
 
-#_(deftest strings-test
+(deftest strings-test
   (testing "strings"
-    (is (= (b-formula->lisb "\"astring\"")))
-    (is (= (b-formula->lisb "'''astring'''")))
-    (is (= (b-formula->lisb "STRING")))
-    (is (= (b-formula->lisb "size('''s''')")))
-    (is (= (b-formula->lisb "rev('''s''')")))
-    (is (= (b-formula->lisb "'''s'''^'''t'''")))
-    (is (= (b-formula->lisb "conc('''s''', '''t''')")))))
+    (is (= "astring" (b-formula->lisb "\"astring\"")))
+    (is (= "astring" (b-formula->lisb "'''astring'''")))
+    (is (= (bstring-set) (b-formula->lisb "STRING")))
+    (is (= (bcount "s") (b-formula->lisb "size('''s''')")))
+    (is (= (breverse "s") (b-formula->lisb "rev('''s''')")))
+    (is (= (bconcat "s" "t") (b-formula->lisb "'''s'''^'''t'''")))
+    (is (= (bconc (bsequence "s" "t")) (b-formula->lisb "conc(['''s''', '''t'''])")))))
 
 #_(deftest reals-test
   (testing "reals"
@@ -241,26 +241,40 @@
     (is (= (b-formula->lisb "prefix(t)")))
     (is (= (b-formula->lisb "postfix(t)")))))
 
-#_(deftest if-then-else-test
-  (testing "if-then-else"
-    (is (= (b-formula->lisb "IF P THEN E1 ELSE E2 END")))))
+(deftest if-test
+  (testing "if"
+    (is (= (bif-expr (b= 1 1) 2 3) (b-expression->lisb "IF 1=1 THEN 2 ELSE 3 END")))
+    (is (= (band (b=> (b= 1 1) (b= 2 2)) (b=> (bnot (b= 1 1)) (b= 3 3))) (b-predicate->lisb "IF 1=1 THEN 2=2 ELSE 3=3 END")))))
 
-#_(deftest let-test
+(deftest let-test
   (testing "let"
-    (is (= (b-formula->lisb "LET x BE x=1 In x+2 END")))))
+    (is (= (blet-expr [:x 1 :y 2] 3) (b-expression->lisb "LET x, y BE x=1 & y=2 IN 3 END")))
+    (is (= (blet-pred [:x 1 :y 2] (b= 0 0)) (b-predicate->lisb "LET x, y BE x=1 & y=2 IN 0=0 END")))))
 
-#_(deftest statement-test
+(deftest substitutions-test
   (testing "substitutions"
-    (is (= (b-formula->lisb "skip")))
-    (is (= (b-formula->lisb "x := E")))
-    (is (= (b-formula->lisb "f(x) := E")))
-    (is (= (b-formula->lisb "x :: S")))
-    (is (= (b-formula->lisb "x : (P)")))
-    (is (= (b-formula->lisb "x <-- OP(x)")))
-    (is (= (b-formula->lisb "G||H")))
-    (is (= (b-formula->lisb "G;H")))
-    (is (= (b-formula->lisb "ANY x,... WHERE P THEN G END")))
-    (is (= (b-formula->lisb "LET x,... BE x=E & ... In G END")))))
+    (is (= (bskip) (b-substitution->lisb "skip")))
+    (is (= (bassign '(:x) '(:E)) (b-substitution->lisb "x := E")))
+    #_(is (= "" (b-substitution->lisb "f(x) := E")))
+    (is (= (bbecomes-element-of '(:x) :S) (b-substitution->lisb "x :: S")))
+    (is (= (bbecomes-such '(:x) (b> :x 0)) (b-substitution->lisb "x : (x>0)")))
+    (is (= (boperation-call '(:x) :OP '(:y)) (b-substitution->lisb "x <-- OP(y)")))
+    #_(is (= (b-substitution->lisb "G||H")))
+    #_(is (= (b-substitution->lisb "G;H")))
+    (is (= (bany '(:x) (b> :x 0) (bskip)) (b-substitution->lisb "ANY x WHERE (x>0) THEN skip END")))
+    (is (= (blet-sub '(:x) (b= :x 1) (bskip)) (b-substitution->lisb "LET x BE x=1 IN skip END")))
+    (is (= (bvar '(:x) (bskip)) (b-substitution->lisb "VAR x IN skip END")))
+    (is (= (bprecondition (b= 1 2) (bskip)) (b-substitution->lisb "PRE 1=2 THEN skip END")))
+    (is (= (bassert (b= 1 2) (bskip)) (b-substitution->lisb "ASSERT 1=2 THEN skip END")))
+    #_(is (= (b-substitution->lisb "CHOICE skip or skip END")))
+    (is (= (bif-sub (b= 1 2) (bskip)) (b-substitution->lisb "IF 1=2 THEN skip END")))
+    (is (= (bif-sub (b= 1 2) (bskip) (bskip)) (b-substitution->lisb "IF 1=2 THEN skip ELSE skip END")))
+    (is (= (bif-sub (b= 1 2) (bskip) (bif-sub (b= 1 3) (bskip))) (b-substitution->lisb "IF 1=2 THEN skip ELSIF 1=3 THEN skip END")))
+    (is (= (bif-sub (b= 1 2) (bskip) (bif-sub (b= 1 3) (bskip) (bskip))) (b-substitution->lisb "IF 1=2 THEN skip ELSIF 1=3 THEN skip ELSE skip END")))
+    #_(is (= (b-substitution->lisb "SELECT 1=1 THEN G WHEN Q THEN H END")))
+    #_(is (= (b-substitution->lisb "SELECT 1=1 THEN G WHEN Q THEN H ELSE I END")))
+    #_(is (= (b-substitution->lisb "CASE E OF EITHER m THEN G OR n THEN H END END")))
+    #_(is (= (b-substitution->lisb "CASE E OF EITHER m THEN G OR n THEN H ELSE I END END")))))
 
 #_(deftest equality-predicates-test-2
   (testing "equality-predicates"
