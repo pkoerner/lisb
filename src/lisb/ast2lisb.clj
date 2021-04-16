@@ -137,7 +137,7 @@
              APredicateDefinitionDefinition
              AExpressionDefinitionDefinition
              AFileDefinitionDefinition
-             AStringSetExpression AConstantsMachineClause APropertiesMachineClause AConstraintsMachineClause ASetsMachineClause AConcreteVariablesMachineClause AAssertionsMachineClause AOperationsMachineClause ASkipSubstitution ABecomesElementOfSubstitution ATotalRelationExpression ANotSubsetPredicate ANotSubsetStrictPredicate ASurjectionRelationExpression ATotalSurjectionRelationExpression ASizeExpression AEnumeratedSetSet ADeferredSetSet)
+             AStringSetExpression AConstantsMachineClause APropertiesMachineClause AConstraintsMachineClause ASetsMachineClause AConcreteVariablesMachineClause AAssertionsMachineClause AOperationsMachineClause ASkipSubstitution ABecomesElementOfSubstitution ATotalRelationExpression ANotSubsetPredicate ANotSubsetStrictPredicate ASurjectionRelationExpression ATotalSurjectionRelationExpression ASizeExpression AEnumeratedSetSet ADeferredSetSet ASubstitutionParseUnit ABecomesSuchSubstitution AOperationCallSubstitution AParallelSubstitution ASequenceSubstitution AAnySubstitution ALetSubstitution AVarSubstitution APreconditionSubstitution AAssertionSubstitution AIfSubstitution AIfElsifSubstitution)
            (de.be4.classicalb.core.parser BParser)))
 
 (declare ast->lisb read-bmachine)
@@ -162,17 +162,29 @@
 
 ;;; ast-> lisb start
 
-(defmulti ast->lisb (fn [node args] (class node)))
+(defmulti ast->lisb (fn [node _args] (class node)))
 
 (defmethod ast->lisb Start [node args] (ast->lisb (.getPParseUnit node) args))
 
+;;; parse units
 (defmethod ast->lisb AAbstractMachineParseUnit [node args]
   (apply (partial bmachine
                   (ast->lisb (.getVariant node) args)
                   (ast->lisb (.getHeader node) args))
          (ast-list->lisb (.getMachineClauses node) args)))
 
-(defmethod ast->lisb AMachineMachineVariant [node args]
+(defmethod ast->lisb APredicateParseUnit [node args]
+  (ast->lisb (.getPredicate node) args))
+
+(defmethod ast->lisb AExpressionParseUnit [node args]
+  (ast->lisb (.getExpression node) args))
+
+(defmethod ast->lisb ASubstitutionParseUnit [node args]
+  (ast->lisb (.getSubstitution node) args))
+
+;;; machine definition
+
+(defmethod ast->lisb AMachineMachineVariant [_ _]
   (bmachine-variant))
 
 (defmethod ast->lisb AMachineHeader [node args]
@@ -222,41 +234,79 @@
 
 ;;; substitutions
 
-(defmethod ast->lisb ASkipSubstitution [node args]
+(defmethod ast->lisb ASkipSubstitution [_ _]
   (bskip))
 
 (defmethod ast->lisb AAssignSubstitution [node args]
   (bassign (ast-list->lisb (.getLhsExpression node) args) (ast-list->lisb (.getRhsExpressions node) args)))
 
-; functional override
+; TODO: functional override
 
-(defmethod ast->lisb ABecomesElementOfSubstitution [node args])
+(defmethod ast->lisb ABecomesElementOfSubstitution [node args]
+  (bbecomes-element-of (ast-list->lisb (.getIdentifiers node) args) (ast->lisb (.getSet node) args)))
 
-; choice by predicate (defmethod ast->lisb [node args])
+(defmethod ast->lisb ABecomesSuchSubstitution [node args]
+  (bbecomes-such (ast-list->lisb (.getIdentifiers node) args) (ast->lisb (.getPredicate node) args)))
 
-; <-- call operation (defmethod ast->lisb [node args])
+(defmethod ast->lisb AOperationCallSubstitution [node args]
+  (boperation-call (ast-list->lisb (.getResultIdentifiers node) args) (ast->lisb (first (.getOperation node)) args) (ast-list->lisb (.getParameters node) args)))
 
-; parallel substitution (defmethod ast->lisb [node args])
+; TODO: (defmethod ast->lisb AParallelSubstitution [node args])
 
-; not determistic choice (defmethod ast->lisb [node args])
+; TODO: (defmethod ast->lisb ASequenceSubstitution [node args])
 
-; let? (defmethod ast->lisb [node args])
+(defmethod ast->lisb AAnySubstitution [node args]
+  (bany (ast-list->lisb (.getIdentifiers node) args) (ast->lisb (.getWhere node) args) (ast->lisb (.getThen node) args)))
 
-; pre (defmethod ast->lisb [node args])
+(defmethod ast->lisb ALetSubstitution [node args]
+  (blet-sub (ast-list->lisb (.getIdentifiers node) args) (ast->lisb (.getPredicate node) args) (ast->lisb (.getSubstitution node) args)))
 
-; assert (defmethod ast->lisb [node args])
+(defmethod ast->lisb AVarSubstitution [node args]
+  (bvar (ast-list->lisb (.getIdentifiers node) args) (ast->lisb (.getSubstitution node) args)))
 
-; choice
+(defmethod ast->lisb APreconditionSubstitution [node args]
+  (bprecondition (ast->lisb (.getPredicate node) args) (ast->lisb (.getSubstitution node) args)))
 
-; TODO: BlockSubstitution müsste entfernt werden können
+(defmethod ast->lisb AAssertionSubstitution [node args]
+  (bassert (ast->lisb (.getPredicate node) args) (ast->lisb (.getSubstitution node) args)))
+
+; TODO: choice
+
+(defmethod ast->lisb AIfSubstitution [node args]
+  (let [condition (ast->lisb (.getCondition node) args)
+        then (ast->lisb (.getThen node) args)
+        else-ifs (ast-list->lisb (.getElsifSubstitutions node) args)
+        else (ast->lisb (.getElse node) args)]
+    (if (empty? else-ifs)
+      (bif-sub condition then else)
+      (bif-sub
+        condition
+        then
+        (reduce
+          (fn [acc [condition then]]
+            (bif-sub condition then acc))
+          else
+          else-ifs)))))
+(defmethod ast->lisb AIfElsifSubstitution [node args]
+  [(ast->lisb (.getCondition node) args) (ast->lisb (.getThenSubstitution node) args)])
+
+; TODO: select
+
+; TODO: case
+
+; BlockSubstitution müsste entfernt werden können
 (defmethod ast->lisb ABlockSubstitution [node args]
   (bblock (ast->lisb (.getSubstitution node) args)))        ; ABlockSubstitution holds one PSubstitution
 
 
 ;;; if-then-else
-(defmethod ast->lisb AIfThenElseExpression [node args])
+(defmethod ast->lisb AIfThenElseExpression [node args]
+  (bif-expr (ast->lisb (.getCondition node) args) (ast->lisb (.getThen node) args) (ast->lisb (.getElse node) args)))
 ;;; let
-(defmethod ast->lisb ALetExpressionExpression [node args])
+(defmethod ast->lisb ALetExpressionExpression [node args]
+  (blet-expr (ast-list->lisb (.getIdentifiers node) args) (ast->lisb (.getAssignment node) args) (ast->lisb (.getExpr node) args)))
+(defmethod ast->lisb ALetPredicatePredicate [node args]
+  (blet-pred (ast-list->lisb (.getIdentifiers node) args) (ast->lisb (.getAssignment node) args) (ast->lisb (.getPred node) args)))
 
 ;;; trees
 
@@ -297,8 +347,7 @@
 (defmethod ast->lisb APermExpression [node args]
   (bperm (ast->lisb (.getExpression node) args)))
 (defmethod ast->lisb ASizeExpression [node args]
-  ;TODO
-  )
+  (bcount (ast->lisb (.getExpression node) args)))
 (defmethod ast->lisb AConcatExpression [node args]
   (multi-arity bconcat node args))
 (defmethod ast->lisb AInsertFrontExpression [node args]
@@ -396,6 +445,8 @@
   (brel (ast->lisb (.getExpression node) args)))
 
 ;;; numbers
+(defmethod ast->lisb AIntegerExpression [node _]
+  (Long/parseLong (.getText (.getLiteral node))))
 (defmethod ast->lisb AIntegerSetExpression [_ _] (binteger-set))
 (defmethod ast->lisb ANaturalSetExpression [_ _] (bnatural-set))
 (defmethod ast->lisb ANatural1SetExpression [_ _] (bnatural1-set))
@@ -528,27 +579,17 @@
     (ast-list->lisb (.getIdentifiers node) args)
     (ast->lisb (.getPredicate node) args)))
 
-;;; categorize
+;;; identifier
 
 (defmethod ast->lisb AIdentifierExpression [node args]
   (ast->lisb (first (.getIdentifier node)) args))           ; Es sollte exakt nur ein Identifier in einer Identifier Expression sein
 
-(defmethod ast->lisb AIntegerExpression [node args]
-  (Long/parseLong (.getText (.getLiteral node))))
-
-(defmethod ast->lisb ANatSetExpression [node args]
-  (bnat-set))
-
-(defmethod ast->lisb TIdentifierLiteral [node args]
+(defmethod ast->lisb TIdentifierLiteral [node _]
   (keyword (.getText node)))
 
-; until now only used for formulas
-(defmethod ast->lisb APredicateParseUnit [node args]
-  (ast->lisb (.getPredicate node) args))
+;;; misc
 
-; until now only used for formulas
-(defmethod ast->lisb AExpressionParseUnit [node args]
-  (ast->lisb (.getExpression node) args))
+(defmethod ast->lisb nil [_ _] nil)
 
 ;;; ast->lisb end
 
