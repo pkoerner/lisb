@@ -166,7 +166,9 @@
 
 (defmethod ast->lisb Start [node args] (ast->lisb (.getPParseUnit node) args))
 
+
 ;;; parse units
+
 (defmethod ast->lisb AAbstractMachineParseUnit [node args]
   (apply (partial bmachine
                   (ast->lisb (.getVariant node) args)
@@ -182,6 +184,7 @@
 (defmethod ast->lisb ASubstitutionParseUnit [node args]
   (ast->lisb (.getSubstitution node) args))
 
+
 ;;; machine definition
 
 (defmethod ast->lisb AMachineMachineVariant [_ _]
@@ -191,6 +194,7 @@
   (bmachine-header
     (ast->lisb (first (.getName node)) args)                   ; There should be exact one identifier as name!
     (ast-list->lisb (.getParameters node) args)))
+
 
 ;;; machine clauses
 
@@ -231,6 +235,7 @@
 
 (defmethod ast->lisb AOperationsMachineClause [node args]
   (apply boperations (ast-list->lisb (.getOperations node) args)))
+
 
 ;;; substitutions
 
@@ -300,26 +305,36 @@
 
 
 ;;; if-then-else
+
 (defmethod ast->lisb AIfThenElseExpression [node args]
   (bif-expr (ast->lisb (.getCondition node) args) (ast->lisb (.getThen node) args) (ast->lisb (.getElse node) args)))
+
+
 ;;; let
+
 (defmethod ast->lisb ALetExpressionExpression [node args]
   (blet-expr (ast-list->lisb (.getIdentifiers node) args) (ast->lisb (.getAssignment node) args) (ast->lisb (.getExpr node) args)))
 (defmethod ast->lisb ALetPredicatePredicate [node args]
   (blet-pred (ast-list->lisb (.getIdentifiers node) args) (ast->lisb (.getAssignment node) args) (ast->lisb (.getPred node) args)))
 
+
 ;;; trees
+
 
 ;;; reals - (alpha - besser nicht verwenden)
 
+
 ;;; strings
+
 (defmethod ast->lisb AStringExpression [node _]
   (.getText (.getContent node)))
 
 (defmethod ast->lisb AStringSetExpression [_ _]
   (bstring-set))
 
+
 ;;; records
+
 (defmethod ast->lisb ARecordFieldExpression [node args]
   (brec-get
     (ast->lisb (.getRecord node) args)
@@ -332,6 +347,7 @@
 
 
 ;;; sequences
+
 (defmethod ast->lisb AEmptySequenceExpression [_ _]
   (bsequence))
 (defmethod ast->lisb ASequenceExtensionExpression [node args]
@@ -371,7 +387,9 @@
 (defmethod ast->lisb ARestrictTailExpression [node args]
   (left-right brestrict-tail node args))
 
+
 ;;; functions
+
 (defmethod ast->lisb APartialFunctionExpression [node args]
   (left-right b+-> node args))
 (defmethod ast->lisb ATotalFunctionExpression [node args]
@@ -392,7 +410,9 @@
 (defmethod ast->lisb AFunctionExpression [node args]
   (apply (partial bapply (ast->lisb (.getIdentifier node) args)) (ast-list->lisb (.getParameters node) args)))
 
+
 ;;; relations
+
 (defmethod ast->lisb ARelationsExpression [node args]
   (left-right b<-> node args))
 (defmethod ast->lisb ATotalRelationExpression [node args]
@@ -444,7 +464,9 @@
 (defmethod ast->lisb ATransRelationExpression [node args]
   (brel (ast->lisb (.getExpression node) args)))
 
+
 ;;; numbers
+
 (defmethod ast->lisb AIntegerExpression [node _]
   (Long/parseLong (.getText (.getLiteral node))))
 (defmethod ast->lisb AIntegerSetExpression [_ _] (binteger-set))
@@ -491,6 +513,7 @@
 
 
 ;;; sets
+
 (defmethod ast->lisb AEmptySetExpression [node args]
   #{})
 (defmethod ast->lisb ASetExtensionExpression [node args]
@@ -529,6 +552,7 @@
 (defmethod ast->lisb ANotSubsetStrictPredicate [node args]
   (left-right bnot-subset-strict node args))
 
+
 ;;; booleans
 
 (defmethod ast->lisb ABooleanTrueExpression [_ _]
@@ -543,6 +567,7 @@
 (defmethod ast->lisb AConvertBoolExpression [node args]
   (bpred->bool (ast->lisb (.getPredicate node) args)))
 
+
 ;;; equality predicates
 
 (defmethod ast->lisb AEqualPredicate [node args]
@@ -551,6 +576,7 @@
 (defmethod ast->lisb ANotEqualPredicate [node args]
   (bnot= (ast->lisb (.getLeft node) args) (ast->lisb (.getRight node) args))
   )
+
 
 ;;; logical predicates
 
@@ -579,6 +605,7 @@
     (ast-list->lisb (.getIdentifiers node) args)
     (ast->lisb (.getPredicate node) args)))
 
+
 ;;; identifier
 
 (defmethod ast->lisb AIdentifierExpression [node args]
@@ -586,6 +613,7 @@
 
 (defmethod ast->lisb TIdentifierLiteral [node _]
   (keyword (.getText node)))
+
 
 ;;; misc
 

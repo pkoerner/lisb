@@ -39,7 +39,7 @@
     (is (= "MACHINE Empty\nEND"
            (get-machine-from-ast (lisb->ast (b->lisb "MACHINE Empty\nEND")))))))
 
-(deftest constants-test
+#_(deftest constants-test
   (testing "constants"
     (let [bmachine (slurp (clojure.java.io/resource "machines/Constant.mch"))]
       (is (= (get-machine-from-ast (parse-b-machine bmachine)) ; formats bmachine
