@@ -145,7 +145,7 @@
     (AEmptySetExpression.)
     (ASetExtensionExpression. args)))
 
-(declare xyz)
+#_(declare abc)
 (declare lisb->ast)
 
 (defmulti process-node (fn [node] (:tag node)))
@@ -251,8 +251,8 @@
     (seq? lisb) (map lisb->ast lisb)
     :else (literal lisb)))
 
-(defn xyz [clazz node & keys]
-  (apply clazz. (map lisb->ast (map % (key node) keys))))
+#_(defn abc [partial-constructor node & keys]
+  (apply partial-constructor (map lisb->ast (map #(% node) keys))))
 
 #_(defn lisb->ast [lisb]
   (println "")

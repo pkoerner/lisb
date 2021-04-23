@@ -96,6 +96,12 @@
 (defn boperations [& operations]
   {:tag :operations
    :operations operations})
+(defn boperation [return-values name parameters body]
+  {:tag :operation
+   :return return-values
+   :name name
+   :parameters parameters
+   :body body})
 
 
 ;;; substitutions
@@ -108,11 +114,9 @@
   {:tag :block
    :p-substitution p-substitution})
 
-; TODO: Kann wahrscheinlich besser dargestellt werden
-(defn bassign [lhs-exprs rhs-exprs]
+(defn bassign [& idvals]
   {:tag :assign
-   :lhs-exprs lhs-exprs
-   :rhs-exprs rhs-exprs})
+   :idvals idvals})
 
 (defn bbecomes-element-of [identifiers set]
   {:tag :becomes-element-of
@@ -179,6 +183,14 @@
    (if (= (mod (count else-ifs) 2) 0)
      {:tag :if, :predicate predicate, :then then, :else-ifs else-ifs}
      {:tag :if, :predicate predicate, :then then, :else-ifs (drop-last else-ifs), :else (last else-ifs)}))
+
+(defn bselect
+  ([condition then] {:tag :operation, :condition condition, :then then})
+  ([condition then else]
+   (let [select (bselect condition then)]
+     (if else
+       (assoc select :else else)
+       select))))
 
 
 ;;; if
@@ -729,6 +741,7 @@
 
 #_(defn bmap-set [p s]
   (bran (blambda [:x] (bmember :x s) (p :x))))
+
 
 ; TODO: - negations for subset/superset, strict/non-strict
 
