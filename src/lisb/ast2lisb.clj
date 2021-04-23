@@ -137,7 +137,7 @@
              APredicateDefinitionDefinition
              AExpressionDefinitionDefinition
              AFileDefinitionDefinition
-             AStringSetExpression AConstantsMachineClause APropertiesMachineClause AConstraintsMachineClause ASetsMachineClause AConcreteVariablesMachineClause AAssertionsMachineClause AOperationsMachineClause ASkipSubstitution ABecomesElementOfSubstitution ATotalRelationExpression ANotSubsetPredicate ANotSubsetStrictPredicate ASurjectionRelationExpression ATotalSurjectionRelationExpression ASizeExpression AEnumeratedSetSet ADeferredSetSet ASubstitutionParseUnit ABecomesSuchSubstitution AOperationCallSubstitution AParallelSubstitution ASequenceSubstitution AAnySubstitution ALetSubstitution AVarSubstitution APreconditionSubstitution AAssertionSubstitution AIfSubstitution AIfElsifSubstitution ASuccessorExpression APredecessorExpression AMinIntExpression AMaxIntExpression AChoiceSubstitution AChoiceOrSubstitution ASelectSubstitution)
+             AStringSetExpression AConstantsMachineClause APropertiesMachineClause AConstraintsMachineClause ASetsMachineClause AConcreteVariablesMachineClause AAssertionsMachineClause AOperationsMachineClause ASkipSubstitution ABecomesElementOfSubstitution ATotalRelationExpression ANotSubsetPredicate ANotSubsetStrictPredicate ASurjectionRelationExpression ATotalSurjectionRelationExpression ASizeExpression AEnumeratedSetSet ADeferredSetSet ASubstitutionParseUnit ABecomesSuchSubstitution AOperationCallSubstitution AParallelSubstitution ASequenceSubstitution AAnySubstitution ALetSubstitution AVarSubstitution APreconditionSubstitution AAssertionSubstitution AIfSubstitution AIfElsifSubstitution ASuccessorExpression APredecessorExpression AMinIntExpression AMaxIntExpression AChoiceSubstitution AChoiceOrSubstitution ASelectSubstitution ASelectWhenSubstitution AOperation)
            (de.be4.classicalb.core.parser BParser)
            (clojure.lang PersistentList)
            (java.util LinkedList)))
@@ -235,6 +235,12 @@
 
 (defmethod ast->lisb AOperationsMachineClause [node args]
   (apply boperations (ast-list->lisb (.getOperations node) args)))
+(defmethod ast->lisb AOperation [node args]
+  (xyz boperation args
+       (.getReturnValues node)                              ; TODO: test if multiple return values are possible
+       (first (.getOpName node))                            ; there should be exact one identifier
+       (.getParameters node)
+       (.getOperationBody node)))
 
 
 ;;; substitutions
@@ -243,7 +249,9 @@
   (bskip))
 
 (defmethod ast->lisb AAssignSubstitution [node args]
-  (bassign (ast-list->lisb (.getLhsExpression node) args) (ast-list->lisb (.getRhsExpressions node) args)))
+  (let [left (ast-list->lisb (.getLhsExpression node) args)
+        right (ast-list->lisb (.getRhsExpressions node) args)]
+    (apply bassign (interleave left right))))
 
 ; TODO: functional override
 
@@ -300,8 +308,23 @@
 (defmethod ast->lisb AIfElsifSubstitution [node args]
   [(ast->lisb (.getCondition node) args) (ast->lisb (.getThenSubstitution node) args)])
 
-#_(defmethod ast->lisb ASelectSubstitution [node args]
-  )
+(defmethod ast->lisb ASelectSubstitution [node args]
+  (let [condition (ast->lisb (.getCondition node) args)
+        then (ast->lisb (.getThen node) args)
+        else-ifs (ast-list->lisb (.getWhenSubstitutions node) args)
+        else (ast->lisb (.getElse node) args)]
+    (if (empty? else-ifs)
+      (bselect condition then else)
+      (bselect
+        condition
+        then
+        (reduce
+          (fn [acc [condition then]]
+                  (bselect condition then acc))
+          else
+          else-ifs)))))
+(defmethod ast->lisb ASelectWhenSubstitution [node args]
+  [(ast->lisb (.getCondition node) args) (ast->lisb (.getWhenSubstitution node) args)])
 
 ; TODO: case
 
@@ -648,6 +671,7 @@
 
 (defmethod ast->lisb LinkedList [node args]
   (map #(ast->lisb % args) node))
+
 
 ;;; ast->lisb end
 

@@ -9,6 +9,107 @@
 (defn print-ast [b-ast]
   (.apply b-ast printer))
 
+(deftest a-counter-test
+  (testing "counter"
+    (is (= (bmachine
+             (bmachine-variant)
+             (bmachine-header :ACounter ())
+             (bvariables :ii :jj)
+             (binvariants (band (bmember :ii (binterval 0 10))
+                                (bmember :jj (binterval 0 10))
+                                (b< :ii 11)
+                                (b>= :jj 0)))
+             (binit (bassign :ii 2 :jj 10))
+             (boperations
+               (boperation () :inc () (bselect (b> :jj 0) (bparallel-substitution
+                                                            (bassign :ii (b+ :ii 1))
+                                                            (bassign :jj (b- :jj 1)))))
+               (boperation '(:result) :res () (bassign :result :ii))))
+           (b->lisb (slurp (clojure.java.io/resource "machines/ACounter.mch")))))))
+
+(deftest lift-test
+  (testing "lift"
+    (is (= (bmachine
+             (bmachine-variant)
+             (bmachine-header :Lift ())
+             (bvariables :etage)
+             (binvariants (bmember :etage (binterval 0 99)))
+             (binit (bblock (bassign :etage 4)))
+             (boperations
+               (boperation () :inc () (bprecondition (b< :etage 99) (bassign :etage (b+ :etage 1))))
+               (boperation () :dec () (bprecondition (b> :etage 0) (bassign :etage (b- :etage 1))))))
+           (b->lisb (slurp (clojure.java.io/resource "machines/Lift.mch")))))))
+
+(deftest gcd-test
+  (testing "gcd"
+    (is (= (bmachine
+             (bmachine-variant)
+             (bmachine-header :GCD ())
+             (bvariables :x :y)
+             (binvariants (band (bmember :x (bnat-set)) (bmember :y (bnat-set))))
+             (binit (bparallel-substitution (bassign :x 70) (bassign :y 40)))
+             (boperations
+               (boperation '(:s) :GCDSolution () (bif-sub (b= :y 0) (bassign :s :x) (bassign :s -1)))
+               (boperation () :Step () (bif-sub (b> :y 0) (bparallel-substitution (bassign :x :y) (bassign :y (bmod :x :y)))))
+               (boperation () :Restart '(:w1 :w2) (bprecondition (band (bmember :w1 (bnat1-set)) (bmember :w2 (bnat1-set)))
+                                                                 (bif-sub (b> :w1 :w2)
+                                                                          (bassign :x :w1 :y :w2)
+                                                                          (bassign :y :w1 :x :w2))))))
+           (b->lisb (slurp (clojure.java.io/resource "machines/GCD.mch")))))))
+
+(deftest knights-knaves-test
+  (testing "knights-knaves"
+    (is (= (bmachine
+             (bmachine-variant)
+             (bmachine-header :KnightsKnaves ())
+             (bconstants :A :B :C)
+             (bproperties (band
+                            (bmember :A (bbool-set))
+                            (bmember :B (bbool-set))
+                            (bmember :C (bbool-set))
+                            (b<=> (b= :A true) (bor (b= :B false) (b= :C false)))
+                            (b<=> (b= :B true) (b= :A true)))))
+           (b->lisb (slurp (clojure.java.io/resource "machines/KnightsKnaves.mch")))))))
+
+(deftest bakery0-test
+  (testing "bakery0"
+    (is (= (bmachine
+             (bmachine-variant)
+             (bmachine-header :Bakery0 ())
+             (bvariables :aa)
+             (binvariants (bmember :aa (binterval 0 2)))
+             (binit (bassign :aa 0))
+             (boperations
+               (boperation () :enter1 () (bselect (b= :aa 0) (bassign :aa 1)))
+               (boperation () :enter2 () (bselect (b= :aa 0) (bassign :aa 2)))
+               (boperation () :leave1 () (bselect (b= :aa 1) (bassign :aa 0)))
+               (boperation () :leave2 () (bselect (b= :aa 2) (bassign :aa 0)))
+               (boperation () :try1 () (bskip))
+               (boperation () :try2 () (bskip))))
+          (b->lisb (slurp (clojure.java.io/resource "machines/Bakery0.mch")))))))
+
+(deftest bakery1-test
+  (testing "bakery0"
+    (is (= (bmachine
+             (bmachine-variant)
+             (bmachine-header :Bakery1 ())
+             (bvariables :p1 :p2 :y1 :y2)
+             (binvariants (band (bmember :p1 (binterval 0 2))
+                                (bmember :p2 (binterval 0 2))
+                                (bmember :y1 (bnatural-set))
+                                (bmember :y2 (bnatural-set))
+                                (b=> (b= :p1 2) (b< :p2 2))
+                                (b=> (b= :p2 2) (b< :p1 2))))
+             (binit (bassign :p1 0 :p2 0 :y1 0 :y2 0))
+             (boperations
+               (boperation () :try1 () (bselect (b= :p1 0) (bparallel-substitution (bassign :p1 1) (bassign :y1 (b+ :y2 1)))))
+               (boperation () :enter1 () (bselect (band (b= :p1 1) (bor (b= :y2 0) (b< :y1 :y2))) (bassign :p1 2)))
+               (boperation () :leave1 () (bselect (b= :p1 2) (bparallel-substitution (bassign :p1 0) (bassign :y1 0))))
+               (boperation () :try2 () (bselect (b= :p2 0) (bparallel-substitution (bassign :p2 1) (bassign :y2 (b+ :y1 1)))))
+               (boperation () :enter2 () (bselect (band (b= :p2 1) (bor (b= :y1 0) (b< :y2 :y1))) (bassign :p2 2)))
+               (boperation () :leave2 () (bselect (b= :p2 2) (bparallel-substitution (bassign :p2 0) (bassign :y2 0))))))
+           (b->lisb (slurp (clojure.java.io/resource "machines/Bakery1.mch")))))))
+
 ;;; parse units
 
 (deftest machine-test
@@ -51,14 +152,14 @@
              (bmachine-header :Variable ())
              (bvariables :nat)
              (binvariants (bmember :nat (bnat-set)))
-             (binit (bblock (bassign '(:nat) '(0)))))
+             (binit (bblock (bassign :nat 0))))
            (b->lisb (slurp (clojure.java.io/resource "machines/Variable.mch")))))))
 
 
 (deftest substitutions-test
   (testing "substitutions"
     (is (= (bskip) (b-substitution->lisb "skip")))
-    (is (= (bassign '(:x) '(:E)) (b-substitution->lisb "x := E")))
+    (is (= (bassign :x :E) (b-substitution->lisb "x := E")))
     #_(is (= "" (b-substitution->lisb "f(x) := E")))
     (is (= (bbecomes-element-of '(:x) :S) (b-substitution->lisb "x :: S")))
     (is (= (bbecomes-such '(:x) (b> :x 0)) (b-substitution->lisb "x : (x>0)")))
@@ -77,6 +178,8 @@
     (is (= (bif-sub (b= 1 2) (bskip) (bskip)) (b-substitution->lisb "IF 1=2 THEN skip ELSE skip END")))
     (is (= (bif-sub (b= 1 2) (bskip) (bif-sub (b= 1 3) (bskip))) (b-substitution->lisb "IF 1=2 THEN skip ELSIF 1=3 THEN skip END")))
     (is (= (bif-sub (b= 1 2) (bskip) (bif-sub (b= 1 3) (bskip) (bskip))) (b-substitution->lisb "IF 1=2 THEN skip ELSIF 1=3 THEN skip ELSE skip END")))
+    #_(is (= (bselect (b= 1 2) (bskip)) (b-substitution->lisb "SELECT 1=2 THEN skip END")))
+    #_(is (= (bselect (b= 1 2) (bskip) (bassign :x 1)) (b-substitution->lisb "SELECT 1=2 THEN skip ELSE x:= 1 END")))
     #_(is (= (b-substitution->lisb "SELECT 1=1 THEN skip WHEN 2=2 THEN skip END")))
     #_(is (= (b-substitution->lisb "SELECT 1=1 THEN G WHEN Q THEN H ELSE I END")))
     #_(is (= (b-substitution->lisb "CASE E OF EITHER m THEN G OR n THEN H END END")))
