@@ -132,7 +132,7 @@
                                                TStringLiteral
                                                ADefinitionExpression
                                                ALetExpressionExpression
-                                               ALetPredicatePredicate AConstantsMachineClause APropertiesMachineClause)
+                                               ALetPredicatePredicate AConstantsMachineClause APropertiesMachineClause AConstraintsMachineClause ASetsMachineClause ADeferredSetSet AEnumeratedSetSet ADefinitionsMachineClause AAssertionsMachineClause AOperationsMachineClause ASkipSubstitution ABecomesElementOfSubstitution AOperationCallSubstitution AAnySubstitution)
            (de.be4.classicalb.core.parser.util PrettyPrinter)
            (de.be4.classicalb.core.parser BParser)))
 
@@ -145,39 +145,77 @@
     (AEmptySetExpression.)
     (ASetExtensionExpression. args)))
 
+(declare xyz)
 (declare lisb->ast)
 
 (defmulti process-node (fn [node] (:tag node)))
 
+;;; parse units
+
 (defmethod process-node :machine [node]
   (Start. (AAbstractMachineParseUnit. (lisb->ast (:variant node)) (lisb->ast (:header node)) (map lisb->ast (:clauses node))) (EOF.)))
-
 (defmethod process-node :machine-variant [node]
   (AMachineMachineVariant.))
-
 (defmethod process-node :machine-header [node]
   (AMachineHeader. (.getIdentifier (lisb->ast (:name node))) (map lisb->ast (:parameters node))))
 
+
+;;; machine clauses
+
+(defmethod process-node :contraints [node]
+  (AConstraintsMachineClause. (lisb->ast (:predicate node))))
+
+(defmethod process-node :sets [node]
+  (ASetsMachineClause. (map lisb->ast (:set-definitions node))))
+(defmethod process-node :deferred-set [node]
+  (ADeferredSetSet. (lisb->ast (:identifier node))))
+(defmethod process-node :enumerated-set [node]
+  (AEnumeratedSetSet. (lisb->ast (:identifier node)) (map lisb->ast (:elements node))))
+
 (defmethod process-node :constants [node]
-  (AConstantsMachineClause. (map lisb->ast (:children node))))
+  (AConstantsMachineClause. (map lisb->ast (:identifiers node))))
 
 (defmethod process-node :properties [node]
   (APropertiesMachineClause. (lisb->ast (:predicate node))))
 
+(defmethod process-node :definitions [node]
+  (ADefinitionsMachineClause. (map lisb->ast (:definitions node))))
+
 (defmethod process-node :variables [node]
-  (AVariablesMachineClause. (map lisb->ast (:children node))))
+  (AVariablesMachineClause. (map lisb->ast (:identifiers node))))
 
 (defmethod process-node :invariants [node]
   (AInvariantMachineClause. (lisb->ast (:predicate node))))
 
+(defmethod process-node :assign [node]
+  (AAssertionsMachineClause. (map lisb->ast (:predicates node))))
+
 (defmethod process-node :init [node]
-  (AInitialisationMachineClause. (lisb->ast (:children node))))
+  (AInitialisationMachineClause. (lisb->ast (:substitution node))))
+
+(defmethod process-node :operations [node]
+  (AOperationsMachineClause. (map lisb->ast (:operations node))))
+
+
+;;; substitutions
+
+(defmethod process-node :skip [_]
+  (ASkipSubstitution.))
 
 (defmethod process-node :block [node]
   (ABlockSubstitution. (lisb->ast (:p-substitution node))))
 
 (defmethod process-node :assign [node]
   (AAssignSubstitution. (map lisb->ast (:lhs-exprs node)) (map lisb->ast (:rhs-exprs node))))
+
+(defmethod process-node :becomes-element-of [node]
+  (ABecomesElementOfSubstitution. (map lisb->ast (:identifiers node)) (lisb->ast (:set node))))
+
+(defmethod process-node :operation-call [node]
+  (AOperationCallSubstitution. (map lisb->ast (:identifiers node)) (lisb->ast (:operation node)) (lisb->ast (:parameters node))))
+
+(defmethod process-node :any [node]
+  (AAnySubstitution. (map lisb->ast (:identifiers node)) (lisb->ast (:where node)) (lisb->ast (:then node))))
 
 (defmethod process-node :equal [node]
   (AEqualPredicate. (lisb->ast (:left node)) (lisb->ast (:right node))))
@@ -207,12 +245,14 @@
 
         ))
 
-
 (defn lisb->ast [lisb]
   (cond
     (map? lisb) (process-node lisb)
     (seq? lisb) (map lisb->ast lisb)
     :else (literal lisb)))
+
+(defn xyz [clazz node & keys]
+  (apply clazz. (map lisb->ast (map % (key node) keys))))
 
 #_(defn lisb->ast [lisb]
   (println "")

@@ -137,13 +137,18 @@
              APredicateDefinitionDefinition
              AExpressionDefinitionDefinition
              AFileDefinitionDefinition
-             AStringSetExpression AConstantsMachineClause APropertiesMachineClause AConstraintsMachineClause ASetsMachineClause AConcreteVariablesMachineClause AAssertionsMachineClause AOperationsMachineClause ASkipSubstitution ABecomesElementOfSubstitution ATotalRelationExpression ANotSubsetPredicate ANotSubsetStrictPredicate ASurjectionRelationExpression ATotalSurjectionRelationExpression ASizeExpression AEnumeratedSetSet ADeferredSetSet ASubstitutionParseUnit ABecomesSuchSubstitution AOperationCallSubstitution AParallelSubstitution ASequenceSubstitution AAnySubstitution ALetSubstitution AVarSubstitution APreconditionSubstitution AAssertionSubstitution AIfSubstitution AIfElsifSubstitution)
-           (de.be4.classicalb.core.parser BParser)))
+             AStringSetExpression AConstantsMachineClause APropertiesMachineClause AConstraintsMachineClause ASetsMachineClause AConcreteVariablesMachineClause AAssertionsMachineClause AOperationsMachineClause ASkipSubstitution ABecomesElementOfSubstitution ATotalRelationExpression ANotSubsetPredicate ANotSubsetStrictPredicate ASurjectionRelationExpression ATotalSurjectionRelationExpression ASizeExpression AEnumeratedSetSet ADeferredSetSet ASubstitutionParseUnit ABecomesSuchSubstitution AOperationCallSubstitution AParallelSubstitution ASequenceSubstitution AAnySubstitution ALetSubstitution AVarSubstitution APreconditionSubstitution AAssertionSubstitution AIfSubstitution AIfElsifSubstitution ASuccessorExpression APredecessorExpression AMinIntExpression AMaxIntExpression AChoiceSubstitution AChoiceOrSubstitution ASelectSubstitution)
+           (de.be4.classicalb.core.parser BParser)
+           (clojure.lang PersistentList)
+           (java.util LinkedList)))
 
 (declare ast->lisb read-bmachine)
 
 (defn ast-list->lisb [nodes args]
   (map #(ast->lisb % args) nodes))
+
+(defn xyz [lisb args & nodes]
+  (apply lisb (map #(ast->lisb % args) nodes)))
 
 (defn left-right [lisb-representation node args]
   (lisb-representation (ast->lisb (.getLeft node) args)
@@ -153,7 +158,7 @@
   (let [left-node (.getLeft node)
         right-node (.getRight node)]
     (if (= (class node) (class left-node))
-      (conj (collect-left-associative (.getLeft left-node)) right-node)
+      (conj (collect-left-associative left-node) right-node)
       [left-node right-node])))
 
 
@@ -174,6 +179,12 @@
                   (ast->lisb (.getVariant node) args)
                   (ast->lisb (.getHeader node) args))
          (ast-list->lisb (.getMachineClauses node) args)))
+(defmethod ast->lisb AMachineMachineVariant [_ _]
+  (bmachine-variant))
+(defmethod ast->lisb AMachineHeader [node args]
+  (bmachine-header
+    (ast->lisb (first (.getName node)) args)                   ; There should be exact one identifier as name!
+    (ast-list->lisb (.getParameters node) args)))
 
 (defmethod ast->lisb APredicateParseUnit [node args]
   (ast->lisb (.getPredicate node) args))
@@ -185,21 +196,10 @@
   (ast->lisb (.getSubstitution node) args))
 
 
-;;; machine definition
-
-(defmethod ast->lisb AMachineMachineVariant [_ _]
-  (bmachine-variant))
-
-(defmethod ast->lisb AMachineHeader [node args]
-  (bmachine-header
-    (ast->lisb (first (.getName node)) args)                   ; There should be exact one identifier as name!
-    (ast-list->lisb (.getParameters node) args)))
-
-
 ;;; machine clauses
 
 (defmethod ast->lisb AConstraintsMachineClause [node args]
-  (apply bcontraints (ast->lisb (.getPredicates node) args)))     ; (.getPredicates node) returns ONE Predicate and no list!
+  (bcontraints (ast->lisb (.getPredicates node) args)))     ; (.getPredicates node) returns ONE Predicate and no list!
 
 (defmethod ast->lisb ASetsMachineClause [node args]
   (apply bsets (ast-list->lisb (.getSetDefinitions node) args)))
@@ -256,9 +256,11 @@
 (defmethod ast->lisb AOperationCallSubstitution [node args]
   (boperation-call (ast-list->lisb (.getResultIdentifiers node) args) (ast->lisb (first (.getOperation node)) args) (ast-list->lisb (.getParameters node) args)))
 
-; TODO: (defmethod ast->lisb AParallelSubstitution [node args])
+(defmethod ast->lisb AParallelSubstitution [node args]
+  (apply bparallel-substitution (ast->lisb (.getSubstitutions node) args)))
 
-; TODO: (defmethod ast->lisb ASequenceSubstitution [node args])
+(defmethod ast->lisb ASequenceSubstitution [node args]
+  (apply bsequence-substitution (ast->lisb (.getSubstitutions node) args)))
 
 (defmethod ast->lisb AAnySubstitution [node args]
   (bany (ast-list->lisb (.getIdentifiers node) args) (ast->lisb (.getWhere node) args) (ast->lisb (.getThen node) args)))
@@ -275,7 +277,10 @@
 (defmethod ast->lisb AAssertionSubstitution [node args]
   (bassert (ast->lisb (.getPredicate node) args) (ast->lisb (.getSubstitution node) args)))
 
-; TODO: choice
+(defmethod ast->lisb AChoiceSubstitution [node args]
+  (apply bchoice (ast->lisb (.getSubstitutions node) args)))
+(defmethod ast->lisb AChoiceOrSubstitution [node args]
+  (ast->lisb (.getSubstitution node) args))
 
 (defmethod ast->lisb AIfSubstitution [node args]
   (let [condition (ast->lisb (.getCondition node) args)
@@ -295,7 +300,8 @@
 (defmethod ast->lisb AIfElsifSubstitution [node args]
   [(ast->lisb (.getCondition node) args) (ast->lisb (.getThenSubstitution node) args)])
 
-; TODO: select
+#_(defmethod ast->lisb ASelectSubstitution [node args]
+  )
 
 ; TODO: case
 
@@ -341,9 +347,13 @@
     (ast->lisb (.getIdentifier node) args)))
 
 (defmethod ast->lisb AStructExpression [node args]
-  #_(bstruct
-      (set (map (fn [recentry] [(AST->lisb (.getIdentifier recentry) args)
-                                (AST->lisb (.getValue recentry) args)]) (.getEntries node)))))
+  (let [entries (map (fn [entry] [(ast->lisb (.getIdentifier entry) args) (ast->lisb (.getValue entry) args)]) (.getEntries node))]
+    (apply bstruct entries)))
+
+#_(defmethod ast->lisb AStructExpression [node args]
+  (bstruct
+      (set (map (fn [recentry] [(ast->lisb (.getIdentifier recentry) args)
+                                (ast->lisb (.getValue recentry) args)]) (.getEntries node)))))
 
 
 ;;; sequences
@@ -406,9 +416,15 @@
   (left-right b>+>> node args))
 (defmethod ast->lisb ATotalBijectionExpression [node args]
   (left-right b>->> node args))
-; lambda abstraction
+(defmethod ast->lisb ALambdaExpression [node args]
+  (xyz blambda args (.getIdentifiers node) (.getPredicate node) (.getExpression node)))
 (defmethod ast->lisb AFunctionExpression [node args]
-  (apply (partial bapply (ast->lisb (.getIdentifier node) args)) (ast-list->lisb (.getParameters node) args)))
+  (let [f (.getIdentifier node)
+        params (ast->lisb (.getParameters node) args)]
+    (cond
+      (= (class f) ASuccessorExpression) (apply binc params)
+      (= (class f) APredecessorExpression) (apply bdec params)
+      :else (apply (partial bcall (ast->lisb f args)) params))))
 
 
 ;;; relations
@@ -469,6 +485,11 @@
 
 (defmethod ast->lisb AIntegerExpression [node _]
   (Long/parseLong (.getText (.getLiteral node))))
+(defmethod ast->lisb AUnaryMinusExpression [node args]
+  (let [expr (ast->lisb (.getExpression node) args)]
+    (if (number? expr)
+      (- expr)
+      (b- expr))))
 (defmethod ast->lisb AIntegerSetExpression [_ _] (binteger-set))
 (defmethod ast->lisb ANaturalSetExpression [_ _] (bnatural-set))
 (defmethod ast->lisb ANatural1SetExpression [_ _] (bnatural1-set))
@@ -479,8 +500,10 @@
   (binterval
     (ast->lisb (.getLeftBorder node) args)
     (ast->lisb (.getRightBorder node) args)))
-; MININT
-; MAXINT
+(defmethod ast->lisb AMinIntExpression [_ _]
+  (bmin-int))
+(defmethod ast->lisb AMaxIntExpression [_ _]
+  (bmax-int))
 (defmethod ast->lisb ALessPredicate [node args]
   (multi-arity b< node args))
 (defmethod ast->lisb AGreaterPredicate [node args]
@@ -502,14 +525,15 @@
 (defmethod ast->lisb ADivExpression [node args]
   (multi-arity bdiv node args))
 (defmethod ast->lisb APowerOfExpression [node args]
-  (multi-arity b** node args))
+  (left-right b** node args))
 (defmethod ast->lisb AModuloExpression [node args]
   (multi-arity bmod node args))
-; set product
-; set summation
-; succ
-; pred
-; 0xH
+(defmethod ast->lisb AGeneralProductExpression [node args]
+  (xyz bpi args (.getIdentifiers node) (.getPredicates node) (.getExpression node)))      ; (.getPredicates node) returns ONE Predicate and no list!
+(defmethod ast->lisb AGeneralSumExpression [node args]
+  (xyz bsigma args (.getIdentifiers node) (.getPredicates node) (.getExpression node)))      ; (.getPredicates node) returns ONE Predicate and no list!
+; ASuccessorExpression - processed in AFunctionExpression
+; APredecessorExpression - processed in AFunctionExpression
 
 
 ;;; sets
@@ -517,26 +541,23 @@
 (defmethod ast->lisb AEmptySetExpression [node args]
   #{})
 (defmethod ast->lisb ASetExtensionExpression [node args]
-  (into #{} (ast-list->lisb (.getExpressions node) args))
-  #_(apply bset-enum (ast-list->lisb (.getExpressions node) args)))
+  (into #{} (ast->lisb (.getExpressions node) args)))
 (defmethod ast->lisb AComprehensionSetExpression [node args]
-  (bcomp-set
-    (ast-list->lisb (.getIdentifiers node) args)
-    (ast->lisb (.getPredicates node) args)))
+  (xyz bcomp-set args (.getIdentifiers node) (.getPredicates node))) ; .getPredicates returns ONE predicate)
 (defmethod ast->lisb APowSubsetExpression [node args]
-  (bpow (ast->lisb (.getExpression node) args)))
+  (xyz bpow args (.getExpression node)))
 (defmethod ast->lisb APow1SubsetExpression [node args]
-  (bpow1 (ast->lisb (.getExpression node) args)))
+  (xyz bpow1 args (.getExpression node)))
 (defmethod ast->lisb AFinSubsetExpression [node args]
-  (bfin (ast->lisb (.getExpression node) args)))
+  (xyz bfin args (.getExpression node)))
 (defmethod ast->lisb AFin1SubsetExpression [node args]
-  (bfin1 (ast->lisb (.getExpression node) args)))
+  (xyz bfin1 args (.getExpression node)))
 (defmethod ast->lisb ACardExpression [node args]
-  (bcount (ast->lisb (.getExpression node) args)))
+  (xyz bcount args (.getExpression node)))
 (defmethod ast->lisb AUnionExpression [node args]
-  (left-right bunion node args))
+  (multi-arity bunion node args))
 (defmethod ast->lisb AIntersectionExpression [node args]
-  (left-right bintersection node args))
+  (multi-arity bintersection node args))
 (defmethod ast->lisb ASetSubtractionExpression [node args]
   (multi-arity bset- node args))
 (defmethod ast->lisb AMemberPredicate [node args]
@@ -551,7 +572,14 @@
   (left-right bsubset-strict node args))
 (defmethod ast->lisb ANotSubsetStrictPredicate [node args]
   (left-right bnot-subset-strict node args))
-
+(defmethod ast->lisb AGeneralUnionExpression [node args]
+  (xyz bunite-sets args (.getExpression node)))
+(defmethod ast->lisb AGeneralIntersectionExpression [node args]
+  (xyz bintersect-sets args (.getExpression node)))
+(defmethod ast->lisb AQuantifiedUnionExpression [node args]
+  (xyz bunion-pe args (.getIdentifiers node) (.getPredicates node) (.getExpression node)))
+(defmethod ast->lisb AQuantifiedIntersectionExpression [node args]
+  (xyz bintersection-pe args(.getIdentifiers node) (.getPredicates node) (.getExpression node)))
 
 ;;; booleans
 
@@ -565,45 +593,44 @@
   (bbool-set))
 
 (defmethod ast->lisb AConvertBoolExpression [node args]
-  (bpred->bool (ast->lisb (.getPredicate node) args)))
+  (xyz bpred->bool args (.getPredicate node)))
 
 
 ;;; equality predicates
 
 (defmethod ast->lisb AEqualPredicate [node args]
-  (b= (ast->lisb (.getLeft node) args) (ast->lisb (.getRight node) args)))
+  (left-right b= node args))
 
 (defmethod ast->lisb ANotEqualPredicate [node args]
-  (bnot= (ast->lisb (.getLeft node) args) (ast->lisb (.getRight node) args))
-  )
+  (left-right bnot= node args))
 
 
 ;;; logical predicates
 
 (defmethod ast->lisb AConjunctPredicate [node args]
-  (band (ast->lisb (.getLeft node) args) (ast->lisb (.getRight node) args)))
+  (multi-arity band node args))
 
 (defmethod ast->lisb ADisjunctPredicate [node args]
-  (bor (ast->lisb (.getLeft node) args) (ast->lisb (.getRight node) args)))
+  (multi-arity bor node args))
 
 (defmethod ast->lisb AImplicationPredicate [node args]
-  (b=> (ast->lisb (.getLeft node) args) (ast->lisb (.getRight node) args)))
+  (multi-arity b=> node args))
 
 (defmethod ast->lisb AEquivalencePredicate [node args]
-  (b<=> (ast->lisb (.getLeft node) args) (ast->lisb (.getRight node) args)))
+  (multi-arity b<=> node args))
 
 (defmethod ast->lisb ANegationPredicate [node args]
-  (bnot (ast->lisb (.getPredicate node) args)))
+  (xyz bnot args (.getPredicate node)))
 
 (defmethod ast->lisb AForallPredicate [node args]
-  (bforall
-    (ast-list->lisb (.getIdentifiers node) args)
-    (ast->lisb (.getImplication node) args)))
+  (let [identifiers (.getIdentifiers node)
+        implication (.getImplication node)
+        assignment (.getLeft implication)
+        predicate (.getRight implication)]
+    (xyz bfor-all args identifiers assignment predicate)))
 
 (defmethod ast->lisb AExistsPredicate [node args]
-  (bexists
-    (ast-list->lisb (.getIdentifiers node) args)
-    (ast->lisb (.getPredicate node) args)))
+  (xyz bexists args (.getIdentifiers node) (.getPredicate node)))
 
 
 ;;; identifier
@@ -618,6 +645,9 @@
 ;;; misc
 
 (defmethod ast->lisb nil [_ _] nil)
+
+(defmethod ast->lisb LinkedList [node args]
+  (map #(ast->lisb % args) node))
 
 ;;; ast->lisb end
 

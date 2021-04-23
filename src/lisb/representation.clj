@@ -8,7 +8,7 @@
 (declare b=)
 (declare band)
 (declare bnot)
-(declare blambda)
+#_(declare blambda)
 
 (defn bif
   ([node condition then] (assoc node :condition condition :then then))
@@ -40,13 +40,8 @@
    :variant variant
    :header header
    :clauses clauses})
-
-
-;;; machine definition
-
 (defn bmachine-variant []
   {:tag :machine-variant})
-
 (defn bmachine-header [name parameters]
   {:tag :machine-header
    :name name
@@ -55,24 +50,24 @@
 
 ;;; machine clauses
 
-(defn bcontraints [& predicates]
+(defn bcontraints [predicate]
   {:tag :contraints
-   :children predicates})
+   :predicate predicate})
 
 (defn bsets [& set-definitions]
   {:tag :sets
-   :children set-definitions})
+   :set-definitions set-definitions})
 (defn bdeferred-set [identifier]
   {:tag :deferred-set
    :identifier identifier})
 (defn benumerated-set [identifier elements]
-  {:tag :enumerated-set-set
+  {:tag :enumerated-set
    :identifier identifier
    :elements elements})
 
 (defn bconstants [& identifiers]
   {:tag :constants
-   :children identifiers})
+   :identifiers identifiers})
 
 (defn bproperties [predicate]
   {:tag :properties
@@ -80,11 +75,11 @@
 
 (defn bdefinitions [& definitions]
   {:tag :definitions
-   :children definitions})
+   :definitions definitions})
 
 (defn bvariables [& identifiers]
   {:tag :variables
-   :children identifiers})
+   :identifiers identifiers})
 
 (defn binvariants [predicate]
   {:tag :invariants
@@ -92,7 +87,7 @@
 
 (defn bassertions [& predicates]
   {:tag :assertions
-   :children predicates})
+   :predicates predicates})
 
 (defn binit [substitution]
   {:tag :init
@@ -100,7 +95,7 @@
 
 (defn boperations [& operations]
   {:tag :operations
-   :children operations})
+   :operations operations})
 
 
 ;;; substitutions
@@ -135,6 +130,14 @@
    :operation operation
    :parameters parameters})
 
+(defn bparallel-substitution [& substitutions]
+  {:tag :parallel-substitution
+   :substitutions substitutions})
+
+(defn bsequence-substitution [& substitutions]
+  {:tag :sequence-substitution
+   :substitutions substitutions})
+
 (defn bany [identifiers where then]
   {:tag :any
    :identifiers identifiers
@@ -163,6 +166,10 @@
   {:tag :bassert
    :predicate predicate
    :substitution substitution})
+
+(defn bchoice [& substitutions]
+  {:tag :choice
+   :substitutions substitutions})
 
 (defn bif-sub
   ([predicate then] (bif {:tag :if-sub} predicate then))
@@ -208,7 +215,13 @@
 
 ;;; records
 
-(def bstruct (partial bstructy :struct))
+#_(def bstruct (partial bstructy :struct))
+(defn bstruct [& id-types]
+  (reduce
+    (fn [res [id type]]
+      (assoc res id type))
+    {:tag :struct}
+    id-types))
 
 (def brecord (partial bstructy :record))
 
@@ -308,14 +321,18 @@
   {:tag :total-bijection
    :sets sets})
 
-#_(defn blambda [identifiers pred expr]
-  (let [vars (apply node :list identifiers)]
-    (node :lambda vars pred expr)))
+(defn blambda [ids pred expr]
+  {:tag :lambda
+   :ids ids
+   :pred pred
+   :expr expr})
 
-(defn bapply [f & args]
+#_(defn bapply [f & args]
   (apply node :fn-application f args))
 (defn bcall [f & args]
-  (apply node :fn-call f args))
+  {:tag :call
+   :f f
+   :args args})
 
 
 ;;; relations
@@ -454,6 +471,12 @@
 #_(defn brange [from to]
   (node :interval from (bdec to)))
 
+(defn bmin-int []
+  {:tag :min-int})
+
+(defn bmax-int []
+  {:tag :max-int})
+
 (defn b< [& args]
   (apply node :less args))
 
@@ -494,25 +517,40 @@
 (defn bdiv [& args]
   (apply node :div args))
 
-(defn b** [& args]
-  (apply node :pow args))
+(defn b** [base exp]
+  {:tag :pow
+   :base base
+   :exp exp})
 
-(defn bmod [n m]
-  (node :mod n m))
+(defn bmod [& args]
+  {:tag :mod
+   :values args})
 
-(defn bpi [identifiers p e]
-  (node :pi (apply node :list identifiers) p e))
+(defn bpi [ids pred expr]
+  {:tag :pi
+   :ids ids
+   :pred pred
+   :expr expr})
 
-(defn bsigma [identifiers p e]
-  (node :sigma (apply node :list identifiers) p e))
+(defn bsigma [ids pred expr]
+  {:tag :sigma
+   :ids ids
+   :pred pred
+   :expr expr})
 
-; TODO: bsucc
-#_(defn binc [n]
-  (b+ n 1))
+(defn bsucc []
+  {:tag :succ})
+; lisb succ
+(defn binc [n]
+  {:tag :inc
+   :number n})
 
-; TODO: bpred
-#_(defn bdec [n]
-  (b- n 1))
+(defn bpred []
+  {:tag :pred})
+; lisb pred
+(defn bdec [n]
+  {:tag :dec
+   :number n})
 
 
 ;;; sets
@@ -523,38 +561,32 @@
    :predicate predicate
    })
 
-(defn bpow [s]
-  (node :power-set s))
+(defn bpow [set]
+  {:tag :power-set
+   :set set})
 
-(defn bpow1 [s]
-  (node :power1-set s))
+(defn bpow1 [set]
+  {:tag :power1-set
+   :set set})
 
-(defn bfin [s]
-  (node :finite-subset s))
+(defn bfin [set]
+  {:tag :finite-subset
+   :set set})
 
-(defn bfin1 [s]
-  (node :finite1-subset s))
+(defn bfin1 [set]
+  {:tag :finite1-subset
+   :set set})
 
-(defn bunion [& args]
-  (apply node :set-union args))
+(defn bunion [& sets]
+  {:tag :union
+   :sets sets})
 
-#_(defn bunite-sets [s]
-  (node :general-union s))
-
-#_(defn bunion-pe [identifiers pred expr]
-  (node :union-pe (apply node :list identifiers) pred expr))
-
-(defn bintersection [& args]
-  (apply node :set-intersection args))
+(defn bintersection [& sets]
+  {:tag :set-intersection
+   :sets sets})
 
 (defn bset- [& args]
   (apply node :set-difference args))
-
-#_(defn bintersect-sets [s]
-  (node :general-intersection s))
-
-#_(defn bintersection-pe [identifiers pred expr]
-  (node :intersection-pe (apply node :list identifiers) pred expr))
 
 #_(defn bminus-or-set-subtract
   "For generated code only. I am allowed to use this. You are not."
@@ -566,73 +598,113 @@
    :left left
    :right right})
 ; clojure syntax
-(defn bcontains [s e]
-  (node :member e s))
+(defn bcontains? [set element]
+  {:tag :contains?
+   :set set
+   :element element})
 
-(defn bnot-member [e s]
-  (bnot (bmember e s)))
+(defn bnot-member [element set]
+  {:tag :not-member
+   :element element
+   :set set})
 
-(defn bsubset [& args]
-  (apply node :subset args))
+(defn bsubset [subset set]
+  {:tag :subset
+   :subset subset
+   :set set})
+; adds superset to lisb
+(defn bsuperset [superset set]
+  (bsubset set superset))
 
-(defn bnot-subset [& args]
-  (apply node :not-subset args))
+(defn bnot-subset [not-subset set]
+  {:tag :not-subset
+   :not-subset not-subset
+   :set set})
+; adds not-superset to lisb
+(defn bnot-superset [not-superset set]
+  (bnot-subset set not-superset))
 
-(defn bsubset-strict [& args]
-  (apply node :subset-strict args))
+(defn bsubset-strict [subset-strict set]
+  {:tag :subset-strict
+   :subset-strict subset-strict
+   :set set})
+; adds superset-strict to lisb
+(defn bsuperset-strict [superset-strict set]
+  (bsubset-strict set superset-strict))
 
-(defn bnot-subset-strict [& args]
-  (apply node :not-subset-strict args))
+(defn bnot-subset-strict [not-subset-strict set]
+  {:tag :not-subset-strict
+   :not-subset-strict not-subset-strict
+   :set set})
+; adds not-superset-strict to lisb
+(defn bnot-superset-strict [not-superset-strict set]
+  (bnot-subset-strict set not-superset-strict))
 
-#_(defn bsuperset [& args]
-  (apply bsubset (reverse args)))
+(defn bunite-sets [sets]
+  {:tag :general-union
+   :sets sets})
 
-#_(defn bsuperset-strict [& args]
-  (apply bsubset-strict (reverse args)))
+(defn bintersect-sets [sets]
+  {:tag :general-intersection
+   :sets sets})
+
+(defn bunion-pe [identifiers pred expr]
+    (node :union-pe (apply node :list identifiers) pred expr))
+
+(defn bintersection-pe [identifiers pred expr]
+    (node :intersection-pe (apply node :list identifiers) pred expr))
 
 
 ;;; booleans
 
 (defn bbool-set []
-  (node :bool-set))
+  {:tag :bool-set})
 
-(defn bpred->bool [a]
-  (node :to-bool a))
+(defn bpred->bool [arg]
+  {:tag :to-bool
+   :value arg})
 
 
 ;;; equality predicates
 
-(defn b= [left right]
+(defn b= [& args]
   {:tag :equal
-   :left left
-   :right right})
-#_(defn b= [& args]
-    (apply node :equals args))
+   :values args})
 
 (defn bnot= [& args]
-  (bnot (apply b= args)))
-#_(defn bnone= [& args]
-  (apply node :not-equals args))
+  {:tag :not
+   :values args})
 
 
 ;;; logical predicates
 
-(defn band [& args]
-  (apply node :and args))
+(defn band [& predicates]
+  {:tag :and
+   :predicates predicates})
 
-(defn bor [& args]
-  (apply node :or args))
+(defn bor [& predicates]
+  {:tag :or
+   :predicates predicates})
 
-(defn b=> [& args]
-  (apply node :implication args))
+(defn b=> [& predicates]
+  {:tag :implication
+   :predicates predicates})
 
-(defn b<=> [& args]
-  (apply node :equivalence args))
+(defn b<=> [& predicates]
+  {:tag :equivalence
+   :predicates predicates})
 
-(defn bnot [a]
-  (node :not a))
+(defn bnot [arg]
+  {:tag :not
+   :value arg})
 
-(defn bforall
+(defn bfor-all [identifiers assignment implication]
+  {:tag :for-all
+   :identifiers identifiers
+   :assignment assignment
+   :implication implication})
+
+#_(defn bforall
   ([identifiers impl]
    {:tag :forall
     :identifiers identifiers
@@ -649,16 +721,13 @@
 (defn bexpr [s]
   (node :bexpr s))
 
-(defn bpred [s]
-  (node :bpred s))
-
 (defn brec-get [r e]
   (node :record-get r e))
 
 (defn btuple [l r]
   (node :tuple l r))
 
-(defn bmap-set [p s]
+#_(defn bmap-set [p s]
   (bran (blambda [:x] (bmember :x s) (p :x))))
 
 ; TODO: - negations for subset/superset, strict/non-strict
@@ -750,8 +819,8 @@
          ~'>-> b>->
          ~'>+>> b>+>>
          ~'>->> b>->>
-         ~'fn blambda
-         ~'apply bapply
+         ; ~'fn blambda
+         ;~'apply bapply
 
          ~'sequence bsequence
          ~'iseq biseq
