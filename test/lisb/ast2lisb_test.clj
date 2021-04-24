@@ -56,7 +56,7 @@
                     (machine-header :Variable ())
                     (variables :nat)
                     (invariants (member :nat nat-set))
-                    (init (block (assign :nat 0)))) "Variable.mch")))
+                    (init (assign :nat 0))) "Variable.mch")))
 
 
 (deftest substitutions-test
