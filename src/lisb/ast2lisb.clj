@@ -289,7 +289,6 @@
 (defmethod ast->lisb AChoiceOrSubstitution [node args]
   (ast->lisb (.getSubstitution node) args))
 
-; TODO: refactor
 (defmethod ast->lisb AIfSubstitution [node args]
   (let [condition (ast->lisb (.getCondition node) args)
         then (ast->lisb (.getThen node) args)
@@ -318,9 +317,8 @@
 
 ; TODO: case
 
-; BlockSubstitution müsste entfernt werden können
 (defmethod ast->lisb ABlockSubstitution [node args]
-  (xyz 'block args (.getSubstitution node)))        ; ABlockSubstitution holds one PSubstitution
+  (ast->lisb (.getSubstitution node) args))        ; ABlockSubstitution holds one PSubstitution
 
 
 ;;; if-then-else

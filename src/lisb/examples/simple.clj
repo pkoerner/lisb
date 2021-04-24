@@ -5,7 +5,7 @@
              (machine-header :Lift ())
              (variables :etage)
              (invariants (member :etage (interval 0 99)))
-             (init (block (assign :etage 4)))
+             (init (assign :etage 4))
              (operations
                (operation () :inc () (pre (< :etage 99) (assign :etage (+ :etage 1))))
                (operation () :dec () (pre (> :etage 0) (assign :etage (- :etage 1)))))))
