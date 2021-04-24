@@ -55,35 +55,35 @@
                     (machine-variant)
                     (machine-header :Variable ())
                     (variables :nat)
-                    (invariants (member :nat (nat-set)))
+                    (invariants (member :nat nat-set))
                     (init (block (assign :nat 0)))) "Variable.mch")))
 
 
 (deftest substitutions-test
   (testing "substitutions"
     (are [lisb b] (= lisb (b-substitution->lisb b))
-                  '(skip) "skip"
+                  'skip "skip"
                   '(assign :x :E) "x := E"
                   ; "f(x) := E"
                   '(becomes-element-of (:x) :S) "x :: S"
                   '(becomes-such (:x) (> :x 0))  "x : (x>0)"
                   '(operation-call (:x) :OP (:y)) "x <-- OP(y)"
-                  '(parallel-substitution (skip) (skip)) "skip||skip"
-                  '(parallel-substitution (skip) (skip) (skip)) "skip||skip||skip"
-                  '(sequence-substitution (skip) (skip)) "skip;skip"
-                  '(sequence-substitution (skip) (skip) (skip)) "skip;skip;skip"
-                  '(any (:x) (> :x 0) (skip)) "ANY x WHERE (x>0) THEN skip END"
-                  '(let-sub (:x) (= :x 1) (skip)) "LET x BE x=1 IN skip END"
-                  '(var (:x) (skip)) "VAR x IN skip END"
-                  '(pre (= 1 2) (skip)) "PRE 1=2 THEN skip END"
-                  '(assert (= 1 2) (skip)) "ASSERT 1=2 THEN skip END"
-                  '(choice (skip) (skip)) "CHOICE skip OR skip END"
-                  '(if-sub (= 1 2) (skip)) "IF 1=2 THEN skip END"
-                  '(if-sub (= 1 2) (skip) (skip)) "IF 1=2 THEN skip ELSE skip END"
-                  '(if-sub (= 1 2) (skip) (if-sub (= 1 3) (skip))) "IF 1=2 THEN skip ELSIF 1=3 THEN skip END"
-                  '(if-sub (= 1 2) (skip) (if-sub (= 1 3) (skip) (skip))) "IF 1=2 THEN skip ELSIF 1=3 THEN skip ELSE skip END"
-                  '(select (= 1 2) (skip)) "SELECT 1=2 THEN skip END"
-                  '(select (= 1 2) (skip) (assign :x 1)) "SELECT 1=2 THEN skip ELSE x:= 1 END"
+                  '(parallel-substitution skip skip) "skip||skip"
+                  '(parallel-substitution skip skip skip) "skip||skip||skip"
+                  '(sequence-substitution skip skip) "skip;skip"
+                  '(sequence-substitution skip skip skip) "skip;skip;skip"
+                  '(any (:x) (> :x 0) skip) "ANY x WHERE (x>0) THEN skip END"
+                  '(let-sub (:x) (= :x 1) skip) "LET x BE x=1 IN skip END"
+                  '(var (:x) skip) "VAR x IN skip END"
+                  '(pre (= 1 2) skip) "PRE 1=2 THEN skip END"
+                  '(assert (= 1 2) skip) "ASSERT 1=2 THEN skip END"
+                  '(choice skip skip) "CHOICE skip OR skip END"
+                  '(if-sub (= 1 2) skip) "IF 1=2 THEN skip END"
+                  '(if-sub (= 1 2) skip skip) "IF 1=2 THEN skip ELSE skip END"
+                  '(cond-sub (= 1 2) skip (= 1 3) skip) "IF 1=2 THEN skip ELSIF 1=3 THEN skip END"
+                  '(cond-sub (= 1 2) skip (= 1 3) skip :else skip) "IF 1=2 THEN skip ELSIF 1=3 THEN skip ELSE skip END"
+                  '(select (= 1 2) skip) "SELECT 1=2 THEN skip END"
+                  '(select (= 1 2) skip :else (assign :x 1)) "SELECT 1=2 THEN skip ELSE x:= 1 END"
                   ;"SELECT 1=1 THEN skip WHEN 2=2 THEN skip END"
                   ;"SELECT 1=1 THEN G WHEN Q THEN H ELSE I END"
                   ;"CASE E OF EITHER m THEN G OR n THEN H END END"
@@ -237,19 +237,19 @@
                     -1 "-1"
                     '(- :x) "-x"
                     15 "0xF"
-                    '(integer-set) "INTEGER"
-                    '(natural-set) "NATURAL"
-                    '(natural1-set) "NATURAL1"
-                    '(int-set) "INT"
-                    '(nat-set) "NAT"
-                    '(nat1-set) "NAT1"
+                    'integer-set "INTEGER"
+                    'natural-set "NATURAL"
+                    'natural1-set "NATURAL1"
+                    'int-set "INT"
+                    'nat-set "NAT"
+                    'nat1-set "NAT1"
                     '(interval 1 2) "1..2"
-                    '(min-int) "MININT"
-                    '(max-int) "MAXINT"
-                    '(max (nat-set)) "max(NAT)"
-                    '(min (nat-set)) "min(NAT)"
-                    '(pi (:z) (member :z (nat-set)) 1) "PI(z).(z:NAT|1)"
-                    '(sigma (:z) (member :z (nat-set)) 1) "SIGMA(z).(z:NAT|1)"))
+                    'min-int "MININT"
+                    'max-int "MAXINT"
+                    '(max nat-set) "max(NAT)"
+                    '(min nat-set) "min(NAT)"
+                    '(pi (:z) (member :z nat-set) 1) "PI(z).(z:NAT|1)"
+                    '(sigma (:z) (member :z nat-set) 1) "SIGMA(z).(z:NAT|1)"))
     (testing "arithmetic"
       (are [lisb b] (= lisb (b-expression->lisb b))
                     '(+ 1 2) "1+2"
@@ -279,7 +279,7 @@
                   #{} "{}"
                   #{:E} "{E}"
                   #{:E :F} "{E, F}"
-                  '(comp-set (:x) (member :x (nat-set))) "{x|x:NAT}"
+                  '(comp-set (:x) (member :x nat-set)) "{x|x:NAT}"
                   '(pow #{}) "POW({})"
                   '(pow1 #{}) "POW1({})"
                   '(fin #{}) "FIN({})"
@@ -295,8 +295,8 @@
                   '(- #{:E} #{:F} #{:G}) "{E}-{F}-{G}"
                   '(unite-sets #{#{}}) "union({{}})"
                   '(intersect-sets #{#{}}) "inter({{}})"
-                  '(union-pe (:z) (member :z (nat-set)) 1) "UNION(z).(z:NAT|1)"
-                  '(intersection-pe (:z) (member :z (nat-set)) 1) "INTER(z).(z:NAT|1)")
+                  '(union-pe (:z) (member :z nat-set) 1) "UNION(z).(z:NAT|1)"
+                  '(intersection-pe (:z) (member :z nat-set) 1) "INTER(z).(z:NAT|1)")
     (are [lisb b] (= lisb (b-predicate->lisb b))
                   '(member 1 #{}) "1:{}"
                   '(not-member 1 #{}) "1/:{}"
@@ -311,7 +311,7 @@
     (are [lisb b] (= lisb (b-expression->lisb b))
                   true "TRUE"
                   false "FALSE"
-                  '(bool-set) "BOOL"
+                  'bool-set "BOOL"
                   '(pred->bool (= true true)) "bool(TRUE=TRUE)")))
 
 
@@ -335,6 +335,6 @@
                   '(<=> (= 1 1) (= 2 2) (= 3 3)) "1=1 <=> 2=2 <=> 3=3"
                   '(not (= 1 1)) "not(1=1)"
                   '(not (= 1 1)) "not(1=1)"
-                  '(for-all (:x) (member :x (nat-set)) (< 0 :x)) "!(x).(x:NAT => 0<x)"
+                  '(for-all (:x) (member :x nat-set) (< 0 :x)) "!(x).(x:NAT => 0<x)"
                   '(exists (:x) (and (= 1 1) (= 2 2))) "#(x).(1=1 & 2=2)")))
 
