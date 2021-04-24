@@ -27,10 +27,13 @@
 
 (import de.be4.classicalb.core.parser.visualisation.ASTPrinter)
 (def printer (ASTPrinter.))
-(defn print-ast [b-machine]
+(defn print-bmachine [b-machine]
   (let [ast (parse-b-machine b-machine)]
     (.apply ast printer)))
+(defn print-ast [ast]
+  (apply ast printer))
 
+;;; parse units
 
 (deftest machine-test
   (testing "empty machine"
@@ -38,6 +41,8 @@
            (get-machine-from-ast (parse-b-machine "MACHINE Empty\nEND"))))
     (is (= "MACHINE Empty\nEND"
            (get-machine-from-ast (lisb->ast (b->lisb "MACHINE Empty\nEND")))))))
+
+;;; machine clauses
 
 #_(deftest constants-test
   (testing "constants"
@@ -64,3 +69,9 @@
              (get-machine-from-ast (lisb->ast (b-formula->lisb set-enum1)))))
       (is (let [machine-set-enum2 (get-machine-from-ast (lisb->ast (b-formula->lisb set-enum2-alt)))] ; order doesn't matter
             (or (= machine-set-enum2 set-enum2) (= machine-set-enum2 set-enum2-alt)))))))
+
+(deftest equality-predicates-test
+  (testing "equality-predicates"
+    (let [equal "TRUE = FALSE"
+          unequal "TRUE /= FALSE"]
+      (is (= equal (print-ast (lisb->ast (b-predicate->lisb equal))))))))

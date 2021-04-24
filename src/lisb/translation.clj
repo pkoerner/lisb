@@ -136,6 +136,13 @@
            (de.be4.classicalb.core.parser.util PrettyPrinter)
            (de.be4.classicalb.core.parser BParser)))
 
+(defn chain [tag tuples]
+  (reduce (partial node :and) (map (partial apply node tag) tuples)))
+
+(defn chain-arity-two [tag nodes]
+  (chain tag (partition 2 1 nodes)))
+
+
 (defn identifier [n]
   (AIdentifierExpression. [(TIdentifierLiteral. (name n))]))
 
@@ -237,8 +244,8 @@
         (string? x) x ;; hack-y thing to avoid renaming
         ;; of rec-get parameters in preds
         (number? x) (AIntegerExpression. (TIntegerLiteral. (str x)))
-        ;(true? x) (boolean-true)
-        ;(false? x) (boolean-false)
+        (true? x) (ABooleanTrueExpression.)
+        (false? x) (ABooleanFalseExpression.)
         (set? x) (apply set-enum (map lisb->ast x))
         ;(sequential? x) (apply tuple-node (map lisb->ast x))
         :otherwise (println :unhandled-literal x)
@@ -246,6 +253,7 @@
         ))
 
 (defn lisb->ast [lisb]
+  (println lisb)
   (cond
     (map? lisb) (process-node lisb)
     (seq? lisb) (map lisb->ast lisb)
