@@ -5,10 +5,23 @@
   {:tag tag
    :children (if children children [])})
 
+(defn left-right [tag left right]
+  {:tag tag, :left left, :right right})
+
+(defn on-sequence [tag seq]
+  {:tag tag, :seq seq})
+
+(defn left-associative [tag [first second & chained-nodes]]
+  (reduce
+    (partial left-right tag)
+    (left-right tag first second)
+    chained-nodes))
+
 (declare b=)
 (declare band)
 (declare bnot)
 #_(declare blambda)
+(declare bdec)
 
 (defn bif
   ([node condition then] (assoc node :condition condition :then then))
@@ -50,7 +63,7 @@
 
 ;;; machine clauses
 
-(defn bcontraints [predicate]
+(defn bconstraints [predicate]
   {:tag :contraints
    :predicate predicate})
 
@@ -178,6 +191,9 @@
 (defn bif-sub
   ([predicate then] (bif {:tag :if-sub} predicate then))
   ([predicate then else] (bif {:tag :if-sub} predicate then else)))
+(defn bcond [& clauses]
+    {:tag :cond
+     :clauses clauses})
 
 #_([predicate then & else-ifs]
    (if (= (mod (count else-ifs) 2) 0)
@@ -221,8 +237,8 @@
 #_(defn bstr [s]
   (node :string s))
 
-(defn bstring-set []
-  (node :string-set))
+(def bstring-set
+  {:tag :string-set})
 
 
 ;;; records
@@ -241,103 +257,102 @@
 ;;; sequences
 
 (defn bsequence [& args]
-  (apply node :sequence args))
+  {:tag :sequence
+   :values :args})
 
-(defn bseq [s]
-  (node :seq s))
+(defn bseq [seq]
+  (on-sequence :seq seq))
 
-(defn bseq1 [s]
-  (node :seq1 s))
+(defn bseq1 [seq]
+  (on-sequence :seq1 seq))
 
-(defn biseq [s]
-  (node :iseq s))
+(defn biseq [seq]
+  (on-sequence :iseq seq))
 
-(defn biseq1 [s]
-  (node :iseq1 s))
+(defn biseq1 [seq]
+  (on-sequence :iseq1 seq))
 
-(defn bperm [s]
-  (node :perm s))
+(defn bperm [seq]
+  (on-sequence :perm seq))
 
-(defn bcount [s]
-  (node :card s))
+(defn bsize [seq]
+  (on-sequence :size seq))
 
 (defn bconcat [& args]
-  (apply node :concat args))
+  (left-associative :concat args))
 
-(defn b-> [e s]
-  (node :prepend e s))
+(defn b-> [el seq]
+  (left-right :prepend el seq))
 
-(defn b<- [& args]
-  (apply node :append args))
+(defn b<- [seq el]
+  (left-right :append seq el))
 
-(defn breverse [s]
-  (node :reverse s))
+(defn breverse [seq]
+  (on-sequence :reverse seq))
 
-(defn bfirst [s]
-  (node :first s))
+(defn bfirst [seq]
+  (on-sequence :first seq))
 
-(defn blast [s]
-  (node :last s))
+(defn blast [seq]
+  (on-sequence :last seq))
 
-(defn bfront [s]
-  (node :front s))
+(defn bfront [seq]
+  (on-sequence :front seq))
 
-(defn btail [s]
-  (node :tail s))
+(defn btail [seq]
+  (on-sequence :tail seq))
 
-(defn brestrict-front [s n]
-  (node :restrict-front s n))
-; clojure syntax
-(defn btake [n s]
-  (brestrict-front s n))
+(defn brestrict-front [seq n]
+  {:tag :restrict-front
+   :sequence seq
+   :number n})
 
-(defn brestrict-tail [s n]
-  (node :restrict-tail s n))
-; clojure syntax
-(defn bdrop [n s]
-  (brestrict-tail s n))
+(defn brestrict-tail [seq n]
+  {:tag :restrict-tail
+   :sequence seq
+   :number n})
 
-(defn bconc [s]
-  (node :conc s))
+(defn bconc [seq-of-seq]
+  (node :conc seq-of-seq))
 
 ;;; functions
-(defn b+-> [& sets]
-  {:tag :partial-fn
-   :sets sets})
+; TODO: examine multi arity
+(defn b+-> [left right]
+  (left-right :partial-fn left right))
 
-(defn b--> [& sets]
-  {:tag :total-fn
-   :sets sets})
+; TODO: examine multi arity
+(defn b--> [left right]
+  (left-right :total-fn left right))
 
-(defn b+->> [& sets]
-  {:tag :partial-surjection
-   :sets sets})
+; TODO: examine multi arity
+(defn b+->> [left right]
+  (left-right :partial-surjection left right))
 
-(defn b-->> [& sets]
-  {:tag :total-surjection
-   :sets sets})
+; TODO: examine multi arity
+(defn b-->> [left right]
+  (left-right :total-surjection left right))
 
-(defn b>+> [& sets]
-  {:tag :partial-injection
-   :sets sets})
+; TODO: examine multi arity
+(defn b>+> [left right]
+  (left-right :partial-injection left right))
 
-(defn b>-> [& sets]
-  {:tag :total-injection
-   :sets sets})
+; TODO: examine multi arity
+(defn b>-> [left right]
+  (left-right :total-injection left right))
 
-(defn b>+>> [& sets]
-  {:tag :partial-bijection
-   :sets sets})
+; TODO: examine multi arity
+(defn b>+>> [left right]
+  (left-right :partial-bijection left right))
 
-(defn b>->> [& sets]
-  {:tag :total-bijection
-   :sets sets})
+; TODO: examine multi arity
+(defn b>->> [left right]
+  (left-right :total-bijection left right))
 
-(defn blambda [ids pred expr]
+(defn blambda [identifiers predicate expression]
   {:tag :lambda
-   :ids ids
-   :pred pred
-   :expr expr})
+   :identifiers identifiers
+   :predicate predicate
+   :expression expression})
 
 #_(defn bapply [f & args]
   (apply node :fn-application f args))
@@ -349,139 +364,135 @@
 
 ;;; relations
 
-(defn b<-> [& sets]
-  {:tag :relation
-   :sets sets})
+; TODO: examine multi arity
+(defn b<-> [left right]
+  (left-right :relation left right))
 
+; TODO: examine multi arity
 (defn btotal-relation [left right]
-                   {:tag :total-relation
-                    :left left
-                    :right right})
+  (left-right :total-relation left right))
 
+; TODO: examine multi arity
 (defn bsurjective-relation [left right]
-  {:tag :surjective-relation
-   :left left
-   :right right})
+  (left-right :surjective-relation left right))
 
+; TODO: examine multi arity
 (defn btotal-surjective-relation [left right]
-  {:tag :total-surjective-relation
-   :left left
-   :right right})
+  (left-right :total-surjective-relation left right))
 
 (defn bcouple [& expressions]
   {:tag :couple
    :expressions expressions})
 
-(defn bdom [r]
+(defn bdom [relation]
   {:tag :domain
-   :relation r})
+   :relation relation})
 
-(defn bran [r]
+(defn bran [relation]
   {:tag :range
-   :relation r})
+   :relation relation})
 
-(defn bid [s]
+(defn bid [set]
   {:tag :identity-relation
-   :set s})
+   :set set})
 
-(defn b<| [s r]
+(defn b<| [set relation]
   {:tag :domain-restriction
-   :set s
-   :relation r})
+   :set set
+   :relation relation})
 
-(defn b<<| [s r]
+(defn b<<| [set relation]
   {:tag :domain-subtraction
-   :set s
-   :relation r})
+   :set set
+   :relation relation})
 
-(defn b|> [r s]
+(defn b|> [relation set]
   {:tag :range-restriction
-   :relation r
-   :set s})
+   :relation relation
+   :set set})
 
-(defn b|>> [r s]
+(defn b|>> [relation set]
   {:tag :range-subtraction
-   :relation r
-   :set s})
+   :relation relation
+   :set set})
 
-(defn binverse [r]
+(defn binverse [relation]
   {:tag :inverse-relation
-   :relation r})
+   :relation relation})
 
-(defn bimage [r s]
+(defn bimage [relation set]
   {:tag :relational-image
-   :relation r
-   :set s})
+   :relation relation
+   :set set})
 
 (defn b<+ [& relations]
-  {:tag :relational-override
-   :relations relations})
+  (left-associative :relational-override relations))
 
 (defn b>< [& relations]
-  {:tag :direct-product
-   :relations relations})
+  (left-associative :direct-product relations))
 
 (defn bcomp [& relations]
-  {:tag :relational-composition
-   :relations relations})
+  (left-associative :relational-composition relations))
 
 (defn b|| [& relations]
-  {:tag :parallel-product
-   :relations relations})
+  (left-associative :parallel-product relations))
 
-(defn bprj1 [s t]
+(defn bprj1 [set1 set2]
   {:tag :proj1
-   :set1 s
-   :set2 t})
+   :set1 set1
+   :set2 set2})
 
-(defn bprj2 [s t]
+(defn bprj2 [set1 set2]
   {:tag :proj2
-   :set1 s
-   :set2 t})
+   :set1 set1
+   :set2 set2})
 
-(defn bclosure1 [r]
+(defn bclosure1 [relation]
   {:tag :closure1
-   :relation r})
+   :relation relation})
 
-(defn bclosure [r]
+(defn bclosure [relation]
   {:tag :closure
-   :relation r})
+   :relation relation})
 
-(defn biterate [r n]
-  (node :iterate r n))
+(defn biterate [relation number]
+  {:tag :iterate
+   :relation relation
+   :number number})
 
-(defn bfnc [r]
-  (node :functionise r))
+(defn bfnc [relation]
+  {:tag :functionise
+   :relation relation})
 
-(defn brel [r]
-  (node :relationise r))
+(defn brel [relation]
+  {:tag :relationise
+   :relation relation})
 
 
 ;;; numbers
 
-(defn binteger-set []
-  (node :integer-set))
+(def binteger-set {:tag :integer-set})
 
-(defn bnatural-set []
-  (node :natural-set))
+(def bnatural-set {:tag :natural-set})
 
-(defn bnatural1-set []
-  (node :natural1-set))
+(def bnatural1-set {:tag :natural1-set})
 
-(defn bint-set []
-  (node :int-set))
+(def bint-set {:tag :int-set})
 
-(defn bnat-set []
-  {:tag :nat-set})
+(def bnat-set {:tag :nat-set})
 
-(defn bnat1-set []
-  (node :nat1-set))
+(def bnat1-set {:tag :nat1-set})
 
 (defn binterval [from to]
-  (node :interval from to))
-; clojure syntax
-#_(defn brange [from to]
-  (node :interval from (bdec to)))
+  {:tag :interval
+   :from from
+   :to to})
+
+; adds range to lisb
+(defn brange [from to]
+  (if (:succ (:tag to))
+    (binterval from (:number to))
+    (binterval from (bdec to))))
 
 (defn bmin-int []
   {:tag :min-int})
@@ -490,44 +501,44 @@
   {:tag :max-int})
 
 (defn b< [& args]
-  (apply node :less args))
+  (left-associative :less args))
 
 (defn b> [& args]
-  (apply node :greater args))
+  (left-associative :greater args))
 
 (defn b<= [& args]
-  (apply node :less-eq args))
+  (left-associative :less-eq args))
 
 (defn b>= [& args]
-  (apply node :greater-eq args))
+  (left-associative :greater-eq args))
 
 (defn bmax
-  ([s]
-   (node :max s))
-  ([a b & r]
+  ([set]
+   {:tag :max, :set set})
+  ([a b & r]                                                ; adds enumeration to max
    (let [args (conj (set r) b a)]
      (bmax args))))
 
 (defn bmin
-  ([s]
-   (node :min s))
-  ([a b & r]
+  ([set]
+   {:tag :min, :set set})
+  ([a b & r]                                                ; adds enumeration to min
    (let [args (conj (set r) b a)]
      (bmin args))))
 
 (defn b+ [& args]
-  (apply node :plus args))
+  (left-associative :plus args))
 
-(defn b- [a & r]
-  (if (seq r)
-    (apply node :minus (conj r a))
-    (node :unaryminus a)))
+(defn b- [& args]
+  (if (= 1 (count args))
+    (:tag :unary-minus, :value (first args))
+    (left-associative :minus args)))
 
 (defn b* [& args]
-  (apply node :mul args))
+  (left-associative :* args))
 
 (defn bdiv [& args]
-  (apply node :div args))
+  (left-associative :div args))
 
 (defn b** [base exp]
   {:tag :pow
@@ -535,8 +546,7 @@
    :exp exp})
 
 (defn bmod [& args]
-  {:tag :mod
-   :values args})
+  (left-associative :mod args))
 
 (defn bpi [ids pred expr]
   {:tag :pi
@@ -550,6 +560,7 @@
    :pred pred
    :expr expr})
 
+; TODO:
 (defn bsucc []
   {:tag :succ})
 ; lisb succ
@@ -570,8 +581,7 @@
 (defn bcomp-set [identifiers predicate]
   {:tag :comp-set
    :identifiers identifiers
-   :predicate predicate
-   })
+   :predicate predicate})
 
 (defn bpow [set]
   {:tag :power-set
@@ -590,30 +600,18 @@
    :set set})
 
 (defn bunion [& sets]
-  {:tag :union
-   :sets sets})
+  (left-associative :union sets))
 
 (defn bintersection [& sets]
-  {:tag :set-intersection
-   :sets sets})
+  (left-associative :set-intersection sets))
 
 (defn bset- [& args]
-  (apply node :set-difference args))
-
-#_(defn bminus-or-set-subtract
-  "For generated code only. I am allowed to use this. You are not."
-  [& args]
-  (apply node :minus-or-set-subtract args))
+  (left-associative :set- args))
 
 (defn bmember [left right]
   {:tag :member
    :left left
    :right right})
-; clojure syntax
-(defn bcontains? [set element]
-  {:tag :contains?
-   :set set
-   :element element})
 
 (defn bnot-member [element set]
   {:tag :not-member
@@ -624,30 +622,34 @@
   {:tag :subset
    :subset subset
    :set set})
-; adds superset to lisb
-(defn bsuperset [superset set]
-  (bsubset set superset))
 
 (defn bnot-subset [not-subset set]
   {:tag :not-subset
    :not-subset not-subset
    :set set})
-; adds not-superset to lisb
-(defn bnot-superset [not-superset set]
-  (bnot-subset set not-superset))
 
 (defn bsubset-strict [subset-strict set]
   {:tag :subset-strict
    :subset-strict subset-strict
    :set set})
-; adds superset-strict to lisb
-(defn bsuperset-strict [superset-strict set]
-  (bsubset-strict set superset-strict))
 
 (defn bnot-subset-strict [not-subset-strict set]
   {:tag :not-subset-strict
    :not-subset-strict not-subset-strict
    :set set})
+
+; adds superset to lisb
+(defn bsuperset [superset set]
+  (bsubset set superset))
+
+; adds superset-strict to lisb
+(defn bsuperset-strict [superset-strict set]
+  (bsubset-strict set superset-strict))
+
+; adds not-superset to lisb
+(defn bnot-superset [not-superset set]
+  (bnot-subset set not-superset))
+
 ; adds not-superset-strict to lisb
 (defn bnot-superset-strict [not-superset-strict set]
   (bnot-subset-strict set not-superset-strict))
@@ -660,17 +662,22 @@
   {:tag :general-intersection
    :sets sets})
 
-(defn bunion-pe [identifiers pred expr]
-    (node :union-pe (apply node :list identifiers) pred expr))
+(defn bunion-pe [identifiers predicate expression]
+  {:tag :union-pe
+   :identifiers identifiers
+   :predicate predicate
+   :expression expression})
 
-(defn bintersection-pe [identifiers pred expr]
-    (node :intersection-pe (apply node :list identifiers) pred expr))
+(defn bintersection-pe [identifiers predicate expression]
+  {:tag :intersection-pe
+   :identifiers identifiers
+   :predicate predicate
+   :expression expression})
 
 
 ;;; booleans
 
-(defn bbool-set []
-  {:tag :bool-set})
+(def bbool-set {:tag :bool-set})
 
 (defn bpred->bool [arg]
   {:tag :to-bool
@@ -679,32 +686,32 @@
 
 ;;; equality predicates
 
-(defn b= [& args]
+; TODO: examine chaining
+(defn b= [left right]
   {:tag :equal
-   :values args})
+   :left left
+   :right right})
 
-(defn bnot= [& args]
-  {:tag :not
-   :values args})
+; TODO: examine chaining
+(defn bnot= [left right]
+  {:tag :not-equal
+   :left left
+   :right right})
 
 
 ;;; logical predicates
 
 (defn band [& predicates]
-  {:tag :and
-   :predicates predicates})
+  (left-associative :and predicates))
 
 (defn bor [& predicates]
-  {:tag :or
-   :predicates predicates})
+  (left-associative :bor predicates))
 
 (defn b=> [& predicates]
-  {:tag :implication
-   :predicates predicates})
+  (left-associative :implication predicates))
 
 (defn b<=> [& predicates]
-  {:tag :equivalence
-   :predicates predicates})
+  (left-associative :equivalence predicates))
 
 (defn bnot [arg]
   {:tag :not
@@ -713,19 +720,12 @@
 (defn bfor-all [identifiers assignment implication]
   {:tag :for-all
    :identifiers identifiers
-   :assignment assignment
-   :implication implication})
+   :implication (b=> assignment implication)})
 
-#_(defn bforall
-  ([identifiers impl]
-   {:tag :forall
-    :identifiers identifiers
-    :impl impl})
-  ([identifiers impl-left impl-right]
-   (bforall identifiers (b=> impl-left impl-right))))
-
-(defn bexists [identifiers pred]
-  (node :exists (apply node :list identifiers) pred))
+(defn bexists [identifiers predicate]
+  {:tag :exists
+   :identifiers identifiers
+   :predicate predicate})
 
 
 ;;; misc
@@ -756,54 +756,101 @@
 
 ;; TODO: bset, bpow, bpow1, bfin, bfin1,
 ;;       sets of bools, naturals, ints, nats
-(defmacro b
-  [repr]
-  `(let [~'machine bmachine
+#_(defmacro lisb->node-repr [repr]
+  `(let [
+         ; parse units
+         ~'machine bmachine
          ~'machine-variant bmachine-variant
          ~'machine-header bmachine-header
-         ~'+ b+
-         ~'- b-
-         ~'* b*
-         ~'/ bdiv
-         ~'** b**
-         ~'max bmax
-         ~'min bmin
-         ~'mod bmod
-         ~'inc binc
-         ~'dec bdec
-         ~'range brange
-         ~'interval binterval
-         ~'< b<
-         ~'> b>
-         ~'<= b<=
-         ~'>= b>=
-         ~'sigma bsigma
-         ~'pi bpi
 
-         ~'and band
-         ~'or bor
-         ~'not bnot
-         ~'none= bnone=
-         ~'not= bnot=
-         ~'= b=
-         ~'<=> b<=>
-         ~'=> b=>
-         ~'bool bpred->bool
-         ~'forall bforall
-         ~'exists bexists
+         ; machine clauses
+         ~'constraints bconstraints
+         ~'sets bsets
+         ~'deferred-set bdeferred-set
+         ~'enumerated-set benumerated-set
+         ~'constants bconstants
+         ~'properties bproperties
+         ~'definitions bdefinitions
+         ~'variables bvariables
+         ~'invariants binvariants
+         ~'assertions bassertions
+         ~'init binit
+         ~'operations boperations
+         ~'operation boperation
 
-         ~'count bcount
-         ~'union bunion
-         ~'unite-sets bunite-sets
-         ~'intersection bintersection
-         ~'intersect-sets bintersect-sets
-         ~'difference bset-
-         ~'contains? bcontains
-         ~'member? bmember
-         ~'subset? bsubset
-         ~'superset? bsuperset
+         ; substitutions
+         ~'skip bskip
+         ~'assign bassign
+         ~'becomes-element-of bbecomes-element-of
+         ~'becomes-such bbecomes-such
+         ~'operation-call boperation-call
+         ~'parallel-substitution bparallel-substitution
+         ~'sequence-substitution bsequence-substitution
+         ~'any bany
+         ~'let-sub blet-sub
+         ~'var bvar
+         ~'pre bprecondition
+         ~'assert bassert
+         ~'choice bchoice
+         ~'if-sub bif-sub
+         ~'cond bcond
 
+         ; if
+         ~'if-expr bif-expr
+
+         ; let
+         ~'let-expr blet-expr
+         ~'let-pred blet-pred
+
+         ; trees
+
+         ; reals - (alpha - besser nicht verwenden)
+
+         ; strings
+         ~'string-set bstring-set
+
+         ; records
+         ~'rec-get brec-get
+         ~'struct bstruct
+
+         ; sequences
+         ~'on-sequence bsequence
+         ~'seq bseq
+         ~'seq1 bseq1
+         ~'iseq biseq
+         ~'iseq1 biseq1
+         ~'perm bperm
+         ~'count bsize
+         ~'concat bconcat
+         ~'-> b->
+         ~'<- b<-
+         ~'reverse breverse
+         ~'first bfirst
+         ~'last blast
+         ~'front bfront                                   ; butlast?
+         ~'tail btail                                       ; rest?
+         ~'conc bconc
+         ~'restrict-front brestrict-front                                       ; take?
+         ~'restrict-tail brestrict-tail                                      ; drop?
+
+         ; functions
+         ~'+-> b+->
+         ~'--> b-->
+         ~'+->> b+->>
+         ~'-->> b-->>
+         ~'>+> b>+>
+         ~'>-> b>->
+         ~'>+>> b>+>>
+         ~'>->> b>->>
+         ~'lambda blambda
+         ;~'apply bapply ;TODO: special case keyword :function-name
+
+         ; relations
          ~'<-> b<->
+         ~'total-relation btotal-relation
+         ~'surjective-relation bsurjective-relation
+         ~'total-surjective-relation btotal-surjective-relation
+         ~'couple bcouple
          ~'dom bdom
          ~'ran bran
          ~'identity bid
@@ -819,46 +866,268 @@
          ~'|| b||
          ~'prj1 bprj1
          ~'prj2 bprj2
-         ~'closure bclosure
          ~'closure1 bclosure1
+         ~'closure bclosure
          ~'iterate biterate
          ~'fnc bfnc
          ~'rel brel
-         ~'+-> b+->
-         ~'--> b-->
-         ~'+->> b+->>
-         ~'-->> b-->>
-         ~'>+> b>+>
-         ~'>-> b>->
-         ~'>+>> b>+>>
-         ~'>->> b>->>
-         ; ~'fn blambda
-         ;~'apply bapply
 
-         ~'sequence bsequence
-         ~'iseq biseq
-         ~'iseq1 biseq1
-         ~'perm bperm
-         ~'concat bconcat
-         ~'-> b->
-         ~'<- b<-
-         ~'reverse breverse
-         ~'first bfirst
-         ~'last blast
-         ~'butlast bfront
-         ~'rest btail
-         ~'take btake
-         ~'drop bdrop
+         ; numbers
+         ~'integer-set binteger-set
+         ~'natural-set bnatural-set
+         ~'natural1-set bnatural1-set
+         ~'int-set bint-set
+         ~'nat-set bnat-set
+         ~'nat1-set bnat1-set
+         ~'range brange
+         ~'min-int bmin-int
+         ~'max-int bmax-int
+         ~'< b<
+         ~'> b>
+         ~'<= b<=
+         ~'>= b>=
+         ~'max bmax
+         ~'min bmin
+         ~'+ b+
+         ~'- b-
+         ~'* b*
+         ~'/ bdiv
+         ~'** b**
+         ~'mod bmod
+         ~'sigma bsigma
+         ~'pi bpi
+         ~'inc binc
+         ~'dec bdec
 
-         ~'struct bstruct
-         ~'record brecord
+         ;;; sets
+         ~'comp-set bcomp-set
+         ~'pow bpow
+         ~'pow1 bpow1
+         ~'fin bfin
+         ~'fin1 bfin1
+         ~'union bunion
+         ~'intersection bintersection
+         ~'set- bset-                                 ; difference
+         ~'member bmember                                   ; contains?
+         ~'not-member bnot-member
+         ~'subset bsubset
+         ~'not-subset bnot-subset
+         ~'subset-strict bsubset-strict
+         ~'not-subset-strict bnot-subset-strict
+         ~'superset bsuperset
+         ~'not-superset bnot-superset
+         ~'superset-strict bsuperset-strict
+         ~'not-superset-strict bnot-superset-strict
+         ~'unite-sets bunite-sets
+         ~'intersect-sets bintersect-sets
+         ~'union-pe bunion-pe
+         ~'intersection-pe bintersection-pe
 
-         ~'if bif
-         ]
+         ;;; booleans
+         ~'bool-set bbool-set
+         ~'pred->bool bpred->bool
+
+         ;;; equality predicates
+         ~'= b=
+         ~'not= bnot=
+
+         ;;; logical predicates
+         ~'and band
+         ~'or bor
+         ~'<=> b<=>
+         ~'=> b=>
+         ~'not bnot
+         ~'for-all bfor-all
+         ~'exists bexists]
     ~repr))
 
 
-(defn wrap [ctx node]
+(defn lisb->node-repr [lisb]
+  (eval (concat `(let [
+                       ; parse units
+                       ~'machine bmachine
+                       ~'machine-variant bmachine-variant
+                       ~'machine-header bmachine-header
+
+                       ; machine clauses
+                       ~'constraints bconstraints
+                       ~'sets bsets
+                       ~'deferred-set bdeferred-set
+                       ~'enumerated-set benumerated-set
+                       ~'constants bconstants
+                       ~'properties bproperties
+                       ~'definitions bdefinitions
+                       ~'variables bvariables
+                       ~'invariants binvariants
+                       ~'assertions bassertions
+                       ~'init binit
+                       ~'operations boperations
+                       ~'operation boperation
+
+                       ; substitutions
+                       ~'skip bskip
+                       ~'assign bassign
+                       ~'becomes-element-of bbecomes-element-of
+                       ~'becomes-such bbecomes-such
+                       ~'operation-call boperation-call
+                       ~'parallel-substitution bparallel-substitution
+                       ~'sequence-substitution bsequence-substitution
+                       ~'any bany
+                       ~'let-sub blet-sub
+                       ~'var bvar
+                       ~'pre bprecondition
+                       ~'assert bassert
+                       ~'choice bchoice
+                       ~'if-sub bif-sub
+                       ~'cond bcond
+
+                       ; if
+                       ~'if-expr bif-expr
+
+                       ; let
+                       ~'let-expr blet-expr
+                       ~'let-pred blet-pred
+
+                       ; trees
+
+                       ; reals - (alpha - besser nicht verwenden)
+
+                       ; strings
+                       ~'string-set bstring-set
+
+                       ; records
+                       ~'rec-get brec-get
+                       ~'struct bstruct
+
+                       ; sequences
+                       ~'on-sequence bsequence
+                       ~'seq bseq
+                       ~'seq1 bseq1
+                       ~'iseq biseq
+                       ~'iseq1 biseq1
+                       ~'perm bperm
+                       ~'count bsize
+                       ~'concat bconcat
+                       ~'-> b->
+                       ~'<- b<-
+                       ~'reverse breverse
+                       ~'first bfirst
+                       ~'last blast
+                       ~'front bfront                                   ; butlast?
+                       ~'tail btail                                       ; rest?
+                       ~'conc bconc
+                       ~'restrict-front brestrict-front                                       ; take?
+                       ~'restrict-tail brestrict-tail                                      ; drop?
+
+                       ; functions
+                       ~'+-> b+->
+                       ~'--> b-->
+                       ~'+->> b+->>
+                       ~'-->> b-->>
+                       ~'>+> b>+>
+                       ~'>-> b>->
+                       ~'>+>> b>+>>
+                       ~'>->> b>->>
+                       ~'lambda blambda
+                       ;~'apply bapply ;TODO: special case keyword :function-name
+
+                       ; relations
+                       ~'<-> b<->
+                       ~'total-relation btotal-relation
+                       ~'surjective-relation bsurjective-relation
+                       ~'total-surjective-relation btotal-surjective-relation
+                       ~'couple bcouple
+                       ~'dom bdom
+                       ~'ran bran
+                       ~'identity bid
+                       ~'<| b<|
+                       ~'<<| b<<|
+                       ~'|> b|>
+                       ~'|>> b|>>
+                       ~'inverse binverse
+                       ~'image bimage
+                       ~'<+ b<+
+                       ~'>< b><
+                       ~'comp bcomp
+                       ~'|| b||
+                       ~'prj1 bprj1
+                       ~'prj2 bprj2
+                       ~'closure1 bclosure1
+                       ~'closure bclosure
+                       ~'iterate biterate
+                       ~'fnc bfnc
+                       ~'rel brel
+
+                       ; numbers
+                       ~'integer-set binteger-set
+                       ~'natural-set bnatural-set
+                       ~'natural1-set bnatural1-set
+                       ~'int-set bint-set
+                       ~'nat-set bnat-set
+                       ~'nat1-set bnat1-set
+                       ~'range brange
+                       ~'min-int bmin-int
+                       ~'max-int bmax-int
+                       ~'< b<
+                       ~'> b>
+                       ~'<= b<=
+                       ~'>= b>=
+                       ~'max bmax
+                       ~'min bmin
+                       ~'+ b+
+                       ~'- b-
+                       ~'* b*
+                       ~'/ bdiv
+                       ~'** b**
+                       ~'mod bmod
+                       ~'sigma bsigma
+                       ~'pi bpi
+                       ~'inc binc
+                       ~'dec bdec
+
+                       ;;; sets
+                       ~'comp-set bcomp-set
+                       ~'pow bpow
+                       ~'pow1 bpow1
+                       ~'fin bfin
+                       ~'fin1 bfin1
+                       ~'union bunion
+                       ~'intersection bintersection
+                       ~'set- bset-                                 ; difference
+                       ~'member bmember                                   ; contains?
+                       ~'not-member bnot-member
+                       ~'subset bsubset
+                       ~'not-subset bnot-subset
+                       ~'subset-strict bsubset-strict
+                       ~'not-subset-strict bnot-subset-strict
+                       ~'superset bsuperset
+                       ~'not-superset bnot-superset
+                       ~'superset-strict bsuperset-strict
+                       ~'not-superset-strict bnot-superset-strict
+                       ~'unite-sets bunite-sets
+                       ~'intersect-sets bintersect-sets
+                       ~'union-pe bunion-pe
+                       ~'intersection-pe bintersection-pe
+
+                       ;;; booleans
+                       ~'bool-set bbool-set
+                       ~'pred->bool bpred->bool
+
+                       ;;; equality predicates
+                       ~'= b=
+                       ~'not= bnot=
+
+                       ;;; logical predicates
+                       ~'and band
+                       ~'or bor
+                       ~'<=> b<=>
+                       ~'=> b=>
+                       ~'not bnot
+                       ~'for-all bfor-all
+                       ~'exists bexists])
+      (list lisb))))
+
+#_(defn wrap [ctx node]
   (cond
     (keyword? node) `(~node ~ctx)
     (map? node) (into {} (map (fn f [[k v]]  [k (wrap ctx v)]) node))
@@ -867,10 +1136,10 @@
     (vector? node) (vec  (map (partial wrap ctx) node))
     :otherwise node))
 
-(defn almost-flatten [x]
+#_(defn almost-flatten [x]
   (remove coll? (rest (tree-seq coll? seq x))))
 
-(defmacro pred [name & args]
+#_(defmacro pred [name & args]
   (let [body (last args)
         params (drop-last args)
         ctx (gensym 'lisb_ctx_)
@@ -878,7 +1147,7 @@
         keywords (set (filter keyword? (almost-flatten body)))]
     `(fn ~name ~@params
        (let [~ctx (into {} (mapv (fn [x#] [x# (keyword (gensym "lisb_"))]) ~keywords))]
-         (do (b ~wrapped-body))))))
+         (do (lisb->node-repr ~wrapped-body))))))
 
-(defmacro defpred [name & args]
+#_(defmacro defpred [name & args]
   `(def ~name (pred ~name ~@args)))

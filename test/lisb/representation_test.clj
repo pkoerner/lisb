@@ -2,6 +2,31 @@
   (:require [clojure.test :refer :all]
             [lisb.representation :refer :all]))
 
+(deftest equality-predicates-test
+  (testing " equality-predicates"
+    (are [node-repr lisb] (= node-repr (lisb->node-repr lisb))
+                          {:tag :equals
+                           :left true
+                           :right false}
+                          (= true false))))
+
+(deftest logical-predicates-test
+  (testing "logical-predicates"
+    (are [node-repr lisb] (= node-repr (lisb->node-repr lisb))
+                          {:tag :and
+                           :left {:tag :and
+                                  :left {:tag :equals
+                                         :left 1
+                                         :right 1}
+                                  :right {:tag :equals
+                                          :left 2
+                                          :right 2}}
+                           :right {:tag :equals
+                                   :left 3
+                                   :right 3}}
+                          (and (= 1 1) (= 2 2) (= 3 3)))))
+
+
 (deftest node-test
   (testing "node works as intended"
     (is (= {:tag :foo
@@ -44,15 +69,15 @@
            (bmin 1 2 3)))))
 
 
-(deftest forall-test
+#_(deftest for-all-test
   (testing "universal quantification representation"
-    (is (= {:tag :forall
+    (is (= {:tag :for-all
             :children [{:tag :list
                         :children [:x]}
                        {:tag :implication
                         :children [:a :b]}]}
-           (bforall [:x] (b=> :a :b))
-           (bforall [:x] :a :b)))))
+           (bfor-all [:x] (b=> :a :b))
+           (bfor-all [:x] :a :b)))))
 
 (deftest pred-test
   (testing "the pred macro allows to write b-macrofied expressions

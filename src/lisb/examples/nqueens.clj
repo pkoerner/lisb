@@ -27,12 +27,12 @@
 (defn nqueens2
   "the n-queens problem in B using the b macro"
   ([size ss]
-   (let [width (b (range 1 :n))
-         q1pos (b (apply :queens :q1))
-         q2pos (b (apply :queens :q2))
-         repr  (b (and (= :n size)
-                       (member? :queens (>-> width width))
-                       (forall [:q1 :q2]
+   (let [width (lisb->node-repr (range 1 :n))
+         q1pos (lisb->node-repr (apply :queens :q1))
+         q2pos (lisb->node-repr (apply :queens :q2))
+         repr  (lisb->node-repr (and (= :n size)
+                                     (member? :queens (>-> width width))
+                                     (forall [:q1 :q2]
                                (=> (and (member? :q1 width)
                                         (member? :q2 width)
                                         (> :q2 :q1))
