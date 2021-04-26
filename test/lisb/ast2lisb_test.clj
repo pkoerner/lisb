@@ -1,7 +1,6 @@
 (ns lisb.ast2lisb-test
   (:require [clojure.test :refer :all]
             [lisb.ast2lisb :refer :all]
-            [lisb.representation :refer :all]
             [lisb.examples.simple :as simple])
   (:import (de.be4.classicalb.core.parser BParser)))
 
@@ -146,7 +145,7 @@
                   '(count "s") "size('''s''')"
                   '(reverse "s") "rev('''s''')"
                   '(concat "s" "t") "'''s'''^'''t'''"
-                  '(conc (sequence "s" "t")) "conc(['''s''', '''t'''])")))
+                  '(conc (on-sequence "s" "t")) "conc(['''s''', '''t'''])")))
 
 
 #_(deftest records-test
@@ -161,10 +160,10 @@
 (deftest sequences-test
   (testing "sequences"
     (are [lisb b] (= lisb (b-expression->lisb b))
-                  '(sequence) "<>"
-                  '(sequence) "[]"
-                  '(sequence :E) "[E]"
-                  '(sequence :E :F) "[E,F]"
+                  '(on-sequence) "<>"
+                  '(on-sequence) "[]"
+                  '(on-sequence :E) "[E]"
+                  '(on-sequence :E :F) "[E,F]"
                   '(seq :S) "seq(S)"
                   '(seq1 :S) "seq1(S)"
                   '(iseq :S) "iseq(S)"
@@ -180,7 +179,7 @@
                   '(front :S) "front(S)"
                   '(tail :S) "tail(S)"
                   '(conc :S) "conc(S)"
-                  '(restrict-front :s :n)  "s/|\\n"
+                  '(restrict-front :s :n) "s/|\\n"
                   '(restrict-tail :s :n) "s\\|/n")))
 
 
@@ -323,7 +322,7 @@
 
 
 (deftest logical-predicates-test
-  (testing "equality-predicates"
+  (testing "logical-predicates"
     (are [lisb b] (= lisb (b-predicate->lisb b))
                   '(and (= 1 1) (= 2 2)) "1=1 & 2=2"
                   '(and (= 1 1) (= 2 2) (= 3 3)) "1=1 & 2=2 & 3=3"

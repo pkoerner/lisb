@@ -16,8 +16,8 @@
 (deftest unsat-core-test
   (testing "if the input is satisfiable, unsat-core does not apply"
     (is (thrown? AssertionError
-                 (unsat-core (b (= :a 1))
-                             (b (= :b 1))))))
+                 (unsat-core (lisb->node-repr (= :a 1))
+                             (lisb->node-repr (= :b 1))))))
   (testing "unsat-core finds a trivial unsat core"
     (is (= (unsat-core (b= :a 1)
                        (b= :a 2))

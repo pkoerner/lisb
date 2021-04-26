@@ -40,22 +40,22 @@
     (is (= "MACHINE Empty\nEND"
            (get-machine-from-ast (parse-b-machine "MACHINE Empty\nEND"))))
     (is (= "MACHINE Empty\nEND"
-           (get-machine-from-ast (lisb->ast (b->lisb "MACHINE Empty\nEND")))))))
+           (get-machine-from-ast (node-repr->ast (b->lisb "MACHINE Empty\nEND")))))))
 
 ;;; machine clauses
 
 #_(deftest constants-test
-  (testing "constants"
-    (let [bmachine (slurp (clojure.java.io/resource "machines/Constant.mch"))]
-      (is (= (get-machine-from-ast (parse-b-machine bmachine)) ; formats bmachine
-             (get-machine-from-ast (lisb->ast (b->lisb bmachine))))))))
+    (testing "constants"
+      (let [bmachine (slurp (clojure.java.io/resource "machines/Constant.mch"))]
+        (is (= (get-machine-from-ast (parse-b-machine bmachine)) ; formats bmachine
+               (get-machine-from-ast (node-repr->ast (b->lisb bmachine))))))))
 
 
 (deftest variables-test
   (testing "variables"
     (let [bmachine (slurp (clojure.java.io/resource "machines/Variable.mch"))]
       (is (= (get-machine-from-ast (parse-b-machine bmachine)) ; formats bmachine
-             (get-machine-from-ast (lisb->ast (b->lisb bmachine))))))))
+             (get-machine-from-ast (node-repr->ast (b->lisb bmachine))))))))
 
 (deftest sets-test
   (testing "sets"
@@ -64,14 +64,14 @@
           set-enum2 "{E,F}"
           set-enum2-alt "{F,E}"]
       (is (= empty-set
-             (get-machine-from-ast (lisb->ast (b-formula->lisb empty-set)))))
+             (get-machine-from-ast (node-repr->ast (b-formula->lisb empty-set)))))
       (is (= set-enum1
-             (get-machine-from-ast (lisb->ast (b-formula->lisb set-enum1)))))
-      (is (let [machine-set-enum2 (get-machine-from-ast (lisb->ast (b-formula->lisb set-enum2-alt)))] ; order doesn't matter
+             (get-machine-from-ast (node-repr->ast (b-formula->lisb set-enum1)))))
+      (is (let [machine-set-enum2 (get-machine-from-ast (node-repr->ast (b-formula->lisb set-enum2-alt)))] ; order doesn't matter
             (or (= machine-set-enum2 set-enum2) (= machine-set-enum2 set-enum2-alt)))))))
 
 (deftest equality-predicates-test
   (testing "equality-predicates"
     (let [equal "TRUE = FALSE"
           unequal "TRUE /= FALSE"]
-      (is (= equal (print-ast (lisb->ast (b-predicate->lisb equal))))))))
+      (is (= equal (print-ast (node-repr->ast (b-predicate->lisb equal))))))))

@@ -1,5 +1,4 @@
 (ns lisb.ast2lisb
-  (:require [lisb.representation :refer :all])
   (:import (de.be4.classicalb.core.parser.node
              Start
              AAbstractMachineParseUnit
@@ -370,7 +369,7 @@
 (defmethod ast->lisb AEmptySequenceExpression [_ _]
   '(sequence))
 (defmethod ast->lisb ASequenceExtensionExpression [node args]
-  (conj (ast->lisb (.getExpression node) args) 'sequence)
+  (concat-last 'sequence args (.getExpression node))
   #_(apply bsequence (ast-list->lisb (.getExpression node) args)))
 (defmethod ast->lisb ASeqExpression [node args]
   (expression 'seq node args))
@@ -454,7 +453,7 @@
 (defmethod ast->lisb ARangeExpression [node args]
   (expression 'ran node args))
 (defmethod ast->lisb AIdentityExpression [node args]
-  (expression 'id node args))
+  (expression 'identity node args))
 (defmethod ast->lisb ADomainRestrictionExpression [node args]
   (left-right '<| node args))
 (defmethod ast->lisb ADomainSubtractionExpression [node args]
@@ -507,7 +506,11 @@
 (defmethod ast->lisb ANatSetExpression [_ _] 'nat-set)
 (defmethod ast->lisb ANat1SetExpression [_ _] 'nat1-set)
 (defmethod ast->lisb AIntervalExpression [node args]
-  (xyz 'interval args (.getLeftBorder node) (.getRightBorder node)))
+  (let [left (ast->lisb (.getLeftBorder node) args)
+        right (ast->lisb (.getRightBorder node) args)]
+    (if (number? right)
+      (list 'range left (inc right))
+      (list 'range left ('inc right)))))
 (defmethod ast->lisb AMinIntExpression [_ _]
   'min-int)
 (defmethod ast->lisb AMaxIntExpression [_ _]
@@ -587,7 +590,7 @@
 (defmethod ast->lisb AQuantifiedUnionExpression [node args]
   (xyz 'union-pe args (.getIdentifiers node) (.getPredicates node) (.getExpression node)))
 (defmethod ast->lisb AQuantifiedIntersectionExpression [node args]
-  (xyz 'intersection-pe args(.getIdentifiers node) (.getPredicates node) (.getExpression node)))
+  (xyz 'intersection-pe args (.getIdentifiers node) (.getPredicates node) (.getExpression node)))
 
 ;;; booleans
 
