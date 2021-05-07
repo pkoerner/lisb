@@ -4,9 +4,7 @@ VARIABLES
 INVARIANT
   etage : 0..99
 INITIALISATION
-  BEGIN
-    etage := 4
-  END
+  etage := 4
 OPERATIONS
   inc = 
     PRE 

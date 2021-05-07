@@ -119,17 +119,19 @@
 
 ;;; substitutions
 
-(defn bskip []
-  {:tag :skip})
+(def bskip {:tag :skip})
 
-; TODO: BlockSubstition müsste entfernt werden können
-(defn bblock [p-substitution]
+(defn bblock [substitution]
   {:tag :block
-   :p-substitution p-substitution})
+   :substitution substitution})
 
 (defn bassign [& idvals]
-  {:tag :assign
-   :idvals idvals})
+  (let [idvals (apply map list (partition 2 idvals))
+        identifiers (first idvals)
+        values (second idvals)]
+    {:tag         :assign
+     :identifiers identifiers
+     :values        values}))
 
 (defn bbecomes-element-of [identifiers set]
   {:tag :becomes-element-of
@@ -180,7 +182,7 @@
    :substitution substitution})
 
 (defn bassert [predicate substitution]
-  {:tag :bassert
+  {:tag :assert
    :predicate predicate
    :substitution substitution})
 
@@ -200,14 +202,9 @@
      {:tag :if, :predicate predicate, :then then, :else-ifs else-ifs}
      {:tag :if, :predicate predicate, :then then, :else-ifs (drop-last else-ifs), :else (last else-ifs)}))
 
-(defn bselect
-  ([condition then] {:tag :operation, :condition condition, :then then})
-  ([condition then else]
-   (let [select (bselect condition then)]
-     (if else
-       (assoc select :else else)
-       select))))
-
+(defn bselect [& clauses]
+  {:tag :select
+   :clauses clauses})
 
 ;;; if
 
@@ -256,27 +253,35 @@
 
 ;;; sequences
 
-(defn bsequence [& args]
-  {:tag :sequence
-   :values :args})
+(defn bsequence
+  ([] {:tag :empty-seq})
+  ([& args]
+   {:tag    :sequence
+    :values args}))
 
-(defn bseq [seq]
-  (on-sequence :seq seq))
+(defn bseq [set]
+  {:tag :seq
+   :set set})
 
-(defn bseq1 [seq]
-  (on-sequence :seq1 seq))
+(defn bseq1 [set]
+  {:tag :seq1
+   :set set})
 
-(defn biseq [seq]
-  (on-sequence :iseq seq))
+(defn biseq [set]
+  {:tag :iseq
+   :set set})
 
-(defn biseq1 [seq]
-  (on-sequence :iseq1 seq))
+(defn biseq1 [set]
+  {:tag :iseq1
+   :set set})
 
-(defn bperm [seq]
-  (on-sequence :perm seq))
+(defn bperm [set]
+  {:tag :perm
+   :set set})
 
-(defn bsize [seq]
-  (on-sequence :size seq))
+(defn bsize [set]
+  {:tag :size
+   :set set})
 
 (defn bconcat [& args]
   (left-associative :concat args))
@@ -304,16 +309,17 @@
 
 (defn brestrict-front [seq n]
   {:tag :restrict-front
-   :sequence seq
+   :seq seq
    :number n})
 
 (defn brestrict-tail [seq n]
   {:tag :restrict-tail
-   :sequence seq
+   :seq seq
    :number n})
 
-(defn bconc [seq-of-seq]
-  (node :conc seq-of-seq))
+(defn bconc [seq-of-seqs]
+  {:tag :conc
+   :seq-of-seqs seq-of-seqs})
 
 ;;; functions
 ; TODO: examine multi arity
@@ -484,20 +490,17 @@
 (def bnat1-set {:tag :nat1-set})
 
 (defn binterval [from to]
-  {:tag :interval
-   :from from
-   :to to})
-
-; adds range to lisb
+  {:tag :interval, :from from, :to to})
 (defn brange [from to]
-  (if (:succ (:tag to))
-    (binterval from (:number to))
-    (binterval from (bdec to))))
+  (cond
+    (number? to) (binterval from (dec to))
+    (= :succ (:tag to)) (binterval from (:number to))
+    :else (binterval from (bdec to))))
 
-(defn bmin-int []
+(def bmin-int
   {:tag :min-int})
 
-(defn bmax-int []
+(def bmax-int
   {:tag :max-int})
 
 (defn b< [& args]
@@ -531,7 +534,7 @@
 
 (defn b- [& args]
   (if (= 1 (count args))
-    (:tag :unary-minus, :value (first args))
+    {:tag :unary-minus, :value (first args)}
     (left-associative :minus args)))
 
 (defn b* [& args]
@@ -548,17 +551,17 @@
 (defn bmod [& args]
   (left-associative :mod args))
 
-(defn bpi [ids pred expr]
+(defn bpi [identifiers predicate expression]
   {:tag :pi
-   :ids ids
-   :pred pred
-   :expr expr})
+   :identifiers identifiers
+   :predicate predicate
+   :expression expression})
 
-(defn bsigma [ids pred expr]
+(defn bsigma [identifiers predicate expression]
   {:tag :sigma
-   :ids ids
-   :pred pred
-   :expr expr})
+   :identifiers identifiers
+   :predicate predicate
+   :expression expression})
 
 ; TODO:
 (defn bsucc []
@@ -599,19 +602,23 @@
   {:tag :finite1-subset
    :set set})
 
+(defn bcard [set]
+  {:tag :card
+   :set set})
+
 (defn bunion [& sets]
   (left-associative :union sets))
 
 (defn bintersection [& sets]
-  (left-associative :set-intersection sets))
+  (left-associative :intersection sets))
 
 (defn bset- [& args]
   (left-associative :set- args))
 
-(defn bmember [left right]
+(defn bmember [element set]
   {:tag :member
-   :left left
-   :right right})
+   :element element
+   :set set})
 
 (defn bnot-member [element set]
   {:tag :not-member
@@ -680,23 +687,26 @@
 (def bbool-set {:tag :bool-set})
 
 (defn bpred->bool [arg]
-  {:tag :to-bool
-   :value arg})
+  {:tag :pred->bool
+   :predicate arg})
 
 
 ;;; equality predicates
 
-; TODO: examine chaining
+; TODO: examine chaining (left-associative)
 (defn b= [left right]
   {:tag :equal
    :left left
    :right right})
 
-; TODO: examine chaining
+; TODO: examine chaining  (mindestens ein Element ist nicht gleich!)
 (defn bnot= [left right]
   {:tag :not-equal
    :left left
    :right right})
+
+; TODO: Keines ist gleich => paarweise verschieden
+;(defn bnone=
 
 
 ;;; logical predicates
@@ -705,7 +715,7 @@
   (left-associative :and predicates))
 
 (defn bor [& predicates]
-  (left-associative :bor predicates))
+  (left-associative :or predicates))
 
 (defn b=> [& predicates]
   (left-associative :implication predicates))
@@ -756,7 +766,7 @@
 
 ;; TODO: bset, bpow, bpow1, bfin, bfin1,
 ;;       sets of bools, naturals, ints, nats
-#_(defmacro lisb->node-repr [repr]
+(defmacro lisb->node-repr1 [repr]
   `(let [
          ; parse units
          ~'machine bmachine
@@ -780,6 +790,7 @@
 
          ; substitutions
          ~'skip bskip
+         ~'block bblock
          ~'assign bassign
          ~'becomes-element-of bbecomes-element-of
          ~'becomes-such bbecomes-such
@@ -794,6 +805,8 @@
          ~'choice bchoice
          ~'if-sub bif-sub
          ~'cond bcond
+         ~'select bselect
+         ;~'case bcase
 
          ; if
          ~'if-expr bif-expr
@@ -820,7 +833,7 @@
          ~'iseq biseq
          ~'iseq1 biseq1
          ~'perm bperm
-         ~'count bsize
+         ~'count bcard
          ~'concat bconcat
          ~'-> b->
          ~'<- b<-
@@ -966,6 +979,7 @@
 
                        ; substitutions
                        ~'skip bskip
+                       ~'block bblock
                        ~'assign bassign
                        ~'becomes-element-of bbecomes-element-of
                        ~'becomes-such bbecomes-such
@@ -974,12 +988,14 @@
                        ~'sequence-substitution bsequence-substitution
                        ~'any bany
                        ~'let-sub blet-sub
-                       ~'var bvar
+                       ~'bvar bvar
                        ~'pre bprecondition
                        ~'assert bassert
                        ~'choice bchoice
                        ~'if-sub bif-sub
                        ~'cond bcond
+                       ~'select bselect
+                       ;~'case bcase
 
                        ; if
                        ~'if-expr bif-expr
@@ -1006,7 +1022,7 @@
                        ~'iseq biseq
                        ~'iseq1 biseq1
                        ~'perm bperm
-                       ~'count bsize
+                       ~'count-seq bsize
                        ~'concat bconcat
                        ~'-> b->
                        ~'<- b<-
@@ -1091,6 +1107,7 @@
                        ~'pow1 bpow1
                        ~'fin bfin
                        ~'fin1 bfin1
+                       ~'count bcard
                        ~'union bunion
                        ~'intersection bintersection
                        ~'set- bset-                                 ; difference

@@ -246,6 +246,9 @@
 (defmethod ast->lisb ASkipSubstitution [_ _]
   'skip)
 
+(defmethod ast->lisb ABlockSubstitution [node args]
+  (ast->lisb (.getSubstitution node) args))
+
 (defmethod ast->lisb AAssignSubstitution [node args]
   (let [left (ast->lisb (.getLhsExpression node) args)
         right (ast->lisb (.getRhsExpressions node) args)]
@@ -284,8 +287,10 @@
   (xyz 'assert args (.getPredicate node) (.getSubstitution node)))
 
 (defmethod ast->lisb AChoiceSubstitution [node args]
+  (println (.getSubstitutions node))
   (concat-last 'choice args (.getSubstitutions node)))
 (defmethod ast->lisb AChoiceOrSubstitution [node args]
+  (println (ast->lisb (.getSubstitution node) args))
   (ast->lisb (.getSubstitution node) args))
 
 (defmethod ast->lisb AIfSubstitution [node args]
@@ -315,10 +320,6 @@
   [(ast->lisb (.getCondition node) args) (ast->lisb (.getWhenSubstitution node) args)])
 
 ; TODO: case
-
-(defmethod ast->lisb ABlockSubstitution [node args]
-  (ast->lisb (.getSubstitution node) args))        ; ABlockSubstitution holds one PSubstitution
-
 
 ;;; if-then-else
 
@@ -382,7 +383,7 @@
 (defmethod ast->lisb APermExpression [node args]
   (expression 'perm node args))
 (defmethod ast->lisb ASizeExpression [node args]
-  (expression 'count node args))
+  (expression 'count-seq node args))
 (defmethod ast->lisb AConcatExpression [node args]
   (multi-arity 'concat node args))
 (defmethod ast->lisb AInsertFrontExpression [node args]

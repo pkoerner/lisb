@@ -142,10 +142,10 @@
                   "astring" "\"astring\""
                   "astring" "'''astring'''"
                   '(string-set) "STRING"
-                  '(count "s") "size('''s''')"
+                  '(count-seq "s") "size('''s''')"
                   '(reverse "s") "rev('''s''')"
                   '(concat "s" "t") "'''s'''^'''t'''"
-                  '(conc (on-sequence "s" "t")) "conc(['''s''', '''t'''])")))
+                  '(conc (sequence "s" "t")) "conc(['''s''', '''t'''])")))
 
 
 #_(deftest records-test
@@ -160,16 +160,16 @@
 (deftest sequences-test
   (testing "sequences"
     (are [lisb b] (= lisb (b-expression->lisb b))
-                  '(on-sequence) "<>"
-                  '(on-sequence) "[]"
-                  '(on-sequence :E) "[E]"
-                  '(on-sequence :E :F) "[E,F]"
+                  '(sequence) "<>"
+                  '(sequence) "[]"
+                  '(sequence :E) "[E]"
+                  '(sequence :E :F) "[E,F]"
                   '(seq :S) "seq(S)"
                   '(seq1 :S) "seq1(S)"
                   '(iseq :S) "iseq(S)"
                   '(iseq1 :S) "iseq1(S)"
                   '(perm :S) "perm(S)"
-                  '(count :S) "size(S)"
+                  '(count-seq :S) "size(S)"
                   '(concat :s :t) "s^t"
                   '(-> :E :s) "E->s"
                   '(<- :s :E) "s<-E"
@@ -208,7 +208,7 @@
                   '(couple :E :F) "E|->F"
                   '(dom :r) "dom(r)"
                   '(ran :r) "ran(r)"
-                  '(id :S) "id(S)"
+                  '(identity :S) "id(S)"
                   '(<| :S :r) "S<|r"
                   '(<<| :S :r) "S<<|r"
                   '(|> :r :S)"r|>S"
@@ -242,7 +242,7 @@
                     'int-set "INT"
                     'nat-set "NAT"
                     'nat1-set "NAT1"
-                    '(interval 1 2) "1..2"
+                    '(range 1 3) "1..2"
                     'min-int "MININT"
                     'max-int "MAXINT"
                     '(max nat-set) "max(NAT)"

@@ -1,32 +1,11 @@
 MACHINE Bakery1
 
-ABSTRACT_VARIABLES  p1, p2, y1, y2
+VARIABLES  p1, p2, y1, y2
 
 INVARIANT
 	p1:0..2 & p2:0..2 & y1:NATURAL & y2:NATURAL &
 	(p1=2 => p2<2) &
 	(p2=2 => p1<2)
-
-/* &	( (y1=0) <=> (p1=0) )  &
-	( (y2=0) <=> (p2=0) )
-
-
-&
-	( p1=1 & y2=0   => aa=0 ) &
-	( p1=1 & y1+1<=y2  => aa=0 ) &
-	( p1=2 => aa=1 )  &
-
-	( p2=1 & y1=0   => aa=0 ) &
-	( p2=1 & y2+1<=y1  => aa=0 ) &
-	( p2=2 => aa=2 )
-
-
-
- &
-	( p1=0 & y2=0 => aa=0 ) &
-	( p2=0 & y1=0 => aa=0 ) */
-
-
 
 INITIALISATION  p1,p2,y1,y2 := 0,0,0,0
 
