@@ -247,7 +247,7 @@
 (defmethod process-node :operations [node]
   (AOperationsMachineClause. (get-node :operations node)))
 (defmethod process-node :operation [node]
-  (AOperation. (get-node :return node) (list (TIdentifierLiteral. (name (:name node)))) (get-parameters node) (get-node :body node)))
+  (AOperation. (map node-repr->ast (:return node)) (list (TIdentifierLiteral. (name (:name node)))) (get-parameters node) (get-node :body node)))
 
 ;;; substitutions
 
@@ -354,7 +354,7 @@
 (defmethod process-node :partial-bijection [node] (APartialBijectionExpression. (get-left node) (get-right node)))
 (defmethod process-node :total-bijection [node] (ATotalBijectionExpression. (get-left node) (get-right node)))
 (defmethod process-node :lambda [node] (ALambdaExpression. (get-identifiers node) (get-predicate node) (get-expression node)))
-;(defmethod process-node :call [node] (AFunctionExpression. (get-node :f node) (get-node :args node)))
+(defmethod process-node :call [node] (AFunctionExpression. (get-node :f node) (get-node :args node)))
 
 
 ;;; relations
@@ -363,8 +363,7 @@
 (defmethod process-node :total-relation [node] (ATotalRelationExpression. (get-left node) (get-right node)))
 (defmethod process-node :surjective-relation [node] (ASurjectionRelationExpression. (get-left node) (get-right node)))
 (defmethod process-node :total-surjective-relation  [node] (ATotalSurjectionRelationExpression. (get-left node) (get-right node)))
-(defmethod process-node :couple [node]
-  (ACoupleExpression. (get-expressions node)))
+(defmethod process-node :couple [node] (ACoupleExpression. (get-expressions node)))
 (defmethod process-node :domain [node] (ADomainExpression. (get-relation node)))
 (defmethod process-node :range [node] (ARangeExpression. (get-relation node)))
 (defmethod process-node :identity-relation [node] (AIdentityExpression. (get-set node)))
@@ -412,8 +411,8 @@
 (defmethod process-node :mod [node] (AModuloExpression. (get-left node) (get-right node)))
 (defmethod process-node :pi [node] (AGeneralProductExpression. (get-identifiers node) (get-predicate node) (get-expression node)))
 (defmethod process-node :sigma  [node] (AGeneralSumExpression. (get-identifiers node) (get-predicate node) (get-expression node)))
-(defmethod process-node :inc [_] (ASuccessorExpression.))
-(defmethod process-node :dec [_] (APredecessorExpression.))
+(defmethod process-node :inc [node] (AFunctionExpression. (ASuccessorExpression.) (list (get-node :number node))))
+(defmethod process-node :dec [node] (AFunctionExpression. (APredecessorExpression.) (list (get-node :number node))))
 
 ;;; sets
 

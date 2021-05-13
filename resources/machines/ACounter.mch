@@ -1,6 +1,6 @@
 MACHINE ACounter
 
-ABSTRACT_VARIABLES  ii,jj
+VARIABLES  ii,jj
 
 INVARIANT  ii:0..10 & jj:0..10 & ii<11 & jj>=0
 

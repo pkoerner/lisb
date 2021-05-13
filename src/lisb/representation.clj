@@ -766,7 +766,7 @@
 
 ;; TODO: bset, bpow, bpow1, bfin, bfin1,
 ;;       sets of bools, naturals, ints, nats
-(defmacro lisb->node-repr1 [repr]
+(defmacro b [repr]
   `(let [
          ; parse units
          ~'machine bmachine
@@ -833,7 +833,7 @@
          ~'iseq biseq
          ~'iseq1 biseq1
          ~'perm bperm
-         ~'count bcard
+         ~'count-seq bsize
          ~'concat bconcat
          ~'-> b->
          ~'<- b<-
@@ -856,7 +856,7 @@
          ~'>+>> b>+>>
          ~'>->> b>->>
          ~'lambda blambda
-         ;~'apply bapply ;TODO: special case keyword :function-name
+         ~'call bcall ;TODO: special case keyword :function-name
 
          ; relations
          ~'<-> b<->
@@ -918,6 +918,7 @@
          ~'pow1 bpow1
          ~'fin bfin
          ~'fin1 bfin1
+         ~'count bcard
          ~'union bunion
          ~'intersection bintersection
          ~'set- bset-                                 ; difference
@@ -952,197 +953,8 @@
          ~'not bnot
          ~'for-all bfor-all
          ~'exists bexists]
-    ~repr))
-
-
-(defn lisb->node-repr [lisb]
-  (eval (concat `(let [
-                       ; parse units
-                       ~'machine bmachine
-                       ~'machine-variant bmachine-variant
-                       ~'machine-header bmachine-header
-
-                       ; machine clauses
-                       ~'constraints bconstraints
-                       ~'sets bsets
-                       ~'deferred-set bdeferred-set
-                       ~'enumerated-set benumerated-set
-                       ~'constants bconstants
-                       ~'properties bproperties
-                       ~'definitions bdefinitions
-                       ~'variables bvariables
-                       ~'invariants binvariants
-                       ~'assertions bassertions
-                       ~'init binit
-                       ~'operations boperations
-                       ~'operation boperation
-
-                       ; substitutions
-                       ~'skip bskip
-                       ~'block bblock
-                       ~'assign bassign
-                       ~'becomes-element-of bbecomes-element-of
-                       ~'becomes-such bbecomes-such
-                       ~'operation-call boperation-call
-                       ~'parallel-substitution bparallel-substitution
-                       ~'sequence-substitution bsequence-substitution
-                       ~'any bany
-                       ~'let-sub blet-sub
-                       ~'bvar bvar
-                       ~'pre bprecondition
-                       ~'assert bassert
-                       ~'choice bchoice
-                       ~'if-sub bif-sub
-                       ~'cond bcond
-                       ~'select bselect
-                       ;~'case bcase
-
-                       ; if
-                       ~'if-expr bif-expr
-
-                       ; let
-                       ~'let-expr blet-expr
-                       ~'let-pred blet-pred
-
-                       ; trees
-
-                       ; reals - (alpha - besser nicht verwenden)
-
-                       ; strings
-                       ~'string-set bstring-set
-
-                       ; records
-                       ~'rec-get brec-get
-                       ~'struct bstruct
-
-                       ; sequences
-                       ~'on-sequence bsequence
-                       ~'seq bseq
-                       ~'seq1 bseq1
-                       ~'iseq biseq
-                       ~'iseq1 biseq1
-                       ~'perm bperm
-                       ~'count-seq bsize
-                       ~'concat bconcat
-                       ~'-> b->
-                       ~'<- b<-
-                       ~'reverse breverse
-                       ~'first bfirst
-                       ~'last blast
-                       ~'front bfront                                   ; butlast?
-                       ~'tail btail                                       ; rest?
-                       ~'conc bconc
-                       ~'restrict-front brestrict-front                                       ; take?
-                       ~'restrict-tail brestrict-tail                                      ; drop?
-
-                       ; functions
-                       ~'+-> b+->
-                       ~'--> b-->
-                       ~'+->> b+->>
-                       ~'-->> b-->>
-                       ~'>+> b>+>
-                       ~'>-> b>->
-                       ~'>+>> b>+>>
-                       ~'>->> b>->>
-                       ~'lambda blambda
-                       ;~'apply bapply ;TODO: special case keyword :function-name
-
-                       ; relations
-                       ~'<-> b<->
-                       ~'total-relation btotal-relation
-                       ~'surjective-relation bsurjective-relation
-                       ~'total-surjective-relation btotal-surjective-relation
-                       ~'couple bcouple
-                       ~'dom bdom
-                       ~'ran bran
-                       ~'identity bid
-                       ~'<| b<|
-                       ~'<<| b<<|
-                       ~'|> b|>
-                       ~'|>> b|>>
-                       ~'inverse binverse
-                       ~'image bimage
-                       ~'<+ b<+
-                       ~'>< b><
-                       ~'comp bcomp
-                       ~'|| b||
-                       ~'prj1 bprj1
-                       ~'prj2 bprj2
-                       ~'closure1 bclosure1
-                       ~'closure bclosure
-                       ~'iterate biterate
-                       ~'fnc bfnc
-                       ~'rel brel
-
-                       ; numbers
-                       ~'integer-set binteger-set
-                       ~'natural-set bnatural-set
-                       ~'natural1-set bnatural1-set
-                       ~'int-set bint-set
-                       ~'nat-set bnat-set
-                       ~'nat1-set bnat1-set
-                       ~'range brange
-                       ~'min-int bmin-int
-                       ~'max-int bmax-int
-                       ~'< b<
-                       ~'> b>
-                       ~'<= b<=
-                       ~'>= b>=
-                       ~'max bmax
-                       ~'min bmin
-                       ~'+ b+
-                       ~'- b-
-                       ~'* b*
-                       ~'/ bdiv
-                       ~'** b**
-                       ~'mod bmod
-                       ~'sigma bsigma
-                       ~'pi bpi
-                       ~'inc binc
-                       ~'dec bdec
-
-                       ;;; sets
-                       ~'comp-set bcomp-set
-                       ~'pow bpow
-                       ~'pow1 bpow1
-                       ~'fin bfin
-                       ~'fin1 bfin1
-                       ~'count bcard
-                       ~'union bunion
-                       ~'intersection bintersection
-                       ~'set- bset-                                 ; difference
-                       ~'member bmember                                   ; contains?
-                       ~'not-member bnot-member
-                       ~'subset bsubset
-                       ~'not-subset bnot-subset
-                       ~'subset-strict bsubset-strict
-                       ~'not-subset-strict bnot-subset-strict
-                       ~'superset bsuperset
-                       ~'not-superset bnot-superset
-                       ~'superset-strict bsuperset-strict
-                       ~'not-superset-strict bnot-superset-strict
-                       ~'unite-sets bunite-sets
-                       ~'intersect-sets bintersect-sets
-                       ~'union-pe bunion-pe
-                       ~'intersection-pe bintersection-pe
-
-                       ;;; booleans
-                       ~'bool-set bbool-set
-                       ~'pred->bool bpred->bool
-
-                       ;;; equality predicates
-                       ~'= b=
-                       ~'not= bnot=
-
-                       ;;; logical predicates
-                       ~'and band
-                       ~'or bor
-                       ~'<=> b<=>
-                       ~'=> b=>
-                       ~'not bnot
-                       ~'for-all bfor-all
-                       ~'exists bexists])
-      (list lisb))))
+     ~repr
+    ))
 
 #_(defn wrap [ctx node]
   (cond
