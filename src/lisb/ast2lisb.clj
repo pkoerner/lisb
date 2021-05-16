@@ -558,38 +558,55 @@
   (xyz 'comp-set args (.getIdentifiers node) (.getPredicates node))) ; .getPredicates returns ONE predicate)
 (defmethod ast->lisb APowSubsetExpression [node args]
   (expression 'pow node args))
+
 (defmethod ast->lisb APow1SubsetExpression [node args]
   (expression 'pow1 node args))
+
 (defmethod ast->lisb AFinSubsetExpression [node args]
   (expression 'fin node args))
+
 (defmethod ast->lisb AFin1SubsetExpression [node args]
   (expression 'fin1 node args))
+
 (defmethod ast->lisb ACardExpression [node args]
   (expression 'count node args))
+
 (defmethod ast->lisb AUnionExpression [node args]
   (multi-arity 'union node args))
+
 (defmethod ast->lisb AIntersectionExpression [node args]
   (multi-arity 'intersection node args))
+
 (defmethod ast->lisb ASetSubtractionExpression [node args]
   (multi-arity 'set- node args))
+
 (defmethod ast->lisb AMemberPredicate [node args]
   (left-right 'member node args))
+
 (defmethod ast->lisb ANotMemberPredicate [node args]
   (left-right 'not-member node args))
+
 (defmethod ast->lisb ASubsetPredicate [node args]
   (left-right 'subset node args))
+
 (defmethod ast->lisb ANotSubsetPredicate [node args]
   (left-right 'not-subset node args))
+
 (defmethod ast->lisb ASubsetStrictPredicate [node args]
   (left-right 'subset-strict node args))
+
 (defmethod ast->lisb ANotSubsetStrictPredicate [node args]
   (left-right 'not-subset-strict node args))
+
 (defmethod ast->lisb AGeneralUnionExpression [node args]
   (expression 'unite-sets node args))
+
 (defmethod ast->lisb AGeneralIntersectionExpression [node args]
   (expression 'intersect-sets node args))
+
 (defmethod ast->lisb AQuantifiedUnionExpression [node args]
   (xyz 'union-pe args (.getIdentifiers node) (.getPredicates node) (.getExpression node)))
+
 (defmethod ast->lisb AQuantifiedIntersectionExpression [node args]
   (xyz 'intersection-pe args (.getIdentifiers node) (.getPredicates node) (.getExpression node)))
 
