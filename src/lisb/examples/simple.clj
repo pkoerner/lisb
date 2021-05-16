@@ -5,7 +5,7 @@
                (machine-variant)
                (machine-header :Lift ())
                (variables :etage)
-               (invariants (member :etage (range 0 100)))
+               (invariants (contains? (range 0 100) :etage))
                (init (assign :etage 4))
                (operations
                  (operation () :inc () (pre (< :etage 99) (assign :etage (+ :etage 1))))
@@ -13,7 +13,7 @@
 
 (def lift2 (b {:name :Lift
               :variables #{:etage}
-              :invariants (member :etage (range 0 100))
+              :invariants (contains? (range 0 100) :etage)
               :init (assign :etage 4)
               :operations #{{:name :inc
                              :result ()
@@ -28,8 +28,8 @@
                     (machine-variant)
                     (machine-header :ACounter ())
                     (variables :ii :jj)
-                    (invariants (and (member :ii (range 0 11))
-                                     (member :jj (range 0 11))
+                    (invariants (and (contains? (range 0 11) :ii)
+                                     (contains? (range 0 11) :jj)
                                      (< :ii 11)
                                      (>= :jj 0)))
                     (init (assign :ii 2 :jj 10))
@@ -43,12 +43,12 @@
               (machine-variant)
               (machine-header :GCD ())
               (variables :x :y)
-              (invariants (and (member :x nat-set) (member :y nat-set)))
+              (invariants (and (contains? nat-set :x) (contains? nat-set :y)))
               (init (parallel-substitution (assign :x 70) (assign :y 40)))
               (operations
                 (operation #{:s} :GCDSolution () (if-sub (= :y 0) (assign :s :x) (assign :s -1)))
                 (operation () :Step () (if-sub (> :y 0) (parallel-substitution (assign :x :y) (assign :y (mod :x :y)))))
-                (operation () :Restart (:w1 :w2) (pre (and (member :w1 nat1-set) (member :w2 nat1-set))
+                (operation () :Restart (:w1 :w2) (pre (and (contains? nat1-set :w1) (contains? nat1-set :w2))
                                                       (if-sub (> :w1 :w2)
                                                               (assign :x :w1 :y :w2)
                                                               (assign :y :w1 :x :w2))))))))
@@ -58,9 +58,9 @@
                          (machine-header :KnightsKnaves ())
                          (constants :A :B :C)
                          (properties (and
-                                       (member :A bool-set)
-                                       (member :B bool-set)
-                                       (member :C bool-set)
+                                       (contains? bool-set :A)
+                                       (contains? bool-set :B)
+                                       (contains? bool-set :C)
                                        (<=> (= :A true) (or (= :B false) (= :C false)))
                                        (<=> (= :B true) (= :A true)))))))
 
@@ -68,7 +68,7 @@
                   (machine-variant)
                   (machine-header :Bakery0 ())
                   (variables :aa)
-                  (invariants (member :aa (range 0 3)))
+                  (invariants (bool-set (range 0 3) :aa))
                   (init (assign :aa 0))
                   (operations
                     (operation () :enter1 () (select (= :aa 0) (assign :aa 1)))
@@ -82,10 +82,10 @@
                   (machine-variant)
                   (machine-header :Bakery1 ())
                   (variables :p1 :p2 :y1 :y2)
-                  (invariants (and (member :p1 (range 0 3))
-                                   (member :p2 (range 0 3))
-                                   (member :y1 natural-set)
-                                   (member :y2 natural-set)
+                  (invariants (and (contains? (range 0 3) :p1)
+                                   (contains? (range 0 3) :p2)
+                                   (contains? natural-set :y1)
+                                   (contains? natural-set :y2)
                                    (=> (= :p1 2) (< :p2 2))
                                    (=> (= :p2 2) (< :p1 2))))
                   (init (assign :p1 0 :p2 0 :y1 0 :y2 0))

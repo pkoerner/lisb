@@ -148,13 +148,13 @@
                   '(conc (sequence "s" "t")) "conc(['''s''', '''t'''])")))
 
 
-#_(deftest records-test
+(deftest records-test
   (testing "records"
     #_(is (= (bstruct [:n (bnat-set)]) (b-expression->lisb "struct(n:NAT")))
     #_(is (= (b-expression->lisb "struct(n:NAT,b:BOOL")))
     #_(is (= (b-expression->lisb "rec(n:1")))
     #_(is (= (b-expression->lisb "rec(n:1,b:TRUE")))
-    #_(is (= (b-expression->lisb "E'n")))))
+    #_(is (= "(rec-get :E :n)" (b-expression->lisb "E'n")))))
 
 
 (deftest sequences-test
