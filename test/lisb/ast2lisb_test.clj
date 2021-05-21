@@ -97,6 +97,20 @@
     (are [lisb b] (= lisb (b-predicate->lisb b))
                   '(and (=> (= 1 1) (= 2 2)) (=> (not (= 1 1)) (= 3 3))) "IF 1=1 THEN 2=2 ELSE 3=3 END")))
 
+
+
+#_(defn b->ast [b] (.parse (BParser.) b false))
+#_(defn b-expression->ast [b-expression] (b->ast (str (BParser/EXPRESSION_PREFIX) b-expression)))
+#_(defn b-predicate->ast [b-predicate] (b->ast (str (BParser/PREDICATE_PREFIX) b-predicate)))
+#_(import de.be4.classicalb.core.parser.util.PrettyPrinter)
+#_(defn get-machine-from-ast [ast]
+  (let [pprinter (PrettyPrinter.)]
+    (.apply ast pprinter)
+    (.getPrettyPrint pprinter)))
+#_(deftest let-test-printer
+  (testing "print-let"
+    (is (= "LET x, y BE x=1 & y=2 IN 3 END" (get-machine-from-ast (b-expression->ast "LET x, y BE x=1 & y=2 IN 3 END"))))))
+
 (deftest let-test
   (testing "let"
     (are [lisb b] (= lisb (b-expression->lisb b))

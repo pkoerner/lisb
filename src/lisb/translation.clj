@@ -136,59 +136,62 @@
            (de.be4.classicalb.core.parser.util PrettyPrinter)
            (de.be4.classicalb.core.parser BParser)))
 
-(declare node-repr->ast)
+(declare b->ast)
 
-(defn identifier [n]
-  (AIdentifierExpression. [(TIdentifierLiteral. (name n))]))
+(defn get-ast [key b-node]
+  (b->ast (key b-node)))
 
-(defn get-value [node]
-  (node-repr->ast (:value node)))
-(defn get-left [node]
-  (node-repr->ast (:left node)))
-(defn get-right [node]
-  (node-repr->ast (:right node)))
-(defn get-identifiers [node]
-  (map node-repr->ast (:identifiers node)))                 ; identifiers may be saved as set
+(defn get-left-ast [node]
+  (get-ast :left node))
+(defn get-right-ast [node]
+  (get-ast :right node))
+(defn get-predicate-ast [node]
+  (get-ast :predicate node))
+(defn get-predicates-ast [node]
+  (map b->ast (:predicates node)))
+(defn get-expression-ast [node]
+  (get-ast :expression node))
+(defn get-set-ast [node]
+  (get-ast :set node))
+(defn get-sets-ast [node]
+  (map b->ast (:sets node)))
+(defn get-number-ast [node]
+  (get-ast :number node))
+(defn get-numbers-ast [node]
+  (map b->ast (:numbers node)))
+(defn get-relation-ast [node]
+  (get-ast :relation node))
+(defn get-relations-ast [node]
+  (map b->ast (:relations node)))
+(defn get-seq-ast [node]
+  (get-ast :seq node))
+(defn get-seqs-ast [node]
+  (map b->ast (:seqs node)))
+(defn get-substitution-ast [node]
+  (get-ast :substitution node))
+(defn get-substitutions-ast [node]
+  (map b->ast (:substitutions node)))
+(defn get-element-ast [node]
+  (get-ast :element node))
+(defn get-elements-ast [node]
+  (map b->ast (:elements node)))
+(defn get-assignment-ast [node]
+  (get-ast :assignment node))
+(defn get-condition-ast [node]
+  (get-ast :condition node))
+(defn get-then-ast [node]
+  (get-ast :then node))
+(defn get-else-ast [node]
+  (get-ast :else node))
+; identifiers may be saved as set
+(defn get-identifiers-ast [node]
+  (map b->ast (:identifiers node)))
 (defn get-parameters [node]
-  (map node-repr->ast (:parameters node)))                 ; identifiers may be saved as set
-(defn get-predicate [node]
-  (node-repr->ast (:predicate node)))               ; identifiers may be saved as set
-(defn get-predicates [node]
-  (node-repr->ast (:predicates node)))
-(defn get-expressions [node]
-  (node-repr->ast (:expressions node)))
-(defn get-expression [node]
-  (node-repr->ast (:expression node)))
-(defn get-implication [node]
-  (node-repr->ast (:implication node)))
-(defn get-set [node]
-  (node-repr->ast (:set node)))
-(defn get-element [node]
-  (node-repr->ast (:element node)))
-(defn get-sets [node]
-  (node-repr->ast (:sets node)))
-(defn get-numbers [node]
-  (node-repr->ast (:numbers node)))
-(defn get-value [node]
-  (node-repr->ast (:value node)))
-(defn get-relation [node]
-  (node-repr->ast (:relation node)))
-(defn get-relations [node]
-  (node-repr->ast (:relations node)))
-(defn get-seq [node]
-  (node-repr->ast (:seq node)))
-(defn get-seqs [node]
-  (node-repr->ast (:seqs node)))
-(defn get-substitution [node]
-  (node-repr->ast (:substitution node)))
-(defn get-node [key node]
-  (node-repr->ast (key node)))
+  (map b->ast (:parameters node)))
 
 
 (defn left-associative [f nodes]
-  (reduce
-    f
-    nodes))
+  (reduce f nodes))
 
 (defn right-associative [f nodes]
   (reduce
@@ -198,7 +201,7 @@
 
 (defn chain-arity-two [unprocessed-children f]
   (let [tuples (partition 2 1 unprocessed-children)
-        processed-tuples (map #(map node-repr->ast %) tuples)
+        processed-tuples (map #(map b->ast %) tuples)
         nodes (map (partial apply f) processed-tuples)]
     (reduce
       #(AConjunctPredicate. %1 %2)
@@ -206,104 +209,97 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn set-enum
-  ([] (AEmptySetExpression.))
-  ([& args] (ASetExtensionExpression. args)))
-
-(declare node-repr->ast)
-
-(defmulti process-node (fn [node] (:tag node)))
+(defmulti node->ast (fn [node] (:tag node)))
 
 ;;; parse units
 
-(defmethod process-node :machine [node]
-  (Start. (AAbstractMachineParseUnit. (node-repr->ast (:variant node)) (node-repr->ast (:header node)) (map node-repr->ast (:clauses node))) (EOF.)))
-(defmethod process-node :machine-variant [node]
+(defmethod node->ast :machine [node]
+  (Start. (AAbstractMachineParseUnit. (get-ast :variant node) (get-ast :header node) (map b->ast (:clauses node))) (EOF.)))
+(defmethod node->ast :machine-variant [_]
   (AMachineMachineVariant.))
-(defmethod process-node :machine-header [node]
-  (AMachineHeader. (.getIdentifier (node-repr->ast (:name node))) (map node-repr->ast (:parameters node))))
-
+(defmethod node->ast :machine-header [node]
+  (AMachineHeader. (.getIdentifier (get-ast :name node)) (get-parameters node)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; machine clauses
 
-(defmethod process-node :contraints [node]
-  (AConstraintsMachineClause. (get-predicate node)))
+(defmethod node->ast :contraints [node]
+  (AConstraintsMachineClause. (get-predicate-ast node)))
 
-(defmethod process-node :sets [node]
-  (ASetsMachineClause. (get-node :set-definitions node)))
-(defmethod process-node :deferred-set [node]
-  (ADeferredSetSet. (get-identifiers node)))
-(defmethod process-node :enumerated-set [node]
-  (AEnumeratedSetSet. (get-identifiers node) (get-node :elements node)))
+(defmethod node->ast :sets [node]
+  (ASetsMachineClause. (get-ast :set-definitions node)))
+(defmethod node->ast :deferred-set [node]
+  (ADeferredSetSet. (get-identifiers-ast node)))
+(defmethod node->ast :enumerated-set [node]
+  (AEnumeratedSetSet. (get-identifiers-ast node) (get-elements-ast node)))
 
-(defmethod process-node :constants [node]
-  (AConstantsMachineClause. (get-identifiers node)))
+(defmethod node->ast :constants [node]
+  (AConstantsMachineClause. (get-identifiers-ast node)))
 
-(defmethod process-node :properties [node]
-  (APropertiesMachineClause. (get-predicate node)))
+(defmethod node->ast :properties [node]
+  (APropertiesMachineClause. (get-predicate-ast node)))
 
-(defmethod process-node :definitions [node]
-  (ADefinitionsMachineClause. (get-node :definitions node)))
+(defmethod node->ast :definitions [node]
+  (ADefinitionsMachineClause. (get-ast :definitions node)))
 
-(defmethod process-node :variables [node]
-  (AVariablesMachineClause. (get-identifiers node)))
+(defmethod node->ast :variables [node]
+  (AVariablesMachineClause. (get-identifiers-ast node)))
 
-(defmethod process-node :invariants [node]
-  (AInvariantMachineClause. (get-predicate node)))
+(defmethod node->ast :invariants [node]
+  (AInvariantMachineClause. (get-predicate-ast node)))
 
-(defmethod process-node :assign [node]
-  (AAssertionsMachineClause. (get-node :predicates node)))
+(defmethod node->ast :assign [node]
+  (AAssertionsMachineClause. (get-predicates-ast node)))
 
-(defmethod process-node :init [node]
-  (AInitialisationMachineClause. (get-substitution node) ))
+(defmethod node->ast :init [node]
+  (AInitialisationMachineClause. (get-substitution-ast node)))
 
-(defmethod process-node :operations [node]
-  (AOperationsMachineClause. (get-node :operations node)))
-(defmethod process-node :operation [node]
-  (AOperation. (map node-repr->ast (:return node)) (list (TIdentifierLiteral. (name (:name node)))) (get-parameters node) (get-node :body node)))
+(defmethod node->ast :operations [node]
+  (AOperationsMachineClause. (get-ast :operations node)))
+(defmethod node->ast :operation [node]
+  (AOperation. (map b->ast (:return node)) (list (TIdentifierLiteral. (name (:name node)))) (get-parameters node) (get-ast :body node)))
 
 ;;; substitutions
 
-(defmethod process-node :skip [_]
+(defmethod node->ast :skip [_]
   (ASkipSubstitution.))
 
-(defmethod process-node :block [node]
-  (ABlockSubstitution. (get-substitution node)))
+(defmethod node->ast :block [node]
+  (ABlockSubstitution. (get-substitution-ast node)))
 
-(defmethod process-node :assign [node]
-  (AAssignSubstitution. (get-identifiers node) (get-node :values node)))
+(defmethod node->ast :assign [node]
+  (AAssignSubstitution. (get-identifiers-ast node) (map b->ast (:values node))))
 
-(defmethod process-node :becomes-element-of [node] (ABecomesElementOfSubstitution. (get-identifiers node) (get-set node)))
-(defmethod process-node :becomes-such [node] (ABecomesSuchSubstitution. (get-identifiers node) (get-predicate node)))
-(defmethod process-node :operation-call [node]
-  (AOperationCallSubstitution. (get-identifiers node) (list (TIdentifierLiteral. (name (:operation node)))) (get-parameters node)))
-(defmethod process-node :parallel-substitution [node] (AParallelSubstitution. (get-node :substitutions node)))
-(defmethod process-node :sequence-substitution [node] (ASequenceSubstitution. (get-node :substitutions node)))
-(defmethod process-node :any [node] (AAnySubstitution. (get-identifiers node) (get-node :where node) (get-node :then node)))
-(defmethod process-node :let-sub [node] (ALetSubstitution. (get-identifiers node) (get-predicate node) (get-substitution node)))
-(defmethod process-node :var [node]
-  (AVarSubstitution. (map node-repr->ast (:identifiers node)) (get-substitution node))) ()
-(defmethod process-node :precondition [node] (APreconditionSubstitution. (get-predicate node) (get-substitution node)))
-(defmethod process-node :assert [node] (AAssertionSubstitution. (get-predicate node) (get-substitution node)))
+(defmethod node->ast :becomes-element-of [node] (ABecomesElementOfSubstitution. (get-identifiers-ast node) (get-set-ast node)))
+(defmethod node->ast :becomes-such [node] (ABecomesSuchSubstitution. (get-identifiers-ast node) (get-predicate-ast node)))
+(defmethod node->ast :operation-call [node]
+  (AOperationCallSubstitution. (get-identifiers-ast node) (list (TIdentifierLiteral. (name (:operation node)))) (get-parameters node)))
+(defmethod node->ast :parallel-substitution [node] (AParallelSubstitution. (get-substitutions-ast node)))
+(defmethod node->ast :sequence-substitution [node] (ASequenceSubstitution. (get-substitutions-ast node)))
+(defmethod node->ast :any [node] (AAnySubstitution. (get-identifiers-ast node) (get-ast :where node) (get-then-ast node)))
+(defmethod node->ast :let-sub [node] (ALetSubstitution. (get-identifiers-ast node) (get-predicate-ast node) (get-substitution-ast node)))
+(defmethod node->ast :var [node]
+  (AVarSubstitution. (map b->ast (:identifiers node)) (get-substitution-ast node))) ()
+(defmethod node->ast :precondition [node] (APreconditionSubstitution. (get-predicate-ast node) (get-substitution-ast node)))
+(defmethod node->ast :assert [node] (AAssertionSubstitution. (get-predicate-ast node) (get-substitution-ast node)))
 
 (defn choice-or-substitution [sub]
   (AChoiceOrSubstitution. sub))
-(defmethod process-node :choice [node]
+(defmethod node->ast :choice [node]
   (let [subs (:substitutions node)
-        first-sub (process-node (first subs))
-        rest-subs (map choice-or-substitution (map process-node (rest subs)))]
+        first-sub (node->ast (first subs))
+        rest-subs (map choice-or-substitution (map node->ast (rest subs)))]
     (AChoiceSubstitution. (conj rest-subs first-sub))))
 
-(defmethod process-node :if-sub [node]
-  (AIfSubstitution. (get-node :condition node) (get-node :then node) () (get-node :else node)))
+(defmethod node->ast :if-sub [node]
+  (AIfSubstitution. (get-condition-ast node) (get-then-ast node) () (get-else-ast node)))
 
 (defn if-else-sub [[condition then]]
   (AIfElsifSubstitution. condition then))
-(defmethod process-node :cond [node]
-  (let [clauses (get-node :clauses node)
+(defmethod node->ast :cond [node]
+  (let [clauses (map b->ast (:clauses node))
         condition (first clauses)
         then (second clauses)]
         (if (even? (count clauses))
@@ -315,8 +311,8 @@
 
 (defn select-when-sub [[condition then]]
   (ASelectWhenSubstitution. condition then))
-(defmethod process-node :select [node]
-  (let [clauses (get-node :clauses node)
+(defmethod node->ast :select [node]
+  (let [clauses (map b->ast (:clauses node))
         condition (first clauses)
         then (second clauses)]
     (if (even? (count clauses))
@@ -326,367 +322,388 @@
             else-ifs (map select-when-sub (partition 2 (drop-last 1 (drop 2 clauses))))]
         (ASelectSubstitution. condition then else-ifs else)))))
 
+
 ;;; if
-(defmethod process-node :if-expr [node] (AIfThenElseExpression. (get-node :condition node) (get-node :then node) '() (get-node :else node)))
+
+(defmethod node->ast :if-expr [node] (AIfThenElseExpression. (get-condition-ast node) (get-then-ast node) '() (get-else-ast node)))
+
 
 ;;; let
 
-(defmethod process-node :let-expr [node] (ALetExpressionExpression. (get-identifiers node) (get-node :assignment node) (get-expression node)))
+(defmethod node->ast :let-expr [node]
+  ;;; #object[de.be4.classicalb.core.parser.node.ALetExpressionExpression 0x66f5b8fe x y x 1 y 2 3 ]
+  ;;; #object[java.util.LinkedList 0x19b75b2b [x , y ]]
+  ;;; #object[de.be4.classicalb.core.parser.node.AConjunctPredicate 0x4b9c411 x 1 y 2 ]
+  ;;; #object[de.be4.classicalb.core.parser.node.AIntegerExpression 0x233f52f8 3 ]
+  (let [ast (ALetExpressionExpression. (get-identifiers-ast node) (get-assignment-ast node) (get-expression-ast node))]
+    (println ast)
+    (println (.getIdentifiers ast))
+    (println (.getAssignment ast))
+    (println (.getExpr ast)))
+  (ALetExpressionExpression. (get-identifiers-ast node) (get-assignment-ast node) (get-expression-ast node)))
 
-(defmethod process-node :let-pred [node] (ALetPredicatePredicate. (get-identifiers node) (get-node :assignment node) (get-predicate node)))
+(defmethod node->ast :let-pred [node]
+  (ALetPredicatePredicate. (get-identifiers-ast node) (get-assignment-ast node) (get-predicate-ast node)))
+
 
 ;;; strings
 
-(defmethod process-node :string-set [_] (AStringSetExpression.))
+(defmethod node->ast :string-set [_] (AStringSetExpression.))
 
 
 ;;; records
 
-(defmethod process-node :struct [node]
+(defmethod node->ast :struct [node]
   (AStructExpression. (map
-                        (fn [[k v]] (ARecEntry. (node-repr->ast k) (node-repr->ast v)))
+                        (fn [[k v]] (ARecEntry. (b->ast k) (b->ast v)))
                         (:id-types node))))
 
-(defmethod process-node :record [node]
+(defmethod node->ast :record [node]
   (ARecExpression. (map
-                     (fn [[k v]] (ARecEntry. (node-repr->ast k) (node-repr->ast v)))
+                     (fn [[k v]] (ARecEntry. (b->ast k) (b->ast v)))
                      (:id-values node))))
 
-(defmethod process-node :rec-get [node]
-  (ARecordFieldExpression. (get-node :record node) (get-node :identifier node)))
+(defmethod node->ast :rec-get [node]
+  (ARecordFieldExpression. (get-ast :record node) (get-ast :identifier node)))
 
 
 ;;; sequences
 
-(defmethod process-node :seq [node]
-  (ASeqExpression. (get-node :set node)))
+(defmethod node->ast :empty-sequence [_]
+  (AEmptySequenceExpression.))
 
-(defmethod process-node :seq1 [node]
-  (ASeq1Expression. (get-node :set node)))
+(defmethod node->ast :sequence [node]
+  (ASequenceExtensionExpression. (map b->ast (:elements node))))
 
-(defmethod process-node :iseq [node]
-  (AIseqExpression. (get-node :set node)))
+(defmethod node->ast :seq [node]
+  (ASeqExpression. (get-set-ast node)))
 
-(defmethod process-node :iseq1 [node]
-  (AIseq1Expression. (get-node :set node)))
+(defmethod node->ast :seq1 [node]
+  (ASeq1Expression. (get-set-ast node)))
 
-(defmethod process-node :perm [node]
-  (APermExpression. (get-node :set node)))
+(defmethod node->ast :iseq [node]
+  (AIseqExpression. (get-set-ast node)))
 
-(defmethod process-node :size [node]
-  (ASizeExpression. (get-node :set node)))
+(defmethod node->ast :iseq1 [node]
+  (AIseq1Expression. (get-set-ast node)))
 
-(defmethod process-node :concat [node]
-  (left-associative #(AConcatExpression. %1 %2) (get-seqs node)))
+(defmethod node->ast :perm [node]
+  (APermExpression. (get-set-ast node)))
 
-(defmethod process-node :insert-front [node]
-  (left-associative #(AInsertFrontExpression. %1 %2) (concat (get-node :elements node) (list (get-seq node)))))
+(defmethod node->ast :size [node]
+  (ASizeExpression. (get-set-ast node)))
 
-(defmethod process-node :insert-tail [node]
-  (left-associative  #(AInsertTailExpression. %1 %2) (conj (get-node :elements node) (get-seq node))))
+(defmethod node->ast :concat [node]
+  (left-associative #(AConcatExpression. %1 %2) (get-seqs-ast node)))
 
-(defmethod process-node :reverse [node]
-  (AReverseExpression. (get-seq node)))
+(defmethod node->ast :insert-front [node]
+  (left-associative #(AInsertFrontExpression. %1 %2) (concat (get-elements-ast node) (list (get-seq-ast node)))))
 
-(defmethod process-node :first [node]
-  (AFirstExpression. (get-seq node)))
+(defmethod node->ast :insert-tail [node]
+  (left-associative #(AInsertTailExpression. %1 %2) (conj (get-elements-ast node) (get-seq-ast node))))
 
-(defmethod process-node :last [node]
-  (ALastExpression. (get-seq node)))
+(defmethod node->ast :reverse [node]
+  (AReverseExpression. (get-seq-ast node)))
 
-(defmethod process-node :front [node]
-  (AFrontExpression. (get-seq node)))
+(defmethod node->ast :first [node]
+  (AFirstExpression. (get-seq-ast node)))
 
-(defmethod process-node :tail [node]
-  (ATailExpression. (get-seq node)))
+(defmethod node->ast :last [node]
+  (ALastExpression. (get-seq-ast node)))
 
-(defmethod process-node :conc [node]
-  (AGeneralConcatExpression. (get-node :seq-of-seqs node)))
+(defmethod node->ast :front [node]
+  (AFrontExpression. (get-seq-ast node)))
 
-(defmethod process-node :restrict-front [node]
-  (ARestrictFrontExpression. (get-seq node) (get-node :number node)))
+(defmethod node->ast :tail [node]
+  (ATailExpression. (get-seq-ast node)))
 
-(defmethod process-node :restrict-tail [node]
-  (ARestrictTailExpression. (get-seq node) (get-node :number node)))
+(defmethod node->ast :conc [node]
+  (AGeneralConcatExpression. (get-ast :seq-of-seqs node)))
+
+(defmethod node->ast :restrict-front [node]
+  (ARestrictFrontExpression. (get-seq-ast node) (get-number-ast node)))
+
+(defmethod node->ast :restrict-tail [node]
+  (ARestrictTailExpression. (get-seq-ast node) (get-number-ast node)))
 
 
 ;;; functions
 
-(defmethod process-node :partial-fn [node]
-  (left-associative #(APartialFunctionExpression. %1 %2) (get-sets node)))
+(defmethod node->ast :partial-fn [node]
+  (left-associative #(APartialFunctionExpression. %1 %2) (get-sets-ast node)))
 
-(defmethod process-node :total-fn [node]
-  (left-associative #(ATotalFunctionExpression. %1 %2) (get-sets node)))
+(defmethod node->ast :total-fn [node]
+  (left-associative #(ATotalFunctionExpression. %1 %2) (get-sets-ast node)))
 
-(defmethod process-node :partial-surjection [node]
-  (left-associative #(APartialSurjectionExpression. %1 %2) (get-sets node)))
+(defmethod node->ast :partial-surjection [node]
+  (left-associative #(APartialSurjectionExpression. %1 %2) (get-sets-ast node)))
 
-(defmethod process-node :total-surjection [node]
-  (left-associative  #(ATotalSurjectionExpression. %1 %2) (get-sets node)))
+(defmethod node->ast :total-surjection [node]
+  (left-associative #(ATotalSurjectionExpression. %1 %2) (get-sets-ast node)))
 
-(defmethod process-node :partial-injection [node]
-  (left-associative #(APartialInjectionExpression. %1 %2) (get-sets node)))
+(defmethod node->ast :partial-injection [node]
+  (left-associative #(APartialInjectionExpression. %1 %2) (get-sets-ast node)))
 
-(defmethod process-node :total-injection [node]
-  (left-associative #(ATotalInjectionExpression. %1 %2) (get-sets node)))
+(defmethod node->ast :total-injection [node]
+  (left-associative #(ATotalInjectionExpression. %1 %2) (get-sets-ast node)))
 
-(defmethod process-node :partial-bijection [node]
-  (left-associative #(APartialBijectionExpression. %1 %2) (get-sets node)))
+(defmethod node->ast :partial-bijection [node]
+  (left-associative #(APartialBijectionExpression. %1 %2) (get-sets-ast node)))
 
-(defmethod process-node :total-bijection [node]
-  (left-associative #(ATotalBijectionExpression. %1 %2) (get-sets node)))
+(defmethod node->ast :total-bijection [node]
+  (left-associative #(ATotalBijectionExpression. %1 %2) (get-sets-ast node)))
 
-(defmethod process-node :lambda [node]
-  (ALambdaExpression. (get-identifiers node) (get-predicate node) (get-expression node)))
+(defmethod node->ast :lambda [node]
+  (ALambdaExpression. (get-identifiers-ast node) (get-predicate-ast node) (get-expression-ast node)))
 
-(defmethod process-node :call [node]
-  (AFunctionExpression. (get-node :f node) (get-node :args node)))
+(defmethod node->ast :call [node]
+  (AFunctionExpression. (get-ast :f node) (map b->ast (:args node))))
 
 
 ;;; relations
 
-(defmethod process-node :relation [node]
-  (left-associative #(ARelationsExpression. %1 %2) (get-sets node)))
+(defmethod node->ast :relation [node]
+  (left-associative #(ARelationsExpression. %1 %2) (get-sets-ast node)))
 
-(defmethod process-node :total-relation [node]
-  (left-associative #(ATotalRelationExpression. %1 %2) (get-sets node)))
+(defmethod node->ast :total-relation [node]
+  (left-associative #(ATotalRelationExpression. %1 %2) (get-sets-ast node)))
 
-(defmethod process-node :surjective-relation [node]
-  (left-associative #(ASurjectionRelationExpression. %1 %2) (get-sets node)))
+(defmethod node->ast :surjective-relation [node]
+  (left-associative #(ASurjectionRelationExpression. %1 %2) (get-sets-ast node)))
 
-(defmethod process-node :total-surjective-relation [node]
-  (left-associative #(ATotalSurjectionRelationExpression. %1 %2) (get-sets node)))
+(defmethod node->ast :total-surjective-relation [node]
+  (left-associative #(ATotalSurjectionRelationExpression. %1 %2) (get-sets-ast node)))
 
-(defmethod process-node :couple [node]
-  (ACoupleExpression. (get-node :elements node)))
+(defmethod node->ast :couple [node]
+  (ACoupleExpression. (get-elements-ast node)))
 
-(defmethod process-node :domain [node]
-  (ADomainExpression. (get-relation node)))
+(defmethod node->ast :domain [node]
+  (ADomainExpression. (get-relation-ast node)))
 
-(defmethod process-node :range [node]
-  (ARangeExpression. (get-relation node)))
+(defmethod node->ast :range [node]
+  (ARangeExpression. (get-relation-ast node)))
 
-(defmethod process-node :identity-relation [node]
-  (AIdentityExpression. (get-set node)))
+(defmethod node->ast :identity-relation [node]
+  (AIdentityExpression. (get-set-ast node)))
 
-(defmethod process-node :domain-restriction [node]
-  (ADomainRestrictionExpression. (get-set node) (get-relation node)))
+(defmethod node->ast :domain-restriction [node]
+  (ADomainRestrictionExpression. (get-set-ast node) (get-relation-ast node)))
 
-(defmethod process-node :domain-subtraction [node]
-  (ADomainSubtractionExpression. (get-set node) (get-relation node)))
+(defmethod node->ast :domain-subtraction [node]
+  (ADomainSubtractionExpression. (get-set-ast node) (get-relation-ast node)))
 
-(defmethod process-node :range-restriction [node]
-  (ARangeRestrictionExpression. (get-relation node) (get-set node)))
+(defmethod node->ast :range-restriction [node]
+  (ARangeRestrictionExpression. (get-relation-ast node) (get-set-ast node)))
 
-(defmethod process-node :range-subtraction [node]
-  (ARangeSubtractionExpression. (get-relation node) (get-set node)))
+(defmethod node->ast :range-subtraction [node]
+  (ARangeSubtractionExpression. (get-relation-ast node) (get-set-ast node)))
 
-(defmethod process-node :inverse-relation [node]
-  (AReverseExpression. (get-relation node)))
+(defmethod node->ast :inverse-relation [node]
+  (AReverseExpression. (get-relation-ast node)))
 
-(defmethod process-node :relational-image [node]
-  (AImageExpression. (get-relation node) (get-set node)))
+(defmethod node->ast :relational-image [node]
+  (AImageExpression. (get-relation-ast node) (get-set-ast node)))
 
-(defmethod process-node :relational-override [node]
-  (left-associative #(AOverwriteExpression. %1 %2) (get-relations node)))
+(defmethod node->ast :relational-override [node]
+  (left-associative #(AOverwriteExpression. %1 %2) (get-relations-ast node)))
 
-(defmethod process-node :direct-product [node]
-  (left-associative #(ADirectProductExpression. %1 %2) (get-relations node)))
+(defmethod node->ast :direct-product [node]
+  (left-associative #(ADirectProductExpression. %1 %2) (get-relations-ast node)))
 
-(defmethod process-node :relational-composition [node]
-  (left-associative #(ACompositionExpression. %1 %2) (get-relations node)))
+(defmethod node->ast :relational-composition [node]
+  (left-associative #(ACompositionExpression. %1 %2) (get-relations-ast node)))
 
-(defmethod process-node :parallel-product [node]
-  (left-associative #(AParallelProductExpression. %1 %2) (get-relations node)))
+(defmethod node->ast :parallel-product [node]
+  (left-associative #(AParallelProductExpression. %1 %2) (get-relations-ast node)))
 
-(defmethod process-node :prj1 [node]
-  (AFirstProjectionExpression. (get-node :set1 node) (get-node :set2 node)))
+(defmethod node->ast :prj1 [node]
+  (AFirstProjectionExpression. (get-ast :set1 node) (get-ast :set2 node)))
 
-(defmethod process-node :prj2 [node]
-  (ASecondProjectionExpression. (get-node :set1 node) (get-node :set2 node)))
+(defmethod node->ast :prj2 [node]
+  (ASecondProjectionExpression. (get-ast :set1 node) (get-ast :set2 node)))
 
-(defmethod process-node :closure1 [node]
-  (AClosureExpression. (get-relation node)))
+(defmethod node->ast :closure1 [node]
+  (AClosureExpression. (get-relation-ast node)))
 
-(defmethod process-node :closure [node]
-  (AReflexiveClosureExpression. (get-relation node)))
+(defmethod node->ast :closure [node]
+  (AReflexiveClosureExpression. (get-relation-ast node)))
 
-(defmethod process-node :iterate [node]
-  (AIterationExpression. (get-relation node) (get-node :number node)))
+(defmethod node->ast :iterate [node]
+  (AIterationExpression. (get-relation-ast node) (get-number-ast node)))
 
-(defmethod process-node :functionise [node]
-  (ATransFunctionExpression. (get-relation node)))
+(defmethod node->ast :functionise [node]
+  (ATransFunctionExpression. (get-relation-ast node)))
 
-(defmethod process-node :relationise [node]
-  (ATransRelationExpression. (get-relation node)))
+(defmethod node->ast :relationise [node]
+  (ATransRelationExpression. (get-relation-ast node)))
 
 
 ;;; numbers
 
-(defmethod process-node :unary-minus [node]
-  (AUnaryMinusExpression. (get-node :number node)))
+(defmethod node->ast :unary-minus [node]
+  (AUnaryMinusExpression. (get-number-ast node)))
 
-(defmethod process-node :integer-set  [_]
+(defmethod node->ast :integer-set  [_]
   (AIntegerSetExpression.))
 
-(defmethod process-node  :natural-set [_]
+(defmethod node->ast  :natural-set [_]
   (ANaturalSetExpression.))
 
-(defmethod process-node :natural1-set [_]
+(defmethod node->ast :natural1-set [_]
   (ANatural1SetExpression.))
 
-(defmethod process-node :int-set [_]
+(defmethod node->ast :int-set [_]
   (AIntSetExpression.))
 
-(defmethod process-node :nat-set [_]
+(defmethod node->ast :nat-set [_]
   (ANatSetExpression.))
 
-(defmethod process-node :nat1-set [_]
+(defmethod node->ast :nat1-set [_]
   (ANat1SetExpression.))
 
-(defmethod process-node :interval [node]
-  (AIntervalExpression. (node-repr->ast (:from node)) (node-repr->ast (:to node))))
+(defmethod node->ast :interval [node]
+  (AIntervalExpression. (get-ast :from node) (get-ast :to node)))
 
-(defmethod process-node :min-int  [_]
+(defmethod node->ast :min-int  [_]
   (AMinIntExpression.))
 
-(defmethod process-node :max-int  [_]
+(defmethod node->ast :max-int  [_]
   (AMaxIntExpression.))
 
-(defmethod process-node :less [node]
+(defmethod node->ast :less [node]
   (chain-arity-two (:numbers node) #(ALessPredicate. %1 %2)))
 
-(defmethod process-node :greater [node]
+(defmethod node->ast :greater [node]
   (chain-arity-two (:numbers node) #(AGreaterPredicate. %1 %2)))
 
-(defmethod process-node :less-eq [node]
+(defmethod node->ast :less-eq [node]
   (chain-arity-two (:numbers node) #(ALessEqualPredicate. %1 %2)))
 
-(defmethod process-node :greater-eq [node]
+(defmethod node->ast :greater-eq [node]
   (chain-arity-two (:numbers node) #(AGreaterEqualPredicate. %1 %2)))
 
-(defmethod process-node :max [node]
-  (AMaxExpression. (get-set node)))
+(defmethod node->ast :max [node]
+  (AMaxExpression. (get-set-ast node)))
 
-(defmethod process-node :min [node]
-  (AMinExpression. (get-set node)))
+(defmethod node->ast :min [node]
+  (AMinExpression. (get-set-ast node)))
 
-(defmethod process-node :plus [node]
-  (left-associative #(AAddExpression. %1 %2) (get-numbers node)))
+(defmethod node->ast :plus [node]
+  (left-associative #(AAddExpression. %1 %2) (get-numbers-ast node)))
 
-(defmethod process-node :minus [node]
-  (left-associative #(AMinusOrSetSubtractExpression. %1 %2) (get-numbers node)))
+(defmethod node->ast :minus [node]
+  (left-associative #(AMinusOrSetSubtractExpression. %1 %2) (get-numbers-ast node)))
 
-(defmethod process-node :mult-or-cart [node]
-  (left-associative #(AMultOrCartExpression. %1 %2) (get-numbers node)))
+(defmethod node->ast :mult-or-cart [node]
+  (left-associative #(AMultOrCartExpression. %1 %2) (get-numbers-ast node)))
 
-(defmethod process-node :div [node]
-  (left-associative #(ADivExpression. %1 %2) (get-numbers node)))
+(defmethod node->ast :div [node]
+  (left-associative #(ADivExpression. %1 %2) (get-numbers-ast node)))
 
-(defmethod process-node :pow [node]
-  (right-associative #(APowerOfExpression. %1 %2) (get-numbers node)))
+(defmethod node->ast :pow [node]
+  (right-associative #(APowerOfExpression. %1 %2) (get-numbers-ast node)))
 
-(defmethod process-node :mod [node]
-  (left-associative #(AModuloExpression. %1 %2) (get-numbers node)))
+(defmethod node->ast :mod [node]
+  (left-associative #(AModuloExpression. %1 %2) (get-numbers-ast node)))
 
-(defmethod process-node :pi [node]
-  (AGeneralProductExpression. (get-identifiers node) (get-predicate node) (get-expression node)))
+(defmethod node->ast :pi [node]
+  (AGeneralProductExpression. (get-identifiers-ast node) (get-predicate-ast node) (get-expression-ast node)))
 
-(defmethod process-node :sigma  [node]
-  (AGeneralSumExpression. (get-identifiers node) (get-predicate node) (get-expression node)))
+(defmethod node->ast :sigma  [node]
+  (AGeneralSumExpression. (get-identifiers-ast node) (get-predicate-ast node) (get-expression-ast node)))
 
-(defmethod process-node :inc [node]
-  (AFunctionExpression. (ASuccessorExpression.) (list (get-node :number node))))
+(defmethod node->ast :inc [node]
+  (AFunctionExpression. (ASuccessorExpression.) (list (get-number-ast node))))
 
-(defmethod process-node :dec [node]
-  (AFunctionExpression. (APredecessorExpression.) (list (get-node :number node))))
+(defmethod node->ast :dec [node]
+  (AFunctionExpression. (APredecessorExpression.) (list (get-number-ast node))))
 
 
 ;;; sets
 
-(defmethod process-node :comp-set [node]
-  (AComprehensionSetExpression. (get-identifiers node) (get-predicate node)))
+(defmethod node->ast :comp-set [node]
+  (AComprehensionSetExpression. (get-identifiers-ast node) (get-predicate-ast node)))
 
-(defmethod process-node :power-set [node]
-  (APowSubsetExpression. (get-set node)))
+(defmethod node->ast :power-set [node]
+  (APowSubsetExpression. (get-set-ast node)))
 
-(defmethod process-node :power1-set [node]
-  (APow1SubsetExpression. (get-set node)))
+(defmethod node->ast :power1-set [node]
+  (APow1SubsetExpression. (get-set-ast node)))
 
-(defmethod process-node :fin [node]
-  (AFinSubsetExpression. (get-set node)))
+(defmethod node->ast :fin [node]
+  (AFinSubsetExpression. (get-set-ast node)))
 
-(defmethod process-node :fin1 [node]
-  (AFin1SubsetExpression. (get-set node)))
+(defmethod node->ast :fin1 [node]
+  (AFin1SubsetExpression. (get-set-ast node)))
 
-(defmethod process-node :card [node]
-  (ACardExpression. (get-node :set node)))
+(defmethod node->ast :card [node]
+  (ACardExpression. (get-set-ast node)))
 
-(defmethod process-node :union [node]
-  (left-associative #(AUnionExpression. %1 %2) (get-sets node)))
+(defmethod node->ast :union [node]
+  (left-associative #(AUnionExpression. %1 %2) (get-sets-ast node)))
 
-(defmethod process-node :intersection [node]
-  (left-associative #(AIntersectionExpression. %1 %2) (get-sets node)))
+(defmethod node->ast :intersection [node]
+  (left-associative #(AIntersectionExpression. %1 %2) (get-sets-ast node)))
 
-(defmethod process-node :difference [node]
-  (left-associative #(ASetSubtractionExpression. %1 %2) (get-sets node)))
+(defmethod node->ast :difference [node]
+  (left-associative #(ASetSubtractionExpression. %1 %2) (get-sets-ast node)))
 
-(defmethod process-node :member [node]
-  (AMemberPredicate. (get-element node) (get-set node)))
+(defmethod node->ast :member [node]
+  (AMemberPredicate. (get-element-ast node) (get-set-ast node)))
 
-(defmethod process-node :subset [node]
-  (ASubsetPredicate. (get-node :subset node) (get-set node)))
+(defmethod node->ast :subset [node]
+  (ASubsetPredicate. (get-ast :subset node) (get-set-ast node)))
 
-(defmethod process-node :subset-strict [node]
-  (ASubsetStrictPredicate. (get-node :subset-strict node) (get-set node)))
+(defmethod node->ast :subset-strict [node]
+  (ASubsetStrictPredicate. (get-ast :subset-strict node) (get-set-ast node)))
 
-(defmethod process-node :general-union [node]
-  (AGeneralUnionExpression. (get-sets node)))
+(defmethod node->ast :general-union [node]
+  (AGeneralUnionExpression. (get-ast :set-of-sets node)))
 
-(defmethod process-node :general-intersection [node]
-  (AGeneralIntersectionExpression. (get-sets node)))
+(defmethod node->ast :general-intersection [node]
+  (AGeneralIntersectionExpression. (get-ast :set-of-sets node)))
 
-(defmethod process-node :union-pe [node]
-  (AQuantifiedUnionExpression. (get-identifiers node) (get-predicate node) (get-expression node)))
+(defmethod node->ast :union-pe [node]
+  (AQuantifiedUnionExpression. (get-identifiers-ast node) (get-predicate-ast node) (get-expression-ast node)))
 
-(defmethod process-node :intersection-pe [node]
-  (AQuantifiedIntersectionExpression. (get-identifiers node) (get-predicate node) (get-expression node)))
+(defmethod node->ast :intersection-pe [node]
+  (AQuantifiedIntersectionExpression. (get-identifiers-ast node) (get-predicate-ast node) (get-expression-ast node)))
 
 
 ;;; booleans
 
-(defmethod process-node :bool-set [_]
+(defmethod node->ast :bool-set [_]
   (ABoolSetExpression.))
 
-(defmethod process-node :pred->bool  [node]
-  (AConvertBoolExpression. (get-predicate node)))
+(defmethod node->ast :pred->bool  [node]
+  (AConvertBoolExpression. (get-predicate-ast node)))
 
 
 ;;; equal predicates
 
-(defmethod process-node :equal [node]
-  (AEqualPredicate. (get-left node) (get-right node)))
+(defmethod node->ast :equal [node]
+  (AEqualPredicate. (get-left-ast node) (get-right-ast node)))
 
-(defmethod process-node :not-equal [node]
-  (ANotEqualPredicate. (get-left node) (get-right node)))
+(defmethod node->ast :not-equal [node]
+  (ANotEqualPredicate. (get-left-ast node) (get-right-ast node)))
 
 
 ;;; logical predicates
 
-(defmethod process-node :and [node]
-  (left-associative #(AConjunctPredicate. %1 %2) (get-predicates node)))
+(defmethod node->ast :and [node]
+  (left-associative #(AConjunctPredicate. %1 %2) (get-predicates-ast node)))
 
-(defmethod process-node :or [node]
-  (left-associative #(ADisjunctPredicate. %1 %2) (get-predicates node) ))
+(defmethod node->ast :or [node]
+  (left-associative #(ADisjunctPredicate. %1 %2) (get-predicates-ast node)))
 
-(defmethod process-node :implication [node]
-  (left-associative #(AImplicationPredicate. %1 %2) (get-predicates node)))
+(defmethod node->ast :implication [node]
+  (left-associative #(AImplicationPredicate. %1 %2) (get-predicates-ast node)))
 
-(defmethod process-node :equivalence [node]
-  (left-associative #(AEquivalencePredicate. %1 %2) (get-predicates node)))
+(defmethod node->ast :equivalence [node]
+  (left-associative #(AEquivalencePredicate. %1 %2) (get-predicates-ast node)))
 
-(defmethod process-node :not [node]
-  (let [predicate (get-predicate node)
+(defmethod node->ast :not [node]
+  (let [predicate (get-predicate-ast node)
         pt (type predicate)]
     ; simplify
     (cond
@@ -695,44 +712,47 @@
       (= ASubsetStrictPredicate pt) (ANotSubsetStrictPredicate. (.getLeft predicate) (.getRight predicate))
       :else (ANegationPredicate. predicate))))
 
-(defmethod process-node :for-all [node]
-  (AForallPredicate. (get-identifiers node) (AImplicationPredicate. (get-node :assignment node) (get-node :implication node))))
+(defmethod node->ast :for-all [node]
+  (AForallPredicate. (get-identifiers-ast node) (AImplicationPredicate. (get-assignment-ast node) (get-ast :implication node))))
 
-(defmethod process-node :exists [node]
-  (AExistsPredicate. (get-identifiers node) (AConjunctPredicate. (get-node :assignment node) (get-node :conjunct node))))
+(defmethod node->ast :exists [node]
+  (AExistsPredicate. (get-identifiers-ast node) (AConjunctPredicate. (get-assignment-ast node) (get-ast :conjunct node))))
 
 
 ;;;;;;;;;;;;;;
 
 (defn literal [x]
   (cond (nil? x) nil
-        (keyword? x) (identifier x)
+        (keyword? x) (AIdentifierExpression. [(TIdentifierLiteral. (name x))])
         (string? x) (AStringExpression. (TStringLiteral. x)) ;; hack-y thing to avoid renaming
         ;; of rec-get parameters in preds
         (number? x) (AIntegerExpression. (TIntegerLiteral. (str x)))
         (true? x) (ABooleanTrueExpression.)
         (false? x) (ABooleanFalseExpression.)
-        (set? x) (apply set-enum (map node-repr->ast x))
+        (set? x) (apply
+                   (fn
+                     ([] (AEmptySetExpression.))
+                     ([& args] (ASetExtensionExpression. args)))
+                   (map b->ast x))
         ;(sequential? x) (apply tuple-node (map lisb->ast x))
         :otherwise (println :unhandled-literal x)))
 
-(defn node-repr->ast [lisb]
+(defn b->ast [b]
   (cond
-    (map? lisb) (process-node lisb)
-    (seq? lisb) (map node-repr->ast lisb)
-    :else (literal lisb)))
+    (map? b) (node->ast b)
+    :else (literal b)))
 
-(defn node-repr->predicate-ast [lisb]
-  (Start. (APredicateParseUnit. (node-repr->ast lisb)) (EOF.)))
+(defn b->predicate-ast [b]
+  (Start. (APredicateParseUnit. (b->ast b)) (EOF.)))
 
-(defn node-repr->expression-ast [lisb]
-  (Start. (AExpressionParseUnit. (node-repr->ast lisb)) (EOF.)))
+(defn b->expression-ast [b]
+  (Start. (AExpressionParseUnit. (b->ast b)) (EOF.)))
 
-(defn node-repr->substitution-ast [lisb]
-  (Start. (ASubstitutionParseUnit. (node-repr->ast lisb)) (EOF.)))
+(defn b->substitution-ast [b]
+  (Start. (ASubstitutionParseUnit. (b->ast b)) (EOF.)))
 
-(defn node-repr->machine-clause-ast [lisb]
-  (Start. (AMachineClauseParseUnit. (node-repr->ast lisb)) (EOF.)))
+(defn b->machine-clause-ast [b]
+  (Start. (AMachineClauseParseUnit. (b->ast b)) (EOF.)))
 
 #_(defn abc [partial-constructor node & keys]
   (apply partial-constructor (map node-repr->ast (map #(% node) keys))))
@@ -746,7 +766,7 @@
   (if (map? lisb)
     (do
       (println "Map")
-      (process-node lisb))
+      (node->ast lisb))
     (if (seq? lisb)
       (if (empty? lisb)
         (do

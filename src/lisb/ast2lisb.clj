@@ -330,6 +330,12 @@
 ;;; let
 
 (defmethod ast->lisb ALetExpressionExpression [node args]
+  (println node)
+  (println (.getIdentifiers node))
+  (doseq [id (.getIdentifiers node)]
+    (println id))
+  (println (.getAssignment node))
+  (println (.getExpr node))
   (xyz 'let-expr (.getIdentifiers node) (.getAssignment node) (.getExpr node)))
 (defmethod ast->lisb ALetPredicatePredicate [node args]
   (xyz 'let-pred (.getIdentifiers node) (.getAssignment node) (.getPred node)))

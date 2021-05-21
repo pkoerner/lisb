@@ -226,10 +226,10 @@
 ;;; sequences
 
 (defn bsequence
-  ([] {:tag :empty-seq})
+  ([] {:tag :empty-sequence})
   ([& args]
    {:tag    :sequence
-    :values args}))
+    :elements args}))
 
 (defn bseq [set]
   {:tag :seq
@@ -632,13 +632,13 @@
 (defn bsuperset-strict? [superset-strict set]
   (bsubset-strict? set superset-strict))
 
-(defn bunite-sets [sets]
+(defn bunite-sets [set-of-sets]
   {:tag :general-union
-   :sets sets})
+   :set-of-sets set-of-sets})
 
-(defn bintersect-sets [sets]
+(defn bintersect-sets [set-of-sets]
   {:tag :general-intersection
-   :sets sets})
+   :set-of-sets set-of-sets})
 
 (defn bunion-pe [identifiers predicate expression]
   {:tag :union-pe
@@ -804,7 +804,7 @@
          ~'rec-get brec-get
 
          ; sequences
-         ~'on-sequence bsequence
+         ~'sequence bsequence
          ~'seq bseq
          ~'seq1 bseq1
          ~'iseq biseq
