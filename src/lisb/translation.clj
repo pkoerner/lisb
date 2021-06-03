@@ -1,7 +1,6 @@
 (ns lisb.translation
   (:require [clojure.math.combinatorics :refer [combinations]])
   (:require [clojure.walk :refer [walk]])
-  (:require [lisb.representation :refer [node]])
   (:import de.prob.animator.domainobjects.ClassicalB
            (de.be4.classicalb.core.parser.node Start
                                                EOF
@@ -243,6 +242,8 @@
 
 (defmethod node->ast :definitions [node]
   (ADefinitionsMachineClause. (get-ast :definitions node)))
+;TODO:
+;(defmethod node->ast :definition)
 
 (defmethod node->ast :variables [node]
   (AVariablesMachineClause. (get-identifiers-ast node)))
@@ -281,6 +282,8 @@
 (defmethod node->ast :any [node] (AAnySubstitution. (get-identifiers-ast node) (get-ast :where node) (get-then-ast node)))
 (defmethod node->ast :let-sub [node] (ALetSubstitution. (get-identifiers-ast node) (get-predicate-ast node) (get-substitution-ast node)))
 (defmethod node->ast :var [node]
+  (println (:identifiers node))
+  (println (map b->ast (:identifiers node)))
   (AVarSubstitution. (map b->ast (:identifiers node)) (get-substitution-ast node))) ()
 (defmethod node->ast :precondition [node] (APreconditionSubstitution. (get-predicate-ast node) (get-substitution-ast node)))
 (defmethod node->ast :assert [node] (AAssertionSubstitution. (get-predicate-ast node) (get-substitution-ast node)))
@@ -397,7 +400,7 @@
   (left-associative #(AConcatExpression. %1 %2) (get-seqs-ast node)))
 
 (defmethod node->ast :insert-front [node]
-  (left-associative #(AInsertFrontExpression. %1 %2) (concat (get-elements-ast node) (list (get-seq-ast node)))))
+  (right-associative #(AInsertFrontExpression. %1 %2) (reverse (conj (get-elements-ast node) (get-seq-ast node)))))
 
 (defmethod node->ast :insert-tail [node]
   (left-associative #(AInsertTailExpression. %1 %2) (conj (get-elements-ast node) (get-seq-ast node))))
@@ -713,10 +716,10 @@
       :else (ANegationPredicate. predicate))))
 
 (defmethod node->ast :for-all [node]
-  (AForallPredicate. (get-identifiers-ast node) (AImplicationPredicate. (get-assignment-ast node) (get-ast :implication node))))
+  (AForallPredicate. (get-identifiers-ast node) (get-predicate-ast node)))
 
 (defmethod node->ast :exists [node]
-  (AExistsPredicate. (get-identifiers-ast node) (AConjunctPredicate. (get-assignment-ast node) (get-ast :conjunct node))))
+  (AExistsPredicate. (get-identifiers-ast node) (get-predicate-ast node)))
 
 
 ;;;;;;;;;;;;;;

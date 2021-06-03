@@ -1,7 +1,8 @@
 (ns lisb.ast2lisb-test
   (:require [clojure.test :refer :all]
             [lisb.ast2lisb :refer :all]
-            [lisb.examples.simple :as simple])
+            [lisb.examples.simple :as simple]
+            [lisb.representation :refer [b]])
   (:import (de.be4.classicalb.core.parser BParser)))
 
 (import de.be4.classicalb.core.parser.visualisation.ASTPrinter)
@@ -11,7 +12,7 @@
 
 (deftest examples-simple-test
   (testing "examples-simple"
-    (are [lisb b] (= lisb (b->lisb (slurp (clojure.java.io/resource (str "machines/" b)))))
+    (are [lisb b] (= `(b ~lisb) (b->lisb (slurp (clojure.java.io/resource (str "machines/" b)))))
                   simple/lift "Lift.mch"
                   simple/a-counter "ACounter.mch"
                   simple/gcd "GCD.mch"
@@ -39,28 +40,32 @@
 
 (deftest machine-clauses-test
   (testing "machine-clauses"
-    (are [lisb b] (= lisb
+    (are [lisb b] (= `(b ~lisb)
                      (b->lisb (slurp (clojure.java.io/resource (str "machines/" b)))))
                   '(machine
                      (machine-variant)
-                     (machine-header :Set ())
+                     (machine-header :Set [])
                      (sets (deferred-set :S) (enumerated-set :T #{:E :F}))) "Set.mch"
                   '(machine
+                     (machine-variant)
+                     (machine-header :Constant [])
+                     (constants :con)
+                     (properties (= :con 1))) "Constant.mch"
+                  ; TODO
+                  #_(machine
                     (machine-variant)
-                    (machine-header :Constant ())
-                    (constants :con)
-                    (properties (= :con 1))) "Constant.mch"
+                    (machine-header :Definitions ()))       ;"Definitions.mch"
                   '(machine
-                    (machine-variant)
-                    (machine-header :Variable ())
-                    (variables :nat)
-                    (invariants (member :nat nat-set))
-                    (init (assign :nat 0))) "Variable.mch")))
+                     (machine-variant)
+                     (machine-header :Variable [])
+                     (variables :nat)
+                     (invariants (contains? nat-set :nat))
+                     (init (assign :nat 0))) "Variable.mch")))
 
 
 (deftest substitutions-test
   (testing "substitutions"
-    (are [lisb b] (= lisb (b-substitution->lisb b))
+    (are [lisb b] (= `(b ~lisb) (b-substitution->lisb b))
                   'skip "skip"
                   '(assign :x :E) "x := E"
                   ; "f(x) := E"
@@ -92,9 +97,9 @@
 
 (deftest if-test
   (testing "if"
-    (are [lisb b] (= lisb (b-expression->lisb b))
+    (are [lisb b] (= `(b ~lisb) (b-expression->lisb b))
                              '(if-expr (= 1 1) 2 3) "IF 1=1 THEN 2 ELSE 3 END")
-    (are [lisb b] (= lisb (b-predicate->lisb b))
+    (are [lisb b] (= `(b ~lisb) (b-predicate->lisb b))
                   '(and (=> (= 1 1) (= 2 2)) (=> (not (= 1 1)) (= 3 3))) "IF 1=1 THEN 2=2 ELSE 3=3 END")))
 
 
@@ -113,9 +118,9 @@
 
 (deftest let-test
   (testing "let"
-    (are [lisb b] (= lisb (b-expression->lisb b))
+    (are [lisb b] (= `(b ~lisb) (b-expression->lisb b))
                   '(let-expr (and (= :x 1) (= :y 2)) 3) "LET x, y BE x=1 & y=2 IN 3 END")
-    (are [lisb b] (= lisb (b-predicate->lisb b))
+    (are [lisb b] (= `(b ~lisb) (b-predicate->lisb b))
                   '(let-pred (and (= :x 1) (= :y 2)) (= 0 0)) "LET x, y BE x=1 & y=2 IN 0=0 END")))
 
 
@@ -152,7 +157,7 @@
 
 (deftest strings-test
   (testing "strings"
-    (are [lisb b] (= lisb (b-formula->lisb b))
+    (are [lisb b] (= `(b ~lisb) (b-formula->lisb b))
                   "astring" "\"astring\""
                   "astring" "'''astring'''"
                   '(string-set) "STRING"
@@ -173,11 +178,12 @@
 
 (deftest sequences-test
   (testing "sequences"
-    (are [lisb b] (= lisb (b-expression->lisb b))
+    (are [lisb b] (= `(b ~lisb) (b-expression->lisb b))
                   '(sequence) "<>"
                   '(sequence) "[]"
                   '(sequence :E) "[E]"
-                  '(sequence :E :F) "[E,F]"
+                  ; TODO: keep order
+                  ;'(sequence :E :F) "[E,F]"
                   '(seq :S) "seq(S)"
                   '(seq1 :S) "seq1(S)"
                   '(iseq :S) "iseq(S)"
@@ -185,41 +191,46 @@
                   '(perm :S) "perm(S)"
                   '(count-seq :S) "size(S)"
                   '(concat :s :t) "s^t"
-                  '(-> :E :s) "E->s"
-                  '(<- :s :E) "s<-E"
+                  '(cons :s :E) "E->s"
+                  '(cons :s :E :F) "F->(E->s)"
+                  '(cons :s :E :F :G) "G->(F->(E->s))"
+                  '(append :s :E) "s<-E"
                   '(reverse :S) "rev(S)"
                   '(first :S) "first(S)"
                   '(last :S) "last(S)"
-                  '(front :S) "front(S)"
-                  '(tail :S) "tail(S)"
+                  '(drop-last :S) "front(S)"
+                  '(rest :S) "tail(S)"
                   '(conc :S) "conc(S)"
-                  '(restrict-front :s :n) "s/|\\n"
-                  '(restrict-tail :s :n) "s\\|/n")))
+                  '(take :n :s) "s/|\\n"
+                  '(drop :n :s) "s\\|/n")))
 
 
 (deftest function-test
   (testing "functions"
-    (are [lisb b] (= lisb (b-expression->lisb b))
+    (are [lisb b] (= `(b ~lisb) (b-expression->lisb b))
                   '(+-> :S :T) "S+->T"
                   '(--> :S :T) "S-->T"
                   '(+->> :S :T) "S+->>T"
                   '(-->> :S :T) "S-->>T"
-                  '(>+> :S :T)  "S>+>T"
+                  '(>+> :S :T) "S>+>T"
                   '(>-> :S :T) "S>->T"
                   '(>->> :S :T) "S>->>T"
-                  '(lambda (:x) (= 1 1) 1) "%x.(1=1|1)"
-                  '(:f :E) "f(E)"
-                  '(:f :E :F) "f(E,F)")))
+                  '(lambda #{:x} (= 1 1) 1) "%x.(1=1|1)"
+                  '(call :f :E) "f(E)"
+                  ; TODO: keep order
+                  ;'(call :f :E :F) "f(E,F)"
+                  )))
 
 
 (deftest relation-test
   (testing "relations"
-    (are [lisb b] (= lisb (b-expression->lisb b))
+    (are [lisb b] (= `(b ~lisb) (b-expression->lisb b))
                   '(<-> :S :T) "S<->T"
                   '(total-relation :S :T) "S<<->T"
                   '(surjective-relation :S :T) "S<->>T"
                   '(total-surjective-relation :S :T) "S<<->>T"
-                  '(couple :E :F) "E|->F"
+                  ; keep order
+                  ;'(couple :E :F) "E|->F"
                   '(dom :r) "dom(r)"
                   '(ran :r) "ran(r)"
                   '(identity :S) "id(S)"
@@ -245,7 +256,7 @@
 (deftest number-test
   (testing "numbers"
     (testing "expressions"
-      (are [lisb b] (= lisb (b-expression->lisb b))
+      (are [lisb b] (= `(b ~lisb) (b-expression->lisb b))
                     1 "1"
                     -1 "-1"
                     '(- :x) "-x"
@@ -261,10 +272,10 @@
                     'max-int "MAXINT"
                     '(max nat-set) "max(NAT)"
                     '(min nat-set) "min(NAT)"
-                    '(pi (:z) (member :z nat-set) 1) "PI(z).(z:NAT|1)"
-                    '(sigma (:z) (member :z nat-set) 1) "SIGMA(z).(z:NAT|1)"))
+                    '(pi #{:z} (contains? nat-set :z) 1) "PI(z).(z:NAT|1)"
+                    '(sigma #{:z} (contains? nat-set :z) 1) "SIGMA(z).(z:NAT|1)"))
     (testing "arithmetic"
-      (are [lisb b] (= lisb (b-expression->lisb b))
+      (are [lisb b] (= `(b ~lisb) (b-expression->lisb b))
                     '(+ 1 2) "1+2"
                     '(+ 1 2 3) "1+2+3"
                     '(- 1 2) "1-2"
@@ -279,7 +290,7 @@
                     '(inc 1) "succ(1)"
                     '(dec 1) "pred(1)"))
     (testing "predicates"
-      (are [lisb b] (= lisb (b-predicate->lisb b))
+      (are [lisb b] (= `(b ~lisb) (b-predicate->lisb b))
                     '(> 1 2) "1>2"
                     '(< 1 2) "1<2"
                     '(>= 1 2) "1>=2"
@@ -288,11 +299,11 @@
 
 (deftest sets-test
   (testing "sets"
-    (are [lisb b] (= lisb (b-expression->lisb b))
+    (are [lisb b-expr] (= `(b ~lisb) (b-expression->lisb b-expr))
                   #{} "{}"
                   #{:E} "{E}"
                   #{:E :F} "{E, F}"
-                  '(comp-set (:x) (member :x nat-set)) "{x|x:NAT}"
+                  '(comp-set #{:x} (contains? nat-set :x)) "{x|x:NAT}"
                   '(pow #{}) "POW({})"
                   '(pow1 #{}) "POW1({})"
                   '(fin #{}) "FIN({})"
@@ -308,20 +319,20 @@
                   '(- #{:E} #{:F} #{:G}) "{E}-{F}-{G}"
                   '(unite-sets #{#{}}) "union({{}})"
                   '(intersect-sets #{#{}}) "inter({{}})"
-                  '(union-pe (:z) (member :z nat-set) 1) "UNION(z).(z:NAT|1)"
-                  '(intersection-pe (:z) (member :z nat-set) 1) "INTER(z).(z:NAT|1)")
-    (are [lisb b] (= lisb (b-predicate->lisb b))
-                  '(member 1 #{}) "1:{}"
-                  '(not-member 1 #{}) "1/:{}"
-                  '(subset #{:E} #{:G}) "{E}<:{G}"
-                  '(not-subset #{:E} #{:G}) "{E}/<:{G}"
-                  '(subset-strict #{:E} #{:G}) "{E}<<:{G}"
-                  '(not-subset-strict #{:E} #{:G}) "{E}/<<:{G}")))
+                  '(union-pe #{:z} (contains? nat-set :z) 1) "UNION(z).(z:NAT|1)"
+                  '(intersection-pe #{:z} (contains? nat-set :z) 1) "INTER(z).(z:NAT|1)")
+    (are [lisb b-pred] (= `(b ~lisb) (b-predicate->lisb b-pred))
+                  '(contains? #{} 1) "1:{}"
+                  '(not (contains? #{} 1)) "1/:{}"
+                  '(subset? #{:E} #{:G}) "{E}<:{G}"
+                  '(not (subset? #{:E} #{:G})) "{E}/<:{G}"
+                  '(subset-strict? #{:E} #{:G}) "{E}<<:{G}"
+                  '(not (subset-strict? #{:E} #{:G})) "{E}/<<:{G}")))
 
 
 (deftest booleans-test
   (testing "booleans"
-    (are [lisb b] (= lisb (b-expression->lisb b))
+    (are [lisb b-expr] (= `(b ~lisb) (b-expression->lisb b-expr))
                   true "TRUE"
                   false "FALSE"
                   'bool-set "BOOL"
@@ -330,24 +341,23 @@
 
 (deftest equality-predicates-test
   (testing "equality-predicates"
-    (are [lisb b] (= lisb (b-predicate->lisb b))
+    (are [lisb b-pred] (= `(b ~lisb) (b-predicate->lisb b-pred))
                   '(= true false) "TRUE = FALSE"
                   '(not= true false) "TRUE /= FALSE")))
 
 
 (deftest logical-predicates-test
   (testing "logical-predicates"
-    (are [lisb b] (= lisb (b-predicate->lisb b))
-                  '(and (= 1 1) (= 2 2)) "1=1 & 2=2"
-                  '(and (= 1 1) (= 2 2) (= 3 3)) "1=1 & 2=2 & 3=3"
-                  '(or (= 1 1) (= 2 2)) "1=1 or 2=2"
-                  '(or (= 1 1) (= 2 2) (= 3 3)) "1=1 or 2=2 or 3=3"
-                  '(=> (= 1 1) (= 2 2)) "1=1 => 2=2"
-                  '(=> (= 1 1) (= 2 2) (= 3 3)) "1=1 => 2=2 => 3=3"
-                  '(<=> (= 1 1) (= 2 2)) "1=1 <=> 2=2"
-                  '(<=> (= 1 1) (= 2 2) (= 3 3)) "1=1 <=> 2=2 <=> 3=3"
-                  '(not (= 1 1)) "not(1=1)"
-                  '(not (= 1 1)) "not(1=1)"
-                  '(for-all (:x) (member :x nat-set) (< 0 :x)) "!(x).(x:NAT => 0<x)"
-                  '(exists (:x) (and (= 1 1) (= 2 2))) "#(x).(1=1 & 2=2)")))
-
+    (are [lisb b-pred] (= `(b ~lisb) (b-predicate->lisb b-pred))
+                       '(and (= 1 1) (= 2 2)) "1=1 & 2=2"
+                       '(and (= 1 1) (= 2 2) (= 3 3)) "1=1 & 2=2 & 3=3"
+                       '(or (= 1 1) (= 2 2)) "1=1 or 2=2"
+                       '(or (= 1 1) (= 2 2) (= 3 3)) "1=1 or 2=2 or 3=3"
+                       '(=> (= 1 1) (= 2 2)) "1=1 => 2=2"
+                       '(=> (= 1 1) (= 2 2) (= 3 3)) "1=1 => 2=2 => 3=3"
+                       '(<=> (= 1 1) (= 2 2)) "1=1 <=> 2=2"
+                       '(<=> (= 1 1) (= 2 2) (= 3 3)) "1=1 <=> 2=2 <=> 3=3"
+                       '(not (= 1 1)) "not(1=1)"
+                       '(not (= 1 1)) "not(1=1)"
+                       '(for-all #{:x} (=> (contains? nat-set :x) (< 0 :x))) "!(x).(x:NAT => 0<x)"
+                       '(exists #{:x} (and (= 1 1) (= 2 2))) "#(x).(1=1 & 2=2)")))
