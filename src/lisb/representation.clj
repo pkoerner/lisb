@@ -6,8 +6,6 @@
 (declare bnot)
 (declare bdec)
 
-(defn node [a])
-
 (defn bif
   ([node condition then] (assoc node :condition condition :then then))
   ([node condition then else]
@@ -608,10 +606,13 @@
   {:tag :difference
    :sets sets})
 
-(defn bcontains? [set element]
+(defn bmember? [element set]
   {:tag :member
-   :set set
-   :element element})
+   :element element
+   :set set})
+
+(defn bcontains? [set element]
+ (bmember? element set))
 
 ; TODO: chain subset
 (defn bsubset? [subset set]
@@ -701,17 +702,15 @@
   {:tag :not
    :predicate predicate})
 
-(defn bfor-all [identifiers assignment implication]
+(defn bfor-all [identifiers predicate]
   {:tag :for-all
    :identifiers identifiers
-   :assignment assignment
-   :implication implication})
+   :predicate predicate})
 
-(defn bexists [identifiers assignment conjunct]
+(defn bexists [identifiers predicate]
   {:tag :exists
    :identifiers identifiers
-   :assignment assignment
-   :conjunct conjunct})
+   :predicate predicate})
 
 
 ;;; misc
@@ -775,7 +774,7 @@
          ~'sequence-substitution bsequence-substitution
          ~'any bany
          ~'let-sub blet-sub
-         ~'var bvar
+         ~'var-sub bvar
          ~'pre bprecondition
          ~'assert bassert
          ~'choice bchoice
@@ -906,6 +905,7 @@
          ~'union-pe bunion-pe
          ~'intersection-pe bintersection-pe
          ~'contains? bcontains?
+         ~'member? bmember?
          ~'subset? bsubset?
          ~'subset-strict? bsubset-strict?
          ~'superset? bsuperset?

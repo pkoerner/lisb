@@ -1,0 +1,4 @@
+MACHINE Definitions
+DEFINITIONS
+  x == 5
+END
