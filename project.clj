@@ -6,7 +6,7 @@
   :repositories [["snapshot" "https://oss.sonatype.org/content/repositories/snapshots"]
                  ["release" "https://oss.sonatype.org/content/repositories/releases"]]
   :jvm-opts ["-Xss1g"]
-  :dependencies [[org.clojure/clojure "1.9.0"]
+  :dependencies [[org.clojure/clojure "1.10.3"]
                  [org.clojure/math.combinatorics "0.1.3"]
                  [de.hhu.stups/de.prob2.kernel,"3.14.0"]
                  [de.hhu.stups/bparser "2.9.28-SNAPSHOT"]]) ; TODO: set on fix version
