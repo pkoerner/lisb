@@ -47,7 +47,7 @@
 (defn bdeferred-set [identifier]
   {:tag :deferred-set
    :identifier identifier})
-(defn benumerated-set [identifier elements]
+(defn benumerated-set [identifier & elements]
   {:tag :enumerated-set
    :identifier identifier
    :elements elements})
@@ -68,7 +68,7 @@
   {:tag :variables
    :identifiers identifiers})
 
-(defn binvariants [predicate]
+(defn binvariant [predicate]
   {:tag :invariants
    :predicate predicate})
 
@@ -757,7 +757,7 @@
          ~'properties bproperties
          ~'definitions bdefinitions
          ~'variables bvariables
-         ~'invariants binvariants
+         ~'invariant binvariant
          ~'assertions bassertions
          ~'init binit
          ~'operations boperations

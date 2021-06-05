@@ -26,7 +26,16 @@
   (testing "machine-clauses"
     (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->machine-clause-ast ir))))
               (b (constraints (= 1 1)))
-              (b (constants :a :b :c)))))
+              (b (sets (deferred-set :S) (enumerated-set :T :e1 :e2)))
+              (b (constants :a :b :c))
+              (b (properties (= true true)))
+              ;(b (definitions))
+              (b (variables :x :y))
+              (b (invariant (= true true)))
+              (b (assertions (= true true) (= false false)))
+              (b (init (assign :x 0 :y 0)))
+              (b (operations (operation () :inc () (assign :x (+ :x 1))) (operation () :dec () (assign :x (- :x 1)))))
+              )))
 
 (deftest substitutions-test
   (testing "substitutions"
@@ -64,7 +73,6 @@
     (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->expression-ast ir))))
               (b (if-expr (= 1 1) 2 3)))))
 
-; TODO: ignore order for variables
 (deftest let-test
   (testing "let"
     (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->expression-ast ir))))
@@ -78,18 +86,17 @@
               (b "astring")
               (b string-set)
               (b (count-seq "s"))
-              ;TODO: inverse vs. reverse
-              ;(b (reverse "s"))
+              (b (reverse "s"))
               (b (concat "s" "t"))
               (b (conc (sequence "s" "t"))))))
 
 (deftest struct-test
   (testing "structs"
     (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->expression-ast ir))))
-              (b (struct {:n nat-set}))
-              (b (struct {:n nat-set, :b bool-set}))
-              (b (record {:n 1}))
-              (b (record {:n 1, :b true}))
+              (b (struct [:n nat-set]))
+              (b (struct [:n nat-set, :b bool-set]))
+              (b (record [:n 1]))
+              (b (record [:n 1, :b true]))
               (b (rec-get :R :n)))))
 
 (deftest sequences-test
@@ -97,8 +104,7 @@
     (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->expression-ast ir))))
               (b (sequence))
               (b (sequence :E))
-              ; TODO: keep order
-              ;(b (sequence :E :F))
+              (b (sequence :E :F))
               (b (seq :S))
               (b (seq1 :S))
               (b (iseq :S))
@@ -114,8 +120,7 @@
               (b (append :s :E))
               (b (append :s :E :F))
               (b (append :s :E :F :G))
-              ; TODO: reverse vs. inverse
-              ;(b (reverse :S))
+              (b (reverse :S))
               (b (first :S))
               (b (last :S))
               (b (drop-last :S))
@@ -144,8 +149,7 @@
               (b (total-relation :S :T))
               (b (surjective-relation :S :T))
               (b (total-surjective-relation :S :T))
-              ; TODO: keep order!
-              ;(b (couple :E :F))
+              (b (couple :E :F))
               (b (dom :r))
               (b (ran :r))
               (b (identity :S))
@@ -184,9 +188,9 @@
                 (b min-int)
                 (b max-int)
                 (b (max nat-set))
-                (b (max 1 2 3))          ; TODO: ignore order
+                (b (max 1 2 3))
                 (b (min nat-set))
-                (b (min 1 2 3))          ; TODO: ignore order
+                (b (min 1 2 3))
                 (b (pi [:z] (contains? nat-set  :z) 1))
                 (b (sigma [:z] (contains? nat-set :z) 1)))
       (testing "arithmetic"

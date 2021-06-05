@@ -4,7 +4,7 @@
 
 (deftest equality-predicates-test
   (testing " equality-predicates"
-    (are [node-repr lisb] (= node-repr (lisb->node-repr lisb))
+    (are [node-repr lisb] (= node-repr (b lisb))
                           {:tag :equals
                            :left true
                            :right false}
@@ -12,7 +12,7 @@
 
 (deftest logical-predicates-test
   (testing "logical-predicates"
-    (are [node-repr lisb] (= node-repr (lisb->node-repr lisb))
+    (are [node-repr lisb] (= node-repr (b lisb))
                           {:tag :and
                            :left {:tag :and
                                   :left {:tag :equals
@@ -27,7 +27,7 @@
                           (and (= 1 1) (= 2 2) (= 3 3)))))
 
 
-(deftest node-test
+#_(deftest node-test
   (testing "node works as intended"
     (is (= {:tag :foo
             :children [:bar :baz 1 #{} {:k :v}]}

@@ -1,5 +1,5 @@
 (ns lisb.core-test
-  (:require [lisb.core :refer [unsat-core unsat-core-predicate choose-rest sat-conjuncts?]]
+  (:require [lisb.core :refer [#_unsat-core #_unsat-core-predicate choose-rest #_sat-conjuncts?]]
             [lisb.representation :refer :all])
   (:require [clojure.test :refer :all]))
 
@@ -13,16 +13,16 @@
              [3 [4 1 2]]
              [4 [1 2 3]]}))))
 
-(deftest unsat-core-test
+#_(deftest unsat-core-test
   (testing "if the input is satisfiable, unsat-core does not apply"
     (is (thrown? AssertionError
-                 (unsat-core (lisb->node-repr (= :a 1))
-                             (lisb->node-repr (= :b 1))))))
-  (testing "unsat-core finds a trivial unsat core"
+                 (unsat-core (b= :a 1)
+                             (b= :b 1)))))
+  #_(testing "unsat-core finds a trivial unsat core"
     (is (= (unsat-core (b= :a 1)
                        (b= :a 2))
         #{(b= :a 1) (b= :a 2)})))
-  (testing "unsat-core finds a non-trivial unsat core"
+  #_(testing "unsat-core finds a non-trivial unsat core"
     (is (= (unsat-core (b= :a 1)
                        (b= :b 2)
                        (b= :a 3))
@@ -35,7 +35,7 @@
             (apply (complement sat-conjuncts?) uc)
             (every? #(apply sat-conjuncts? %) (map second (choose-rest uc))))))))
 
-(deftest unsat-core-predicate-test
+#_(deftest unsat-core-predicate-test
   (testing "unsat core works with predicates that minimize a parameter set"
     (is (= (unsat-core-predicate (pred [c] (not (subset? #{4 5 7} c)))
                                  (set (range 10)))

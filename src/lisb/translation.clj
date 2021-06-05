@@ -228,11 +228,11 @@
   (AConstraintsMachineClause. (get-predicate-ast node)))
 
 (defmethod node->ast :sets [node]
-  (ASetsMachineClause. (get-ast :set-definitions node)))
+  (ASetsMachineClause. (map b->ast (:set-definitions node))))
 (defmethod node->ast :deferred-set [node]
-  (ADeferredSetSet. (get-identifiers-ast node)))
+  (ADeferredSetSet. (.getIdentifier (b->ast (:identifier node)))))
 (defmethod node->ast :enumerated-set [node]
-  (AEnumeratedSetSet. (get-identifiers-ast node) (get-elements-ast node)))
+  (AEnumeratedSetSet. (.getIdentifier (b->ast (:identifier node))) (get-elements-ast node)))
 
 (defmethod node->ast :constants [node]
   (AConstantsMachineClause. (get-identifiers-ast node)))
@@ -251,6 +251,9 @@
 (defmethod node->ast :invariants [node]
   (AInvariantMachineClause. (get-predicate-ast node)))
 
+(defmethod node->ast :assertions [node]
+  (AAssertionsMachineClause. (get-predicates-ast node)))
+
 (defmethod node->ast :assign [node]
   (AAssertionsMachineClause. (get-predicates-ast node)))
 
@@ -258,7 +261,7 @@
   (AInitialisationMachineClause. (get-substitution-ast node)))
 
 (defmethod node->ast :operations [node]
-  (AOperationsMachineClause. (get-ast :operations node)))
+  (AOperationsMachineClause. (map b->ast (:operations node))))
 (defmethod node->ast :operation [node]
   (AOperation. (map b->ast (:return node)) (list (TIdentifierLiteral. (name (:name node)))) (get-parameters node) (get-ast :body node)))
 
@@ -359,12 +362,12 @@
 (defmethod node->ast :struct [node]
   (AStructExpression. (map
                         (fn [[k v]] (ARecEntry. (b->ast k) (b->ast v)))
-                        (:id-types node))))
+                        (partition 2 (:id-types node)))))
 
 (defmethod node->ast :record [node]
   (ARecExpression. (map
                      (fn [[k v]] (ARecEntry. (b->ast k) (b->ast v)))
-                     (:id-values node))))
+                     (partition 2 (:id-values node)))))
 
 (defmethod node->ast :rec-get [node]
   (ARecordFieldExpression. (get-ast :record node) (get-ast :identifier node)))
@@ -406,7 +409,7 @@
   (left-associative #(AInsertTailExpression. %1 %2) (conj (get-elements-ast node) (get-seq-ast node))))
 
 (defmethod node->ast :reverse [node]
-  (AReverseExpression. (get-seq-ast node)))
+  (ARevExpression. (get-seq-ast node)))
 
 (defmethod node->ast :first [node]
   (AFirstExpression. (get-seq-ast node)))

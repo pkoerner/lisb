@@ -14,6 +14,8 @@ See src/lisb/examples
 
 ### To Do
 
+- [ ] support trees
+- [ ] support reals  
 - [ ] painless conversion of Clojure data structures into B data
 - [ ] painless conversion from B data into Clojure data structures
 - [ ] special nodes
