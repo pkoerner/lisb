@@ -1,4 +1,4 @@
 MACHINE Set
 SETS
-  S; T = {E,F}
+  S; T = {e1,e2}
 END

@@ -154,7 +154,7 @@
   (lisbify lisb args (.getExpression node)))
 
 (defn concat-last [lisb args & nodes]
-  (concat (apply lisbify lisb args (drop-last nodes)) (ast->lisb (last nodes) args)))
+  (concat (apply lisbify lisb args (drop-last nodes)) (map #(ast->lisb % args) (last nodes))))
 
 (defn collect-left-associative [node]
   (let [left-node (.getLeft node)
@@ -214,12 +214,11 @@
 (defmethod ast->lisb ADeferredSetSet [node args]
   (lisbify 'deferred-set args (first (.getIdentifier node)))) ; there should be exact one identifier
 (defmethod ast->lisb AEnumeratedSetSet [node args]
-  (list 'enumerated-set (ast->lisb (first (.getIdentifier node)) args) (into #{} (ast->lisb (.getElements node) args)))) ; there should be exact one identifier
+  (concat-last 'enumerated-set args (first (.getIdentifier node)) (.getElements node))) ; there should be exact one identifier
 
+; same for concrete constants
 (defmethod ast->lisb AConstantsMachineClause [node args]
   (concat-last 'constants args (.getIdentifiers node)))
-
-; TODO: concrete constants
 
 (defmethod ast->lisb APropertiesMachineClause [node args]
   (lisbify 'properties args (.getPredicates node)))     ; (.getPredicates node) returns ONE Predicate and no list!
@@ -236,7 +235,7 @@
 ; TODO: concrete variables
 
 (defmethod ast->lisb AInvariantMachineClause [node args]
-  (lisbify 'invariants args (.getPredicates node)))     ; (.getPredicates node) returns ONE Predicate and no list!
+  (lisbify 'invariant args (.getPredicates node)))     ; (.getPredicates node) returns ONE Predicate and no list!
 
 (defmethod ast->lisb AAssertionsMachineClause [node args]
   (concat-last 'assertions args (.getPredicates node)))
@@ -366,18 +365,13 @@
 ;;; records
 
 (defmethod ast->lisb AStructExpression [node args]
-  (list 'struct (reduce
-                  (fn [res entry]
-                    (assoc res (ast->lisb (.getIdentifier entry) args) (ast->lisb (.getValue entry) args)))
-                  {}
-                  (.getEntries node))))
+  (list 'struct (into [] (mapcat #(ast->lisb % args) (.getEntries node)))))
 
 (defmethod ast->lisb ARecExpression [node args]
-  (list 'record (reduce
-                  (fn [res entry]
-                    (assoc res (ast->lisb (.getIdentifier entry) args) (ast->lisb (.getValue entry) args)))
-                  {}
-                  (.getEntries node))))
+  (list 'record (into [] (mapcat #(ast->lisb % args) (.getEntries node)))))
+
+(defmethod ast->lisb ARecEntry [node args]
+  [(ast->lisb (.getIdentifier node) args) (ast->lisb (.getValue node) args)])
 
 (defmethod ast->lisb ARecordFieldExpression [node args]
   (lisbify 'rec-get args (.getRecord node) (.getIdentifier node)))
@@ -388,8 +382,7 @@
 (defmethod ast->lisb AEmptySequenceExpression [_ _]
   '(sequence))
 (defmethod ast->lisb ASequenceExtensionExpression [node args]
-  (concat-last 'sequence args (.getExpression node))
-  #_(apply bsequence (ast-list->lisb (.getExpression node) args)))
+  (concat-last 'sequence args (.getExpression node)))
 (defmethod ast->lisb ASeqExpression [node args]
   (expression 'seq node args))
 (defmethod ast->lisb ASeq1Expression [node args]
@@ -405,12 +398,9 @@
 (defmethod ast->lisb AConcatExpression [node args]
   (multi-arity 'concat node args))
 (defmethod ast->lisb AInsertFrontExpression [node args]
-  (apply (partial lisbify 'cons args) (collect-right-associative node))
-  #_(multi-arity 'cons node args)
-  #_(lisbify 'cons args (.getRight node) (.getLeft node)))
+  (apply (partial lisbify 'cons args) (collect-right-associative node)))
 (defmethod ast->lisb AInsertTailExpression [node args]
-  (multi-arity 'append node args)
-  #_(lisbify 'append args (.getRight node) (.getLeft node)))
+  (multi-arity 'append node args))
 (defmethod ast->lisb ARevExpression [node args]
   (expression 'reverse node args))
 (defmethod ast->lisb AFirstExpression [node args]
@@ -701,10 +691,10 @@
 
 ;;; ast->lisb end
 (defn b-ast->lisb [b-ast->lisb] `(b ~(ast->lisb b-ast->lisb {:symbols {}})))
+
 (defn b->lisb [b] (b-ast->lisb (.parse (BParser.) b false)))
-(defn b-formula->lisb [b-formula] (b->lisb (str (BParser/FORMULA_PREFIX) b-formula)))
-(defn b-expression->lisb [b-expression] (b->lisb (str (BParser/EXPRESSION_PREFIX) b-expression)))
-(defn b-substitution->lisb [b-substitution] (b->lisb (str (BParser/SUBSTITUTION_PREFIX) b-substitution)))
-(defn b-transition->lisb [b-transition] (b->lisb (str "#TRANSITION " b-transition)))
-(defn b-predicate->lisb [b-predicate] (b->lisb (str (BParser/PREDICATE_PREFIX) b-predicate)))
-(defn b-operation->lisb [b-operation] (b->lisb (str (BParser/OPERATION_PATTERN_PREFIX) b-operation)))
+(defn b-formula->lisb [b-formula] (b-ast->lisb (.parseFormula (BParser.) b-formula)))
+(defn b-expression->lisb [b-expression] (b-ast->lisb (.parseExpression (BParser.) b-expression)))
+(defn b-substitution->lisb [b-substitution] (b-ast->lisb (.parseSubstitution (BParser.) b-substitution)))
+(defn b-predicate->lisb [b-predicate] (b-ast->lisb (.parsePredicate (BParser.) b-predicate)))
+(defn b-operation->lisb [b-operation] (b-ast->lisb (.parseTransition (BParser.) b-operation)))
