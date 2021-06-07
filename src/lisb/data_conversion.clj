@@ -1,5 +1,5 @@
 (ns lisb.data-conversion
-  (:require [lisb.representation :refer [bsequence bset-enum btuple brecord]]))
+  (:require [lisb.representation :refer [b bsequence #_bset-enum #_btuple brecord]]))
 
 (defn ensure-list [maybe-k]
   (if (keyword? maybe-k) [maybe-k] maybe-k))
@@ -9,15 +9,18 @@
     data
     (let [[typel typer] (ensure-list type-arg)]
       (case btype
-        :set (apply bset-enum (map #(convert % typel typer) data))
-        :tuple (let [[l r] data
-                     [lt lr] (ensure-list typel)
-                     [rt rr] (ensure-list typer)]
-                 (btuple (convert l lt lr) (convert r rt rr)))
+        :set (b (into #{} (map #(convert % typel typer) data)))
+        ;:set (apply bset-enum (map #(convert % typel typer) data))
+        #_:tuple
+        #_(let [[l r] data
+              [lt lr] (ensure-list typel)
+              [rt rr] (ensure-list typer)]
+          (btuple (convert l lt lr) (convert r rt rr)))
         :sequence (apply bsequence (map #(convert % typel typer) data))
         :record (let [ks (keys typel)]
                   (apply brecord
                          (mapcat (fn [k]
                                    (let [[typl typr] (ensure-list (typel k))]
                                      [k (convert (data k) typl typr)])) ks)))
-        :fn (apply bset-enum (map #(convert % :tuple [typel typer]) data))))))
+        ;:fn (apply bset-enum (map #(convert % :tuple [typel typer]) data))
+        ))))

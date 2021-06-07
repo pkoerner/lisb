@@ -207,11 +207,11 @@
 
 ;;; records
 
-(defn bstruct [id-types]
+(defn bstruct [& id-types]
   {:tag :struct
    :id-types id-types})
 
-(defn brecord [id-values]
+(defn brecord [& id-values]
   {:tag :record
    :id-values id-values})
 
@@ -474,12 +474,17 @@
 
 (def bnat1-set {:tag :nat1-set})
 
+(defn binterval [from to]
+  {:tag :interval
+   :from from
+   :to to})
+
 (defn brange [from to]
-  (let [node {:tag :interval, :from from}]
+  (let [partial-binterval (partial binterval from)]
     (cond
-      (number? to) (assoc node :to (dec to))
-      (= :succ (:tag to)) (assoc node :to (:number to))
-      :else (assoc node :to (bdec to)))))
+      (number? to) (partial-binterval (dec to))
+      (= :succ (:tag to)) (partial-binterval (:number to))
+      :else (partial-binterval (bdec to)))))
 
 (def bmin-int
   {:tag :min-int})
@@ -611,10 +616,10 @@
    :element element
    :set set})
 
+; TODO: (bcontains-all? set & elements)
 (defn bcontains? [set element]
  (bmember? element set))
 
-; TODO: chain subset
 (defn bsubset? [subset set]
   {:tag :subset
    :subset subset
@@ -674,10 +679,10 @@
   {:tag :not-equal
    :left left
    :right right})
-
-; TODO:
-;(defn bsome=? [& elements])
-;(defn bnone=? [& elements])
+; syntactic sugar
+(defn bdistinct? [& elements]
+  {:tag :distinct
+   :elements elements})
 
 
 ;;; logical predicates
@@ -702,10 +707,15 @@
   {:tag :not
    :predicate predicate})
 
-(defn bfor-all [identifiers predicate]
-  {:tag :for-all
-   :identifiers identifiers
-   :predicate predicate})
+(defn bfor-all
+  ([identifiers implication]
+   {:tag         :for-all
+    :identifiers identifiers
+    :implication implication})
+  ;syntactic sugar
+  ([identifiers implication-left implication-right]
+   (bfor-all identifiers (b=> implication-left implication-right))))
+
 
 (defn bexists [identifiers predicate]
   {:tag :exists
@@ -724,7 +734,7 @@
 #_(defn btuple [l r]
   (node :tuple l r))
 
-#_(defn bmap-set [p s]
+(defn bmap-set [p s]
   (bran (blambda [:x] (bmember? :x s) (p :x))))
 
 
@@ -870,6 +880,7 @@
          ~'int-set bint-set
          ~'nat-set bnat-set
          ~'nat1-set bnat1-set
+         ~'interval binterval
          ~'range brange
          ~'min-int bmin-int
          ~'max-int bmax-int
@@ -918,6 +929,8 @@
          ;;; equality predicates
          ~'= b=
          ~'not= bnot=
+         ; added funcionality
+         ~'distinct? bdistinct?
 
          ;;; logical predicates
          ~'and band
@@ -930,7 +943,11 @@
      ~repr
     ))
 
-#_(defn wrap [ctx node]
+(def bempty-machine (bmachine
+                     (bmachine-variant)
+                     (bmachine-header :Empty [])))
+
+(defn wrap [ctx node]
   (cond
     (keyword? node) `(~node ~ctx)
     (map? node) (into {} (map (fn f [[k v]]  [k (wrap ctx v)]) node))
@@ -939,10 +956,10 @@
     (vector? node) (vec  (map (partial wrap ctx) node))
     :otherwise node))
 
-#_(defn almost-flatten [x]
+(defn almost-flatten [x]
   (remove coll? (rest (tree-seq coll? seq x))))
 
-#_(defmacro pred [name & args]
+(defmacro pred [name & args]
   (let [body (last args)
         params (drop-last args)
         ctx (gensym 'lisb_ctx_)
@@ -950,7 +967,7 @@
         keywords (set (filter keyword? (almost-flatten body)))]
     `(fn ~name ~@params
        (let [~ctx (into {} (mapv (fn [x#] [x# (keyword (gensym "lisb_"))]) ~keywords))]
-         (do (lisb->node-repr ~wrapped-body))))))
+         (do (b ~wrapped-body))))))
 
-#_(defmacro defpred [name & args]
+(defmacro defpred [name & args]
   `(def ~name (pred ~name ~@args)))

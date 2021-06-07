@@ -7,21 +7,21 @@
 (deftest base-conversion
   (testing "conversion of non-nested sets"
     (is (= (convert #{1} :set :int)
-           (bset-enum 1))))
+           (b #{1}))))
 
 
-  (testing "conversion of non-nested vectors"
+  #_(testing "conversion of non-nested vectors"
     (is (= (convert [4 2] :tuple [:int :int])
            (btuple 4 2)))
 
     (is (= (convert [4 2] :set :int)
-           (bset-enum 4 2)))
+           (b {4 2})))
     
     (is (= (convert [4 2] :sequence :int)
            (bsequence 4 2))))
 
     
-  (testing "conversion of non-nested maps"
+  #_(testing "conversion of non-nested maps"
     ;; this should work for any art of relation/function
     (is (= (convert {1 2} :fn [:int :int])
            (bset-enum (btuple 1 2))))
@@ -34,7 +34,7 @@
 
 
 
-(deftest nested-conversion
+#_(deftest nested-conversion
   (testing "conversion of sets of something else"
     (is (= (convert #{[2 2]} :set [:tuple [:int :int]])
            (bset-enum (btuple 2 2)))))

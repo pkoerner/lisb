@@ -116,10 +116,10 @@
 (deftest struct-test
   (testing "structs"
     (are [b lisb] (= b (get-machine-from-ast (b->expression-ast lisb)))
-                  "struct(n:NAT)" (b (struct [:n nat-set]))
-                  "struct(n:NAT,b:BOOL)" (b (struct [:n nat-set, :b bool-set]))
-                  "rec(n:1)" (b (record [:n 1]))
-                  "rec(n:1,b:TRUE)" (b (record [:n 1, :b true]))
+                  "struct(n:NAT)" (b (struct :n nat-set))
+                  "struct(n:NAT,b:BOOL)" (b (struct :n nat-set, :b bool-set))
+                  "rec(n:1)" (b (record :n 1))
+                  "rec(n:1,b:TRUE)" (b (record :n 1, :b true))
                   "R'n" (b (rec-get :R :n)))))
 
 
@@ -307,9 +307,9 @@
                   "{E}/\\{F}" (b (intersection #{:E} #{:F}))
                   "{E}/\\{F}/\\{G}" (b (intersection #{:E} #{:F} #{:G}))
                   "{E}/\\{F}/\\{G}/\\{H}" (b (intersection #{:E} #{:F} #{:G} #{:H}))
-                  "{E}-{F}" (b (- #{:E} #{:F}))
-                  "{E}-{F}-{G}" (b (- #{:E} #{:F} #{:G}))
-                  "{E}-{F}-{G}-{H}" (b (- #{:E} #{:F} #{:G} #{:H}))
+                  "{E}\\{F}" (b (difference #{:E} #{:F}))
+                  "{E}\\{F}\\{G}" (b (difference #{:E} #{:F} #{:G}))
+                  "{E}\\{F}\\{G}\\{H}" (b (difference #{:E} #{:F} #{:G} #{:H}))
                   "union({{}})" (b (unite-sets #{#{}}))
                   "union({{E}})" (b (unite-sets #{#{:E}}))
                   "union({{E},{F}})" (b (unite-sets #{#{:E} #{:F}}))
@@ -344,7 +344,8 @@
   (testing "equality-predicates"
     (are [b lisb] (= b (get-machine-from-ast (b->predicate-ast lisb)))
                   "TRUE=FALSE" (b (= true false))
-                  "TRUE/=FALSE" (b (not= true false)))))
+                  "TRUE/=FALSE" (b (not= true false))
+                  "1/=1 & 1/=2 & 1/=3 & 2/=3" (b (distinct? 1 2 1 3)))))
 
 
 (deftest logical-predicates-test

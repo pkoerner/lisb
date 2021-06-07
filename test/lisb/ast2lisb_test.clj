@@ -125,10 +125,10 @@
 (deftest records-test
   (testing "records"
     (are [lisb b] (= `(b ~lisb) (b-expression->lisb b))
-                  '(struct [:n nat-set]) "struct(n:NAT)"
-                  '(struct [:n nat-set, :b bool-set]) "struct(n:NAT,b:BOOL)"
-                  '(record [:n 1]) "rec(n:1)"
-                  '(record [:n 1, :b true]) "rec(n:1,b:TRUE)"
+                  '(struct :n nat-set) "struct(n:NAT)"
+                  '(struct :n nat-set, :b bool-set) "struct(n:NAT,b:BOOL)"
+                  '(record :n 1) "rec(n:1)"
+                  '(record :n 1, :b true) "rec(n:1,b:TRUE)"
                   '(rec-get :E :n) "E'n")))
 
 
@@ -268,8 +268,8 @@
                   '(union #{:E} #{:F} #{:G})"{E}\\/{F}\\/{G}"
                   '(intersection #{:E} #{:F})"{E}/\\{F}"
                   '(intersection #{:E} #{:F} #{:G})"{E}/\\{F}/\\{G}"
-                  '(- #{:E} #{:F}) "{E}-{F}"
-                  '(- #{:E} #{:F} #{:G}) "{E}-{F}-{G}"
+                  '(difference #{:E} #{:F}) "{E}\\{F}"
+                  '(difference #{:E} #{:F} #{:G}) "{E}\\{F}\\{G}"
                   '(unite-sets #{#{}}) "union({{}})"
                   '(intersect-sets #{#{}}) "inter({{}})"
                   '(union-pe [:z] (contains? nat-set :z) 1) "UNION(z).(z:NAT|1)"

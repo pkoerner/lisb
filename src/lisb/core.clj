@@ -1,57 +1,29 @@
 (ns lisb.core
   (:require [lisb.representation :refer :all])
-  (:require [lisb.translation :refer [b->predicate-ast]])
-  #_(:require [lisb.translationOLD :refer [to-ast]])
+  (:require [lisb.translation :refer [b->ast b->predicate-ast]])
   (:import com.google.inject.Guice
            com.google.inject.Stage
-           com.google.inject.Module
-           de.prob.MainModule)
-  (:import de.prob.Main
+           de.prob.MainModule
            de.prob.scripting.Api
            de.prob.animator.command.EvaluateFormulaCommand
            de.prob.animator.domainobjects.ClassicalB
+           de.prob.animator.domainobjects.FormulaExpand
            de.prob.animator.domainobjects.EvalResult
-           de.prob.animator.domainobjects.ComputationNotCompletedResult
-           (de.be4.classicalb.core.parser.node Start
-                                               EOF
-                                               APredicateParseUnit)))
+           de.prob.animator.domainobjects.ComputationNotCompletedResult))
 
-(def prob-main (Guice/createInjector Stage/PRODUCTION [(MainModule.)]))
-
-; XXX load an instance of Main.class to ensure Prob 2.0 is properly loaded.
+; XXX load an instance of MainModule.class to ensure Prob 2.0 is properly loaded.
 ; Among other things this sets prob.home to load files from the ProB stdlib.
-#_(def prob-main (.getInstance (Main/getInjector) Main))
+(def injector (Guice/createInjector Stage/PRODUCTION [(MainModule.)]))
 
-#_(defn get-api [] (.getInstance (Main/getInjector) Api))
+(def api (.getInstance injector Api))
 
-#_(defn create-empty-machine []
-  (let [tf (java.io.File/createTempFile "evalb" ".mch" nil)
-        tn (.getAbsolutePath tf)
-        ]
-    (.deleteOnExit tf)
-    (spit tf "MACHINE empty \n DEFINITIONS \"CHOOSE.def\" \n  END")
-    tn))
-
-#_(defn state-space []
-  (let [machine (create-empty-machine)
-        api (get-api)]
-    (.b_load api machine)))
-
-
-
-
-
-#_(defn predicate [ast]
-  (let [p (APredicateParseUnit. ast)
-        start (Start. p (EOF.))]
-    (ClassicalB. start
-                 de.prob.animator.domainobjects.FormulaExpand/truncate
-                 "")))
-
+(defn empty-state-space []
+  (let [empty-machine-ast (b->ast bempty-machine)]
+    (.b_load api empty-machine-ast)))
 
 (defmulti get-result type)
 
-#_(defmethod get-result EvalResult [v]
+(defmethod get-result EvalResult [v]
   (if (= "time_out" (.getValue v))
     :timeout
     (let [result (.translate v)
@@ -59,23 +31,17 @@
       (when (.. result getValue booleanValue)
         (into {} (map (fn [k][k (.getSolution result k)]) free))))))
 
-#_(defmethod get-result ComputationNotCompletedResult [[v _]]
-  (let [reason-string (.getReason v)]
-    (when (not= reason-string "contradiction found")
-      (throw (Exception. reason-string)))))
+(defmethod get-result ComputationNotCompletedResult [v]
+  (let [reason (.getReason v)]
+    (when (not= reason "contradiction found")
+      (throw (Exception. reason)))))
 
-
-#_(defonce ^:private secret-state-space (state-space))
-
-#_(defn eval
-  ([ast]
-    (eval secret-state-space ast))
-  ([state-space ast]
-    (let [cmd (EvaluateFormulaCommand. (predicate ast) "root")
-          _ (.execute state-space cmd)]
-      (get-result (.getValue cmd)))))
-
-
+(defn eval-formula
+  ([ast] (eval-formula (empty-state-space) ast))
+  ([state-space ast] (let [eval-element (ClassicalB. ast FormulaExpand/TRUNCATE "")
+                           cmd (EvaluateFormulaCommand. eval-element "root")
+                           _ (.execute state-space cmd)]
+                       (get-result (.getValue cmd)))))
 
 (defn choose-rest [c]
   (let [n (count c)]
@@ -84,41 +50,40 @@
          (map (fn [[h & t]] [h t]))
          butlast)))
 
-
-#_(defn sat-conjuncts?
+(defn sat-conjuncts?
   ([c]
-   (eval (to-ast c)))
+   (eval-formula (b->predicate-ast c)))
   ([c & r]
-   (eval (to-ast (apply band c r)))))
+   (eval-formula (b->predicate-ast (apply band c r)))))
 
-#_(defn timeout-conjuncts?
+(defn timeout-conjuncts?
   ([c]
-   (= :timeout (eval (to-ast c))))
+   (= :timeout (eval-formula (b->predicate-ast c))))
   ([c & r]
-   (= :timeout (eval (to-ast (apply band c r))))))
+   (= :timeout (eval-formula (b->predicate-ast (apply band c r))))))
 
-#_(defn unsat-core-aux [sat? c]
+(defn unsat-core-aux [sat? c]
   (let [poss (choose-rest c)
-        [_ r] (first (drop-while (comp sat?
-                                       second)
-                                 poss))]
+        [_ r] (first (drop-while
+                       (comp sat? second)
+                       poss))]
     (if r
       (unsat-core-aux sat? r)
       (set c))))
 
 
-#_(defn unsat-core [& conjuncts]
-  #_{:pre [(seq (rest conjuncts))
-         (not (eval (to-ast (apply band conjuncts))))]}
+(defn unsat-core [& conjuncts]
+  {:pre [(seq (rest conjuncts))
+         (not (eval-formula (b->predicate-ast (apply band conjuncts))))]}
   (unsat-core-aux (partial apply sat-conjuncts?) conjuncts))
 
 
-#_(defn unsat-core-predicate [p c]
-  {:pre [(not (eval (to-ast (p c))))
+(defn unsat-core-predicate [p c]
+  {:pre [(not (eval-formula (b->predicate-ast (p c))))
          (set? c)]}
-  (unsat-core-aux #(eval (to-ast (p (set %)))) c))
+  (unsat-core-aux #(eval-formula (b->predicate-ast (p (set %)))) c))
 
-#_(defn timeout-core [& conjuncts]
+(defn timeout-core [& conjuncts]
   {:pre [(seq (rest conjuncts))
-         (= :timeout (eval (to-ast (apply band conjuncts))))]}
+         (= :timeout (eval-formula (b->predicate-ast (apply band conjuncts))))]}
   (unsat-core-aux (partial apply (complement timeout-conjuncts?)) conjuncts))

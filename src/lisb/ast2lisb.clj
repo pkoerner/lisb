@@ -365,10 +365,10 @@
 ;;; records
 
 (defmethod ast->lisb AStructExpression [node args]
-  (list 'struct (into [] (mapcat #(ast->lisb % args) (.getEntries node)))))
+  (concat (list 'struct) (mapcat #(ast->lisb % args) (.getEntries node))))
 
 (defmethod ast->lisb ARecExpression [node args]
-  (list 'record (into [] (mapcat #(ast->lisb % args) (.getEntries node)))))
+  (concat (list 'record) (mapcat #(ast->lisb % args) (.getEntries node))))
 
 (defmethod ast->lisb ARecEntry [node args]
   [(ast->lisb (.getIdentifier node) args) (ast->lisb (.getValue node) args)])
@@ -592,7 +592,7 @@
   (multi-arity 'intersection node args))
 
 (defmethod ast->lisb ASetSubtractionExpression [node args]
-  (multi-arity 'set- node args))
+  (multi-arity 'difference node args))
 
 (defmethod ast->lisb AMemberPredicate [node args]
   (lisbify 'contains? args (.getRight node) (.getLeft node)))
