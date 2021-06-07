@@ -5,7 +5,7 @@
 (deftest equality-predicates-test
   (testing " equality-predicates"
     (are [node-repr lisb] (= node-repr (b lisb))
-                          {:tag :equals
+                          {:tag :equal
                            :left true
                            :right false}
                           (= true false))))
@@ -13,69 +13,54 @@
 (deftest logical-predicates-test
   (testing "logical-predicates"
     (are [node-repr lisb] (= node-repr (b lisb))
-                          {:tag :and
-                           :left {:tag :and
-                                  :left {:tag :equals
-                                         :left 1
-                                         :right 1}
-                                  :right {:tag :equals
-                                          :left 2
-                                          :right 2}}
-                           :right {:tag :equals
-                                   :left 3
-                                   :right 3}}
+                          {:tag        :and
+                           :predicates [{:tag :equal, :left 1, :right 1}
+                                        {:tag :equal, :left 2, :right 2}
+                                        {:tag :equal, :left 3, :right 3}]}
                           (and (= 1 1) (= 2 2) (= 3 3)))))
 
 
-#_(deftest node-test
-  (testing "node works as intended"
-    (is (= {:tag :foo
-            :children [:bar :baz 1 #{} {:k :v}]}
-           (node :foo :bar :baz 1 #{} {:k :v})))))
-
 (deftest minus-test
   (testing "minus is special and must have a unary version"
-    (is (= {:tag :unaryminus
-            :children [:a]}
+    (is (= {:tag    :unary-minus
+            :number :a}
            (b- :a))))
   (testing "minus also works with more arguments"
     (is (= {:tag :minus
-            :children [:a :b]}
+            :numbers [:a :b]}
            (b- :a :b)))
     (is (= {:tag :minus
-            :children [:a :b :c]}
+            :numbers [:a :b :c]}
            (b- :a :b :c)))))
-  
 
 
 (deftest max-test
   (testing "max with a set"
-    (is (= {:tag :max :children [#{1 2 3}]}
+    (is (= {:tag :max :set #{1 2 3}}
            (bmax #{1 2 3}))))
   (testing "max with more arguments"
-    (is (= {:tag :max :children [#{1 2}]}
+    (is (= {:tag :max :set #{1 2}}
            (bmax 1 2)))
-    (is (= {:tag :max :children [#{1 2 3}]}
+    (is (= {:tag :max :set #{1 2 3}}
            (bmax 1 2 3)))))
 
 (deftest min-test
   (testing "min with a set"
-    (is (= {:tag :min :children [#{1 2 3}]}
+    (is (= {:tag :min :set #{1 2 3}}
            (bmin #{1 2 3}))))
   (testing "min with more arguments"
-    (is (= {:tag :min :children [#{1 2}]}
+    (is (= {:tag :min :set #{1 2}}
            (bmin 1 2)))
-    (is (= {:tag :min :children [#{1 2 3}]}
+    (is (= {:tag :min :set #{1 2 3}}
            (bmin 1 2 3)))))
 
 
-#_(deftest for-all-test
+(deftest for-all-test
   (testing "universal quantification representation"
-    (is (= {:tag :for-all
-            :children [{:tag :list
-                        :children [:x]}
-                       {:tag :implication
-                        :children [:a :b]}]}
+    (is (= {:tag         :for-all
+            :identifiers [:x]
+            :implication {:tag        :implication
+                          :predicates [:a :b]}}
            (bfor-all [:x] (b=> :a :b))
            (bfor-all [:x] :a :b)))))
 
@@ -90,7 +75,7 @@
   (testing "the resulting function generates a representation
             which replaces the parameter symbols with the values provided"
     (is (= ((pred [x y] (< x y)) 1 2)
-           {:tag :less :children [1 2]})))
+           {:tag :less :numbers [1 2]})))
   
   (testing "the pred macro flattens sets properly"
     (is (= (count ((pred [] #{:x :y})))
@@ -100,27 +85,29 @@
 (deftest let-tests
   (testing "one binding and predicate"
     (is (= {:tag :let-pred
-            :children [{:tag :list :children [:foo]}
-                       {:tag :equals :children [:foo 1]}
-                       {:tag :less :children [:foo 2]}]}
+            :identifiers [:foo]
+            :assignment {:tag :equal, :left :foo, :right 1}
+            :predicate {:tag :less, :numbers [:foo 2]}}
            (blet-pred [:foo 1] (b< :foo 2)))))
   (testing "more bindings and a predicate"
-    (is (= {:tag :let-pred
-            :children [{:tag :list :children [:foo :bar]}
-                       {:tag :and :children [{:tag :equals :children [:foo 1]}
-                                             {:tag :equals :children [:bar 2]}]}
-                       {:tag :less :children [:foo :bar]}]}
+    (is (= {:tag         :let-pred
+            :identifiers [:foo :bar]
+            :assignment  {:tag        :and
+                          :predicates [{:tag :equal, :left :foo, :right 1}
+                                       {:tag :equal, :left :bar, :right 2}]}
+            :predicate   {:tag :less, :numbers [:foo :bar]}}
            (blet-pred [:foo 1 :bar 2] (b< :foo :bar)))))
   (testing "one binding and expression"
     (is (= {:tag :let-pred
-            :children [{:tag :list :children [:foo]}
-                       {:tag :equals :children [:foo 1]}
-                       {:tag :plus :children [:foo 2]}]}
+           :identifiers [:foo]
+           :assignment {:tag :equal, :left :foo, :right 1}
+           :predicate {:tag :plus, :numbers [:foo 2]}}
            (blet-pred [:foo 1] (b+ :foo 2)))))
   (testing "more bindings and an expression"
-    (is (= {:tag :let-pred
-            :children [{:tag :list :children [:foo :bar]}
-                       {:tag :and :children [{:tag :equals :children [:foo 1]}
-                                             {:tag :equals :children [:bar 2]}]}
-                       {:tag :plus :children [:foo :bar]}]}
+    (is (= {:tag         :let-pred
+            :identifiers [:foo :bar]
+            :assignment  {:tag        :and
+                          :predicates [{:tag :equal, :left :foo, :right 1}
+                                       {:tag :equal, :left :bar, :right 2}]}
+            :predicate   {:tag :plus, :numbers [:foo :bar]}}
            (blet-pred [:foo 1 :bar 2] (b+ :foo :bar))))))

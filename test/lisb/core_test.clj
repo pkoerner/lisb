@@ -1,5 +1,5 @@
 (ns lisb.core-test
-  (:require [lisb.core :refer [#_unsat-core #_unsat-core-predicate choose-rest #_sat-conjuncts?]]
+  (:require [lisb.core :refer [unsat-core unsat-core-predicate choose-rest sat-conjuncts?]]
             [lisb.representation :refer :all])
   (:require [clojure.test :refer :all]))
 
@@ -13,29 +13,29 @@
              [3 [4 1 2]]
              [4 [1 2 3]]}))))
 
-#_(deftest unsat-core-test
+(deftest unsat-core-test
   (testing "if the input is satisfiable, unsat-core does not apply"
     (is (thrown? AssertionError
                  (unsat-core (b= :a 1)
                              (b= :b 1)))))
-  #_(testing "unsat-core finds a trivial unsat core"
-    (is (= (unsat-core (b= :a 1)
-                       (b= :a 2))
-        #{(b= :a 1) (b= :a 2)})))
-  #_(testing "unsat-core finds a non-trivial unsat core"
-    (is (= (unsat-core (b= :a 1)
-                       (b= :b 2)
-                       (b= :a 3))
-           #{(b= :a 1) (b= :a 3)}))
-    (is (let [uc (unsat-core (b= :a 2)
-                             (b= :b 3)
-                             (b= :c (b+ :a :b))
-                             (bsubset #{:a :b :c} #{1 2 3}))]
-          (and
-            (apply (complement sat-conjuncts?) uc)
-            (every? #(apply sat-conjuncts? %) (map second (choose-rest uc))))))))
+  (testing "unsat-core finds a trivial unsat core"
+    (is (= #{(b= :a 1) (b= :a 2)}
+           (unsat-core (b= :a 1)
+                       (b= :a 2)))))
+  (testing "unsat-core finds a non-trivial unsat core"
+      (is (=  #{(b= :a 1) (b= :a 3)}
+              (unsat-core (b= :a 1)
+                         (b= :b 2)
+                         (b= :a 3))))
+      (is (let [uc (unsat-core (b= :a 2)
+                               (b= :b 3)
+                               (b= :c (b+ :a :b))
+                               (bsubset? #{:a :b :c} #{1 2 3}))]
+            (and
+              (apply (complement sat-conjuncts?) uc)
+              (every? #(apply sat-conjuncts? %) (map second (choose-rest uc))))))))
 
-#_(deftest unsat-core-predicate-test
+(deftest unsat-core-predicate-test
   (testing "unsat core works with predicates that minimize a parameter set"
     (is (= (unsat-core-predicate (pred [c] (not (subset? #{4 5 7} c)))
                                  (set (range 10)))

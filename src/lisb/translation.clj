@@ -198,13 +198,18 @@
       (f value acc))
     (reverse nodes)))
 
-(defn chain-arity-two [unprocessed-children f]
-  (let [tuples (partition 2 1 unprocessed-children)
-        processed-tuples (map #(map b->ast %) tuples)
-        nodes (map (partial apply f) processed-tuples)]
+(defn chain [b-tuples f]
+  (let [node-tuples (map #(map b->ast %) b-tuples)
+        nodes (map (partial apply f) node-tuples)]
     (reduce
       #(AConjunctPredicate. %1 %2)
       nodes)))
+
+(defn chain-arity-two [b-children f]
+  (chain (partition 2 1 b-children) f))
+
+(defn chain-combinitions-arity-two [b-children f]
+  (chain (combinations b-children 2) f))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -462,8 +467,11 @@
 (defmethod node->ast :lambda [node]
   (ALambdaExpression. (get-identifiers-ast node) (get-predicate-ast node) (get-expression-ast node)))
 
-(defmethod node->ast :call [node]
+; TODO:
+#_(defmethod node->ast :call [node]
   (AFunctionExpression. (get-ast :f node) (map b->ast (:args node))))
+(defmethod node->ast :call [node]
+  (ADefinitionExpression. (TIdentifierLiteral. (name (:f node))) (map b->ast (:args node))))
 
 
 ;;; relations
@@ -693,6 +701,9 @@
 (defmethod node->ast :not-equal [node]
   (ANotEqualPredicate. (get-left-ast node) (get-right-ast node)))
 
+(defmethod node->ast :distinct [node]
+  (chain-combinitions-arity-two (:elements node) #(ANotEqualPredicate. %1 %2)))
+
 
 ;;; logical predicates
 
@@ -719,7 +730,7 @@
       :else (ANegationPredicate. predicate))))
 
 (defmethod node->ast :for-all [node]
-  (AForallPredicate. (get-identifiers-ast node) (get-predicate-ast node)))
+  (AForallPredicate. (get-identifiers-ast node) (get-ast :implication node)))
 
 (defmethod node->ast :exists [node]
   (AExistsPredicate. (get-identifiers-ast node) (get-predicate-ast node)))

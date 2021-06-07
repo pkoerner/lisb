@@ -93,10 +93,10 @@
 (deftest struct-test
   (testing "structs"
     (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->expression-ast ir))))
-              (b (struct [:n nat-set]))
-              (b (struct [:n nat-set, :b bool-set]))
-              (b (record [:n 1]))
-              (b (record [:n 1, :b true]))
+              (b (struct :n nat-set))
+              (b (struct :n nat-set, :b bool-set))
+              (b (record :n 1))
+              (b (record :n 1, :b true))
               (b (rec-get :R :n)))))
 
 (deftest sequences-test
@@ -140,7 +140,9 @@
               (b (>-> :S :T))
               (b (>->> :S :T))
               (b (lambda [:x] (= 1 1) 1))
-              (b (call :f :E)))))
+              ; TODO: handle calls
+              ;(b (call :f :E))
+              )))
 
 (deftest relation-test
   (testing "relations"
