@@ -1,8 +1,7 @@
 (ns lisb.translation
   (:require [clojure.math.combinatorics :refer [combinations]])
   (:require [clojure.walk :refer [walk]])
-  (:import de.prob.animator.domainobjects.ClassicalB
-           (de.be4.classicalb.core.parser.node Start
+  (:import (de.be4.classicalb.core.parser.node Start
                                                EOF
                                                AAbstractMachineParseUnit
                                                AMachineMachineVariant
@@ -467,11 +466,8 @@
 (defmethod node->ast :lambda [node]
   (ALambdaExpression. (get-identifiers-ast node) (get-predicate-ast node) (get-expression-ast node)))
 
-; TODO:
-#_(defmethod node->ast :call [node]
+(defmethod node->ast :apply [node]
   (AFunctionExpression. (get-ast :f node) (map b->ast (:args node))))
-(defmethod node->ast :call [node]
-  (ADefinitionExpression. (TIdentifierLiteral. (name (:f node))) (map b->ast (:args node))))
 
 
 ;;; relations
@@ -735,29 +731,30 @@
 (defmethod node->ast :exists [node]
   (AExistsPredicate. (get-identifiers-ast node) (get-predicate-ast node)))
 
+;;; misc
+
+(defmethod node->ast :call [node]
+  (ADefinitionExpression. (TIdentifierLiteral. (name (:f node))) (map b->ast (:args node))))
 
 ;;;;;;;;;;;;;;
 
-(defn literal [x]
-  (cond (nil? x) nil
-        (keyword? x) (AIdentifierExpression. [(TIdentifierLiteral. (name x))])
-        (string? x) (AStringExpression. (TStringLiteral. x)) ;; hack-y thing to avoid renaming
-        ;; of rec-get parameters in preds
-        (number? x) (AIntegerExpression. (TIntegerLiteral. (str x)))
-        (true? x) (ABooleanTrueExpression.)
-        (false? x) (ABooleanFalseExpression.)
-        (set? x) (apply
-                   (fn
-                     ([] (AEmptySetExpression.))
-                     ([& args] (ASetExtensionExpression. args)))
-                   (map b->ast x))
-        ;(sequential? x) (apply tuple-node (map lisb->ast x))
-        :otherwise (println :unhandled-literal x)))
+(defn set-expression [elements]
+  (if (empty? elements)
+    (AEmptySetExpression.)
+    (ASetExtensionExpression. elements)))
 
 (defn b->ast [b]
   (cond
     (map? b) (node->ast b)
-    :else (literal b)))
+    (set? b) (set-expression (map b->ast b))
+    (vector? b) (ACoupleExpression. (map b->ast b))
+    (keyword? b) (AIdentifierExpression. [(TIdentifierLiteral. (name b))])
+    (string? b) (AStringExpression. (TStringLiteral. b)) ;; hack-y thing to avoid renaming of rec-get parameters in preds
+    (number? b) (AIntegerExpression. (TIntegerLiteral. (str b)))
+    (true? b) (ABooleanTrueExpression.)
+    (false? b) (ABooleanFalseExpression.)
+    (nil? b) nil
+    :otherwise (println :unhandled-literal b)))
 
 (defn b->predicate-ast [b]
   (Start. (APredicateParseUnit. (b->ast b)) (EOF.)))
@@ -770,39 +767,3 @@
 
 (defn b->machine-clause-ast [b]
   (Start. (AMachineClauseParseUnit. (b->ast b)) (EOF.)))
-
-#_(defn abc [partial-constructor node & keys]
-  (apply partial-constructor (map node-repr->ast (map #(% node) keys))))
-
-#_(defn lisb->ast [lisb]
-  (println "")
-  (println lisb)
-  (println (map? lisb))
-  (println (seq? lisb))
-  (println (empty? lisb))
-  (if (map? lisb)
-    (do
-      (println "Map")
-      (node->ast lisb))
-    (if (seq? lisb)
-      (if (empty? lisb)
-        (do
-          (println "Empty seq")
-          '())
-        (do
-          (println "Not empty seq")
-          (map node-repr->ast lisb)))
-      (do
-        (println "Literal")
-        (literal lisb)))))
-
-#_(require '[lisb.ast2lisb :refer :all])
-#_(node-repr->ast (bmachinestr->lisb "MACHINE Empty\nEND"))
-
-#_(defn get-machine-from-ast [ast]
-  (let [pprinter (PrettyPrinter.)]
-    (.apply ast pprinter)
-    (.getPrettyPrint pprinter)))
-#_(get-machine-from-ast (node-repr->ast (bmachinestr->lisb "MACHINE Empty\nEND")))
-
-#_(.getEOF (.parse (BParser.) "MACHINE Empty\nEND" false))

@@ -2,6 +2,7 @@
   (:require [clojure.test :refer :all]
             [lisb.representation :refer :all]
             [lisb.examples.simple :as simple]
+            [lisb.examples.function-returns :as function-returns]
             [lisb.translation :refer [b->ast b->predicate-ast b->expression-ast b->substitution-ast b->machine-clause-ast]]))
 
 (import de.be4.classicalb.core.parser.visualisation.ASTPrinter)
@@ -18,6 +19,10 @@
 (defn normalize-string [string]
   (clojure.string/replace string #"[ \n\r\t]" ""))
 
+(deftest function-returns-test
+  (testing "function-returns"
+    (are [b lisb] (= (normalize-string (slurp (clojure.java.io/resource (str "machines/" b)))) (normalize-string (get-machine-from-ast (b->ast lisb))))
+                  "FunctionReturns.mch" function-returns/function-returns)))
 
 (deftest examples-simple-test
   (testing "examples-simple"

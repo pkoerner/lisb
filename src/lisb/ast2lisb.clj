@@ -451,15 +451,19 @@
 ;;; relations
 
 (defmethod ast->lisb ARelationsExpression [node args]
-  (left-right '<-> node args))
+  (multi-arity '<-> node args))
 (defmethod ast->lisb ATotalRelationExpression [node args]
-  (left-right 'total-relation node args))
+  (multi-arity 'total-relation node args))
 (defmethod ast->lisb ASurjectionRelationExpression [node args]
-  (left-right 'surjective-relation node args))
+  (multi-arity 'surjective-relation node args))
 (defmethod ast->lisb ATotalSurjectionRelationExpression [node args]
-  (left-right 'total-surjective-relation node args))
+  (multi-arity 'total-surjective-relation node args))
 (defmethod ast->lisb ACoupleExpression [node args]
-  (concat-last 'couple args (.getList node)))
+  (let [children (mapv #(ast->lisb % args) (.getList node))
+        left (first children)]
+    (if (vector? left)
+      (conj left (second children))
+      children)))
 (defmethod ast->lisb ADomainExpression [node args]
   (expression 'dom node args))
 (defmethod ast->lisb ARangeExpression [node args]
@@ -518,11 +522,7 @@
 (defmethod ast->lisb ANatSetExpression [_ _] 'nat-set)
 (defmethod ast->lisb ANat1SetExpression [_ _] 'nat1-set)
 (defmethod ast->lisb AIntervalExpression [node args]
-  (let [left (ast->lisb (.getLeftBorder node) args)
-        right (ast->lisb (.getRightBorder node) args)]
-    (if (number? right)
-      (list 'range left (inc right))
-      (list 'range left ('inc right)))))
+  (lisbify 'interval args (.getLeftBorder node) (.getRightBorder node)))
 (defmethod ast->lisb AMinIntExpression [_ _]
   'min-int)
 (defmethod ast->lisb AMaxIntExpression [_ _]

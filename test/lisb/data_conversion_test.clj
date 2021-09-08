@@ -7,24 +7,24 @@
 (deftest base-conversion
   (testing "conversion of non-nested sets"
     (is (= (convert #{1} :set :int)
-           (b #{1}))))
+           (bset-enum 1))))
 
 
-  #_(testing "conversion of non-nested vectors"
+  (testing "conversion of non-nested vectors"
     (is (= (convert [4 2] :tuple [:int :int])
-           (btuple 4 2)))
+           [4 2]))
 
     (is (= (convert [4 2] :set :int)
-           (b {4 2})))
+           (bset-enum 4 2)))
     
     (is (= (convert [4 2] :sequence :int)
            (bsequence 4 2))))
 
     
-  #_(testing "conversion of non-nested maps"
+  (testing "conversion of non-nested maps"
     ;; this should work for any art of relation/function
     (is (= (convert {1 2} :fn [:int :int])
-           (bset-enum (btuple 1 2))))
+           (bset-enum [1 2])))
     
     (is (= (convert {:x 1} :record [{:x :int}])
            (brecord :x 1)))
@@ -34,20 +34,20 @@
 
 
 
-#_(deftest nested-conversion
+(deftest nested-conversion
   (testing "conversion of sets of something else"
     (is (= (convert #{[2 2]} :set [:tuple [:int :int]])
-           (bset-enum (btuple 2 2)))))
+           (bset-enum [2 2]))))
   
   (testing "conversion of nested vectors"
     (is (= (convert [#{true} 1] :tuple [[:set :bool] :int])
-           (btuple (bset-enum true) 1)))
+           [(bset-enum true) 1]))
 
     (is (= (convert [true #{1}] :tuple [:bool [:set :int]])
-           (btuple true (bset-enum 1))))
+           [true (bset-enum 1)]))
 
     (is (= (convert [#{true} #{1}] :tuple [[:set :bool] [:set :int]])
-           (btuple (bset-enum true) (bset-enum 1))))
+           [(bset-enum true) (bset-enum 1)]))
 
     (is (= (convert [#{1} #{2} #{3}] :sequence [:set :int])
            (bsequence (bset-enum 1) (bset-enum 2) (bset-enum 3))))
@@ -57,7 +57,7 @@
   
   (testing "conversion of nested maps"
     (is (= (convert {#{1} #{2}} :fn [[:set :int] [:set :int]])
-           (bset-enum (btuple (bset-enum 1) (bset-enum 2)))))
+           (bset-enum [(bset-enum 1) (bset-enum 2)])))
     
     (is (= (convert {:x #{1}} :record [{:x [:set :int]}])
            (brecord :x (bset-enum 1))))
