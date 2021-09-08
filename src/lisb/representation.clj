@@ -124,12 +124,16 @@
    :parameters parameters})
 
 (defn bparallel-substitution [& substitutions]
-  {:tag :parallel-substitution
-   :substitutions substitutions})
+  (if (= 1 (count substitutions))
+    (first substitutions)
+    {:tag           :parallel-substitution
+     :substitutions substitutions}))
 
 (defn bsequence-substitution [& substitutions]
-  {:tag :sequence-substitution
-   :substitutions substitutions})
+  (if (= 1 (count substitutions))
+    (first substitutions)
+    {:tag           :sequence-substitution
+     :substitutions substitutions}))
 
 (defn bany [identifiers where then]
   {:tag :any
@@ -688,12 +692,16 @@
 ;;; logical predicates
 
 (defn band [& predicates]
-  {:tag :and
-   :predicates predicates})
+  (if (= 1 (count predicates))
+    (first predicates)
+    {:tag :and
+     :predicates predicates}))
 
 (defn bor [& predicates]
-  {:tag :or
-   :predicates predicates})
+  (if (= 1 (count predicates))
+                          (first predicates)
+                          {:tag :or
+                           :predicates predicates}))
 
 (defn b=> [& predicates]
   {:tag :implication
@@ -725,32 +733,19 @@
 
 ;;; misc
 
-#_(defn bexpr [s]
-  (node :bexpr s))
+(defn bapply [f & args]
+  {:tag :apply
+   :f f
+   :args args})
 
-#_(defn brec-get [r e]
-  (node :record-get r e))
-
-#_(defn btuple [l r]
-  (node :tuple l r))
+(defn bset-enum [& elements]
+  {:tag :set-enum
+   :elements elements})
 
 (defn bmap-set [p s]
   (bran (blambda [:x] (bmember? :x s) (p :x))))
 
 
-; TODO: - negations for subset/superset, strict/non-strict
-
-
-
-
-
-
-
-
-
-
-;; TODO: bset, bpow, bpow1, bfin, bfin1,
-;;       sets of bools, naturals, ints, nats
 (defmacro b [repr]
   `(let [
          ; parse units
@@ -844,7 +839,7 @@
          ~'>+>> b>+>>
          ~'>->> b>->>
          ~'lambda blambda
-         ~'call bcall ;TODO: special case keyword :function-name
+         ~'apply bapply
 
          ; relations
          ~'<-> b<->
@@ -939,7 +934,10 @@
          ~'=> b=>
          ~'not bnot
          ~'for-all bfor-all
-         ~'exists bexists]
+         ~'exists bexists
+
+         ;;; misc
+         ~'call bcall]
      ~repr
     ))
 

@@ -151,7 +151,7 @@
               (b (total-relation :S :T))
               (b (surjective-relation :S :T))
               (b (total-surjective-relation :S :T))
-              (b (couple :E :F))
+              (b [:E :F])
               (b (dom :r))
               (b (ran :r))
               (b (identity :S))

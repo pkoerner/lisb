@@ -9,7 +9,8 @@
            de.prob.animator.domainobjects.ClassicalB
            de.prob.animator.domainobjects.FormulaExpand
            de.prob.animator.domainobjects.EvalResult
-           de.prob.animator.domainobjects.ComputationNotCompletedResult))
+           de.prob.animator.domainobjects.ComputationNotCompletedResult
+           de.prob.animator.domainobjects.EnumerationWarning))
 
 ; XXX load an instance of MainModule.class to ensure Prob 2.0 is properly loaded.
 ; Among other things this sets prob.home to load files from the ProB stdlib.
@@ -35,6 +36,10 @@
   (let [reason (.getReason v)]
     (when (not= reason "contradiction found")
       (throw (Exception. reason)))))
+
+(defmethod get-result EnumerationWarning [v]
+  (let [message (.toString v)]
+    (throw (Exception. message))))
 
 (defn eval-formula
   ([ast] (eval-formula (empty-state-space) ast))

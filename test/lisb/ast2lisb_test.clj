@@ -180,10 +180,15 @@
   (testing "relations"
     (are [lisb b] (= `(b ~lisb) (b-expression->lisb b))
                   '(<-> :S :T) "S<->T"
+                  '(<-> :S :T :U) "S<->T<->U"
                   '(total-relation :S :T) "S<<->T"
+                  '(total-relation :S :T :U) "S<<->T<<->U"
                   '(surjective-relation :S :T) "S<->>T"
+                  '(surjective-relation :S :T :U) "S<->>T<->>U"
                   '(total-surjective-relation :S :T) "S<<->>T"
-                  '(couple :E :F) "E|->F"
+                  '(total-surjective-relation :S :T :U) "S<<->>T<<->>U"
+                  '[:E :F] "E|->F"
+                  '[:E :F :G] "E|->F|->G"
                   '(dom :r) "dom(r)"
                   '(ran :r) "ran(r)"
                   '(identity :S) "id(S)"
@@ -220,7 +225,7 @@
                     'int-set "INT"
                     'nat-set "NAT"
                     'nat1-set "NAT1"
-                    '(range 1 3) "1..2"
+                    '(interval 1 2) "1..2"
                     'min-int "MININT"
                     'max-int "MAXINT"
                     '(max nat-set) "max(NAT)"
@@ -247,7 +252,8 @@
                     '(> 1 2) "1>2"
                     '(< 1 2) "1<2"
                     '(>= 1 2) "1>=2"
-                    '(<= 1 2) "1<=2"))))
+                    '(<= 1 2) "1<=2"
+                    ))))
 
 
 (deftest sets-test
@@ -310,7 +316,6 @@
                        '(=> (= 1 1) (= 2 2) (= 3 3)) "1=1 => 2=2 => 3=3"
                        '(<=> (= 1 1) (= 2 2)) "1=1 <=> 2=2"
                        '(<=> (= 1 1) (= 2 2) (= 3 3)) "1=1 <=> 2=2 <=> 3=3"
-                       '(not (= 1 1)) "not(1=1)"
                        '(not (= 1 1)) "not(1=1)"
                        '(for-all [:x] (=> (contains? nat-set :x) (< 0 :x))) "!(x).(x:NAT => 0<x)"
                        '(exists [:x] (and (= 1 1) (= 2 2))) "#(x).(1=1 & 2=2)")))
