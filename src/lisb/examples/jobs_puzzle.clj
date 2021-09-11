@@ -1,7 +1,7 @@
 (ns lisb.examples.jobs-puzzle
   (:require [lisb.core :refer [eval]])
-  (:require [lisb.representation :refer :all])
-  (:require [lisb.translationOLD :refer [to-ast]]))
+  (:require [lisb.translation.representation :refer :all])
+  (:require [lisb.translation.translationOLD :refer [to-ast]]))
 
 (defpred jobs-pred [holds-job]
   ;; using strings in lack of constants

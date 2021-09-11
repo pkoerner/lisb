@@ -1,8 +1,8 @@
-(ns lisb.ast2lisb-test
+(ns lisb.translation.ast2lisb-test
   (:require [clojure.test :refer :all]
-            [lisb.ast2lisb :refer :all]
+            [lisb.translation.ast2lisb :refer :all]
             [lisb.examples.simple :as simple]
-            [lisb.representation :refer [b]])
+            [lisb.translation.representation :refer [b]])
   (:import (de.be4.classicalb.core.parser BParser)))
 
 (import de.be4.classicalb.core.parser.visualisation.ASTPrinter)

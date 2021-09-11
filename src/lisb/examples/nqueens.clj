@@ -1,7 +1,7 @@
 (ns lisb.examples.nqueens
   (:require [lisb.core :refer [eval state-space]])
-  (:require [lisb.representation :refer :all])
-  (:require [lisb.translationOLD :refer [to-ast]]))
+  (:require [lisb.translation.representation :refer :all])
+  (:require [lisb.translation.translationOLD :refer [to-ast]]))
 
 
 

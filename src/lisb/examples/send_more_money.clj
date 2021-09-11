@@ -1,7 +1,7 @@
 (ns lisb.examples.send-more-money
   (:require [lisb.core :refer [eval state-space]])
-  (:require [lisb.representation :refer :all])
-  (:require [lisb.translationOLD :refer [to-ast]]))
+  (:require [lisb.translation.representation :refer :all])
+  (:require [lisb.translation.translationOLD :refer [to-ast]]))
 
 (defpred send-more-money-p [s e n d m o r y]
   (and (subset? #{s e n d m o r y} (range 0 9))
