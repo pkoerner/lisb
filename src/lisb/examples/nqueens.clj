@@ -1,7 +1,7 @@
 (ns lisb.examples.nqueens
-  (:require [lisb.core :refer [eval state-space]])
+  (:require [lisb.core :refer [eval-formula empty-state-space]])
   (:require [lisb.translation.representation :refer :all])
-  (:require [lisb.translation.translationOLD :refer [to-ast]]))
+  (:require [lisb.translation.translation :refer [b->predicate-ast]]))
 
 
 
@@ -10,38 +10,38 @@
   ([size ss]
    (let [width (binterval 1 :n)
          repr (band (b= :n size)
-                    (bmember :queens (b>-> width width))
-                    (bforall [:q1 :q2]
-                             (b=> (band (bmember :q1 width)
-                                        (bmember :q2 width)
+                    (bmember? :queens (b>-> width width))
+                    (bfor-all [:q1 :q2]
+                             (b=> (band (bmember? :q1 width)
+                                        (bmember? :q2 width)
                                         (b> :q2 :q1))
                                   (band (bnot= (b+ (bapply :queens :q1) (b- :q2 :q1)) (bapply :queens :q2))
                                         (bnot= (b+ (bapply :queens :q1) (b- :q1 :q2)) (bapply :queens :q2))))))
-         result (eval ss (to-ast repr))]
+         result (eval-formula ss (b->predicate-ast repr))]
      result))
   ([size]
-   (defonce ss (state-space))
+   (defonce ss (empty-state-space))
    (nqueens size ss)))
 
 
 (defn nqueens2
   "the n-queens problem in B using the b macro"
   ([size ss]
-   (let [width (lisb->node-repr (range 1 :n))
-         q1pos (lisb->node-repr (apply :queens :q1))
-         q2pos (lisb->node-repr (apply :queens :q2))
-         repr  (lisb->node-repr (and (= :n size)
+   (let [width (b (range 1 :n))
+         q1pos (b (apply :queens :q1))
+         q2pos (b (apply :queens :q2))
+         repr  (b (and (= :n size)
                                      (member? :queens (>-> width width))
-                                     (forall [:q1 :q2]
+                                     (for-all [:q1 :q2]
                                (=> (and (member? :q1 width)
                                         (member? :q2 width)
                                         (> :q2 :q1))
                                    (and (not= (+ q1pos (- :q2 :q1)) q2pos)
                                         (not= (+ q1pos (- :q1 :q2)) q2pos))))))
-         result (eval ss (to-ast repr))]
+         result (eval-formula ss (b->predicate-ast repr))]
      result))
   ([size]
-   (defonce ss (state-space))
+   (defonce ss (empty-state-space))
    (nqueens2 size ss)))
 
 
@@ -51,7 +51,7 @@
         q1pos (apply sol :q1)
         q2pos (apply sol :q2)]
         (and (member? sol (>-> width width))
-             (forall [:q1 :q2]
+             (for-all [:q1 :q2]
                      (=> (and (member? :q1 width)
                               (member? :q2 width)
                               (> :q2 :q1))
@@ -61,9 +61,9 @@
 (defn nqueens3
   "the n-queens problem using a predicate definition"
   ([size ss]
-   (eval ss (to-ast (nqueens-p size :queens))))
+   (eval-formula ss (b->predicate-ast (nqueens-p size :queens))))
   ([size]
-   (defonce ss (state-space))
+   (defonce ss (empty-state-space))
    (nqueens3 size ss)))
 
 
