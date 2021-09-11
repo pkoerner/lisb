@@ -1,5 +1,5 @@
 (ns lisb.examples.simple
-  (:require [lisb.representation :refer [b]]))
+  (:require [lisb.translation.representation :refer [b]]))
 
 (def lift (b (machine
                (machine-variant)

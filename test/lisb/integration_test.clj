@@ -1,9 +1,9 @@
 (ns lisb.integration-test
   (:require [clojure.test :refer :all])
   (:require [lisb.core :refer [eval-formula empty-state-space]])
-  (:require [lisb.representation :refer :all])
-  (:require [lisb.translation :refer [b->predicate-ast]])
-  (:require [lisb.ast2lisb :refer [b-expression->lisb, b-predicate->lisb]]))
+  (:require [lisb.translation.representation :refer :all])
+  (:require [lisb.translation.translation :refer [b->predicate-ast]])
+  (:require [lisb.translation.ast2lisb :refer [b-expression->lisb, b-predicate->lisb]]))
 
 (defonce te-ss-t (empty-state-space))
 

@@ -1,4 +1,4 @@
-(ns lisb.retranslate
+(ns lisb.prob-wrapper.retranslate
   (:import
     (de.hhu.stups.prob.translator BAtom BBoolean BNumber BRecord BSet BString BTuple)
     (de.hhu.stups.prob.translator.interpretations BFunction BRelation BSequence)))

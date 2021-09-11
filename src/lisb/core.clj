@@ -1,6 +1,6 @@
 (ns lisb.core
-  (:require [lisb.representation :refer :all])
-  (:require [lisb.translation :refer [b->ast b->predicate-ast]])
+  (:require [lisb.translation.representation :refer :all])
+  (:require [lisb.translation.translation :refer [b->ast b->predicate-ast]])
   (:import com.google.inject.Guice
            com.google.inject.Stage
            de.prob.MainModule
