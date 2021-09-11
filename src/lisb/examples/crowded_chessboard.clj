@@ -1,9 +1,9 @@
 (ns lisb.examples.crowded-chessboard
   (:require [clojure.set :refer [union]])
   (:require [clojure.pprint :refer [print-table]])
-  (:require [lisb.core :refer [eval state-space get-api]])
+  (:require [lisb.core :refer [eval-formula empty-state-space api]])
   (:require [lisb.translation.representation :refer :all])
-  (:require [lisb.translation.translationOLD :refer [to-ast]]))
+  (:require [lisb.translation.translation :refer [b->predicate-ast]]))
 
 
 (defn attack-horizontal 
@@ -74,7 +74,7 @@
 
 (defn how-many [figure amount]
   (b= amount (bcount (blambda [:pos]
-                              (band (bmember :pos (bdom :board)) (b= figure (bapply :board :pos)))
+                              (band (bmember? :pos (bdom :board)) (b= figure (bapply :board :pos)))
                               :pos))))
 
 (defn create-machine []
@@ -84,9 +84,8 @@
     (spit tf "MACHINE chessboard \n DEFINITIONS SET_PREF_KODKOD_MAX_NR_SOLS == 1; \n SET_PREF_KODKOD_SAT_SOLVER == \"glucose\"; \n SET_PREF_KODKOD_SYMMETRY == 20; \n SETS FIGURES = {queen, rook, bishop, knight, empty} \n  END")
     tn))
 
-(defn crowded-state-space []
-  (let [machine (create-machine)
-        api (get-api)]
+(defn crowded-empty-state-space []
+  (let [machine (create-machine)]
     (.b_load api machine {"KODKOD" "true"
                           "TIME_OUT" "50000"})))
 
@@ -95,8 +94,8 @@
   ([size amount-knights ss]
    (let [field (binterval 1 (b* :n :n))
          amount-bishops (if (= size 4) 5 (- (* 2 size) 2))
-         repr (lisb->node-repr (and (= :n size)
-                                    (bmember :board (b--> field :figures))
+         repr (b (and (= :n size)
+                                    (bmember? :board (b--> field :figures))
                                     (how-many :queen size)
                                     (how-many :rook size)
                                     (how-many :bishop amount-bishops)
@@ -105,10 +104,10 @@
                                     (attack size :rook attack-rook)
                                     (attack size :bishop attack-bishop)
                                     (attack size :knight attack-knight)))
-         result (eval ss (to-ast repr))]
+         result (eval-formula ss (b->predicate-ast repr))]
      result))
   ([size amount-knights]
-   (let [ss (crowded-state-space)]
+   (let [ss (crowded-empty-state-space)]
      (crowded-chessboard size amount-knights ss))))
 
 
@@ -122,4 +121,4 @@
               sorted-sol (sort-by first (map (fn [x] [(first x) (.getValue (second x))]) sol))]
           (print-table [0 1 2] (map (partial untransform-position size) sorted-sol)))))
 
-;(cc 8 21)
+#_(cc 8 21)
