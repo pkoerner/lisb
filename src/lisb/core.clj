@@ -1,7 +1,7 @@
 (ns lisb.core
   (:require [lisb.prob.animator :refer :all])
   (:require [lisb.translation.lisb2ir :refer :all])
-  (:require [lisb.translation.ir2ast :refer [ir->ast ir->predicate-ast]]))
+  (:require [lisb.translation.ir2ast :refer [ir->ast ir->predicate-ast ir->expression-ast]]))
 
 
 (defn ir-state-space
@@ -12,6 +12,10 @@
 (defn eval-ir-as-predicate
   ([state-space ir] (eval-formula state-space (ir->predicate-ast ir)))
   ([ir] (eval-ir-as-predicate (ir-state-space) ir)))
+
+(defn eval-ir-as-expression
+  ([state-space ir] (eval-formula state-space (ir->expression-ast ir)))
+  ([ir] (eval-ir-as-expression (ir-state-space) ir)))
 
 
 (defn choose-rest [c]
