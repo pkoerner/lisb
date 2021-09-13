@@ -2,17 +2,18 @@
   (:require [clojure.test :refer :all]
             [lisb.translation.ast2lisb :refer :all]
             [lisb.examples.simple :as simple]
-            [lisb.translation.representation :refer [b]])
-  (:import (de.be4.classicalb.core.parser BParser)))
+            [lisb.translation.lisb2ir :refer [b]]
+            [lisb.translation.b2ast :refer :all]))
 
-(import de.be4.classicalb.core.parser.visualisation.ASTPrinter)
-(def printer (ASTPrinter.))
-(defn print-ast [b-ast]
-  (.apply b-ast printer))
+(defn b->lisb [b] (ast->lisb (b->ast b)))
+(defn b-predicate->lisb [b-predicate] (ast->lisb (b-predicate->ast b-predicate)))
+(defn b-expression->lisb [b-predicate] (ast->lisb (b-expression->ast b-predicate)))
+(defn b-formula->lisb [b-predicate] (ast->lisb (b-formula->ast b-predicate)))
+(defn b-substitution->lisb [b-predicate] (ast->lisb (b-substitution->ast b-predicate)))
 
 (deftest examples-simple-test
   (testing "examples-simple"
-    (are [lisb b] (= lisb (eval (b->lisb (slurp (clojure.java.io/resource (str "machines/" b))))))
+    (are [lisb b] (= lisb (b->lisb (slurp (clojure.java.io/resource (str "machines/" b)))))
                   simple/lift "Lift.mch"
                   simple/a-counter "ACounter.mch"
                   simple/gcd "GCD.mch"
@@ -26,9 +27,9 @@
 (deftest machine-test
   (testing "machine"
     (is (=
-          `(b ~'(machine
-               (machine-variant)
-               (machine-header :Empty [])))
+          '(machine
+             (machine-variant)
+             (machine-header :Empty []))
           (b->lisb "MACHINE Empty\nEND")))))
 
 #_(deftest constraint-test
@@ -39,7 +40,7 @@
 
 (deftest machine-clauses-test
   (testing "machine-clauses"
-    (are [lisb b] (= `(b ~lisb)
+    (are [lisb b] (= lisb
                      (b->lisb (slurp (clojure.java.io/resource (str "machines/" b)))))
                   '(machine
                      (machine-variant)
@@ -64,7 +65,7 @@
 
 (deftest substitutions-test
   (testing "substitutions"
-    (are [lisb b] (= `(b ~lisb) (b-substitution->lisb b))
+    (are [lisb b] (= lisb (b-substitution->lisb b))
                   'skip "skip"
                   '(assign :x :E) "x := E"
                   ; "f(x) := E"
@@ -96,23 +97,23 @@
 
 (deftest if-test
   (testing "if"
-    (are [lisb b] (= `(b ~lisb) (b-expression->lisb b))
+    (are [lisb b] (= lisb (b-expression->lisb b))
                              '(if-expr (= 1 1) 2 3) "IF 1=1 THEN 2 ELSE 3 END")
-    (are [lisb b] (= `(b ~lisb) (b-predicate->lisb b))
+    (are [lisb b] (= lisb (b-predicate->lisb b))
                   '(and (=> (= 1 1) (= 2 2)) (=> (not (= 1 1)) (= 3 3))) "IF 1=1 THEN 2=2 ELSE 3=3 END")))
 
 
 (deftest let-test
   (testing "let"
-    (are [lisb b] (= `(b ~lisb) (b-expression->lisb b))
+    (are [lisb b] (= lisb (b-expression->lisb b))
                   '(let-expr [:x :y] (and (= :x 1) (= :y 2)) 3) "LET x, y BE x=1 & y=2 IN 3 END")
-    (are [lisb b] (= `(b ~lisb) (b-predicate->lisb b))
+    (are [lisb b] (= lisb (b-predicate->lisb b))
                   '(let-pred [:x :y] (and (= :x 1) (= :y 2)) (= 0 0)) "LET x, y BE x=1 & y=2 IN 0=0 END")))
 
 
 (deftest strings-test
   (testing "strings"
-    (are [lisb b] (= `(b ~lisb) (b-formula->lisb b))
+    (are [lisb b] (= lisb (b-formula->lisb b))
                   "astring" "\"astring\""
                   "astring" "'''astring'''"
                   'string-set "STRING"
@@ -124,7 +125,7 @@
 
 (deftest records-test
   (testing "records"
-    (are [lisb b] (= `(b ~lisb) (b-expression->lisb b))
+    (are [lisb b] (= lisb (b-expression->lisb b))
                   '(struct :n nat-set) "struct(n:NAT)"
                   '(struct :n nat-set, :b bool-set) "struct(n:NAT,b:BOOL)"
                   '(record :n 1) "rec(n:1)"
@@ -134,7 +135,7 @@
 
 (deftest sequences-test
   (testing "sequences"
-    (are [lisb b] (= `(b ~lisb) (b-expression->lisb b))
+    (are [lisb b] (= lisb (b-expression->lisb b))
                   '(sequence) "<>"
                   '(sequence) "[]"
                   '(sequence :E) "[E]"
@@ -162,7 +163,7 @@
 
 (deftest function-test
   (testing "functions"
-    (are [lisb b] (= `(b ~lisb) (b-expression->lisb b))
+    (are [lisb b] (= lisb (b-expression->lisb b))
                   '(+-> :S :T) "S+->T"
                   '(--> :S :T) "S-->T"
                   '(+->> :S :T) "S+->>T"
@@ -172,13 +173,12 @@
                   '(>->> :S :T) "S>->>T"
                   '(lambda [:x] (= 1 1) 1) "%x.(1=1|1)"
                   '(call :f :E) "f(E)"
-                  '(call :f :E :F) "f(E,F)"
-                  )))
+                  '(call :f :E :F) "f(E,F)")))
 
 
 (deftest relation-test
   (testing "relations"
-    (are [lisb b] (= `(b ~lisb) (b-expression->lisb b))
+    (are [lisb b] (= lisb (b-expression->lisb b))
                   '(<-> :S :T) "S<->T"
                   '(<-> :S :T :U) "S<->T<->U"
                   '(total-relation :S :T) "S<<->T"
@@ -214,7 +214,7 @@
 (deftest number-test
   (testing "numbers"
     (testing "expressions"
-      (are [lisb b] (= `(b ~lisb) (b-expression->lisb b))
+      (are [lisb b] (= lisb (b-expression->lisb b))
                     1 "1"
                     -1 "-1"
                     '(- :x) "-x"
@@ -233,7 +233,7 @@
                     '(pi [:z] (contains? nat-set :z) 1) "PI(z).(z:NAT|1)"
                     '(sigma [:z] (contains? nat-set :z) 1) "SIGMA(z).(z:NAT|1)"))
     (testing "arithmetic"
-      (are [lisb b] (= `(b ~lisb) (b-expression->lisb b))
+      (are [lisb b] (= lisb (b-expression->lisb b))
                     '(+ 1 2) "1+2"
                     '(+ 1 2 3) "1+2+3"
                     '(- 1 2) "1-2"
@@ -248,7 +248,7 @@
                     '(inc 1) "succ(1)"
                     '(dec 1) "pred(1)"))
     (testing "predicates"
-      (are [lisb b] (= `(b ~lisb) (b-predicate->lisb b))
+      (are [lisb b] (= lisb (b-predicate->lisb b))
                     '(> 1 2) "1>2"
                     '(< 1 2) "1<2"
                     '(>= 1 2) "1>=2"
@@ -258,7 +258,7 @@
 
 (deftest sets-test
   (testing "sets"
-    (are [lisb b-expr] (= `(b ~lisb) (b-expression->lisb b-expr))
+    (are [lisb b-expr] (= lisb (b-expression->lisb b-expr))
                   #{} "{}"
                   #{:E} "{E}"
                   #{:E :F} "{E, F}"
@@ -280,7 +280,7 @@
                   '(intersect-sets #{#{}}) "inter({{}})"
                   '(union-pe [:z] (contains? nat-set :z) 1) "UNION(z).(z:NAT|1)"
                   '(intersection-pe [:z] (contains? nat-set :z) 1) "INTER(z).(z:NAT|1)")
-    (are [lisb b-pred] (= `(b ~lisb) (b-predicate->lisb b-pred))
+    (are [lisb b-pred] (= lisb (b-predicate->lisb b-pred))
                   '(contains? #{} 1) "1:{}"
                   '(not (contains? #{} 1)) "1/:{}"
                   '(subset? #{:E} #{:G}) "{E}<:{G}"
@@ -291,7 +291,7 @@
 
 (deftest booleans-test
   (testing "booleans"
-    (are [lisb b-expr] (= `(b ~lisb) (b-expression->lisb b-expr))
+    (are [lisb b-expr] (= lisb (b-expression->lisb b-expr))
                   true "TRUE"
                   false "FALSE"
                   'bool-set "BOOL"
@@ -300,14 +300,14 @@
 
 (deftest equality-predicates-test
   (testing "equality-predicates"
-    (are [lisb b-pred] (= `(b ~lisb) (b-predicate->lisb b-pred))
+    (are [lisb b-pred] (= lisb (b-predicate->lisb b-pred))
                   '(= true false) "TRUE = FALSE"
                   '(not= true false) "TRUE /= FALSE")))
 
 
 (deftest logical-predicates-test
   (testing "logical-predicates"
-    (are [lisb b-pred] (= `(b ~lisb) (b-predicate->lisb b-pred))
+    (are [lisb b-pred] (= lisb (b-predicate->lisb b-pred))
                        '(and (= 1 1) (= 2 2)) "1=1 & 2=2"
                        '(and (= 1 1) (= 2 2) (= 3 3)) "1=1 & 2=2 & 3=3"
                        '(or (= 1 1) (= 2 2)) "1=1 or 2=2"

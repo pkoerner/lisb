@@ -1,6 +1,6 @@
 (ns lisb.translation.data-conversion-test
   (:require [clojure.test :refer :all]
-            [lisb.translation.representation :refer :all]
+            [lisb.translation.lisb2ir :refer :all]
             [lisb.translation.data-conversion :refer :all]))
 
 

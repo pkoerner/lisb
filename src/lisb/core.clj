@@ -1,17 +1,17 @@
 (ns lisb.core
   (:require [lisb.prob.animator :refer :all])
-  (:require [lisb.translation.representation :refer :all])
-  (:require [lisb.translation.translation :refer [b->ast b->predicate-ast]]))
+  (:require [lisb.translation.lisb2ir :refer :all])
+  (:require [lisb.translation.ir2ast :refer [ir->ast ir->predicate-ast]]))
 
 
-(defn lisb-state-space
-  ([ast] (state-space (b->ast ast)))
-  ([] (lisb-state-space bempty-machine)))
+(defn ir-state-space
+  ([ir] (state-space (ir->ast ir)))
+  ([] (ir-state-space bempty-machine)))
 
 
-(defn eval-lisb-predicate
-  ([state-space lisb-predicate] (eval-formula state-space (b->predicate-ast lisb-predicate)))
-  ([lisb-predicate] (eval-lisb-predicate (lisb-state-space) lisb-predicate)))
+(defn eval-ir-as-predicate
+  ([state-space ir] (eval-formula state-space (ir->predicate-ast ir)))
+  ([ir] (eval-ir-as-predicate (ir-state-space) ir)))
 
 
 (defn choose-rest [c]
@@ -24,16 +24,16 @@
 
 (defn sat-conjuncts?
   ([c]
-   (eval-lisb-predicate c))
+   (eval-ir-as-predicate c))
   ([c & r]
-   (eval-lisb-predicate (apply band c r))))
+   (eval-ir-as-predicate (apply band c r))))
 
 
 (defn timeout-conjuncts?
   ([c]
-   (= :timeout (eval-lisb-predicate c)))
+   (= :timeout (eval-ir-as-predicate c)))
   ([c & r]
-   (= :timeout (eval-lisb-predicate (apply band c r)))))
+   (= :timeout (eval-ir-as-predicate (apply band c r)))))
 
 
 (defn unsat-core-aux [sat? c]
@@ -48,17 +48,17 @@
 
 (defn unsat-core [& conjuncts]
   {:pre [(seq (rest conjuncts))
-         (not (eval-lisb-predicate (apply band conjuncts)))]}
+         (not (eval-ir-as-predicate (apply band conjuncts)))]}
   (unsat-core-aux (partial apply sat-conjuncts?) conjuncts))
 
 
 (defn unsat-core-predicate [p c]
-  {:pre [(not (eval-lisb-predicate (p c)))
+  {:pre [(not (eval-ir-as-predicate (p c)))
          (set? c)]}
-  (unsat-core-aux #(eval-lisb-predicate (p (set %))) c))
+  (unsat-core-aux #(eval-ir-as-predicate (p (set %))) c))
 
 
 (defn timeout-core [& conjuncts]
   {:pre [(seq (rest conjuncts))
-         (= :timeout (eval-lisb-predicate (apply band conjuncts)))]}
+         (= :timeout (eval-ir-as-predicate (apply band conjuncts)))]}
   (unsat-core-aux (partial apply (complement timeout-conjuncts?)) conjuncts))

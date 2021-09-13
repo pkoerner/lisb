@@ -1,4 +1,4 @@
-(ns lisb.translation.representation)
+(ns lisb.translation.lisb2ir)
 
 
 (declare b=)
@@ -746,7 +746,7 @@
   (bran (blambda [:x] (bmember? :x s) (p :x))))
 
 
-(defmacro b [repr]
+(defmacro b [lisb]
   `(let [
          ; parse units
          ~'machine bmachine
@@ -938,7 +938,7 @@
 
          ;;; misc
          ~'call bcall]
-     ~repr
+     ~lisb
     ))
 
 (def bempty-machine (bmachine

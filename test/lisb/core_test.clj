@@ -1,7 +1,7 @@
 (ns lisb.core-test
-  (:require [lisb.core :refer [unsat-core unsat-core-predicate choose-rest sat-conjuncts?]]
-            [lisb.translation.representation :refer :all])
-  (:require [clojure.test :refer :all]))
+  (:require [clojure.test :refer :all]
+            [lisb.core :refer [unsat-core unsat-core-predicate choose-rest sat-conjuncts?]]
+            [lisb.translation.lisb2ir :refer :all]))
 
 
 (deftest choose-rest-test
