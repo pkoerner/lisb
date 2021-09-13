@@ -1,5 +1,7 @@
 (ns lisb.examples.simple
-  (:require [lisb.representation :refer [b]]))
+  (:use [lisb.representation])
+  (:use [lisb.high-level])
+  )
 
 (def lift (b (machine
                (machine-variant)
@@ -8,8 +10,8 @@
                (invariant (contains? (range 0 100) :etage))
                (init (assign :etage 4))
                (operations
-                 (operation [] :inc [] (pre (< :etage 99) (assign :etage (+ :etage 1))))
-                 (operation [] :dec[](pre (> :etage 0) (assign :etage (- :etage 1))))))))
+                (operation [] :inc [] (pre (< :etage 99) (assign :etage (+ :etage 1))) )
+                (operation [] :dec[] (pre (> :etage 0) (assign :etage (- :etage 1))))))))
 
 (def lift2 (b {:name :Lift
               :variables #{:etage}
@@ -96,3 +98,24 @@
                     (operation [] :try2 [] (select (= :p2 0) (parallel-substitution (assign :p2 1) (assign :y2 (+ :y1 1)))))
                     (operation [] :enter2 [] (select (and (= :p2 1) (or (= :y1 0) (< :y2 :y1))) (assign :p2 2)))
                     (operation [] :leave2 [] (select (= :p2 2) (parallel-substitution (assign :p2 0) (assign :y2 0))))))))
+
+(def smalltrace
+  (let [m (load-initialized-machine-trace bakery0)]
+    (-> m
+        (perform :enter1)
+        (perform :try1)
+        (perform :leave1))))
+
+(def smalltrace-next-steps
+  (possible-ops smalltrace))
+
+(comment
+
+  (perform smalltrace (.getName (first smalltrace-next-steps)))
+
+  (create-ns 'b)
+
+  (intern 'b
+          'take
+          btake)
+         )
