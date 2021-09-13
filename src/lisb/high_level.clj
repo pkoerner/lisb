@@ -1,6 +1,10 @@
 (ns lisb.high-level
-  (:use [lisb.representation])
-  (:use [lisb.translation])
+  (:use [lisb.prob.animator])
+  (:use [lisb.prob.retranslate])
+  (:use [lisb.translation.ast2lisb])
+  (:use [lisb.translation.data-conversion])
+  (:use [lisb.translation.representation])
+  (:use [lisb.translation.translation])
   (:use [lisb.core])
   (:import de.prob.statespace.Trace)
   )
