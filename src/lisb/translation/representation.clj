@@ -838,6 +838,17 @@
          ~'>-> b>->
          ~'>+>> b>+>>
          ~'>->> b>->>
+
+         ; functions altnames
+         ~'partial-fn b+->
+         ~'total-fn b-->
+         ~'partial-surjection b+->>
+         ~'total-surjection b-->>
+         ~'partial-injection b>+>
+         ~'total-injection b>->
+         ~'partial-bijection b>+>>
+         ~'total-bijection b>->>
+
          ~'lambda blambda
          ~'apply bapply
 
