@@ -1,6 +1,7 @@
 (ns lisb.high-level
   (:use [lisb.prob.animator])
   (:use [lisb.prob.retranslate])
+  (:use [lisb.translation.b2ast])
   (:use [lisb.translation.ast2lisb])
   (:use [lisb.translation.data-conversion])
   (:use [lisb.translation.representation])
@@ -10,11 +11,11 @@
   )
 
 (defn load-machine-trace [m]
-  (let [ss (.b_load api (b->ast m))]
+  (let [ss (state-space (b->ast m))]
     (Trace. ss)))
 
 (defn load-initialized-machine-trace [m]
-  (let [ss (.b_load api (b->ast m))]
+  (let [ss (state-space (b->ast m))]
     (.addTransitionWith (Trace. ss) "$initialise_machine" [])))
 
 (defn latest-state [trace]
