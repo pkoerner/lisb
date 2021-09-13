@@ -1,5 +1,5 @@
 (ns lisb.examples.function-returns
-  (:require [lisb.representation :refer :all]))
+  (:require [lisb.translation.representation :refer :all]))
 
 
 (def function-returns (bmachine

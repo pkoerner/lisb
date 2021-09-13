@@ -1,8 +1,8 @@
-(ns lisb.rename-test
+(ns lisb.translation.rename-test
   (:require [clojure.test :refer :all]
-            [lisb.representation :refer [b]]
-            [lisb.ast2lisb :refer :all]
-            [lisb.translation :refer :all]))
+            [lisb.translation.representation :refer [b]]
+            [lisb.translation.ast2lisb :refer :all]
+            [lisb.translation.translation :refer :all]))
 
 (import de.be4.classicalb.core.parser.visualisation.ASTPrinter)
 (def printer (ASTPrinter.))
@@ -17,14 +17,14 @@
 
 (deftest machine-test
   (testing "machine"
-    (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->ast ir))))
+    (are [ir] (= ir (eval (b-ast->lisb (b->ast ir))))
               (b (machine
                    (machine-variant)
                    (machine-header :Empty []))))))
 
 (deftest machine-clauses-test
   (testing "machine-clauses"
-    (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->machine-clause-ast ir))))
+    (are [ir] (= ir (eval (b-ast->lisb (b->machine-clause-ast ir))))
               (b (constraints (= 1 1)))
               (b (sets (deferred-set :S) (enumerated-set :T :e1 :e2)))
               (b (constants :a :b :c))
@@ -39,7 +39,7 @@
 
 (deftest substitutions-test
   (testing "substitutions"
-    (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->substitution-ast ir))))
+    (are [ir] (= ir (eval (b-ast->lisb (b->substitution-ast ir))))
               (b skip)
               (b (assign :x :E))
                   ;"f(x) := E"
@@ -70,19 +70,19 @@
 
 (deftest if-test
   (testing "if"
-    (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->expression-ast ir))))
+    (are [ir] (= ir (eval (b-ast->lisb (b->expression-ast ir))))
               (b (if-expr (= 1 1) 2 3)))))
 
 (deftest let-test
   (testing "let"
-    (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->expression-ast ir))))
+    (are [ir] (= ir (eval (b-ast->lisb (b->expression-ast ir))))
               (b (let-expr [:x :y] (and (= :x 1) (= :y 2)) 3)))
-    (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->predicate-ast ir))))
+    (are [ir] (= ir (eval (b-ast->lisb (b->predicate-ast ir))))
               (b (let-pred [:x :y] (and (= :x 1) (= :y 2)) (= 0 0))))))
 
 (deftest strings-test
   (testing "strings"
-    (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->expression-ast ir))))
+    (are [ir] (= ir (eval (b-ast->lisb (b->expression-ast ir))))
               (b "astring")
               (b string-set)
               (b (count-seq "s"))
@@ -92,7 +92,7 @@
 
 (deftest struct-test
   (testing "structs"
-    (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->expression-ast ir))))
+    (are [ir] (= ir (eval (b-ast->lisb (b->expression-ast ir))))
               (b (struct :n nat-set))
               (b (struct :n nat-set, :b bool-set))
               (b (record :n 1))
@@ -101,7 +101,7 @@
 
 (deftest sequences-test
   (testing "sequences"
-    (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->expression-ast ir))))
+    (are [ir] (= ir (eval (b-ast->lisb (b->expression-ast ir))))
               (b (sequence))
               (b (sequence :E))
               (b (sequence :E :F))
@@ -131,7 +131,7 @@
 
 (deftest function-test
   (testing "functions"
-    (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->expression-ast ir))))
+    (are [ir] (= ir (eval (b-ast->lisb (b->expression-ast ir))))
               (b (+-> :S :T))
               (b (--> :S :T))
               (b (+->> :S :T))
@@ -146,7 +146,7 @@
 
 (deftest relation-test
   (testing "relations"
-    (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->expression-ast ir))))
+    (are [ir] (= ir (eval (b-ast->lisb (b->expression-ast ir))))
               (b (<-> :S :T))
               (b (total-relation :S :T))
               (b (surjective-relation :S :T))
@@ -176,7 +176,7 @@
 (deftest numbers-test
   (testing "numbers"
     (testing "expressions"
-      (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->expression-ast ir))))
+      (are [ir] (= ir (eval (b-ast->lisb (b->expression-ast ir))))
                 (b 1)
                 (b -1)
                 (b (- :x))
@@ -196,7 +196,7 @@
                 (b (pi [:z] (contains? nat-set  :z) 1))
                 (b (sigma [:z] (contains? nat-set :z) 1)))
       (testing "arithmetic"
-        (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->expression-ast ir))))
+        (are [ir] (= ir (eval (b-ast->lisb (b->expression-ast ir))))
                   (b (+ 1 2))
                   (b (- 1 2))
                   (b (* 1 2))
@@ -206,7 +206,7 @@
                   (b (inc 1))
                   (b (dec 1)))))
     (testing "predicates"
-      (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->predicate-ast ir))))
+      (are [ir] (= ir (eval (b-ast->lisb (b->predicate-ast ir))))
                 (b (> 1 2))
                 (b (< 1 2))
                 (b (>= 1 2))
@@ -214,7 +214,7 @@
 
 (deftest sets-test
   (testing "sets"
-    (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->expression-ast ir))))
+    (are [ir] (= ir (eval (b-ast->lisb (b->expression-ast ir))))
               (b #{})
               (b #{:E})
               (b #{:E :F})
@@ -244,7 +244,7 @@
               (b (intersect-sets #{#{:E} #{:F}}))
               (b (union-pe [:z] (contains? nat-set :z) 1))
               (b (intersection-pe [:z] (contains? nat-set :z) 1)))
-    (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->predicate-ast ir))))
+    (are [ir] (= ir (eval (b-ast->lisb (b->predicate-ast ir))))
               (b (contains? #{} 1))
               (b (not (contains? #{} 1)))
               (b (subset? #{:E} #{:G}))
@@ -258,7 +258,7 @@
 
 (deftest booleans-test
   (testing "booleans"
-    (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->expression-ast ir))))
+    (are [ir] (= ir (eval (b-ast->lisb (b->expression-ast ir))))
               (b true)
               (b false)
               (b bool-set)
@@ -266,13 +266,13 @@
 
 (deftest equality-predicates-test
   (testing "equality-predicates"
-    (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->predicate-ast ir))))
+    (are [ir] (= ir (eval (b-ast->lisb (b->predicate-ast ir))))
               (b (= true false))
               (b (not= true false)))))
 
 (deftest logical-predicates-test
   (testing "logical-predicates"
-    (are [ir] (= ir (eval (lisb.ast2lisb/b-ast->lisb (lisb.translation/b->predicate-ast ir))))
+    (are [ir] (= ir (eval (b-ast->lisb (b->predicate-ast ir))))
               (b (and (= 1 1) (= 2 2)))
               (b (or (= 1 1) (= 2 2)))
               (b (=> (= 1 1) (= 2 2)))

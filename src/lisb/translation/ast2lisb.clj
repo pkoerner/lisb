@@ -1,5 +1,5 @@
-(ns lisb.ast2lisb
-  (:require [lisb.representation :refer :all])
+(ns lisb.translation.ast2lisb
+  (:require [lisb.translation.representation :refer :all])
   (:import (de.be4.classicalb.core.parser.node
              Start
              AAbstractMachineParseUnit
@@ -299,10 +299,8 @@
   (lisbify 'assert args (.getPredicate node) (.getSubstitution node)))
 
 (defmethod ast->lisb AChoiceSubstitution [node args]
-  (println (.getSubstitutions node))
   (concat-last 'choice args (.getSubstitutions node)))
 (defmethod ast->lisb AChoiceOrSubstitution [node args]
-  (println (ast->lisb (.getSubstitution node) args))
   (ast->lisb (.getSubstitution node) args))
 
 (defmethod ast->lisb AIfSubstitution [node args]
