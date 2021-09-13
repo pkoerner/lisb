@@ -1,7 +1,6 @@
 (ns lisb.examples.simple
-  (:use [lisb.representation])
-  (:use [lisb.high-level])
-  )
+  (:use [lisb.translation.representation])
+  (:use [lisb.high-level]))
 
 (def lift (b (machine
                (machine-variant)

@@ -1,4 +1,4 @@
-(ns lisb.representation)
+(ns lisb.translation.representation)
 
 
 (declare b=)

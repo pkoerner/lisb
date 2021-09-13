@@ -1,9 +1,9 @@
-(ns lisb.lisb2ast-test
+(ns lisb.translation.lisb2ast-test
   (:require [clojure.test :refer :all]
-            [lisb.representation :refer :all]
+            [lisb.translation.representation :refer :all]
             [lisb.examples.simple :as simple]
             [lisb.examples.function-returns :as function-returns]
-            [lisb.translation :refer [b->ast b->predicate-ast b->expression-ast b->substitution-ast b->machine-clause-ast]]))
+            [lisb.translation.translation :refer [b->ast b->predicate-ast b->expression-ast b->substitution-ast b->machine-clause-ast]]))
 
 (import de.be4.classicalb.core.parser.visualisation.ASTPrinter)
 (def printer (ASTPrinter.))

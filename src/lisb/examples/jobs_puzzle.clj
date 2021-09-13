@@ -1,23 +1,23 @@
 (ns lisb.examples.jobs-puzzle
-  (:require [lisb.core :refer [eval]])
-  (:require [lisb.representation :refer :all])
-  (:require [lisb.translationOLD :refer [to-ast]]))
+  (:require [lisb.core :refer [eval-formula]])
+  (:require [lisb.translation.representation :refer :all])
+  (:require [lisb.translation.translation :refer [b->predicate-ast]]))
 
 (defpred jobs-pred [holds-job]
   ;; using strings in lack of constants
-  (let [roberta (bstr "Roberta")
-        thelma (bstr "Thelma")
-        steve (bstr "Steve")
-        pete (bstr "Pete")
+  (let [roberta "Roberta"
+        thelma "Thelma"
+        steve "Steve"
+        pete "Pete"
         
-        chef (bstr "chef")
-        guard (bstr "guard")
-        nurse (bstr "nurse")
-        clerk (bstr "clerk")
-        police (bstr "police")
-        teacher (bstr "teacher")
-        actor (bstr "actor")
-        boxer (bstr "boxer")
+        chef "chef"
+        guard "guard"
+        nurse "nurse"
+        clerk "clerk"
+        police "police"
+        teacher "teacher"
+        actor "actor"
+        boxer "boxer"
         holds-job-fn (partial apply holds-job)]
     (and
       (= :people #{roberta, thelma, steve, pete})
@@ -28,7 +28,7 @@
   
       (member? holds-job (-->> :jobs :people))
   
-      (forall [:x]
+      (for-all [:x]
               (member? :x :people)
               (= 2 (count (|> holds-job #{:x}))))
   
@@ -50,4 +50,4 @@
       (= (count :golfers) 3))))
 
 (defn jobs []
-  (eval (to-ast (jobs-pred :jobs))))
+  (eval-formula (b->predicate-ast (jobs-pred :jobs))))

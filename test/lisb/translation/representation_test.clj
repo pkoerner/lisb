@@ -1,6 +1,6 @@
-(ns lisb.representation-test
+(ns lisb.translation.representation-test
   (:require [clojure.test :refer :all]
-            [lisb.representation :refer :all]))
+            [lisb.translation.representation :refer :all]))
 
 (deftest equality-predicates-test
   (testing " equality-predicates"

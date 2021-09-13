@@ -1,4 +1,4 @@
-(ns lisb.translation
+(ns lisb.translation.translation
   (:require [clojure.math.combinatorics :refer [combinations]])
   (:require [clojure.walk :refer [walk]])
   (:import (de.be4.classicalb.core.parser.node Start

@@ -1,7 +1,7 @@
-(ns lisb.data-conversion-test
+(ns lisb.translation.data-conversion-test
   (:require [clojure.test :refer :all]
-            [lisb.representation :refer :all]
-            [lisb.data-conversion :refer :all]))
+            [lisb.translation.representation :refer :all]
+            [lisb.translation.data-conversion :refer :all]))
 
 
 (deftest base-conversion
