@@ -1,9 +1,10 @@
 (ns lisb.examples.crowded-chessboard
-  (:require [clojure.set :refer [union]])
-  (:require [clojure.pprint :refer [print-table]])
-  (:require [lisb.core :refer [eval-formula empty-state-space api]])
-  (:require [lisb.translation.representation :refer :all])
-  (:require [lisb.translation.translation :refer [b->predicate-ast]]))
+  (:require [clojure.set :refer [union]]
+            [clojure.pprint :refer [print-table]]
+            [lisb.prob.animator :refer [api]]
+            [lisb.core :refer [eval-ir-as-predicate]]
+            [lisb.translation.lisb2ir :refer :all]
+            [lisb.translation.ir2ast :refer [ir->predicate-ast]]))
 
 
 (defn attack-horizontal 
@@ -104,7 +105,7 @@
                                     (attack size :rook attack-rook)
                                     (attack size :bishop attack-bishop)
                                     (attack size :knight attack-knight)))
-         result (eval-formula ss (b->predicate-ast repr))]
+         result (eval-ir-as-predicate ss repr)]
      result))
   ([size amount-knights]
    (let [ss (crowded-empty-state-space)]

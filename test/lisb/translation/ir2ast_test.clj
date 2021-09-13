@@ -1,32 +1,21 @@
-(ns lisb.translation.lisb2ast-test
+(ns lisb.translation.ir2ast-test
   (:require [clojure.test :refer :all]
-            [lisb.translation.representation :refer :all]
+            [lisb.translation.lisb2ir :refer :all]
             [lisb.examples.simple :as simple]
             [lisb.examples.function-returns :as function-returns]
-            [lisb.translation.translation :refer [b->ast b->predicate-ast b->expression-ast b->substitution-ast b->machine-clause-ast]]))
-
-(import de.be4.classicalb.core.parser.visualisation.ASTPrinter)
-(def printer (ASTPrinter.))
-(defn print-ast [b-ast]
-  (.apply b-ast printer))
-
-(import de.be4.classicalb.core.parser.util.PrettyPrinter)
-(defn get-machine-from-ast [ast]
-  (let [pprinter (PrettyPrinter.)]
-    (.apply ast pprinter)
-    (.getPrettyPrint pprinter)))
+            [lisb.translation.ir2ast :refer [ir->ast ir->predicate-ast ir->expression-ast ir->substitution-ast ir->machine-clause-ast]]))
 
 (defn normalize-string [string]
   (clojure.string/replace string #"[ \n\r\t]" ""))
 
 (deftest function-returns-test
   (testing "function-returns"
-    (are [b lisb] (= (normalize-string (slurp (clojure.java.io/resource (str "machines/" b)))) (normalize-string (get-machine-from-ast (b->ast lisb))))
+    (are [b lisb] (= (normalize-string (slurp (clojure.java.io/resource (str "machines/" b)))) (normalize-string (get-machine-from-ast (ir->ast lisb))))
                   "FunctionReturns.mch" function-returns/function-returns)))
 
 (deftest examples-simple-test
   (testing "examples-simple"
-    (are [b lisb] (= (normalize-string (slurp (clojure.java.io/resource (str "machines/" b)))) (normalize-string (get-machine-from-ast (b->ast lisb))))
+    (are [b lisb] (= (normalize-string (slurp (clojure.java.io/resource (str "machines/" b)))) (normalize-string (get-machine-from-ast (ir->ast lisb))))
                   "Lift.mch" simple/lift
                   "ACounter.mch" simple/a-counter
                   "GCD.mch" simple/gcd
@@ -38,7 +27,7 @@
 (deftest machine-test
   (testing "machine"
     (is (= "MACHINE Empty\nEND"
-           (get-machine-from-ast (b->ast
+           (get-machine-from-ast (ir->ast
                                    (b (machine
                                         (machine-variant)
                                         (machine-header :Empty ())))))))))
@@ -46,7 +35,7 @@
 
 (deftest machine-clauses-test
   (testing "machine-clauses"
-    (are [b lisb] (= b (get-machine-from-ast (b->machine-clause-ast lisb)))
+    (are [b lisb] (= b (get-machine-from-ast (ir->machine-clause-ast lisb)))
                   "CONSTRAINTS 1=1\n" (b (constraints (= 1 1)))
                   "SETS S; T={e1,e2}\n" (b (sets (deferred-set :S) (enumerated-set :T :e1 :e2)))
                   "CONSTANTS x, y\n" (b (constants :x :y))
@@ -61,7 +50,7 @@
 
 (deftest substitutions-test
   (testing "substitutions"
-    (are [b lisb] (= b (get-machine-from-ast (b->substitution-ast lisb)))
+    (are [b lisb] (= b (get-machine-from-ast (ir->substitution-ast lisb)))
                   "skip" (b skip)
                   "x := E" (b (assign :x :E))
                   ;"f(x) := E"
@@ -93,23 +82,23 @@
 
 (deftest if-test
   (testing "if"
-    (are [b lisb] (= b (get-machine-from-ast (b->expression-ast lisb)))
+    (are [b lisb] (= b (get-machine-from-ast (ir->expression-ast lisb)))
                   "IF 1=1 THEN 2 ELSE 3 END" (b (if-expr (= 1 1) 2 3)))
-    (are [b lisb] (= b (get-machine-from-ast (b->predicate-ast lisb)))
+    (are [b lisb] (= b (get-machine-from-ast (ir->predicate-ast lisb)))
                   "(1=1 => 2=2) & (not(1=1) => 3=3)" (b (and (=> (= 1 1) (= 2 2)) (=> (not (= 1 1)) (= 3 3)))))))
 
 
 (deftest let-test
   (testing "let"
-    (are [b lisb] (= b (get-machine-from-ast (b->expression-ast lisb)))
+    (are [b lisb] (= b (get-machine-from-ast (ir->expression-ast lisb)))
                   "LET y,x BE x=1 & y=2 IN 3 END" (b (let-expr #{:x :y} (and (= :x 1) (= :y 2)) 3)))
-    (are [b lisb] (= b (get-machine-from-ast (b->predicate-ast lisb)))
+    (are [b lisb] (= b (get-machine-from-ast (ir->predicate-ast lisb)))
                   "LET y,x BE x=1 & y=2 IN 0=0 END" (b (let-pred #{:x :y} (and (= :x 1) (= :y 2)) (= 0 0))))))
 
 
 (deftest strings-test
   (testing "strings"
-    (are [b lisb] (= b (get-machine-from-ast (b->expression-ast lisb)))
+    (are [b lisb] (= b (get-machine-from-ast (ir->expression-ast lisb)))
                   "\"astring\"" (b "astring")
                   "STRING" (b string-set)
                   "size(\"s\")" (b (count-seq "s"))
@@ -120,7 +109,7 @@
 
 (deftest struct-test
   (testing "structs"
-    (are [b lisb] (= b (get-machine-from-ast (b->expression-ast lisb)))
+    (are [b lisb] (= b (get-machine-from-ast (ir->expression-ast lisb)))
                   "struct(n:NAT)" (b (struct :n nat-set))
                   "struct(n:NAT,b:BOOL)" (b (struct :n nat-set, :b bool-set))
                   "rec(n:1)" (b (record :n 1))
@@ -130,7 +119,7 @@
 
 (deftest sequences-test
   (testing "sequences"
-    (are [b lisb] (= b (get-machine-from-ast (b->expression-ast lisb)))
+    (are [b lisb] (= b (get-machine-from-ast (ir->expression-ast lisb)))
                   "[]" (b (sequence))
                   "[E]" (b (sequence :E))
                   "[E,F]" (b (sequence :E :F))
@@ -161,7 +150,7 @@
 
 (deftest function-test
   (testing "functions"
-    (are [b lisb] (= b (get-machine-from-ast (b->expression-ast lisb)))
+    (are [b lisb] (= b (get-machine-from-ast (ir->expression-ast lisb)))
                   "S+->T" (b (+-> :S :T))
                   "S+->T+->U" (b (+-> :S :T :U))
                   "S+->T+->U+->V" (b (+-> :S :T :U :V))
@@ -189,7 +178,7 @@
 
 (deftest relation-test
   (testing "relations"
-    (are [b lisb] (= b (get-machine-from-ast (b->expression-ast lisb)))
+    (are [b lisb] (= b (get-machine-from-ast (ir->expression-ast lisb)))
                   "S<->T" (b (<-> :S :T))
                   "S<->T<->U" (b (<-> :S :T :U))
                   "S<->T<->U<->V" (b (<-> :S :T :U :V))
@@ -236,7 +225,7 @@
 (deftest numbers-test
   (testing "numbers"
     (testing "expressions"
-      (are [b lisb] (= b (get-machine-from-ast (b->expression-ast lisb)))
+      (are [b lisb] (= b (get-machine-from-ast (ir->expression-ast lisb)))
                     "1" (b 1)
                     "-1" (b -1)
                     "-x" (b (- :x))
@@ -256,7 +245,7 @@
                     "PI(z).(z:NAT|1)" (b (pi #{:z} (contains? nat-set  :z) 1))
                     "SIGMA(z).(z:NAT|1)" (b (sigma #{:z} (contains? nat-set :z) 1)))
       (testing "arithmetic"
-        (are [b lisb] (= b (get-machine-from-ast (b->expression-ast lisb)))
+        (are [b lisb] (= b (get-machine-from-ast (ir->expression-ast lisb)))
                       "1+2" (b (+ 1 2))
                       "1+2+3" (b (+ 1 2 3))
                       "1-2" (b (- 1 2))
@@ -276,7 +265,7 @@
                       "succ(1)" (b (inc 1))
                       "pred(1)" (b (dec 1)))))
     (testing "predicates"
-      (are [b lisb] (= b (get-machine-from-ast (b->predicate-ast lisb)))
+      (are [b lisb] (= b (get-machine-from-ast (ir->predicate-ast lisb)))
                     "1>2" (b (> 1 2))
                     "1>2 & 2>3" (b (> 1 2 3))
                     "1>2 & 2>3 & 3>4" (b (> 1 2 3 4))
@@ -293,7 +282,7 @@
 
 (deftest sets-test
   (testing "sets"
-    (are [b lisb] (= b (get-machine-from-ast (b->expression-ast lisb)))
+    (are [b lisb] (= b (get-machine-from-ast (ir->expression-ast lisb)))
                   "{}" (b #{})
                   "{E}" (b #{:E})
                   "{F,E}" (b #{:E :F})
@@ -323,7 +312,7 @@
                   "inter({{E},{F}})" (b (intersect-sets #{#{:E} #{:F}}))
                   "UNION(z).(z:NAT|1)" (b (union-pe #{:z} (contains? nat-set :z) 1))
                   "INTER(z).(z:NAT|1)" (b (intersection-pe #{:z} (contains? nat-set :z) 1)))
-    (are [b lisb] (= b (get-machine-from-ast (b->predicate-ast lisb)))
+    (are [b lisb] (= b (get-machine-from-ast (ir->predicate-ast lisb)))
                   "1:{}" (b (contains? #{} 1))
                   "1/:{}" (b (not (contains? #{} 1)))
                   "{E}<:{G}" (b (subset? #{:E} #{:G}))
@@ -338,7 +327,7 @@
 
 (deftest booleans-test
   (testing "booleans"
-    (are [b lisb] (= b (get-machine-from-ast (b->expression-ast lisb)))
+    (are [b lisb] (= b (get-machine-from-ast (ir->expression-ast lisb)))
                   "TRUE" (b true)
                   "FALSE" (b false)
                   "BOOL" (b bool-set)
@@ -347,7 +336,7 @@
 
 (deftest equality-predicates-test
   (testing "equality-predicates"
-    (are [b lisb] (= b (get-machine-from-ast (b->predicate-ast lisb)))
+    (are [b lisb] (= b (get-machine-from-ast (ir->predicate-ast lisb)))
                   "TRUE=FALSE" (b (= true false))
                   "TRUE/=FALSE" (b (not= true false))
                   "1/=1 & 1/=2 & 1/=3 & 2/=3" (b (distinct? 1 2 1 3)))))
@@ -355,7 +344,7 @@
 
 (deftest logical-predicates-test
   (testing "logical-predicates"
-    (are [b lisb] (= b (get-machine-from-ast (b->predicate-ast lisb)))
+    (are [b lisb] (= b (get-machine-from-ast (ir->predicate-ast lisb)))
                   "1=1 & 2=2" (b (and (= 1 1) (= 2 2)))
                   "1=1 & 2=2 & 3=3" (b (and (= 1 1) (= 2 2) (= 3 3)))
                   "1=1 & 2=2 & 3=3 & 4=4" (b (and (= 1 1) (= 2 2) (= 3 3) (= 4 4)))

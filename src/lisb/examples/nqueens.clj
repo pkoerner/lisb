@@ -1,13 +1,13 @@
 (ns lisb.examples.nqueens
-  (:require [lisb.core :refer [eval-formula empty-state-space]])
-  (:require [lisb.translation.representation :refer :all])
-  (:require [lisb.translation.translation :refer [b->predicate-ast]]))
+  (:require [lisb.core :refer [eval-ir-as-predicate]]
+            [lisb.translation.lisb2ir :refer :all]
+            [lisb.translation.ir2ast :refer [ir->predicate-ast]]))
 
 
 
 (defn nqueens
   "the n-queens problem in B using lisp-like syntax"
-  ([size ss]
+  ([size]
    (let [width (binterval 1 :n)
          repr (band (b= :n size)
                     (bmember? :queens (b>-> width width))
@@ -17,16 +17,13 @@
                                         (b> :q2 :q1))
                                   (band (bnot= (b+ (bapply :queens :q1) (b- :q2 :q1)) (bapply :queens :q2))
                                         (bnot= (b+ (bapply :queens :q1) (b- :q1 :q2)) (bapply :queens :q2))))))
-         result (eval-formula ss (b->predicate-ast repr))]
-     result))
-  ([size]
-   (defonce ss (empty-state-space))
-   (nqueens size ss)))
+         result (eval-ir-as-predicate repr)]
+     result)))
 
 
 (defn nqueens2
   "the n-queens problem in B using the b macro"
-  ([size ss]
+  ([size]
    (let [width (b (range 1 :n))
          q1pos (b (apply :queens :q1))
          q2pos (b (apply :queens :q2))
@@ -38,11 +35,8 @@
                                         (> :q2 :q1))
                                    (and (not= (+ q1pos (- :q2 :q1)) q2pos)
                                         (not= (+ q1pos (- :q1 :q2)) q2pos))))))
-         result (eval-formula ss (b->predicate-ast repr))]
-     result))
-  ([size]
-   (defonce ss (empty-state-space))
-   (nqueens2 size ss)))
+         result (eval-ir-as-predicate repr)]
+     result)))
 
 
 
@@ -60,11 +54,8 @@
 
 (defn nqueens3
   "the n-queens problem using a predicate definition"
-  ([size ss]
-   (eval-formula ss (b->predicate-ast (nqueens-p size :queens))))
   ([size]
-   (defonce ss (empty-state-space))
-   (nqueens3 size ss)))
+   (eval-ir-as-predicate (nqueens-p size :queens))))
 
 
 
