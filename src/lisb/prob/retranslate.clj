@@ -25,7 +25,7 @@
                 (.toRelationalMap data))
     ; collection types
     BSet (set (map retranslate (.toSet data)))
-    BTuple [(.getFirst data) (.getSecond data)]
+    BTuple [(retranslate (.getFirst data)) (retranslate (.getSecond data))]
     BRecord (reduce
               (fn [m e]
                 (assoc m (retranslate (.getKey e)) (retranslate (.getValue e))))
