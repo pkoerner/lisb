@@ -1,7 +1,6 @@
 (ns lisb.examples.send-more-money
-  (:require [lisb.core :refer [eval-ir-as-predicate]]
-            [lisb.translation.lisb2ir :refer :all]
-            [lisb.translation.ir2ast :refer [ir->predicate-ast]]))
+  (:require [lisb.core :refer [eval-ir-formula]]
+            [lisb.translation.lisb2ir :refer [defpred]]))
 
 (defpred send-more-money-p [s e n d m o r y]
   (and (subset? #{s e n d m o r y} (range 0 10))
@@ -12,7 +11,7 @@
           (+ (* 10000 m) (* 1000 o) (* 100 n) (* 10 e) y))))
 
 (defn send-more-money []
-  (eval-ir-as-predicate (send-more-money-p :s :e :n :d :m :o :r :y)))
+  (eval-ir-formula (send-more-money-p :s :e :n :d :m :o :r :y)))
 
 (defn send-more-money-clj []
   (for [s (range 1 10)

@@ -1,7 +1,6 @@
 (ns lisb.examples.jobs-puzzle
-  (:require [lisb.core :refer [eval-ir-as-predicate]]
-            [lisb.translation.lisb2ir :refer :all]
-            [lisb.translation.ir2ast :refer [ir->predicate-ast]]))
+  (:require [lisb.core :refer [eval-ir-formula]]
+            [lisb.translation.lisb2ir :refer [defpred bmap-set]]))
 
 (defpred jobs-pred [holds-job]
   ;; using strings in lack of constants
@@ -50,4 +49,4 @@
       (= (count :golfers) 3))))
 
 (defn jobs []
-  (eval-ir-as-predicate (jobs-pred :jobs)))
+  (eval-ir-formula (jobs-pred :jobs)))

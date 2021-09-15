@@ -1,7 +1,6 @@
 (ns lisb.examples.connect-four
-  (:require [lisb.core :refer [eval-ir-as-predicate]]
+  (:require [lisb.core :refer [eval-ir-formula]]
             [lisb.translation.lisb2ir :refer :all]
-            [lisb.translation.ir2ast :refer [ir->predicate-ast]]
             [lisb.translation.data-conversion :refer [convert]])
 
   #_(:require [seesaw.core :refer [repaint! canvas show! frame]]
@@ -93,7 +92,7 @@
   (let [bboard (convert board :fn [[:record [{:x :int, :y :int}]
                                    [:set :thingies]]])]
     (prn :bboard bboard)
-    (eval-ir-as-predicate (won?-pred bboard :winners))))
+    (eval-ir-formula (won?-pred bboard :winners))))
 
 
 (defn turn [m c f]
