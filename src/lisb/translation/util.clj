@@ -26,3 +26,6 @@
 
 (defn ir->b [ir]
   (ast->b (ir->ast ir)))
+
+(defn ast->ir [ast]
+  (lisb->ir (ast->lisb ast)))
