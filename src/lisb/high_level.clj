@@ -11,11 +11,11 @@
   )
 
 (defn load-machine-trace [m]
-  (let [ss (state-space (b->ast m))]
+  (let [ss (state-space! (b->ast m))]
     (Trace. ss)))
 
 (defn load-initialized-machine-trace [m]
-  (let [ss (state-space (b->ast m))]
+  (let [ss (state-space! (b->ast m))]
     (.addTransitionWith (Trace. ss) "$initialise_machine" [])))
 
 (defn latest-state [trace]

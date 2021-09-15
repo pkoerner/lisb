@@ -19,7 +19,7 @@
 (def api (.getInstance injector Api))
 
 
-(defn state-space [ast]
+(defn state-space! [ast]
   (.b_load api ast))
 
 
