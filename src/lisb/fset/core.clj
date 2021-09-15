@@ -9,10 +9,11 @@
 ;; This is the entry point.
 
 ;; define working Directories
-(def source-dir "resources/machines/transform-source/")
-(def target-dir "resources/machines/transform-target/")
+(def source-dir "resources/machines/fset-source/")
 
-;; Prefix
+(def target-dir "resources/machines/fset-target/")
+
+;; Prefix of the resulting files after running transform-save-machines!
 (def prefix "rw_") ;
 
 ;; Specify a List of Machines if you don't want all of them to transform.
@@ -29,7 +30,7 @@
   [source-filename target-filename]
   (save-mch! (load-transform-machine! source-filename) target-filename))
 
-(defn transform-machines
+(defn transform-machines!
   ([]
    (let [machines (.list (io/file source-dir))]
      (for [m machines]
