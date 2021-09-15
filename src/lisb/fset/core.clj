@@ -3,7 +3,7 @@
    [clojure.java.io :as io]
    [lisb.core :refer [eval-ir-as-predicate eval-ir-as-expression]]
    [clojure.pprint :refer [pprint]]
-   [lisb.high-level :refer [load-mch! save-mch!]]
+   [lisb.high-level :refer [load-mch! save-mch! make-mch!]]
    [lisb.fset.transform :refer [transform]]))
 
 ;; This is the entry point.
@@ -48,6 +48,16 @@
    (for [m machines]
      (load-transform-save-machine! (str source-dir m) (str target-dir prefix m)))))
 
+(defn print-transform!
+  "Takes a machine in IR and pprints it and its transformation."
+  [machine]
+  (let [m (make-mch! machine)
+        transformed-machine (:ir (transform m))]
+    (pprint "--------------------------")
+    (pprint machine)
+    (pprint "--------------------->>>>>")
+    (pprint transformed-machine)
+    (pprint "--------------------------")))
 
 (comment
 
