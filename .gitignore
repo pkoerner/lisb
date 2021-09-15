@@ -1,6 +1,7 @@
 /target
 /classes
 /checkouts
+.lsp/
 pom.xml
 pom.xml.asc
 *.jar

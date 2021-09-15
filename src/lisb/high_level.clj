@@ -4,11 +4,11 @@
   (:use [lisb.translation.b2ast])
   (:use [lisb.translation.ast2lisb])
   (:use [lisb.translation.data-conversion])
-  (:use [lisb.translation.representation])
-  (:use [lisb.translation.translation])
+  (:use [lisb.translation.ast2b])
+  (:use [lisb.translation.ir2ast])
+  (:use [lisb.translation.lisb2ir])
   (:use [lisb.core])
-  (:import de.prob.statespace.Trace)
-  )
+  (:import de.prob.statespace.Trace))
 
 (defn load-machine-trace [m]
   (let [ss (state-space! (b->ast m))]
@@ -29,3 +29,22 @@
 
 (defn possible-ops [trace]
   (.getNextTransitions trace))
+
+(defn b->ir
+  [input-str]
+  (eval `(b ~(ast->lisb (b->ast input-str)))))
+
+(defn ir->b
+  [ir]
+  (ast->b (ir->ast ir)))
+
+(defn load-mch!
+  [filename]
+  (let [input-string (slurp filename)
+        ast (b->ast input-string)]
+    {:ir (eval `(b ~(ast->lisb ast)))
+     :ss (state-space ast)}))
+
+(defn save-mch!
+  [ir target-filename]
+  (spit target-filename (ir->b ir)))
