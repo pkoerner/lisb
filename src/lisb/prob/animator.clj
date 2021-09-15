@@ -31,7 +31,7 @@
     (let [result (.translate v)
           free (.getKeys result)]
       (when (.. result getValue booleanValue)
-          (into {} (map (fn [k] [k (.getSolution result k)]) free)))
+        (into {} (map (fn [k] [k (.getSolution result k)]) free))))))
 
 (defmethod get-result ComputationNotCompletedResult [v]
   (let [reason (.getReason v)]
