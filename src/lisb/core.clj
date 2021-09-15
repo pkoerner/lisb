@@ -4,18 +4,20 @@
   (:require [lisb.translation.ir2ast :refer [ir->ast ir->predicate-ast ir->expression-ast]]))
 
 
-(defn ir-state-space
-  ([ir] (state-space (ir->ast ir)))
-  ([] (ir-state-space bempty-machine)))
+(defn ir-state-space! [ir]
+  (state-space! (ir->ast ir)))
 
+; if you modify this default state space and complain afterwards, you stink
+; execute only commmands on this state-space which not implement IStateSpaceModifier!
+(defonce ^:private secret-state-space (ir-state-space! bempty-machine))
 
 (defn eval-ir-as-predicate
   ([state-space ir] (eval-formula state-space (ir->predicate-ast ir)))
-  ([ir] (eval-ir-as-predicate (ir-state-space) ir)))
+  ([ir] (eval-ir-as-predicate secret-state-space ir)))
 
 (defn eval-ir-as-expression
   ([state-space ir] (eval-formula state-space (ir->expression-ast ir)))
-  ([ir] (eval-ir-as-expression (ir-state-space) ir)))
+  ([ir] (eval-ir-as-expression secret-state-space ir)))
 
 
 (defn choose-rest [c]
