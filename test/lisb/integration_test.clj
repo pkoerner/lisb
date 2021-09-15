@@ -1,9 +1,7 @@
 (ns lisb.integration-test
   (:require [clojure.test :refer :all]
             [lisb.core :refer [eval-ir-formula ir-state-space!]]
-            [lisb.translation.lisb2ir :refer :all]
-            [lisb.translation.b2ast :refer :all]
-            [lisb.translation.ast2lisb :refer [ast->lisb]]))
+            [lisb.translation.util :refer :all]))
 
 (deftest integration
   (testing "no exception is thrown when executing implemented command;

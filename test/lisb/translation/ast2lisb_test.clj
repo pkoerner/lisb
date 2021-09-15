@@ -1,9 +1,6 @@
 (ns lisb.translation.ast2lisb-test
   (:require [clojure.test :refer :all]
-            [lisb.translation.ast2lisb :refer :all]
-            [lisb.translation.lisb2ir :refer [b]]
-            [lisb.translation.b2ast :refer :all]
-            [lisb.translation.util :refer [b->lisb b-substitution->lisb b-expression->lisb b-predicate->lisb]]))
+            [lisb.translation.util :refer :all]))
 
 (deftest examples-simple-test
   (testing "examples-simple"

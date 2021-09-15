@@ -1,10 +1,8 @@
 (ns lisb.translation.ir2ast-test
   (:require [clojure.test :refer :all]
-            [lisb.translation.lisb2ir :refer :all]
+            [lisb.translation.util :refer :all]
             [lisb.examples.simple :as simple]
-            [lisb.examples.function-returns :as function-returns]
-            [lisb.translation.ir2ast :refer [ir->ast]]
-            [lisb.translation.ast2b :refer [ast->b]]))
+            [lisb.examples.function-returns :as function-returns]))
 
 (defn normalize-string [string]
   (clojure.string/replace string #"[ \n\r\t]" ""))

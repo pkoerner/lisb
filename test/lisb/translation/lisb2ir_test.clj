@@ -1,6 +1,6 @@
 (ns lisb.translation.lisb2ir-test
   (:require [clojure.test :refer :all]
-            [lisb.translation.lisb2ir :refer [lisb->ir b pred]]
+            [lisb.translation.util :refer [lisb->ir b pred]]
             [lisb.examples.simple :as simple]))
 
 (deftest simple-machines-test

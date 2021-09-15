@@ -1,7 +1,6 @@
 (ns lisb.core
-  (:require [lisb.prob.animator :refer :all])
-  (:require [lisb.translation.lisb2ir :refer :all])
-  (:require [lisb.translation.ir2ast :refer [ir->ast]]))
+  (:require [lisb.prob.animator :refer :all]
+            [lisb.translation.util :refer [ir->ast bempty-machine band]]))
 
 
 (defn ir-state-space! [ir-machine]
