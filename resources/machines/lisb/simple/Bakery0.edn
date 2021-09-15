@@ -1,0 +1,13 @@
+(machine
+  (machine-variant)
+  (machine-header :Bakery0 [])
+  (variables :aa)
+  (invariant (contains? (interval 0 2) :aa))
+  (init (assign :aa 0))
+  (operations
+    (operation [] :enter1 [] (select (= :aa 0) (assign :aa 1)))
+    (operation [] :enter2 [] (select (= :aa 0) (assign :aa 2)))
+    (operation [] :leave1 [] (select (= :aa 1) (assign :aa 0)))
+    (operation [] :leave2 [] (select (= :aa 2) (assign :aa 0)))
+    (operation [] :try1 [] skip)
+    (operation [] :try2 [] skip)))

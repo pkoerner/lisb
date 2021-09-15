@@ -1,10 +1,18 @@
 (ns lisb.translation.lisb2ir-test
   (:require [clojure.test :refer :all]
-            [lisb.translation.lisb2ir :refer [b pred]]))
+            [lisb.translation.lisb2ir :refer [lisb->ir b pred]]
+            [lisb.examples.simple :as simple]))
 
-#_(deftest lift-test
-  (testing "lift"
-    (is (= {} (slurp (clojure.java.io/resource "machines/lisb/Lift.edn"))))))
+(deftest simple-machines-test
+  (testing "simple-machines"
+    (are [ir lisb-name] (= ir (lisb->ir (read-string (slurp (clojure.java.io/resource (str "machines/lisb/simple/" lisb-name ".edn"))))))
+                simple/lift "Lift"
+                simple/a-counter "ACounter"
+                simple/gcd "GCD"
+                simple/knights-knaves "KnightsKnaves"
+                simple/bakery0 "Bakery0"
+                simple/bakery1 "Bakery1"
+                )))
 
 (deftest equality-predicates-test
   (testing " equality-predicates"

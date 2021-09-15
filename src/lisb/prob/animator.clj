@@ -32,7 +32,7 @@
           free (.getKeys result)]
       (if (instance? de.hhu.stups.prob.translator.BBoolean result)
         (when (.. result getValue booleanValue)
-          (into {} (map (fn [k][k (.getSolution result k)]) free)))
+          (into {} (map (fn [k] [k (.getSolution result k)]) free)))
         ; otherwise assume expression
         (.getValue result)))))
 
