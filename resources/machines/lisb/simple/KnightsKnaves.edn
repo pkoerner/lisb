@@ -1,0 +1,10 @@
+(machine
+  (machine-variant)
+  (machine-header :KnightsKnaves [])
+  (constants :A :B :C)
+  (properties (and
+                (contains? bool-set :A)
+                (contains? bool-set :B)
+                (contains? bool-set :C)
+                (<=> (= :A true) (or (= :B false) (= :C false)))
+                (<=> (= :B true) (= :A true)))))

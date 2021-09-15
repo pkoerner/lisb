@@ -11,12 +11,12 @@
 
 (deftest function-returns-test
   (testing "function-returns"
-    (are [b lisb] (= (normalize-string (slurp (clojure.java.io/resource (str "machines/" b)))) (normalize-string (ast->b (ir->ast lisb))))
+    (are [b lisb] (= (normalize-string (slurp (clojure.java.io/resource (str "machines/b/" b)))) (normalize-string (ast->b (ir->ast lisb))))
                   "FunctionReturns.mch" function-returns/function-returns)))
 
 (deftest examples-simple-test
   (testing "examples-simple"
-    (are [b lisb] (= (normalize-string (slurp (clojure.java.io/resource (str "machines/" b)))) (normalize-string (ast->b (ir->ast (eval `(b ~lisb))))))
+    (are [b lisb] (= (normalize-string (slurp (clojure.java.io/resource (str "machines/b/simple/" b)))) (normalize-string (ast->b (ir->ast lisb))))
                   "Lift.mch" simple/lift
                   "ACounter.mch" simple/a-counter
                   "GCD.mch" simple/gcd

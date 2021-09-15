@@ -1,0 +1,18 @@
+(machine
+  (machine-variant)
+  (machine-header :Bakery1 [])
+  (variables :p1 :p2 :y1 :y2)
+  (invariant (and (contains? (interval 0 2) :p1)
+               (contains? (interval 0 2) :p2)
+               (contains? natural-set :y1)
+               (contains? natural-set :y2)
+               (=> (= :p1 2) (< :p2 2))
+               (=> (= :p2 2) (< :p1 2))))
+  (init (assign :p1 0 :p2 0 :y1 0 :y2 0))
+  (operations
+    (operation [] :try1 [] (select (= :p1 0) (parallel-substitution (assign :p1 1) (assign :y1 (+ :y2 1)))))
+    (operation [] :enter1 [] (select (and (= :p1 1) (or (= :y2 0) (< :y1 :y2))) (assign :p1 2)))
+    (operation [] :leave1 [] (select (= :p1 2) (parallel-substitution (assign :p1 0) (assign :y1 0))))
+    (operation [] :try2 [] (select (= :p2 0) (parallel-substitution (assign :p2 1) (assign :y2 (+ :y1 1)))))
+    (operation [] :enter2 [] (select (and (= :p2 1) (or (= :y1 0) (< :y2 :y1))) (assign :p2 2)))
+    (operation [] :leave2 [] (select (= :p2 2) (parallel-substitution (assign :p2 0) (assign :y2 0))))))

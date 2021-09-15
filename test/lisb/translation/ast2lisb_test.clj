@@ -1,25 +1,22 @@
 (ns lisb.translation.ast2lisb-test
   (:require [clojure.test :refer :all]
             [lisb.translation.ast2lisb :refer :all]
-            [lisb.examples.simple :as simple]
             [lisb.translation.lisb2ir :refer [b]]
-            [lisb.translation.b2ast :refer :all]))
-
-(defn b->lisb [b] (ast->lisb (b->ast b)))
-(defn b-predicate->lisb [b-predicate] (ast->lisb (b-predicate->ast b-predicate)))
-(defn b-expression->lisb [b-predicate] (ast->lisb (b-expression->ast b-predicate)))
-(defn b-formula->lisb [b-predicate] (ast->lisb (b-formula->ast b-predicate)))
-(defn b-substitution->lisb [b-predicate] (ast->lisb (b-substitution->ast b-predicate)))
+            [lisb.translation.b2ast :refer :all]
+            [lisb.translation.util :refer [b->lisb b-substitution->lisb b-expression->lisb b-predicate->lisb]]))
 
 (deftest examples-simple-test
   (testing "examples-simple"
-    (are [lisb b] (= lisb (b->lisb (slurp (clojure.java.io/resource (str "machines/" b)))))
-                  simple/lift "Lift.mch"
-                  simple/a-counter "ACounter.mch"
-                  simple/gcd "GCD.mch"
-                  simple/knights-knaves "KnightsKnaves.mch"
-                  simple/bakery0 "Bakery0.mch"
-                  simple/bakery1 "Bakery1.mch")))
+    (are [name] (=
+                  (read-string (slurp (clojure.java.io/resource (str "machines/lisb/simple/" name ".edn"))))
+                  (b->lisb (slurp (clojure.java.io/resource (str "machines/b/simple/" name ".mch")))))
+                "Lift"
+                "ACounter"
+                "GCD"
+                "KnightsKnaves"
+                "Bakery0"
+                "Bakery1"
+                )))
 
 
 ;;; parse units
@@ -41,7 +38,7 @@
 (deftest machine-clauses-test
   (testing "machine-clauses"
     (are [lisb b] (= lisb
-                     (b->lisb (slurp (clojure.java.io/resource (str "machines/" b)))))
+                     (b->lisb (slurp (clojure.java.io/resource (str "machines/b/" b)))))
                   '(machine
                      (machine-variant)
                      (machine-header :Set [])
@@ -113,7 +110,7 @@
 
 (deftest strings-test
   (testing "strings"
-    (are [lisb b] (= lisb (b-formula->lisb b))
+    (are [lisb b] (= lisb (b-expression->lisb b))
                   "astring" "\"astring\""
                   "astring" "'''astring'''"
                   'string-set "STRING"
