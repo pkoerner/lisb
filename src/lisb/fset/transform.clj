@@ -29,7 +29,7 @@
 
 (defn transform
   [m]
-  (->> (assoc m :meta {})
+  (->> m
        (transform-sets)
        (transform-definitions)
        (transform-invariant)
