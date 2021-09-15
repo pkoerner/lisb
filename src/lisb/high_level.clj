@@ -31,21 +31,6 @@
 (defn possible-ops [trace]
   (.getNextTransitions trace))
 
-(defn lisb->ir [lisb]
-  (eval `(b ~lisb)))
-
-(defn b->ir
-  [input-str]
-  (-> input-str b->ast ast->lisb lisb->ir))
-
-(defn ir->b
-  [ir]
-  (-> ir ir->ast ast->b))
-
-(defn ast->ir
-  [ast]
-  (-> ast ast->lisb lisb->ir))
-
 (defn load-mch!
   ([filename]
    (let [input-string (slurp filename)

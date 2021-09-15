@@ -1,8 +1,7 @@
 (ns lisb.fset.examples
   (:require
-   [lisb.high-level :refer [lisb->ir]]
+   [lisb.translation.lisb2ir :refer [lisb->ir]]
    [lisb.fset.core :refer [print-transform!]]))
-
 
 (def scheduler
   '(machine
@@ -18,7 +17,6 @@
                 (subset? :ready :PID)
                 (subset? :waiting :PID)))
     (init (assign :active #{} :ready #{} :waiting #{}))))
-
 
 
 (comment
