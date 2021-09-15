@@ -1,15 +1,14 @@
 (ns lisb.examples.subset-sum
-  (:require [lisb.core :refer [eval-ir-as-predicate]]
-            [lisb.translation.lisb2ir :refer :all]
-            [lisb.translation.ir2ast :refer [ir->predicate-ast]]))
+  (:require [lisb.core :refer [eval-ir-formula]]
+            [lisb.translation.lisb2ir :refer [defpred]]))
 
 (defpred subset-sum-p [coins target sol]
-  (and (member? sol (--> coins bnatural-set))
+  (and (member? sol (--> coins natural-set))
        (= target (sigma [:x] (member? :x coins) (* (apply sol :x) :x)))))
 
 (defn subset-sum
   ([coins target]
-   (eval-ir-as-predicate (subset-sum-p coins target :stolen)))
+   (eval-ir-formula (subset-sum-p coins target :stolen)))
   ([]
    (let [coins #{16 17 23 24 39 40}
          target 100]

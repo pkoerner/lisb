@@ -952,9 +952,13 @@
      ~lisb
     ))
 
+(defn lisb->ir [lisb] (eval `(b ~lisb)))
+
+
 (def bempty-machine (bmachine
                      (bmachine-variant)
                      (bmachine-header :Empty [])))
+
 
 (defn wrap [ctx node]
   (cond
@@ -965,8 +969,10 @@
     (vector? node) (vec  (map (partial wrap ctx) node))
     :otherwise node))
 
+
 (defn almost-flatten [x]
   (remove coll? (rest (tree-seq coll? seq x))))
+
 
 (defmacro pred [name & args]
   (let [body (last args)
@@ -978,5 +984,7 @@
        (let [~ctx (into {} (mapv (fn [x#] [x# (keyword (gensym "lisb_"))]) ~keywords))]
          (do (b ~wrapped-body))))))
 
+
 (defmacro defpred [name & args]
   `(def ~name (pred ~name ~@args)))
++

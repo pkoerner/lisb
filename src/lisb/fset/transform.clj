@@ -1,7 +1,7 @@
 (ns lisb.fset.transform
   (:require
-   [com.rpl.specter :as s]
-   [lisb.core :refer [eval-ir-as-predicate eval-ir-as-expression]]))
+    [com.rpl.specter :as s]
+    [lisb.core :refer [eval-ir-formula]]))
 
 (defn get-node-by-tag
   [el-tag ir]

@@ -2,9 +2,8 @@
   (:require [clojure.set :refer [union]]
             [clojure.pprint :refer [print-table]]
             [lisb.prob.animator :refer [api]]
-            [lisb.core :refer [eval-ir-as-predicate]]
-            [lisb.translation.lisb2ir :refer :all]
-            [lisb.translation.ir2ast :refer [ir->predicate-ast]]))
+            [lisb.core :refer [eval-ir-formula]]
+            [lisb.translation.lisb2ir :refer :all]))
 
 
 (defn attack-horizontal 
@@ -105,7 +104,7 @@
                                     (attack size :rook attack-rook)
                                     (attack size :bishop attack-bishop)
                                     (attack size :knight attack-knight)))
-         result (eval-ir-as-predicate ss repr)]
+         result (eval-ir-formula ss repr)]
      result))
   ([size amount-knights]
    (let [ss (crowded-empty-state-space)]

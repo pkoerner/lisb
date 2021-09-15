@@ -30,8 +30,11 @@
     :timeout
     (let [result (.translate v)
           free (.getKeys result)]
-      (when (.. result getValue booleanValue)
-        (into {} (map (fn [k][k (.getSolution result k)]) free))))))
+      (if (instance? de.hhu.stups.prob.translator.BBoolean result)
+        (when (.. result getValue booleanValue)
+          (into {} (map (fn [k][k (.getSolution result k)]) free)))
+        ; otherwise assume expression
+        (.getValue result)))))
 
 (defmethod get-result ComputationNotCompletedResult [v]
   (let [reason (.getReason v)]
