@@ -30,20 +30,28 @@
 (defn possible-ops [trace]
   (.getNextTransitions trace))
 
+(defn lisb->ir [lisb]
+  (eval `(b ~lisb)))
+
 (defn b->ir
   [input-str]
-  (eval `(b ~(ast->lisb (b->ast input-str)))))
+  (-> input-str b->ast ast->lisb lisb->ir))
 
 (defn ir->b
   [ir]
-  (ast->b (ir->ast ir)))
+  (-> ir ir->ast ast->b))
 
 (defn load-mch!
   [filename]
   (let [input-string (slurp filename)
         ast (b->ast input-string)]
     {:ir (eval `(b ~(ast->lisb ast)))
-     :ss (state-space ast)}))
+     :ss (state-space! ast)}))
+
+(defn make-mch!
+  [ir]
+  {:ir ir
+   :ss (state-space! (ir->ast ir))})
 
 (defn save-mch!
   [ir target-filename]
