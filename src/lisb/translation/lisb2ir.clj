@@ -987,4 +987,3 @@
 
 (defmacro defpred [name & args]
   `(def ~name (pred ~name ~@args)))
-+

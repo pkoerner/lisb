@@ -1,10 +1,9 @@
 (ns lisb.examples.connect-four
   (:require [lisb.core :refer [eval-ir-formula]]
-            [lisb.translation.lisb2ir :refer :all]
-            [lisb.translation.data-conversion :refer [convert]])
+            [lisb.translation.util :refer :all])
 
   #_(:require [seesaw.core :refer [repaint! canvas show! frame]]
-            [seesaw.graphics :refer [circle style draw]]))
+      [seesaw.graphics :refer [circle style draw]]))
 
 
 ;;(defpred won?-pred [board winners]
