@@ -1,7 +1,7 @@
 (ns lisb.fset.core
   (:require
    [clojure.java.io :as io]
-   [lisb.core :refer [eval-ir-as-predicate eval-ir-as-expression]]
+   [lisb.core :refer [eval-ir-formula]]
    [clojure.pprint :refer [pprint]]
    [lisb.high-level :refer [load-mch! save-mch! make-mch!]]
    [lisb.fset.transform :refer [transform]]))

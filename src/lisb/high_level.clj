@@ -7,6 +7,7 @@
   (:use [lisb.translation.ast2b])
   (:use [lisb.translation.ir2ast])
   (:use [lisb.translation.lisb2ir])
+  (:use [lisb.translation.util])
   (:use [lisb.core])
   (:import de.prob.statespace.Trace))
 
