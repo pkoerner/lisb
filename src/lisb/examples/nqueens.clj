@@ -1,7 +1,6 @@
 (ns lisb.examples.nqueens
-  (:require [lisb.core :refer [eval-ir-as-predicate]]
-            [lisb.translation.lisb2ir :refer :all]
-            [lisb.translation.ir2ast :refer [ir->predicate-ast]]))
+  (:require [lisb.core :refer [eval-ir-formula]]
+            [lisb.translation.lisb2ir :refer :all]))
 
 
 
@@ -17,7 +16,7 @@
                                         (b> :q2 :q1))
                                   (band (bnot= (b+ (bapply :queens :q1) (b- :q2 :q1)) (bapply :queens :q2))
                                         (bnot= (b+ (bapply :queens :q1) (b- :q1 :q2)) (bapply :queens :q2))))))
-         result (eval-ir-as-predicate repr)]
+         result (eval-ir-formula repr)]
      result)))
 
 
@@ -35,7 +34,7 @@
                                         (> :q2 :q1))
                                    (and (not= (+ q1pos (- :q2 :q1)) q2pos)
                                         (not= (+ q1pos (- :q1 :q2)) q2pos))))))
-         result (eval-ir-as-predicate repr)]
+         result (eval-ir-formula repr)]
      result)))
 
 
@@ -55,7 +54,7 @@
 (defn nqueens3
   "the n-queens problem using a predicate definition"
   ([size]
-   (eval-ir-as-predicate (nqueens-p size :queens))))
+   (eval-ir-formula (nqueens-p size :queens))))
 
 
 

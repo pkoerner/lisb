@@ -2,6 +2,10 @@
   (:require [clojure.test :refer :all]
             [lisb.translation.lisb2ir :refer [b pred]]))
 
+#_(deftest lift-test
+  (testing "lift"
+    (is (= {} (slurp (clojure.java.io/resource "machines/lisb/Lift.edn"))))))
+
 (deftest equality-predicates-test
   (testing " equality-predicates"
     (is (= {:tag :equal

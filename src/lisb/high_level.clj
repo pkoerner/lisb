@@ -7,6 +7,7 @@
   (:use [lisb.translation.ast2b])
   (:use [lisb.translation.ir2ast])
   (:use [lisb.translation.lisb2ir])
+  (:use [lisb.translation.util])
   (:use [lisb.core])
   (:import de.prob.statespace.Trace))
 
@@ -30,20 +31,12 @@
 (defn possible-ops [trace]
   (.getNextTransitions trace))
 
-(defn b->ir
-  [input-str]
-  (eval `(b ~(ast->lisb (b->ast input-str)))))
-
-(defn ir->b
-  [ir]
-  (ast->b (ir->ast ir)))
-
 (defn load-mch!
   [filename]
   (let [input-string (slurp filename)
         ast (b->ast input-string)]
     {:ir (eval `(b ~(ast->lisb ast)))
-     :ss (state-space ast)}))
+     :ss (state-space! ast)}))
 
 (defn save-mch!
   [ir target-filename]

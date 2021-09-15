@@ -1,0 +1,9 @@
+(machine
+  (machine-variant)
+  (machine-header :Lift [])
+  (variables :etage)
+  (invariant (contains? (interval 0 99) :etage))
+    (init (assign :etage 4))
+  (operations
+    (operation [] :inc [] (pre (< :etage 99) (assign :etage (+ :etage 1))))
+    (operation [] :dec [] (pre (> :etage 0) (assign :etage (- :etage 1))))))
