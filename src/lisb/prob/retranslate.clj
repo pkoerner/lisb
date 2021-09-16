@@ -1,4 +1,5 @@
 (ns lisb.prob.retranslate
+  (:require [wall.hack :refer [method]])
   (:import
     (de.hhu.stups.prob.translator BAtom BBoolean BNumber BRecord BSet BString BTuple)
     (de.hhu.stups.prob.translator.interpretations BFunction BRelation BSequence)))
@@ -30,4 +31,7 @@
               (fn [m e]
                 (assoc m (retranslate (.getKey e)) (retranslate (.getValue e))))
               {}
-              (.toMap data))))
+              (.toMap data))
+    de.hhu.stups.prob.translator.TranslatingVisitor$RecordEntry [(method de.hhu.stups.prob.translator.TranslatingVisitor$RecordEntry 'getKey [] data)
+                                                                 (retranslate (method de.hhu.stups.prob.translator.TranslatingVisitor$RecordEntry 'getValue [] data))]))
+
