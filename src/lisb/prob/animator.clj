@@ -1,4 +1,5 @@
 (ns lisb.prob.animator
+  (:require [lisb.prob.retranslate :refer [retranslate]])
   (:import com.google.inject.Guice
            com.google.inject.Stage
            de.prob.MainModule
@@ -30,8 +31,10 @@
     :timeout
     (let [result (.translate v)
           free (.getKeys result)]
-      (when (.. result getValue booleanValue)
-        (into {} (map (fn [k] [k (.getSolution result k)]) free))))))
+      (if (instance? de.hhu.stups.prob.translator.BBoolean (.getValue result))
+        (when (.. result getValue booleanValue)
+          (into {} (map (fn [k] [k (retranslate (.getSolution result k))]) free)))
+        (retranslate (.getValue result))))))
 
 (defmethod get-result ComputationNotCompletedResult [v]
   (let [reason (.getReason v)]
