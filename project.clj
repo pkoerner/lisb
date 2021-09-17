@@ -5,8 +5,8 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :repositories [["snapshot" "https://oss.sonatype.org/content/repositories/snapshots"]
                  ["release" "https://oss.sonatype.org/content/repositories/releases"]]
-  :deploy-repositories [["releases"  {:sign-releases false :url "https://clojars.org/repo"}]
-                        ["snapshots" {:sign-releases false :url "https://clojars.org/repo"}]]
+  :deploy-repositories [["releases"  {:sign-releases false :url "https://repo.clojars.org/"}]
+                        ["snapshots" {:sign-releases false :url "https://repo.clojars.org/"}]]
   :jvm-opts ["-Xss1g"]
   :dependencies [[org.clojure/clojure "1.10.3"]
                  [org.clojure/math.combinatorics "0.1.3"]
