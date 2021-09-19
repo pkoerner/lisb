@@ -37,13 +37,13 @@
 
 ;;; machine clauses
 
-(defn bconstraints [predicate]
+(defn bconstraints [& predicates]
   {:tag :contraints
-   :predicate predicate})
+   :values predicates})
 
 (defn bsets [& set-definitions]
   {:tag :sets
-   :set-definitions set-definitions})
+   :values set-definitions})
 (defn bdeferred-set [identifier]
   {:tag :deferred-set
    :identifier identifier})
@@ -54,35 +54,35 @@
 
 (defn bconstants [& identifiers]
   {:tag :constants
-   :identifiers identifiers})
+   :values identifiers})
 
-(defn bproperties [predicate]
+(defn bproperties [& predicates]
   {:tag :properties
-   :predicate predicate})
+   :values predicates})
 
 (defn bdefinitions [& definitions]
   {:tag :definitions
-   :definitions definitions})
+   :values definitions})
 
 (defn bvariables [& identifiers]
   {:tag :variables
-   :identifiers identifiers})
+   :values identifiers})
 
-(defn binvariant [predicate]
+(defn binvariants [& predicates]
   {:tag :invariants
-   :predicate predicate})
+   :values predicates})
 
 (defn bassertions [& predicates]
   {:tag :assertions
-   :predicates predicates})
+   :values predicates})
 
-(defn binit [substitution]
+(defn binit [& substitutions]
   {:tag :init
-   :substitution substitution})
+   :values substitutions})
 
 (defn boperations [& operations]
   {:tag :operations
-   :operations operations})
+   :values operations})
 (defn boperation [return-values name parameters body]
   {:tag :operation
    :return return-values
@@ -762,7 +762,7 @@
          ~'properties bproperties
          ~'definitions bdefinitions
          ~'variables bvariables
-         ~'invariant binvariant
+         ~'invariants binvariants
          ~'assertions bassertions
          ~'init binit
          ~'operations boperations

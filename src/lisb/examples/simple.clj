@@ -5,7 +5,7 @@
                (machine-variant)
                (machine-header :Lift [])
                (variables :etage)
-               (invariant (contains? (interval 0 99) :etage))
+               (invariants (contains? (interval 0 99) :etage))
                (init (assign :etage 4))
                (operations
                  (operation [] :inc [] (pre (< :etage 99) (assign :etage (+ :etage 1))))
@@ -28,10 +28,10 @@
                     (machine-variant)
                     (machine-header :ACounter [])
                     (variables :ii :jj)
-                    (invariant (and (contains? (interval 0 10) :ii)
-                                    (contains? (interval 0 10) :jj)
-                                    (< :ii 11)
-                                    (>= :jj 0)))
+                    (invariants (contains? (interval 0 10) :ii)
+                                (contains? (interval 0 10) :jj)
+                                (< :ii 11)
+                                (>= :jj 0))
                     (init (assign :ii 2 :jj 10))
                     (operations
                       (operation [] :inc [] (select (> :jj 0) (parallel-substitution
@@ -43,7 +43,7 @@
               (machine-variant)
               (machine-header :GCD [])
               (variables :x :y)
-              (invariant (and (contains? nat-set :x) (contains? nat-set :y)))
+              (invariants (contains? nat-set :x) (contains? nat-set :y))
               (init (parallel-substitution (assign :x 70) (assign :y 40)))
               (operations
                 (operation [:s] :GCDSolution [] (if-sub (= :y 0) (assign :s :x) (assign :s -1)))
@@ -57,18 +57,18 @@
                          (machine-variant)
                          (machine-header :KnightsKnaves [])
                          (constants :A :B :C)
-                         (properties (and
-                                       (contains? bool-set :A)
-                                       (contains? bool-set :B)
-                                       (contains? bool-set :C)
-                                       (<=> (= :A true) (or (= :B false) (= :C false)))
-                                       (<=> (= :B true) (= :A true)))))))
+                         (properties
+                           (contains? bool-set :A)
+                           (contains? bool-set :B)
+                           (contains? bool-set :C)
+                           (<=> (= :A true) (or (= :B false) (= :C false)))
+                           (<=> (= :B true) (= :A true))))))
 
 (def bakery0 (b (machine
                   (machine-variant)
                   (machine-header :Bakery0 [])
                   (variables :aa)
-                  (invariant (contains? (interval 0 2) :aa))
+                  (invariants (contains? (interval 0 2) :aa))
                   (init (assign :aa 0))
                   (operations
                     (operation [] :enter1 [] (select (= :aa 0) (assign :aa 1)))
@@ -82,12 +82,12 @@
                   (machine-variant)
                   (machine-header :Bakery1 [])
                   (variables :p1 :p2 :y1 :y2)
-                  (invariant (and (contains? (interval 0 2) :p1)
-                                  (contains? (interval 0 2) :p2)
-                                  (contains? natural-set :y1)
-                                  (contains? natural-set :y2)
-                                  (=> (= :p1 2) (< :p2 2))
-                                  (=> (= :p2 2) (< :p1 2))))
+                  (invariants (contains? (interval 0 2) :p1)
+                              (contains? (interval 0 2) :p2)
+                              (contains? natural-set :y1)
+                              (contains? natural-set :y2)
+                              (=> (= :p1 2) (< :p2 2))
+                              (=> (= :p2 2) (< :p1 2)))
                   (init (assign :p1 0 :p2 0 :y1 0 :y2 0))
                   (operations
                     (operation [] :try1 [] (select (= :p1 0) (parallel-substitution (assign :p1 1) (assign :y1 (+ :y2 1)))))

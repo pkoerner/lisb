@@ -2,10 +2,11 @@
   (machine-variant)
   (machine-header :ACounter [])
   (variables :ii :jj)
-  (invariant (and (contains? (interval 0 10) :ii)
-               (contains? (interval 0 10) :jj)
-               (< :ii 11)
-               (>= :jj 0)))
+  (invariants
+    (contains? (interval 0 10) :ii)
+    (contains? (interval 0 10) :jj)
+    (< :ii 11)
+    (>= :jj 0))
   (init (assign :ii 2 :jj 10))
   (operations
     (operation [] :inc [] (select (> :jj 0) (parallel-substitution

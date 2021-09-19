@@ -2,7 +2,7 @@
   (machine-variant)
   (machine-header :GCD [])
   (variables :x :y)
-  (invariant (and (contains? nat-set :x) (contains? nat-set :y)))
+  (invariants (contains? nat-set :x) (contains? nat-set :y))
   (init (parallel-substitution (assign :x 70) (assign :y 40)))
   (operations
     (operation [:s] :GCDSolution [] (if-sub (= :y 0) (assign :s :x) (assign :s -1)))

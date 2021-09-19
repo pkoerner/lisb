@@ -186,6 +186,8 @@
   (ir->ast-node (:left ir-node)))
 (defn ir-node-right->ast [ir-node]
   (ir->ast-node (:right ir-node)))
+(defn ir-node-values->ast [ir-node]
+  (map ir->ast-node (:values ir-node)))
 (defn ir-node-predicate->ast [ir-node]
   (ir->ast-node (:predicate ir-node)))
 (defn ir-node-predicates->ast [ir-node]
@@ -274,43 +276,44 @@
 ;;; machine clauses
 
 (defmethod ir-node->ast-node :contraints [ir-node]
-  (AConstraintsMachineClause. (ir-node-predicate->ast ir-node)))
+  (AConstraintsMachineClause. (reduce #(AConjunctPredicate. %1 %2) (ir-node-values->ast ir-node)))
+  #_(AConstraintsMachineClause. (chain-arity-two (:values ir-node) #(AConjunctPredicate. %1 %2))))
 
 (defmethod ir-node->ast-node :sets [ir-node]
-  (ASetsMachineClause. (map ir->ast-node (:set-definitions ir-node))))
+  (ASetsMachineClause. (ir-node-values->ast ir-node)))
 (defmethod ir-node->ast-node :deferred-set [ir-node]
   (ADeferredSetSet. (.getIdentifier (ir-node-identifier->ast ir-node))))
 (defmethod ir-node->ast-node :enumerated-set [ir-node]
   (AEnumeratedSetSet. (.getIdentifier (ir-node-identifier->ast ir-node)) (ir-node-elements->ast ir-node)))
 
 (defmethod ir-node->ast-node :constants [ir-node]
-  (AConstantsMachineClause. (ir-node-identifiers->ast ir-node)))
+  (AConstantsMachineClause. (ir-node-values->ast ir-node)))
 
 (defmethod ir-node->ast-node :properties [ir-node]
-  (APropertiesMachineClause. (ir-node-predicate->ast ir-node)))
+  (APropertiesMachineClause. (reduce #(AConjunctPredicate. %1 %2) (ir-node-values->ast ir-node))))
 
 (defmethod ir-node->ast-node :definitions [ir-node]
-  (ADefinitionsMachineClause. (ir->ast-node (:definitions ir-node))))
+  (ADefinitionsMachineClause. (ir-node-values->ast ir-node)))
 ;TODO:
 ;(defmethod ir-node->ast-node :definition)
 
 (defmethod ir-node->ast-node :variables [ir-node]
-  (AVariablesMachineClause. (ir-node-identifiers->ast ir-node)))
+  (AVariablesMachineClause. (ir-node-values->ast ir-node)))
 
 (defmethod ir-node->ast-node :invariants [ir-node]
-  (AInvariantMachineClause. (ir-node-predicate->ast ir-node)))
+  (AInvariantMachineClause. (reduce #(AConjunctPredicate. %1 %2) (ir-node-values->ast ir-node))))
 
 (defmethod ir-node->ast-node :assertions [ir-node]
-  (AAssertionsMachineClause. (ir-node-predicates->ast ir-node)))
+  (AAssertionsMachineClause. (ir-node-values->ast ir-node)))
 
 (defmethod ir-node->ast-node :assign [ir-node]
-  (AAssertionsMachineClause. (ir-node-predicates->ast ir-node)))
+  (AAssertionsMachineClause. (ir-node-values->ast ir-node)))
 
 (defmethod ir-node->ast-node :init [ir-node]
-  (AInitialisationMachineClause. (ir-node-substitution->ast ir-node)))
+  (AInitialisationMachineClause. (ASequenceSubstitution. (ir-node-values->ast ir-node))))
 
 (defmethod ir-node->ast-node :operations [ir-node]
-  (AOperationsMachineClause. (map ir->ast-node (:operations ir-node))))
+  (AOperationsMachineClause. (ir-node-values->ast ir-node)))
 (defmethod ir-node->ast-node :operation [ir-node]
   (AOperation. (map ir->ast-node (:return ir-node)) (list (TIdentifierLiteral. (name (:name ir-node)))) (ir-node-parameters->ast ir-node) (ir->ast-node (:body ir-node))))
 
