@@ -2,7 +2,7 @@
   (machine-variant)
   (machine-header :Bakery0 [])
   (variables :aa)
-  (invariant (contains? (interval 0 2) :aa))
+  (invariants (contains? (interval 0 2) :aa))
   (init (assign :aa 0))
   (operations
     (operation [] :enter1 [] (select (= :aa 0) (assign :aa 1)))

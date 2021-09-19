@@ -19,9 +19,9 @@
               btake bconc brest bdrop-last blast bfirst breverse bconj bcons bconcat bsize bperm biseq1 biseq bseq1 bseq
               bsequence brec-get brecord bstruct bstring-set blet-pred blet-expr bif-expr bselect bcond bif-sub bchoice
               bassert bprecondition bvar blet-sub bany bsequence-substitution bparallel-substitution boperation-call
-              bbecomes-such bbecomes-element-of bassign bblock bskip boperation boperations binit bassertions binvariant
-              bvariables bdefinitions bproperties bconstants benumerated-set bdeferred-set bsets bconstraints
-              bmachine-header bmachine-variant bmachine bmap-set bset-enum])
+              bbecomes-such bbecomes-element-of bassign bblock bskip boperation boperations binit bassertions
+              binvariants bvariables bdefinitions bproperties bconstants benumerated-set bdeferred-set bsets
+              bconstraints bmachine-header bmachine-variant bmachine bmap-set bset-enum])
 
 (defn ast->b [ast]
   (let [pprinter (PrettyPrinter.)]

@@ -18,7 +18,7 @@
               (b (properties (= true true)))
               ;(b (definitions))
               (b (variables :x :y))
-              (b (invariant (= true true)))
+              (b (invariants (= true true)))
               (b (assertions (= true true) (= false false)))
               (b (init (assign :x 0 :y 0)))
               (b (operations (operation () :inc () (assign :x (+ :x 1))) (operation () :dec () (assign :x (- :x 1)))))

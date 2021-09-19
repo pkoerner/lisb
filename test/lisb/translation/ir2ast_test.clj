@@ -35,16 +35,20 @@
 (deftest machine-clauses-test
   (testing "machine-clauses"
     (are [b ir] (= b (ast->b (ir->ast ir)))
-                  "CONSTRAINTS 1=1\n" (b (constraints (= 1 1)))
-                  "SETS S; T={e1,e2}\n" (b (sets (deferred-set :S) (enumerated-set :T :e1 :e2)))
-                  "CONSTANTS x, y\n" (b (constants :x :y))
-                  "PROPERTIES\nTRUE=TRUE\n" (b (properties (= true true)))
-                  ; definitions
-                  "VARIABLES x, y\n" (b (variables :x :y))
-                  "INVARIANT TRUE=TRUE\n" (b (invariant (= true true)))
-                  "ASSERTIONS\nTRUE=TRUE; FALSE=FALSE\n" (b (assertions (= true true) (= false false)))
-                  "INITIALISATION x,y := 0,0\n" (b (init (assign :x 0 :y 0)))
-                  "OPERATIONS\ninc = x := x+1;\ndec = x := x-1\n" (b (operations (operation () :inc () (assign :x (+ :x 1))) (operation () :dec () (assign :x (- :x 1))))))))
+                "CONSTRAINTS 1=1\n" (b (constraints (= 1 1)))
+                "CONSTRAINTS 1=1 & 2=2 & 3=3\n" (b (constraints (= 1 1) (= 2 2) (= 3 3)))
+                "SETS S; T={e1,e2}\n" (b (sets (deferred-set :S) (enumerated-set :T :e1 :e2)))
+                "CONSTANTS x, y\n" (b (constants :x :y))
+                "PROPERTIES\n1=1\n" (b (properties (= 1 1)))
+                "PROPERTIES\n1=1 & 2=2 & 3=3\n" (b (properties (= 1 1) (= 2 2) (= 3 3)))
+                ; definitions
+                "VARIABLES x, y\n" (b (variables :x :y))
+                "INVARIANT 1=1\n" (b (invariants (= 1 1)))
+                "INVARIANT 1=1 & 2=2 & 3=3\n" (b (invariants (= 1 1) (= 2 2) (= 3 3)))
+                "ASSERTIONS\nTRUE=TRUE; FALSE=FALSE\n" (b (assertions (= true true) (= false false)))
+                "INITIALISATION x := 0\n" (b (init (assign :x 0)))
+                "INITIALISATION x := 0 ; y := 0 ; z := 0\n" (b (init (assign :x 0) (assign :y 0) (assign :z 0)))
+                "OPERATIONS\ninc = x := x+1;\ndec = x := x-1\n" (b (operations (operation () :inc () (assign :x (+ :x 1))) (operation () :dec () (assign :x (- :x 1))))))))
 
 
 (deftest substitutions-test

@@ -272,7 +272,7 @@
 ; TODO: concrete variables
 
 (defmethod ast->lisb AInvariantMachineClause [node]
-  (lisbify 'invariant (.getPredicates node)))  ; (.getPredicates node) returns ONE Predicate and no list!
+  (lisbify 'invariants (.getPredicates node)))  ; (.getPredicates node) returns ONE Predicate and no list!
 
 (defmethod ast->lisb AAssertionsMachineClause [node]
   (concat-last 'assertions (.getPredicates node)))
