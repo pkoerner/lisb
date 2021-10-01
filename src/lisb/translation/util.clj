@@ -8,7 +8,7 @@
 (import-vars [lisb.translation.ast2lisb ast->lisb])
 (import-vars [lisb.translation.ir2ast ir->ast])
 (import-vars [lisb.translation.data-conversion ensure-list convert])
-(import-vars [lisb.translation.lisb2ir defpred pred almost-flatten wrap bempty-machine lisb->ir b bcall bexists bfor-all
+(import-vars [lisb.translation.lisb2ir defpred pred almost-flatten wrap bempty-machine lisb->ir b bexists bfor-all
               bnot b=> b<=> bor band bdistinct? bnot= b= bpred->bool bbool-set bsuperset-strict? bsuperset?
               bsubset-strict? bsubset? bmember? bcontains? bintersection-pe bunion-pe bintersect-sets bunite-sets
               bdifference bintersection bunion bcount bfin1 bfin bpow1 bpow bcomp-set bdec binc bpi bsigma bmod b** bdiv

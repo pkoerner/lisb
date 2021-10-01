@@ -37,6 +37,22 @@
 
 ;;; machine clauses
 
+(defn bextends [& machine-names]
+  {:tag :extends
+   :values machine-names})
+
+(defn bincludes [& machine-names]
+  {:tag :includes
+   :values machine-names})
+
+(defn bpromotes [& op-names]
+  {:tag :promotes
+   :values op-names})
+
+(defn buses [& machine-names]
+  {:tag :uses
+   :values machine-names})
+
 (defn bconstraints [& predicates]
   {:tag :contraints
    :values predicates})
@@ -178,6 +194,11 @@
 (defn bselect [& clauses]
   {:tag :select
    :clauses clauses})
+
+(defn bop-subs [op & args]
+  {:tag :op-subs
+   :op op
+   :args args})
 
 
 ;;; if
@@ -346,11 +367,6 @@
    :identifiers identifiers
    :predicate predicate
    :expression expression})
-
-(defn bcall [f & args]
-  {:tag :call
-   :f f
-   :args args})
 
 
 ;;; relations
@@ -754,6 +770,10 @@
          ~'machine-header bmachine-header
 
          ; machine clauses
+         ~'extends bextends
+         ~'includes bincludes
+         ~'promotes bpromotes
+         ~'uses buses
          ~'constraints bconstraints
          ~'sets bsets
          ~'deferred-set bdeferred-set
@@ -786,6 +806,7 @@
          ~'if-sub bif-sub
          ~'cond bcond
          ~'select bselect
+         ~'op-subs bop-subs
          ;~'case bcase
 
          ; if
@@ -945,10 +966,7 @@
          ~'=> b=>
          ~'not bnot
          ~'for-all bfor-all
-         ~'exists bexists
-
-         ;;; misc
-         ~'call bcall]
+         ~'exists bexists]
      ~lisb
     ))
 

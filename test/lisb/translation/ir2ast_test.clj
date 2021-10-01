@@ -2,6 +2,7 @@
   (:require [clojure.test :refer :all]
             [lisb.translation.util :refer :all]
             [lisb.examples.simple :as simple]
+            [lisb.examples.marriages :as marriages]
             [lisb.examples.function-returns :as function-returns]))
 
 (defn normalize-string [string]
@@ -11,6 +12,14 @@
   (testing "function-returns"
     (are [b lisb] (= (normalize-string (slurp (clojure.java.io/resource (str "machines/b/" b)))) (normalize-string (ast->b (ir->ast lisb))))
                   "FunctionReturns.mch" function-returns/function-returns)))
+
+(deftest examples-marriages-test
+  (testing "examples-marriages"
+    (are [b lisb] (= (normalize-string (slurp (clojure.java.io/resource (str "machines/b/marriages/" b)))) (normalize-string (ast->b (ir->ast lisb))))
+                  "Life.mch" marriages/life
+                  "Marriage.mch" marriages/marriage
+                  ;"Registrar.mch" marriages/registrar
+                  )))
 
 (deftest examples-simple-test
   (testing "examples-simple"
@@ -78,6 +87,8 @@
                   "SELECT 1=2 THEN skip ELSE x := 1 END " (b (select (= 1 2) skip (assign :x 1)))
                   "SELECT 1=1 THEN skip WHEN 2=2 THEN skip END " (b (select (= 1 1) skip (= 2 2) skip))
                   "SELECT 1=1 THEN skip WHEN 2=2 THEN skip ELSE skip END " (b (select (= 1 1) skip (= 2 2) skip skip))
+                ; TODO: wrong in pretty printer
+                ;"op(a)" (b (op-subs :op :a))
                   ;"CASE E OF EITHER m THEN G OR n THEN H END END"
                   ;"CASE E OF EITHER m THEN G OR n THEN H ELSE I END END"
                   )))
@@ -176,7 +187,7 @@
                   "S>->>T>->>U" (b (>->> :S :T :U))
                   "S>->>T>->>U>->>V" (b (>->> :S :T :U :V))
                   "%x.(1=1|1)" (b (lambda #{:x} (= 1 1) 1))
-                  "f(E)" (b (call :f :E)))))
+                  "f(E)" (b (apply :f :E)))))
 
 
 (deftest relation-test

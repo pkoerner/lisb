@@ -176,7 +176,7 @@
              ASelectSubstitution
              ASelectWhenSubstitution
              AOperation
-             AMachineClauseParseUnit)
+             AMachineClauseParseUnit AUsesMachineClause AExtendsMachineClause AMachineReference AIncludesMachineClause APromotesMachineClause AOpSubstitution)
            (java.util LinkedList)))
 
 (declare ast->lisb read-bmachine)
@@ -207,9 +207,21 @@
       (conj (collect-right-associative right-node) left-node)
       [right-node left-node])))
 
-
 (defn multi-arity [lisb node]
   (apply (partial lisbify lisb) (collect-left-associative node)))
+
+
+;;; lisb transformation
+
+(defn splice-lisb-node [lisb lisb-node predicate-node]
+  (let [lisb-predicate (ast->lisb predicate-node)]  ; (.getPredicates node) returns ONE Predicate and no list!
+    (if (= lisb-node (first lisb-predicate))                     ; remove and if present
+      (cons lisb (rest lisb-predicate))
+      (list lisb lisb-predicate))))
+
+(defn splice-and [lisb node]
+  (splice-lisb-node lisb 'and node))
+
 
 ;;; ast-> lisb start
 
@@ -243,8 +255,22 @@
 
 ;;; machine clauses
 
+(defmethod ast->lisb AExtendsMachineClause [node]
+  (concat-last 'extends (.getMachineReferences node)))
+(defmethod ast->lisb AIncludesMachineClause [node]
+  (concat-last 'includes (.getMachineReferences node)))
+(defmethod ast->lisb AMachineReference [node]
+  ; TODO: process parameters
+  (ast->lisb (first (.getMachineName node))))
+
+(defmethod ast->lisb APromotesMachineClause [node]
+  (concat-last 'promotes (.getOperationNames node)))
+
+(defmethod ast->lisb AUsesMachineClause [node]
+  (concat-last 'uses (.getMachineNames node)))
+
 (defmethod ast->lisb AConstraintsMachineClause [node]
-  (lisbify 'constraints (.getPredicates node)))  ; (.getPredicates node) returns ONE Predicate and no list!
+  (splice-and 'constraints (.getPredicates node)))  ; (.getPredicates node) returns ONE Predicate and no list!
 
 (defmethod ast->lisb ASetsMachineClause [node]
   (concat-last 'sets (.getSetDefinitions node)))
@@ -258,7 +284,7 @@
   (concat-last 'constants (.getIdentifiers node)))
 
 (defmethod ast->lisb APropertiesMachineClause [node]
-  (lisbify 'properties (.getPredicates node)))  ; (.getPredicates node) returns ONE Predicate and no list!
+  (splice-and 'properties (.getPredicates node)))  ; (.getPredicates node) returns ONE Predicate and no list!
 
 (defmethod ast->lisb ADefinitionsMachineClause [node]
   (concat-last 'definitions (.getDefinitions node)))
@@ -271,14 +297,15 @@
 
 ; TODO: concrete variables
 
+
 (defmethod ast->lisb AInvariantMachineClause [node]
-  (lisbify 'invariants (.getPredicates node)))  ; (.getPredicates node) returns ONE Predicate and no list!
+  (splice-and 'invariants (.getPredicates node)))
 
 (defmethod ast->lisb AAssertionsMachineClause [node]
   (concat-last 'assertions (.getPredicates node)))
 
 (defmethod ast->lisb AInitialisationMachineClause [node]
-  (lisbify 'init (.getSubstitutions node)))  ; AInitialisationMachineClause holds one PSubstitution
+  (splice-lisb-node 'init 'sequence-substitution (.getSubstitutions node)))  ; AInitialisationMachineClause holds one PSubstitution
 
 (defmethod ast->lisb AOperationsMachineClause [node]
   (concat-last 'operations (.getOperations node)))
@@ -365,6 +392,10 @@
       (concat (list 'select condition then) else-ifs))))
 (defmethod ast->lisb ASelectWhenSubstitution [node]
   [(ast->lisb (.getCondition node)) (ast->lisb (.getSubstitution node))])
+
+(defmethod ast->lisb AOpSubstitution [node]
+  (concat-last 'op-subs (.getName node) (.getParameters node))
+  )
 
 ; TODO: case
 
@@ -480,7 +511,7 @@
     (cond
       (= (class f) ASuccessorExpression) (concat-last 'inc params)
       (= (class f) APredecessorExpression) (concat-last 'dec params)
-      :else (concat-last 'call f params))))
+      :else (concat-last 'apply f params))))
 
 
 ;;; relations
@@ -494,11 +525,7 @@
 (defmethod ast->lisb ATotalSurjectionRelationExpression [node]
   (multi-arity 'total-surjective-relation node))
 (defmethod ast->lisb ACoupleExpression [node]
-  (let [children (mapv ast->lisb (.getList node))
-        left (first children)]
-    (if (vector? left)
-      (conj left (second children))
-      children)))
+  (mapv ast->lisb (.getList node)))
 (defmethod ast->lisb ADomainExpression [node]
   (expression 'dom node))
 (defmethod ast->lisb ARangeExpression [node]
