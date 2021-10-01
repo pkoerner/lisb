@@ -1,0 +1,16 @@
+(machine
+  (machine-variant)
+  (machine-header :Registrar [])
+  (extends :Marriage)
+  (includes :Life)
+  (promotes :born)
+  (operations
+    (operation [] :dies [:nn] (pre
+                                (and
+                                  (contains? :PERSON :nn)
+                                  (contains? (union :male :female) :nn))
+                                (parallel-substitution
+                                  (op-subs :die :nn)
+                                  (cond
+                                    (contains? (dom :marriage) :nn) (op-subs :part :nn (apply :marriage :nn))
+                                    (contains? (ran :marriage) :nn) (op-subs :part (apply (inverse :marriage) :nn) :nn)))))))

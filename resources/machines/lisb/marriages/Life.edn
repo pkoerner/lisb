@@ -1,0 +1,31 @@
+(machine
+  (machine-variant)
+  (machine-header :Life [])
+  (sets
+    (deferred-set :PERSON)
+    (enumerated-set :SEX :boy :girl))
+  (variables :male :female)
+  (invariants
+    (subset? :male :PERSON)
+    (subset? :female :PERSON)
+    (= (intersection :male :female) #{}))
+  (init
+    (parallel-substitution
+      (assign :male #{})
+      (assign :female #{})))
+  (operations
+    (operation [] :born [:nn :ss] (pre
+                                    (and
+                                      (contains? :PERSON :nn)
+                                      (not (contains? (union :male :female) :nn))
+                                      (contains? :SEX :ss))
+                                    (if-sub (= :ss :boy)
+                                      (assign :male (union :male #{:nn}))
+                                      (assign :female (union :female #{:nn})))))
+    (operation [] :die [:nn] (pre
+                               (and
+                                 (contains? :PERSON :nn)
+                                 (contains? (union :male :female) :nn))
+                               (if-sub (contains? :male :nn)
+                                 (assign :male (- :male #{:nn}))
+                                 (assign :female (- :female #{:nn})))))))

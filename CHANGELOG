@@ -6,12 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.2] - Snapshot
   ### Added
+  - Added translation of USES, EXTENDS, INCLUDES, PROMOTES and operation substitutions.
   - Added to lisb and ir multiple arguments for constraints, properties, invariants and init.
   Arguments for constraints, properties and invariants are chained via AConjunctPredicate.
   Arguments for init are chained via ASequenceSubstitution.
   ### Changed
   - Changed lisb and ir invariant to invariants.
   - Changed all machine-clause-ir-nodes to use :values instead of individually keys for arguments.
+  ### Removed
+  - Removed lisb and ir call. Only apply is now used for function calls.
+  - Removed maplet/couple chaining.
 
 
 ## [0.0.1] - 2021-09-17

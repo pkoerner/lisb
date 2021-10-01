@@ -2,6 +2,17 @@
   (:require [clojure.test :refer :all]
             [lisb.translation.util :refer :all]))
 
+
+(deftest examples-marriages-test
+  (testing "examples-marriages"
+    (are [name] (= (read-string (slurp (clojure.java.io/resource (str "machines/lisb/marriages/" name ".edn"))))
+                   (b->lisb (slurp (clojure.java.io/resource (str "machines/b/marriages/" name ".mch")))))
+                "Life"
+                "Marriage"
+                "Registrar"
+                )))
+
+
 (deftest examples-simple-test
   (testing "examples-simple"
     (are [name] (=
@@ -29,13 +40,17 @@
 #_(deftest constraint-test
   (testing "constraint"
     (is (=
-          (b->lisb (slurp (clojure.java.io/resource "machines/Constraint.mch")))))))
+          (b->lisb (slurp (clojure.java.io/resource "machines/Constraints.mch")))))))
 
 
 (deftest machine-clauses-test
   (testing "machine-clauses"
     (are [lisb b] (= lisb
-                     (b->lisb (slurp (clojure.java.io/resource (str "machines/b/" b)))))
+                     (b->lisb (slurp (clojure.java.io/resource (str "machines/b/machine-clauses/" b)))))
+                  '(machine
+                     (machine-variant)
+                     (machine-header :Constraints [])
+                     (constraints (= 1 1) (= 2 2))) "Constraints.mch"
                   '(machine
                      (machine-variant)
                      (machine-header :Set [])
@@ -45,6 +60,10 @@
                      (machine-header :Constant [])
                      (constants :con)
                      (properties (= :con 1))) "Constant.mch"
+                  '(machine
+                     (machine-variant)
+                     (machine-header :Properties [])
+                     (properties (= 1 1) (= 2 2))) "Properties.mch"
                   ; TODO
                   #_(machine
                     (machine-variant)
@@ -53,8 +72,18 @@
                      (machine-variant)
                      (machine-header :Variable [])
                      (variables :nat)
-                     (invariant (contains? nat-set :nat))
-                     (init (assign :nat 0))) "Variable.mch")))
+                     (invariants (contains? nat-set :nat))
+                     (init (assign :nat 0))) "Variable.mch"
+                  '(machine
+                     (machine-variant)
+                     (machine-header :Invariant [])
+                     (invariants (= 1 1) (= 2 2))) "Invariant.mch"
+                  '(machine
+                     (machine-variant)
+                     (machine-header :Init [])
+                     (variables :x :y)
+                     (invariants (> :x 0) (> :y 0))
+                     (init (assign :x 0) (assign :y 0))) "Init.mch")))
 
 
 (deftest substitutions-test
@@ -166,8 +195,8 @@
                   '(>-> :S :T) "S>->T"
                   '(>->> :S :T) "S>->>T"
                   '(lambda [:x] (= 1 1) 1) "%x.(1=1|1)"
-                  '(call :f :E) "f(E)"
-                  '(call :f :E :F) "f(E,F)")))
+                  '(apply :f :E) "f(E)"
+                  '(apply :f :E :F) "f(E,F)")))
 
 
 (deftest relation-test
@@ -182,7 +211,7 @@
                   '(total-surjective-relation :S :T) "S<<->>T"
                   '(total-surjective-relation :S :T :U) "S<<->>T<<->>U"
                   '[:E :F] "E|->F"
-                  '[:E :F :G] "E|->F|->G"
+                  '[[:E :F] :G] "E|->F|->G"
                   '(dom :r) "dom(r)"
                   '(ran :r) "ran(r)"
                   '(identity :S) "id(S)"

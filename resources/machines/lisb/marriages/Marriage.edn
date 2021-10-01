@@ -1,0 +1,33 @@
+(machine
+  (machine-variant)
+  (machine-header :Marriage [])
+  (uses :Life)
+  (variables :marriage)
+  (invariants
+    (contains? (>+> :male :female) :marriage))
+  (init
+    (assign :marriage #{}))
+  (operations
+    (operation [] :wed [:mm :ff]
+      (pre
+        (and
+          (contains? :male :mm)
+          (not (contains? (dom :marriage) :mm))
+          (contains? :female :ff)
+          (not (contains? (ran :marriage) :ff)))
+        (assign (apply :marriage :mm) :ff)))
+    (operation [] :part [:mm :ff]
+      (pre
+        (and
+          (contains? :male :mm)
+          (contains? :female :ff)
+          (contains? :marriage [:mm :ff]))
+        (assign :marriage (- :marriage #{[:mm :ff]}))))
+    (operation [:pp] :partner [:nn]
+      (pre
+        (and
+          (contains? :PERSON :nn)
+          (contains? (union (dom :marriage) (ran :marriage)) :nn))
+        (if-sub (contains? (dom :marriage) :nn)
+          (assign :pp (apply :marriage :nn))
+          (assign :pp (apply (inverse :marriage) :nn)))))))

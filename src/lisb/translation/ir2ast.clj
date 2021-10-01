@@ -178,7 +178,7 @@
                                                AParseUnitDefinitionParseUnit
                                                PMachineClause
                                                PSubstitution
-                                               PDefinition)))
+                                               PDefinition AExtendsMachineClause AIncludesMachineClause AMachineReference AUsesMachineClause APromotesMachineClause AOpSubstitution)))
 
 (declare ir->ast-node)
 
@@ -274,6 +274,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; machine clauses
+
+(defmethod ir-node->ast-node :extends [ir-node]
+  (AExtendsMachineClause. (map #(AMachineReference. [(first (.getIdentifier %))] []) (ir-node-values->ast ir-node))))
+
+(defmethod ir-node->ast-node :includes [ir-node]
+  (AIncludesMachineClause. (map #(AMachineReference. [(first (.getIdentifier %))] []) (ir-node-values->ast ir-node))))
+
+(defmethod ir-node->ast-node :promotes [ir-node]
+  (APromotesMachineClause. (ir-node-values->ast ir-node)))
+
+(defmethod ir-node->ast-node :uses [ir-node]
+  (AUsesMachineClause. (ir-node-values->ast ir-node)))
 
 (defmethod ir-node->ast-node :contraints [ir-node]
   (AConstraintsMachineClause. (reduce #(AConjunctPredicate. %1 %2) (ir-node-values->ast ir-node)))
@@ -375,6 +387,9 @@
       (let [else (last clauses)
             else-ifs (map select-when-sub (partition 2 (drop-last 1 (drop 2 clauses))))]
         (ASelectSubstitution. condition then else-ifs else)))))
+
+(defmethod ir-node->ast-node :op-subs [ir-node]
+  (AOpSubstitution. (ir->ast-node (:op ir-node)) (map ir->ast-node (:args ir-node))))
 
 
 ;;; if
@@ -769,7 +784,8 @@
 
 ;;; misc
 
-(defmethod ir-node->ast-node :call [ir-node]
+#_(defmethod ir-node->ast-node :call [ir-node]
+  (println ir-node)
   (ADefinitionExpression. (TIdentifierLiteral. (name (:f ir-node))) (map ir->ast-node (:args ir-node))))
 
 

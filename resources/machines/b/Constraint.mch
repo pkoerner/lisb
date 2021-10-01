@@ -1,3 +1,0 @@
-MACHINE Constraint
-CONSTRAINTS
-END

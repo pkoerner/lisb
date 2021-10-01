@@ -1,7 +1,16 @@
 (ns lisb.translation.lisb2ir-test
   (:require [clojure.test :refer :all]
             [lisb.translation.util :refer [lisb->ir b pred]]
-            [lisb.examples.simple :as simple]))
+            [lisb.examples.simple :as simple]
+            [lisb.examples.marriages :as marriages]))
+
+
+(deftest examples-marriages-test
+  (testing "examples-marriages"
+    (are [ir lisb-name] (= ir (lisb->ir (read-string (slurp (clojure.java.io/resource (str "machines/lisb/marriages/" lisb-name ".edn"))))))
+                        marriages/life "Life"
+                        marriages/marriage "Marriage"
+                        marriages/registrar "Registrar")))
 
 (deftest simple-machines-test
   (testing "simple-machines"
