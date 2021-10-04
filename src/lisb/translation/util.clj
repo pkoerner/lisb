@@ -8,20 +8,52 @@
 (import-vars [lisb.translation.ast2lisb ast->lisb])
 (import-vars [lisb.translation.ir2ast ir->ast])
 (import-vars [lisb.translation.data-conversion ensure-list convert])
-(import-vars [lisb.translation.lisb2ir defpred pred almost-flatten wrap bempty-machine lisb->ir b bexists bfor-all
-              bnot b=> b<=> bor band bdistinct? bnot= b= bpred->bool bbool-set bsuperset-strict? bsuperset?
-              bsubset-strict? bsubset? bmember? bcontains? bintersection-pe bunion-pe bintersect-sets bunite-sets
-              bdifference bintersection bunion bcount bfin1 bfin bpow1 bpow bcomp-set bdec binc bpi bsigma bmod b** bdiv
-              b* b- b+ bmin bmax b>= b<= b> b< bmax-int bmin-int brange binterval bnat1-set bnat-set bint-set
-              bnatural1-set bnatural-set binteger-set brel bfnc biterate bclosure bclosure1 bprj2 bprj1 b|| bcomp b><
-              b<+ bimage binverse b|>> b|> b<<| b<| bid bran bdom bcouple btotal-surjective-relation
-              bsurjective-relation btotal-relation b<-> bapply blambda b>->> b>+>> b>-> b>+> b-->> b+->> b--> b+-> bdrop
-              btake bconc brest bdrop-last blast bfirst breverse bconj bcons bconcat bsize bperm biseq1 biseq bseq1 bseq
-              bsequence brec-get brecord bstruct bstring-set blet-pred blet-expr bif-expr bselect bcond bif-sub bchoice
-              bassert bprecondition bvar blet-sub bany bsequence-substitution bparallel-substitution boperation-call
-              bbecomes-such bbecomes-element-of bassign bblock bskip boperation boperations binit bassertions
-              binvariants bvariables bdefinitions bproperties bconstants benumerated-set bdeferred-set bsets
-              bconstraints bmachine-header bmachine-variant bmachine bmap-set bset-enum])
+(import-vars [lisb.translation.lisb2ir lisb->ir b
+              ;;; parse units
+              bmachine bmodel bsystem brefinement bimplementation
+              ;;; machine clauses
+              ;; machine inclusions
+              buses bincludes bmachine-reference bsees bextends bpromotes
+              ;; machine sections
+              bconstraints bsets bdeferred-set benumerated-set bconstants bproperties bdefinitions bvariables
+              binvariants bassertions binit boperations boperation
+              ;;; substitutions
+              bskip bblock bassign bbecomes-element-of bbecomes-such boperation-call bparallel-substitution
+              bsequence-substitution bany blet-sub bvar bprecondition bassert bchoice bif-sub bselect bop-subs
+              ;;; if
+              bif-expr
+              ;;; let
+              blet-expr blet-pred
+              ;;; trees
+              ;;; reals
+              ;;; string
+              bstring-set
+              ;;; records
+              bstruct brecord brec-get
+              ;;; sequences
+              bsequence bseq bseq1 biseq biseq1 bperm bsize bconcat bcons bconj breverse bfirst blast bdrop-last brest
+              bconc btake bdrop
+              ;;; functions
+              b+-> b--> b+->> b-->> b>+> b>-> b>+>> b>->> blambda bapply
+              ;;; relations
+              b<-> btotal-relation bsurjective-relation btotal-surjective-relation bcouple bdom bran bid b<| b<<| b|>
+              b|>> binverse bimage b<+ b>< bcomp b|| bprj1 bprj2 bclosure1 bclosure biterate bfnc brel
+              ;;; numbers
+              binteger-set bnatural-set bnatural1-set bint-set bnat-set bnat1-set binterval brange bmin-int bmax-int
+              bmax bmin b+ b- b* bdiv b** bmod bpi bsigma binc bdec
+              ;; number predicates
+              b< b> b<= b=>
+              ;;; sets
+              bcomp-set bpow bpow1 bfin bfin1 bcount bunion bintersection bdifference bmember? bcontains? bsubset?
+              bsubset-strict? bsuperset? bsuperset-strict? bunite-sets bunion-pe bintersect-sets bintersection-pe
+              ;;; booleans
+              bbool-set bpred->bool
+              ;;; equality predicates
+              b= bnot= bdistinct?
+              ;;; logical predicates
+              band bor b=> b<=> bnot bfor-all bexists
+              ;;; misc
+              bset-enum bmap-set defpred pred almost-flatten wrap bempty-machine])
 
 (defn ast->b [ast]
   (let [pprinter (PrettyPrinter.)]
@@ -37,6 +69,7 @@
 (defn b-substitution->ast [b-substitution] (.parseSubstitution (BParser.) b-substitution))
 (defn b-predicate->ast [b-predicate] (.parsePredicate (BParser.) b-predicate))
 (defn b-operation->ast [b-operation] (.parseTransition (BParser.) b-operation))
+(defn b-machine-clause->ast [b-machine-clause] (b->ast (str "#MACHINECLAUSE" b-machine-clause)))
 
 (defn b->lisb [b] (ast->lisb (b->ast b)))
 (defn b-predicate->lisb [b-predicate] (ast->lisb (b-predicate->ast b-predicate)))
@@ -44,6 +77,7 @@
 (defn b-formula->lisb [b-formula] (ast->lisb (b-formula->ast b-formula)))
 (defn b-substitution->lisb [b-substitution] (ast->lisb (b-substitution->ast b-substitution)))
 (defn b-operation->lisb [b-operation] (ast->lisb (b-operation->ast b-operation)))
+(defn b-machine-clause->lisb [b-machine-clause] (ast->lisb (b-machine-clause->ast b-machine-clause)))
 
 (defn b->ir [b] (lisb->ir (b->lisb b)))
 (defn b-predicate->ir [b-predicate] (lisb->ir (b-predicate->lisb b-predicate)))
@@ -51,6 +85,7 @@
 (defn b-formula->ir [b-formula] (lisb->ir (b-formula->lisb b-formula)))
 (defn b-substitution->ir [b-substitution] (lisb->ir (b-substitution->lisb b-substitution)))
 (defn b-operation->ir [b-operation] (lisb->ir (b-operation->lisb b-operation)))
+(defn b-machine-clause->ir [b-machine-clause] (lisb->ir (b-machine-clause->lisb b-machine-clause)))
 
 (defn lisb->ast [lisb] (ir->ast (lisb->ir lisb)))
 

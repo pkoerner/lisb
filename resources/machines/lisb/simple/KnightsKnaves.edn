@@ -1,6 +1,5 @@
 (machine
-  (machine-variant)
-  (machine-header :KnightsKnaves [])
+  :KnightsKnaves
   (constants :A :B :C)
   (properties
     (contains? bool-set :A)

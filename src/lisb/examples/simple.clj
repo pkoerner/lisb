@@ -2,8 +2,7 @@
   (:require [lisb.translation.lisb2ir :refer [lisb->ir b]]))
 
 (def lift (b (machine
-               (machine-variant)
-               (machine-header :Lift [])
+               :Lift
                (variables :etage)
                (invariants (contains? (interval 0 99) :etage))
                (init (assign :etage 4))
@@ -11,22 +10,8 @@
                  (operation [] :inc [] (pre (< :etage 99) (assign :etage (+ :etage 1))))
                  (operation [] :dec [] (pre (> :etage 0) (assign :etage (- :etage 1))))))))
 
-#_(def lift2 (b {:name :Lift
-              :variables #{:etage}
-              :invariants (contains? (range 0 100) :etage)
-              :init (assign :etage 4)
-              :operations #{{:name :inc
-                             :result ()
-                             :parameters ()
-                             :body (pre (< :etage 99) (assign :etage (+ :etage 1)))}
-                             {:name :dec
-                              :result ()
-                              :parameters ()
-                              :body (pre (> :etage 0) (assign :etage (- :etage 1)))}}}))
-
 (def a-counter (b (machine
-                    (machine-variant)
-                    (machine-header :ACounter [])
+                    :ACounter
                     (variables :ii :jj)
                     (invariants (contains? (interval 0 10) :ii)
                                 (contains? (interval 0 10) :jj)
@@ -40,8 +25,7 @@
                       (operation [:result] :res [] (assign :result :ii))))))
 
 (def gcd (b (machine
-              (machine-variant)
-              (machine-header :GCD [])
+              :GCD
               (variables :x :y)
               (invariants (contains? nat-set :x) (contains? nat-set :y))
               (init (parallel-substitution (assign :x 70) (assign :y 40)))
@@ -54,8 +38,7 @@
                                                               (assign :y :w1 :x :w2))))))))
 
 (def knights-knaves (b (machine
-                         (machine-variant)
-                         (machine-header :KnightsKnaves [])
+                         :KnightsKnaves
                          (constants :A :B :C)
                          (properties
                            (contains? bool-set :A)
@@ -65,8 +48,7 @@
                            (<=> (= :B true) (= :A true))))))
 
 (def bakery0 (b (machine
-                  (machine-variant)
-                  (machine-header :Bakery0 [])
+                  :Bakery0
                   (variables :aa)
                   (invariants (contains? (interval 0 2) :aa))
                   (init (assign :aa 0))
@@ -79,8 +61,7 @@
                     (operation [] :try2 [] skip)))))
 
 (def bakery1 (b (machine
-                  (machine-variant)
-                  (machine-header :Bakery1 [])
+                  :Bakery1
                   (variables :p1 :p2 :y1 :y2)
                   (invariants (contains? (interval 0 2) :p1)
                               (contains? (interval 0 2) :p2)

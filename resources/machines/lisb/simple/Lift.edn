@@ -1,6 +1,5 @@
 (machine
-  (machine-variant)
-  (machine-header :Lift [])
+  :Lift
   (variables :etage)
   (invariants (contains? (interval 0 99) :etage))
     (init (assign :etage 4))

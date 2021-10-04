@@ -1,6 +1,5 @@
 (machine
-  (machine-variant)
-  (machine-header :ACounter [])
+  :ACounter
   (variables :ii :jj)
   (invariants
     (contains? (interval 0 10) :ii)

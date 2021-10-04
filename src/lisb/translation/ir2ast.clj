@@ -178,7 +178,7 @@
                                                AParseUnitDefinitionParseUnit
                                                PMachineClause
                                                PSubstitution
-                                               PDefinition AExtendsMachineClause AIncludesMachineClause AMachineReference AUsesMachineClause APromotesMachineClause AOpSubstitution)))
+                                               PDefinition AExtendsMachineClause AIncludesMachineClause AMachineReference AUsesMachineClause APromotesMachineClause AOpSubstitution ASystemMachineVariant AModelMachineVariant ARefinementMachineParseUnit AImplementationMachineParseUnit ASeesMachineClause)))
 
 (declare ir->ast-node)
 
@@ -263,33 +263,59 @@
 
 ;;; parse units
 
-(defmethod ir-node->ast-node :machine [ir-node]
-  (AAbstractMachineParseUnit. (ir->ast-node (:variant ir-node)) (ir->ast-node (:header ir-node)) (map ir->ast-node (:clauses ir-node))))
-(defmethod ir-node->ast-node :machine-variant [_]
-  (AMachineMachineVariant.))
-(defmethod ir-node->ast-node :machine-header [ir-node]
-  (AMachineHeader. (.getIdentifier (ir->ast-node (:name ir-node))) (ir-node-parameters->ast ir-node)))
+(defn abstract-machine-parse-unit [ir-node variant]
+  (AAbstractMachineParseUnit.
+    variant
+    (AMachineHeader. (.getIdentifier (ir->ast-node (:name ir-node))) (map ir->ast-node (:parameters ir-node)))
+    (map ir->ast-node (:clauses ir-node))))
 
+(defmethod ir-node->ast-node :machine [ir-node]
+  (abstract-machine-parse-unit ir-node (AMachineMachineVariant.)))
+
+(defmethod ir-node->ast-node :model [ir-node]
+  (abstract-machine-parse-unit ir-node (AModelMachineVariant.)))
+
+(defmethod ir-node->ast-node :system [ir-node]
+  (abstract-machine-parse-unit ir-node (ASystemMachineVariant.)))
+
+(defmethod ir-node->ast-node :refinement [ir-node]
+  (ARefinementMachineParseUnit.
+    (AMachineHeader. (.getIdentifier (ir->ast-node (:name ir-node))) (map ir->ast-node (:parameters ir-node)))
+    (TIdentifierLiteral. (name (:ref-machine ir-node)))
+    (map ir->ast-node (:clauses ir-node))))
+
+(defmethod ir-node->ast-node :implementation [ir-node]
+  (AImplementationMachineParseUnit.
+    (AMachineHeader. (.getIdentifier (ir->ast-node (:name ir-node))) (map ir->ast-node (:parameters ir-node)))
+    (TIdentifierLiteral. (name (:ref-machine ir-node)))
+    (map ir->ast-node (:clauses ir-node))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; machine clauses
-
-(defmethod ir-node->ast-node :extends [ir-node]
-  (AExtendsMachineClause. (map #(AMachineReference. [(first (.getIdentifier %))] []) (ir-node-values->ast ir-node))))
-
-(defmethod ir-node->ast-node :includes [ir-node]
-  (AIncludesMachineClause. (map #(AMachineReference. [(first (.getIdentifier %))] []) (ir-node-values->ast ir-node))))
-
-(defmethod ir-node->ast-node :promotes [ir-node]
-  (APromotesMachineClause. (ir-node-values->ast ir-node)))
+;; machine inclusions
 
 (defmethod ir-node->ast-node :uses [ir-node]
   (AUsesMachineClause. (ir-node-values->ast ir-node)))
 
+(defmethod ir-node->ast-node :includes [ir-node]
+  (AIncludesMachineClause. (ir-node-values->ast ir-node)))
+(defmethod ir-node->ast-node :machine-reference [ir-node]
+  (AMachineReference. [(TIdentifierLiteral. (name (:name ir-node)))] (map ir->ast-node (:parameters ir-node))))
+
+(defmethod ir-node->ast-node :sees [ir-node]
+  (ASeesMachineClause. (ir-node-values->ast ir-node)))
+
+(defmethod ir-node->ast-node :extends [ir-node]
+  (AExtendsMachineClause. (ir-node-values->ast ir-node)))
+
+(defmethod ir-node->ast-node :promotes [ir-node]
+  (APromotesMachineClause. (ir-node-values->ast ir-node)))
+
+;; machine sections
+
 (defmethod ir-node->ast-node :contraints [ir-node]
-  (AConstraintsMachineClause. (reduce #(AConjunctPredicate. %1 %2) (ir-node-values->ast ir-node)))
-  #_(AConstraintsMachineClause. (chain-arity-two (:values ir-node) #(AConjunctPredicate. %1 %2))))
+  (AConstraintsMachineClause. (reduce #(AConjunctPredicate. %1 %2) (ir-node-values->ast ir-node))))
 
 (defmethod ir-node->ast-node :sets [ir-node]
   (ASetsMachineClause. (ir-node-values->ast ir-node)))
@@ -814,6 +840,8 @@
     (Start.
       (cond
         (instance? AAbstractMachineParseUnit top-ast-node) top-ast-node
+        (instance? ARefinementMachineParseUnit top-ast-node) top-ast-node
+        (instance? AImplementationMachineParseUnit top-ast-node) top-ast-node
         ;(instance?  top-ast-node) (ADefinitionFileParseUnit. top-ast-node)
         (instance? PPredicate top-ast-node) (APredicateParseUnit. top-ast-node)
         (instance? PExpression top-ast-node) (AExpressionParseUnit. top-ast-node)

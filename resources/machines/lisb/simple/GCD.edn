@@ -1,6 +1,5 @@
 (machine
-  (machine-variant)
-  (machine-header :GCD [])
+  :GCD
   (variables :x :y)
   (invariants (contains? nat-set :x) (contains? nat-set :y))
   (init (parallel-substitution (assign :x 70) (assign :y 40)))

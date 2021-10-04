@@ -1,6 +1,5 @@
 (machine
-  (machine-variant)
-  (machine-header :Registrar [])
+  :Registrar
   (extends :Marriage)
   (includes :Life)
   (promotes :born)

@@ -1,4 +1,0 @@
-MACHINE Set
-SETS
-  S; T = {e1,e2}
-END

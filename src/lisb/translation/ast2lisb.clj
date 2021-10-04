@@ -176,7 +176,7 @@
              ASelectSubstitution
              ASelectWhenSubstitution
              AOperation
-             AMachineClauseParseUnit AUsesMachineClause AExtendsMachineClause AMachineReference AIncludesMachineClause APromotesMachineClause AOpSubstitution)
+             AMachineClauseParseUnit AUsesMachineClause AExtendsMachineClause AMachineReference AIncludesMachineClause APromotesMachineClause AOpSubstitution ARefinementMachineParseUnit AImplementationMachineParseUnit AModelMachineVariant ASystemMachineVariant ASeesMachineClause)
            (java.util LinkedList)))
 
 (declare ast->lisb read-bmachine)
@@ -233,12 +233,26 @@
 ;;; parse units
 
 (defmethod ast->lisb AAbstractMachineParseUnit [node]
-  (concat-last 'machine (.getVariant node) (.getHeader node) (.getMachineClauses node))
-  #_(conj (ast-list->lisb (.getMachineClauses node)) (ast->lisb (.getHeader node)) (ast->lisb (.getVariant node)) 'machine))
+  (concat-last (ast->lisb (.getVariant node)) (.getHeader node) (.getMachineClauses node)))
 (defmethod ast->lisb AMachineMachineVariant [_]
-  '(machine-variant))
+  'machine)
+(defmethod ast->lisb AModelMachineVariant [_]
+  'model)
+(defmethod ast->lisb ASystemMachineVariant [_]
+  'system)
+
+(defmethod ast->lisb ARefinementMachineParseUnit [node]
+  (concat-last 'refinement (.getHeader node) (.getRefMachine node) (.getMachineClauses node)))
+
+(defmethod ast->lisb AImplementationMachineParseUnit [node]
+  (concat-last 'implementation (.getHeader node) (.getRefMachine node) (.getMachineClauses node)))
+
 (defmethod ast->lisb AMachineHeader [node]
-  (lisbify 'machine-header (first (.getName node)) (.getParameters node)))  ; there should be exact one identifier as name!)
+  (let [name (ast->lisb (first (.getName node))) ; there should be exact one identifier as name!
+        parameters (map ast->lisb (.getParameters node))]
+    (if (empty? parameters)
+      name
+      (cons name parameters))))
 
 (defmethod ast->lisb AMachineClauseParseUnit [node]
   (ast->lisb (.getMachineClause node)))
@@ -255,19 +269,26 @@
 
 ;;; machine clauses
 
-(defmethod ast->lisb AExtendsMachineClause [node]
-  (concat-last 'extends (.getMachineReferences node)))
+(defmethod ast->lisb AUsesMachineClause [node]
+  (concat-last 'uses (.getMachineNames node)))
+
 (defmethod ast->lisb AIncludesMachineClause [node]
   (concat-last 'includes (.getMachineReferences node)))
 (defmethod ast->lisb AMachineReference [node]
-  ; TODO: process parameters
-  (ast->lisb (first (.getMachineName node))))
+  (let [name (ast->lisb (first (.getMachineName node))) ; there should be exact one identifier as name!
+        parameters (map ast->lisb (.getParameters node))]
+    (if (empty? parameters)
+      name
+      (cons name parameters))))
+
+(defmethod ast->lisb ASeesMachineClause [node]
+  (concat-last 'sees (.getMachineNames node)))
+
+(defmethod ast->lisb AExtendsMachineClause [node]
+  (concat-last 'extends (.getMachineReferences node)))
 
 (defmethod ast->lisb APromotesMachineClause [node]
   (concat-last 'promotes (.getOperationNames node)))
-
-(defmethod ast->lisb AUsesMachineClause [node]
-  (concat-last 'uses (.getMachineNames node)))
 
 (defmethod ast->lisb AConstraintsMachineClause [node]
   (splice-and 'constraints (.getPredicates node)))  ; (.getPredicates node) returns ONE Predicate and no list!

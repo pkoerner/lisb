@@ -5,9 +5,7 @@
 (deftest machine-test
   (testing "machine"
     (are [ir] (= ir (ast->ir (ir->ast ir)))
-              (b (machine
-                   (machine-variant)
-                   (machine-header :Empty []))))))
+              (b (machine :Empty)))))
 
 (deftest machine-clauses-test
   (testing "machine-clauses"

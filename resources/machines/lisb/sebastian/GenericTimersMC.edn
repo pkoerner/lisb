@@ -1,0 +1,21 @@
+(machine
+  [:GenericTimersMC :TIMERS]
+  (variables :curDeadlines)
+  (invariants (contains? (+-> :TIMERS natural-set) :curDeadlines))
+  (init (assign :curDeadlines #{}))
+  (operations
+    (operation [] :AbsoluteSetDeadline [:timer :deadline]
+      (pre (and (contains? :TIMERS :timer) (contains? natural-set :deadline))
+        (assign (apply :curDeadlines :timer) :deadline)))
+    (operation [] :AddDeadline [:timer :deadline]
+      (pre (and (contains? :TIMERS :timer) (contains? natural-set :deadline))
+        (assign (apply :curDeadlines :timer) :deadline)))
+    (operation [] :TimeoutDeadline [:timer :deadline]
+      (pre (and (contains? :TIMERS :timer) (contains? natural-set :deadline))
+        (assign :curDeadlines (difference :curDeadlines #{[:timer :deadline]}))))
+    (operation [] :IncreaseTime [:delta]
+      (select (and (contains? natural-set :delta) (=> (not= :curDeadlines #{}) (<= :delta (min (ran :curDeadlines)))))
+        (assign :curDeadlines (lambda [:x] (contains? (dom :curDeadlines) :x) (- (apply :curDeadlines :x) :delta)))))
+    (operation [] :IncreaseTimeUntilDeadline [:timer :delta]
+      (select (and (contains? natural-set :delta) (contains? (dom :curDeadlines) :timer) (= :delta (min (ran :curDeadlines))) (= :delta (apply :curDeadlines :timer)))
+        (assign :curDeadlines (lambda [:x] (contains? (difference (dom :curDeadlines) #{:timer}) :x) (- (apply :curDeadlines :x) :delta)))))))
