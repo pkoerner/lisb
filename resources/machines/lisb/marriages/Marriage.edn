@@ -1,6 +1,5 @@
 (machine
-  (machine-variant)
-  (machine-header :Marriage [])
+  :Marriage
   (uses :Life)
   (variables :marriage)
   (invariants

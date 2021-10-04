@@ -1,6 +1,5 @@
 (machine
-  (machine-variant)
-  (machine-header :Life [])
+  :Life
   (sets
     (deferred-set :PERSON)
     (enumerated-set :SEX :boy :girl))

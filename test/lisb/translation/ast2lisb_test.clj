@@ -3,6 +3,16 @@
             [lisb.translation.util :refer :all]))
 
 
+(deftest examples-sebastian-test
+  (testing "examples-sebastian"
+    (are [name] (= (read-string (slurp (clojure.java.io/resource (str "machines/lisb/sebastian/" name ".edn"))))
+                   (b->lisb (slurp (clojure.java.io/resource (str "machines/b/sebastian/" name ".mch")))))
+                "GenericTimersMC"
+                "TrafficLight2"
+                "TrafficLightTime_Ref"
+                )))
+
+
 (deftest examples-marriages-test
   (testing "examples-marriages"
     (are [name] (= (read-string (slurp (clojure.java.io/resource (str "machines/lisb/marriages/" name ".edn"))))
@@ -26,64 +36,36 @@
                 "Bakery1"
                 )))
 
-
-;;; parse units
-
-(deftest machine-test
-  (testing "machine"
-    (is (=
-          '(machine
-             (machine-variant)
-             (machine-header :Empty []))
-          (b->lisb "MACHINE Empty\nEND")))))
-
-#_(deftest constraint-test
-  (testing "constraint"
-    (is (=
-          (b->lisb (slurp (clojure.java.io/resource "machines/Constraints.mch")))))))
+(deftest machine-parse-units-test
+  (testing "machine-parse-units"
+    (are [lisb b] (= lisb (b->lisb b))
+                  '(machine :Empty) "MACHINE Empty\nEND"
+                  '(model :Empty) "MODEL Empty\nEND"
+                  '(system :Empty) "SYSTEM Empty\nEND"
+                  '(refinement :Empty2 :Empty) "REFINEMENT Empty2 REFINES Empty\nEND"
+                  '(implementation :Empty2 :Empty) "IMPLEMENTATION Empty2 REFINES Empty\nEND")))
 
 
 (deftest machine-clauses-test
   (testing "machine-clauses"
-    (are [lisb b] (= lisb
-                     (b->lisb (slurp (clojure.java.io/resource (str "machines/b/machine-clauses/" b)))))
-                  '(machine
-                     (machine-variant)
-                     (machine-header :Constraints [])
-                     (constraints (= 1 1) (= 2 2))) "Constraints.mch"
-                  '(machine
-                     (machine-variant)
-                     (machine-header :Set [])
-                     (sets (deferred-set :S) (enumerated-set :T :e1 :e2))) "Set.mch"
-                  '(machine
-                     (machine-variant)
-                     (machine-header :Constant [])
-                     (constants :con)
-                     (properties (= :con 1))) "Constant.mch"
-                  '(machine
-                     (machine-variant)
-                     (machine-header :Properties [])
-                     (properties (= 1 1) (= 2 2))) "Properties.mch"
-                  ; TODO
-                  #_(machine
-                    (machine-variant)
-                    (machine-header :Definitions ()))       ;"Definitions.mch"
-                  '(machine
-                     (machine-variant)
-                     (machine-header :Variable [])
-                     (variables :nat)
-                     (invariants (contains? nat-set :nat))
-                     (init (assign :nat 0))) "Variable.mch"
-                  '(machine
-                     (machine-variant)
-                     (machine-header :Invariant [])
-                     (invariants (= 1 1) (= 2 2))) "Invariant.mch"
-                  '(machine
-                     (machine-variant)
-                     (machine-header :Init [])
-                     (variables :x :y)
-                     (invariants (> :x 0) (> :y 0))
-                     (init (assign :x 0) (assign :y 0))) "Init.mch")))
+    (testing "machine-inclusions"
+      (are [lisb b] (= lisb (b-machine-clause->lisb b))
+                    '(uses :Lift) "USES Lift"
+                    '(includes :Lift) "INCLUDES Lift"
+                    '(includes [:Lift :FLOORS]) "INCLUDES Lift(FLOORS)"
+                    '(sees :Lift) "SEES Lift"
+                    '(extends :Lift) "EXTENDS Lift"
+                    '(extends [:Lift :FLOORS]) "EXTENDS Lift(FLOORS)"
+                    '(promotes :inc) "PROMOTES inc"))
+    (testing "machine-sections"
+      (are [lisb b] (= lisb (b-machine-clause->lisb b))
+                    '(constraints (= 1 1) (= 2 2)) "CONSTRAINTS 1=1 & 2=2"
+                    '(sets (deferred-set :S) (enumerated-set :T :e1 :e2)) "SETS S; T = {e1,e2}"
+                    '(constants :con) "CONSTANTS con"
+                    '(properties (= 1 1) (= 2 2)) "PROPERTIES 1=1 & 2=2"
+                    '(variables :var) "VARIABLES var"
+                    '(invariants (= 1 1) (= 2 2)) "INVARIANT 1=1 & 2=2"
+                    '(init (assign :x 0) (assign :y 0)) "INITIALISATION BEGIN x := 0; y := 0 END"))))
 
 
 (deftest substitutions-test

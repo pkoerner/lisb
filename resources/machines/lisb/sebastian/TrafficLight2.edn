@@ -1,0 +1,25 @@
+(machine :TrafficLight2
+  (sets
+    (enumerated-set :colors :red :redyellow :yellow :green)
+    (enumerated-set :COMMANDS :cmd_cars_redyellow :cmd_cars_yellow :cmd_cars_green :cmd_cars_red :cmd_peds_red :cmd_peds_green))
+  (variables :tl_cars :tl_peds)
+  (invariants
+    (contains? :colors :tl_cars)
+    (contains? #{:green :red} :tl_peds)
+    (or (= :tl_peds :red) (= :tl_cars :red)))
+  (init (parallel-substitution (assign :tl_cars :red) (assign :tl_peds :red)))
+  (operations
+    (operation [] :Send_command_cars_ry [] skip)
+    (operation [] :Send_command_cars_y [] skip)
+    (operation [] :Send_command_cars_g [] skip)
+    (operation [] :Send_command_cars_r [] skip)
+    (operation [] :Send_command_peds_r [] skip)
+    (operation [] :Send_command_peds_g [] skip)
+    (operation [] :Timeout [:cmd] (select (contains? :COMMANDS :cmd) skip))
+    (operation [] :RTIME_Passes [:delta] (select (contains? natural-set :delta) skip))
+    (operation [] :cars_ry [] (select (and (= :tl_cars :red) (= :tl_peds :red)) (assign :tl_cars :redyellow)))
+    (operation [] :cars_y [] (select (= :tl_cars :green) (assign :tl_cars :yellow)))
+    (operation [] :cars_g [] (select (= :tl_cars :redyellow) (assign :tl_cars :green)))
+    (operation [] :cars_r [] (select (= :tl_cars :yellow) (assign :tl_cars :red)))
+    (operation [] :peds_r [] (select (= :tl_peds :green) (assign :tl_peds :red)))
+    (operation [] :peds_g [] (select (and (= :tl_cars :red) (= :tl_peds :red)) (assign :tl_peds :green)))))

@@ -22,36 +22,76 @@
 
 ;;; parse units
 
-(defn bmachine [variant header & clauses]
-  {:tag :machine
-   :variant variant
-   :header header
-   :clauses clauses})
-(defn bmachine-variant []
-  {:tag :machine-variant})
-(defn bmachine-header [name parameters]
-  {:tag :machine-header
-   :name name
-   :parameters parameters})
+(defn process-header [m header]
+  (if (seqable? header)
+    (let [[name & parameters] header]
+      (assoc m :name name :parameters parameters))
+    (assoc m :name header)))
+
+(defn bmachine [header & clauses]
+  (process-header {:tag :machine
+                   :clauses clauses}
+                  header))
+
+(defn bmodel [header & clauses]
+  (process-header {:tag :model
+                   :clauses clauses}
+                  header))
+
+(defn bsystem [header & clauses]
+  (process-header {:tag :system
+                   :clauses clauses}
+                  header))
+
+(defn brefinement [header ref-machine & clauses]
+  (process-header {:tag :refinement
+                   :ref-machine ref-machine
+                   :clauses clauses}
+                  header))
+
+(defn bimplementation [header ref-machine & clauses]
+  (process-header {:tag :implementation
+                   :ref-machine ref-machine
+                   :clauses clauses}
+                  header))
 
 
 ;;; machine clauses
+;; machine inclusions
 
-(defn bextends [& machine-names]
-  {:tag :extends
+(defn process-machine-reference [machine-reference]
+  (let [m {:tag :machine-reference}]
+    (if (seqable? machine-reference)
+      (let [[name & parameters] machine-reference]
+        (assoc m :name name :parameters parameters))
+      (assoc m :name machine-reference))))
+
+(defn bmachine-reference [name & parameters]
+  {:tag :machine-reference
+   :name name
+   :parameters parameters})
+
+(defn buses [& machine-names]
+  {:tag :uses
    :values machine-names})
 
-(defn bincludes [& machine-names]
+(defn bincludes [& machine-references]
   {:tag :includes
+   :values (map process-machine-reference machine-references)})
+
+(defn bsees [& machine-names]
+  {:tag :sees
    :values machine-names})
+
+(defn bextends [& machine-references]
+  {:tag    :extends
+   :values (map process-machine-reference machine-references)})
 
 (defn bpromotes [& op-names]
   {:tag :promotes
    :values op-names})
 
-(defn buses [& machine-names]
-  {:tag :uses
-   :values machine-names})
+;; machine sections
 
 (defn bconstraints [& predicates]
   {:tag :contraints
@@ -367,6 +407,11 @@
    :identifiers identifiers
    :predicate predicate
    :expression expression})
+
+(defn bapply [f & args]
+  {:tag :apply
+   :f f
+   :args args})
 
 
 ;;; relations
@@ -749,11 +794,6 @@
 
 ;;; misc
 
-(defn bapply [f & args]
-  {:tag :apply
-   :f f
-   :args args})
-
 (defn bset-enum [& elements]
   {:tag :set-enum
    :elements elements})
@@ -766,14 +806,19 @@
   `(let [
          ; parse units
          ~'machine bmachine
-         ~'machine-variant bmachine-variant
-         ~'machine-header bmachine-header
+         ~'model bmodel
+         ~'system bsystem
+         ~'refinement brefinement
+         ~'implementation bimplementation
 
          ; machine clauses
-         ~'extends bextends
-         ~'includes bincludes
-         ~'promotes bpromotes
+         ; machine inclusions
          ~'uses buses
+         ~'includes bincludes
+         ~'sees bsees
+         ~'extends bextends
+         ~'promotes bpromotes
+         ; machine sections
          ~'constraints bconstraints
          ~'sets bsets
          ~'deferred-set bdeferred-set
@@ -973,9 +1018,7 @@
 (defn lisb->ir [lisb] (eval `(b ~lisb)))
 
 
-(def bempty-machine (bmachine
-                     (bmachine-variant)
-                     (bmachine-header :Empty [])))
+(def bempty-machine (bmachine :Empty))
 
 
 (defn wrap [ctx node]

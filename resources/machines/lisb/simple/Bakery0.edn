@@ -1,6 +1,5 @@
 (machine
-  (machine-variant)
-  (machine-header :Bakery0 [])
+  :Bakery0
   (variables :aa)
   (invariants (contains? (interval 0 2) :aa))
   (init (assign :aa 0))

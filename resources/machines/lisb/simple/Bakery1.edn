@@ -1,6 +1,5 @@
 (machine
-  (machine-variant)
-  (machine-header :Bakery1 [])
+  :Bakery1
   (variables :p1 :p2 :y1 :y2)
   (invariants
     (contains? (interval 0 2) :p1)

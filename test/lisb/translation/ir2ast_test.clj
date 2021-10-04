@@ -3,7 +3,8 @@
             [lisb.translation.util :refer :all]
             [lisb.examples.simple :as simple]
             [lisb.examples.marriages :as marriages]
-            [lisb.examples.function-returns :as function-returns]))
+            [lisb.examples.function-returns :as function-returns]
+            [lisb.examples.sebastian :as sebastian]))
 
 (defn normalize-string [string]
   (clojure.string/replace string #"[ \n\r\t]" ""))
@@ -13,11 +14,22 @@
     (are [b lisb] (= (normalize-string (slurp (clojure.java.io/resource (str "machines/b/" b)))) (normalize-string (ast->b (ir->ast lisb))))
                   "FunctionReturns.mch" function-returns/function-returns)))
 
+(deftest examples-sebastian-test
+  (testing "examples-sebastian"
+    (are [b lisb] (= (normalize-string (slurp (clojure.java.io/resource (str "machines/b/sebastian/" b)))) (normalize-string (ast->b (ir->ast lisb))))
+                  ; TODO: wait for de.hhu.stups/bparser "2.9.29"
+                  ;"GenericTimersMC.mch" sebastian/generic-timer-mc
+                  "TrafficLight2.mch" sebastian/traffic-light2
+                  ; TODO: wait for de.hhu.stups/bparser "2.9.29"
+                  ;"TrafficLightTime_Ref.mch" sebastian/traffic-light-time-ref
+                  )))
+
 (deftest examples-marriages-test
   (testing "examples-marriages"
     (are [b lisb] (= (normalize-string (slurp (clojure.java.io/resource (str "machines/b/marriages/" b)))) (normalize-string (ast->b (ir->ast lisb))))
                   "Life.mch" marriages/life
                   "Marriage.mch" marriages/marriage
+                  ; TODO: wait for de.hhu.stups/bparser "2.9.29"
                   ;"Registrar.mch" marriages/registrar
                   )))
 
@@ -36,28 +48,38 @@
   (testing "machine"
     (is (= "MACHINE Empty\nEND"
            (ast->b (ir->ast
-                     (b (machine
-                          (machine-variant)
-                          (machine-header :Empty ())))))))))
-
+                     (b (machine :Empty))))))))
 
 (deftest machine-clauses-test
   (testing "machine-clauses"
-    (are [b ir] (= b (ast->b (ir->ast ir)))
-                "CONSTRAINTS 1=1\n" (b (constraints (= 1 1)))
-                "CONSTRAINTS 1=1 & 2=2 & 3=3\n" (b (constraints (= 1 1) (= 2 2) (= 3 3)))
-                "SETS S; T={e1,e2}\n" (b (sets (deferred-set :S) (enumerated-set :T :e1 :e2)))
-                "CONSTANTS x, y\n" (b (constants :x :y))
-                "PROPERTIES\n1=1\n" (b (properties (= 1 1)))
-                "PROPERTIES\n1=1 & 2=2 & 3=3\n" (b (properties (= 1 1) (= 2 2) (= 3 3)))
-                ; definitions
-                "VARIABLES x, y\n" (b (variables :x :y))
-                "INVARIANT 1=1\n" (b (invariants (= 1 1)))
-                "INVARIANT 1=1 & 2=2 & 3=3\n" (b (invariants (= 1 1) (= 2 2) (= 3 3)))
-                "ASSERTIONS\nTRUE=TRUE; FALSE=FALSE\n" (b (assertions (= true true) (= false false)))
-                "INITIALISATION x := 0\n" (b (init (assign :x 0)))
-                "INITIALISATION x := 0 ; y := 0 ; z := 0\n" (b (init (assign :x 0) (assign :y 0) (assign :z 0)))
-                "OPERATIONS\ninc = x := x+1;\ndec = x := x-1\n" (b (operations (operation () :inc () (assign :x (+ :x 1))) (operation () :dec () (assign :x (- :x 1))))))))
+    (testing "machine-inclusions"
+      (are [b ir] (= b (ast->b (ir->ast ir)))
+                  "USES Lift\n" (b (uses :Lift))
+                  "INCLUDES Lift\n" (b (includes :Lift))
+                  ; TODO: wait for de.hhu.stups/bparser "2.9.29"
+                  ;"INCLUDES Lift(FLOORS)\n" (b (includes [:Lift :FLOORS]))
+                  "SEES Lift\n" (b (sees :Lift))
+                  ; TODO: wait for de.hhu.stups/bparser "2.9.29"
+                  ;"EXTENDS Lift\n" (b (extends :Lift))
+                  ;"EXTENDS Lift(FLOORS)\n" (b (extends [:Lift :FLOORS]))
+                  "PROMOTES inc\n" (b (promotes :inc))
+                  ))
+    (testing "machine-sections"
+      (are [b ir] (= b (ast->b (ir->ast ir)))
+                  "CONSTRAINTS 1=1\n" (b (constraints (= 1 1)))
+                  "CONSTRAINTS 1=1 & 2=2 & 3=3\n" (b (constraints (= 1 1) (= 2 2) (= 3 3)))
+                  "SETS S; T={e1,e2}\n" (b (sets (deferred-set :S) (enumerated-set :T :e1 :e2)))
+                  "CONSTANTS x, y\n" (b (constants :x :y))
+                  "PROPERTIES\n1=1\n" (b (properties (= 1 1)))
+                  "PROPERTIES\n1=1 & 2=2 & 3=3\n" (b (properties (= 1 1) (= 2 2) (= 3 3)))
+                  ; definitions
+                  "VARIABLES x, y\n" (b (variables :x :y))
+                  "INVARIANT 1=1\n" (b (invariants (= 1 1)))
+                  "INVARIANT 1=1 & 2=2 & 3=3\n" (b (invariants (= 1 1) (= 2 2) (= 3 3)))
+                  "ASSERTIONS\nTRUE=TRUE; FALSE=FALSE\n" (b (assertions (= true true) (= false false)))
+                  "INITIALISATION x := 0\n" (b (init (assign :x 0)))
+                  "INITIALISATION x := 0 ; y := 0 ; z := 0\n" (b (init (assign :x 0) (assign :y 0) (assign :z 0)))
+                  "OPERATIONS\ninc = x := x+1;\ndec = x := x-1\n" (b (operations (operation () :inc () (assign :x (+ :x 1))) (operation () :dec () (assign :x (- :x 1)))))))))
 
 
 (deftest substitutions-test

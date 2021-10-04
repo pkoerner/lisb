@@ -16,8 +16,7 @@
 (comment
   this wants to be a snake game example when grown up.
   (def snek (b (machine
-                 (machine-variant)
-                 (machine-header :Snek [])
+                 :Snek
                  (variables :board :direction)
                  (invariants
                    ;types

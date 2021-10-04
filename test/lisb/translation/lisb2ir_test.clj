@@ -2,7 +2,16 @@
   (:require [clojure.test :refer :all]
             [lisb.translation.util :refer [lisb->ir b pred]]
             [lisb.examples.simple :as simple]
-            [lisb.examples.marriages :as marriages]))
+            [lisb.examples.marriages :as marriages]
+            [lisb.examples.sebastian :as sebastian]))
+
+
+(deftest examples-sebastian-test
+  (testing "examples-sebastian"
+    (are [ir lisb-name] (= ir (lisb->ir (read-string (slurp (clojure.java.io/resource (str "machines/lisb/sebastian/" lisb-name ".edn"))))))
+                        sebastian/generic-timer-mc "GenericTimersMC"
+                        sebastian/traffic-light2 "TrafficLight2"
+                        sebastian/traffic-light-time-ref "TrafficLightTime_Ref")))
 
 
 (deftest examples-marriages-test

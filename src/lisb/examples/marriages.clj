@@ -2,8 +2,7 @@
   (:require [lisb.translation.lisb2ir :refer [lisb->ir b]]))
 
 (def life (b (machine
-               (machine-variant)
-               (machine-header :Life [])
+               :Life
                (sets
                  (deferred-set :PERSON)
                  (enumerated-set :SEX :boy :girl))
@@ -34,8 +33,7 @@
                                                     (assign :female (- :female #{:nn})))))))))
 
 (def marriage (b (machine
-                   (machine-variant)
-                   (machine-header :Marriage [])
+                   :Marriage
                    (uses :Life)
                    (variables :marriage)
                    (invariants
@@ -68,8 +66,7 @@
                                           (assign :pp (apply (inverse :marriage) :nn)))))))))
 
 (def registrar (b (machine
-                    (machine-variant)
-                    (machine-header :Registrar [])
+                    :Registrar
                     (extends :Marriage)
                     (includes :Life)
                     (promotes :born)
