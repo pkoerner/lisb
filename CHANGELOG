@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.2] - Snapshot
   ### Added
+  - Added work in progress lisb api doc
   - Added machine-headers refinement, implementation, model and system.
   - Added translation of USES, EXTENDS, INCLUDES, SEES, PROMOTES and operation substitutions.
   - Added parameter support to machine-header and machine-reference.
