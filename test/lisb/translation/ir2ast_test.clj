@@ -375,6 +375,7 @@
     (are [b ir] (= b (ast->b (ir->ast ir)))
                   "TRUE=FALSE" (b (= true false))
                   "TRUE/=FALSE" (b (not= true false))
+                  "1/=2 & 1/=3 & 2/=3" (b (distinct? 1 2 3))
                   "1/=1 & 1/=2 & 1/=3 & 2/=3" (b (distinct? 1 2 1 3)))))
 
 
