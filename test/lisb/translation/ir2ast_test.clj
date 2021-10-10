@@ -127,9 +127,9 @@
 (deftest let-test
   (testing "let"
     (are [b ir] (= b (ast->b (ir->ast ir)))
-                  "LET y,x BE x=1 & y=2 IN 3 END" (b (let-expr #{:x :y} (and (= :x 1) (= :y 2)) 3)))
+                  "LET x,y BE x=1 & y=2 IN 3 END" (b (let [:x 1 :y 2] 3)))
     (are [b ir] (= b (ast->b (ir->ast ir)))
-                  "LET y,x BE x=1 & y=2 IN 0=0 END" (b (let-pred #{:x :y} (and (= :x 1) (= :y 2)) (= 0 0))))))
+                  "LET x,y BE x=1 & y=2 IN 0=0 END" (b (let [:x 1 :y 2] (= 0 0))))))
 
 
 (deftest strings-test

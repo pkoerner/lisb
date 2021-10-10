@@ -13,7 +13,7 @@
      (assoc node :condition condition :then then :else else)
      (bif node condition then))))
 
-(defn blet [node kvs]
+#_(defn blet [node kvs]
   (let [kv-pairs (partition 2 kvs)
         identifiers (map first kv-pairs)
         assignment (reduce band (map (partial apply b=) kv-pairs))]
@@ -197,13 +197,10 @@
    :where where
    :then then})
 
-(defn blet-sub
-  ([kvs substitution] (blet {:tag :let-sub :substitution substitution} kvs))
-  ([identifiers predicate substitution]
-                {:tag          :let-sub
-                 :identifiers  identifiers
-                 :predicate    predicate
-                 :substitution substitution}))
+(defn blet-sub [id-vals substitution]
+  {:tag :let-sub
+   :id-vals id-vals
+   :substitution substitution})
 
 (defn bvar [identifiers substitution]
   {:tag :var
@@ -249,14 +246,10 @@
 
 ;;; let
 
-(defn blet-expr
-  ([kvs expression] (blet {:tag :let-expr, :expression expression} kvs))
-  ([identifiers assignment expression] {:tag :let-expr, :identifiers identifiers :assignment assignment :expression expression}))
-
-(defn blet-pred
-  ([kvs predicate] (blet {:tag :let-pred, :predicate predicate} kvs))
-  ([identifiers assignment predicate] {:tag :let-pred, :identifiers identifiers :assignment assignment :predicate predicate}))
-
+(defn blet [id-vals expr-or-pred]
+  {:tag :let
+   :id-vals id-vals
+   :expr-or-pred :expr-or-pred})
 
 ;;; trees
 
@@ -858,8 +851,7 @@
          ~'if-expr bif-expr
 
          ; let
-         ~'let-expr blet-expr
-         ~'let-pred blet-pred
+         ~'let blet
 
          ; trees
 

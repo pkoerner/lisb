@@ -428,10 +428,19 @@
 
 ;;; let
 
+(defn get-id-vals [assignment]
+  (case (first assignment)
+    = [(nth assignment 1) (nth assignment 2)]
+    and (mapcat (fn [equals] [(nth equals 1) (nth equals 2)]) (rest assignment))))
+
 (defmethod ast->lisb ALetExpressionExpression [node]
-  (lisbify 'let-expr (.getIdentifiers node) (.getAssignment node) (.getExpr node)))
+  (let [id-vals (get-id-vals (ast->lisb (.getAssignment node)))
+        expr (ast->lisb (.getExpr node))]
+    (list 'let id-vals expr)))
 (defmethod ast->lisb ALetPredicatePredicate [node]
-  (lisbify 'let-pred (.getIdentifiers node) (.getAssignment node) (.getPred node)))
+  (let [id-vals (get-id-vals (ast->lisb (.getAssignment node)))
+        pred (ast->lisb (.getPred node))]
+    (list 'let id-vals pred)))
 
 
 ;;; trees

@@ -104,16 +104,16 @@
   (testing "if"
     (are [lisb b] (= lisb (b-expression->lisb b))
                              '(if-expr (= 1 1) 2 3) "IF 1=1 THEN 2 ELSE 3 END")
-    (are [lisb b] (= lisb (b-predicate->lisb b))
+    (are [lisb b] (= lisb (ast->b (b-predicate->ast b)))
                   '(and (=> (= 1 1) (= 2 2)) (=> (not (= 1 1)) (= 3 3))) "IF 1=1 THEN 2=2 ELSE 3=3 END")))
 
 
 (deftest let-test
   (testing "let"
     (are [lisb b] (= lisb (b-expression->lisb b))
-                  '(let-expr [:x :y] (and (= :x 1) (= :y 2)) 3) "LET x, y BE x=1 & y=2 IN 3 END")
+                  '(let [:x 1 :y 2] 3) "LET x, y BE x=1 & y=2 IN 3 END")
     (are [lisb b] (= lisb (b-predicate->lisb b))
-                  '(let-pred [:x :y] (and (= :x 1) (= :y 2)) (= 0 0)) "LET x, y BE x=1 & y=2 IN 0=0 END")))
+                  '(let [:x 1 :y 2] (= 0 0)) "LET x, y BE x=1 & y=2 IN 0=0 END")))
 
 
 (deftest strings-test

@@ -151,7 +151,7 @@
 | B                                 | Lisb                  | IR                                 | Description                                          |
 |-----------------------------------|-----------------------|------------------------------------|------------------------------------------------------|
 | `struct(id1:type1,id2:type2,...)` | `(struct & id-types)` | {:tag :struct, :id-types id-types} | set of records with given fields and field types     |
-| `rec(id1:value1,id2:value2,...)`  | `(rec & id-values)`   | {:tag :rec, :id-values id-values}  | construct a record with given field names and values |
+| `rec(id1:value1,id2:value2,...)`  | `(rec & id-vals)`     | {:tag :rec, :id-vals id-vals}      | construct a record with given field names and values |
 | `rec'id`                          | `(get rec id)`        | {:tag :get, :rec record, :id id}   | get value of field with name ID                      |
 ##Strings
 | B               | Lisb                       | IR | Description                          |
@@ -166,10 +166,11 @@
 ##Reals
 ##Trees
 ##Let and If-Then-Else
-| B                                    | Lisb           | IR | Description                          |
-|--------------------------------------|----------------|----|--------------------------------------|
-| `IP P THEN E1 ELSE E2 END`           | ``  |  |  |
-| `LET x1,... BE x1=E1 & ... IN E END` | ``  |  |  |
+| B                                                                | Lisb                                        | IR                                                         | Description                 |
+|------------------------------------------------------------------|---------------------------------------------|------------------------------------------------------------|-----------------------------|
+| `IP cond THEN then ELSE else END`                                | `(if-expr cond then else)`                  | {:tag :if-expr, :cond cond, :then then, :else else}        | conditional for expressions |
+| `IP cond THEN then ELSE else END`                                | `(and (=> cond then) (=> (not cond) else))` |                                                            | conditional for predicates  |
+| `LET id1,id2,... BE id1=val1 & id2=val2 ... IN expr-or-pred END` | `(let id-vals expr-or-pred)`                | {:tag :let, :id-vals id-vals, :expr-or-pred :expr-or-pred} |                             |
 ##Substitutions
 | B                                                          | Lisb                            | IR | Description                          |
 |------------------------------------------------------------|---------------------------------|--- |--------------------------------------|
@@ -213,7 +214,7 @@
 | `PROMOTES op1,op2,...`           | `(promotes & ops)`      | `{:tag :promotes :values ops}`   |                                      |
 ###Machine section
 | B                                  | Lisb                    | IR                                   | Description                          |
-|------------------------------------|-------------------------|--------  ----------------------------|--------------------------------------|
+|------------------------------------|-------------------------|--------------------------------------|--------------------------------------|
 | `CONSTRAINTS pred1 & pred2 & ...`  | `(constraints & preds)` | `{:tag :constraints, :values preds}` |                                      |
 | `SETS set-def1;set-def2;...`       | `(sets & set-defs)`     | `{:tag :sets, :values set-defs}`     |                                      |
 | `CONSTANTS id1,id2,...`            | `(constants & ids)`     | `{:tag :constants, :values ids}`     |                                      |

@@ -1,5 +1,6 @@
 (ns lisb.translation.ir2ast
-  (:require [clojure.math.combinatorics :refer [combinations]])
+  (:require [lisb.translation.lisb2ir :refer [b= band]]
+            [clojure.math.combinatorics :refer [combinations]])
   (:import (de.be4.classicalb.core.parser.node Start
                                                EOF
                                                AAbstractMachineParseUnit
@@ -424,6 +425,16 @@
 
 
 ;;; let
+
+(defmethod ir-node->ast-node :let [ir-node]
+  (let [id-vals  (:id-vals ir-node)
+        ids (map ir->ast-node (map first (partition 2 id-vals)))
+        assignment (ir->ast-node (apply band (map #(apply b= %) (partition 2 id-vals))))
+        expr-or-pred (ir->ast-node (:expr-or-pred ir-node))]
+    (cond
+      (instance? PExpression expr-or-pred) (ALetExpressionExpression. ids assignment expr-or-pred)
+      (instance? PPredicate expr-or-pred) (ALetPredicatePredicate. ids assignment expr-or-pred)
+      :else (throw (str "Unsupported ast node for let-block" expr-or-pred)))))
 
 (defmethod ir-node->ast-node :let-expr [ir-node]
   (ALetExpressionExpression. (ir-node-identifiers->ast ir-node) (ir-node-assignment->ast ir-node) (ir-node-expression->ast ir-node)))

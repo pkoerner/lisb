@@ -23,7 +23,7 @@
               ;;; if
               bif-expr
               ;;; let
-              blet-expr blet-pred
+              blet
               ;;; trees
               ;;; reals
               ;;; string
