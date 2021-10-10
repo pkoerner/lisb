@@ -17,7 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ### Changed
   - Changed lisb and ir invariant to invariants.
   - Changed all machine-clause-ir-nodes to use :values instead of individually keys for arguments.
-  - Changed lisb machine layout
+  - Changed lisb machine layout.
+  - Changed let.
   ### Removed
   - Removed lisb and ir call. Only apply is now used for function calls.
   - Removed maplet/couple chaining.
