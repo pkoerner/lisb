@@ -48,7 +48,7 @@
 
 (defn eval-formula
   ([state-space formula-ast]
-   (let [eval-element (ClassicalB. formula-ast FormulaExpand/TRUNCATE "")
+   (let [eval-element (ClassicalB. formula-ast FormulaExpand/EXPAND "")
          cmd (EvaluateFormulaCommand. eval-element "root")
          _ (.execute state-space cmd)]
      (get-result (.getValue cmd)))))
