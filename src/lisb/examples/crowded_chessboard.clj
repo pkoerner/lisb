@@ -73,7 +73,7 @@
                                   (bnot= figure (bapply :board (transform-position size a b)))))))
 
 (defn how-many [figure amount]
-  (b= amount (bcount (blambda [:pos]
+  (b= amount (bcard (blambda [:pos]
                               (band (bmember? :pos (bdom :board)) (b= figure (bapply :board :pos)))
                               :pos))))
 

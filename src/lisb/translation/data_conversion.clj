@@ -1,5 +1,5 @@
 (ns lisb.translation.data-conversion
-  (:require [lisb.translation.lisb2ir :refer [b bsequence bset-enum brecord]]))
+  (:require [lisb.translation.lisb2ir :refer [b bsequence bset-enum brec]]))
 
 (defn ensure-list [maybe-k]
   (if (keyword? maybe-k) [maybe-k] maybe-k))
@@ -16,7 +16,7 @@
                  [(convert l lt lr) (convert r rt rr)])
         :sequence (apply bsequence (map #(convert % typel typer) data))
         :record (let [ks (keys typel)]
-                  (apply brecord
+                  (apply brec
                          (mapcat (fn [k]
                                    (let [[typl typr] (ensure-list (typel k))]
                                      [k (convert (data k) typl typr)])) ks)))

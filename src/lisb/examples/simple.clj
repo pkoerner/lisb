@@ -19,7 +19,7 @@
                                 (>= :jj 0))
                     (init (assign :ii 2 :jj 10))
                     (operations
-                      (operation [] :inc [] (select (> :jj 0) (parallel-substitution
+                      (operation [] :inc [] (select (> :jj 0) (parallel-sub
                                                                 (assign :ii (+ :ii 1))
                                                                 (assign :jj (- :jj 1)))))
                       (operation [:result] :res [] (assign :result :ii))))))
@@ -28,10 +28,10 @@
               :GCD
               (variables :x :y)
               (invariants (contains? nat-set :x) (contains? nat-set :y))
-              (init (parallel-substitution (assign :x 70) (assign :y 40)))
+              (init (parallel-sub (assign :x 70) (assign :y 40)))
               (operations
                 (operation [:s] :GCDSolution [] (if-sub (= :y 0) (assign :s :x) (assign :s -1)))
-                (operation [] :Step [] (if-sub (> :y 0) (parallel-substitution (assign :x :y) (assign :y (mod :x :y)))))
+                (operation [] :Step [] (if-sub (> :y 0) (parallel-sub (assign :x :y) (assign :y (mod :x :y)))))
                 (operation [] :Restart [:w1 :w2] (pre (and (contains? nat1-set :w1) (contains? nat1-set :w2))
                                                       (if-sub (> :w1 :w2)
                                                               (assign :x :w1 :y :w2)
@@ -71,9 +71,9 @@
                               (=> (= :p2 2) (< :p1 2)))
                   (init (assign :p1 0 :p2 0 :y1 0 :y2 0))
                   (operations
-                    (operation [] :try1 [] (select (= :p1 0) (parallel-substitution (assign :p1 1) (assign :y1 (+ :y2 1)))))
+                    (operation [] :try1 [] (select (= :p1 0) (parallel-sub (assign :p1 1) (assign :y1 (+ :y2 1)))))
                     (operation [] :enter1 [] (select (and (= :p1 1) (or (= :y2 0) (< :y1 :y2))) (assign :p1 2)))
-                    (operation [] :leave1 [] (select (= :p1 2) (parallel-substitution (assign :p1 0) (assign :y1 0))))
-                    (operation [] :try2 [] (select (= :p2 0) (parallel-substitution (assign :p2 1) (assign :y2 (+ :y1 1)))))
+                    (operation [] :leave1 [] (select (= :p1 2) (parallel-sub (assign :p1 0) (assign :y1 0))))
+                    (operation [] :try2 [] (select (= :p2 0) (parallel-sub (assign :p2 1) (assign :y2 (+ :y1 1)))))
                     (operation [] :enter2 [] (select (and (= :p2 1) (or (= :y1 0) (< :y2 :y1))) (assign :p2 2)))
-                    (operation [] :leave2 [] (select (= :p2 2) (parallel-substitution (assign :p2 0) (assign :y2 0))))))))
+                    (operation [] :leave2 [] (select (= :p2 2) (parallel-sub (assign :p2 0) (assign :y2 0))))))))

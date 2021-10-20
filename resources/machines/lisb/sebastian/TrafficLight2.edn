@@ -7,7 +7,7 @@
     (contains? :colors :tl_cars)
     (contains? #{:green :red} :tl_peds)
     (or (= :tl_peds :red) (= :tl_cars :red)))
-  (init (parallel-substitution (assign :tl_cars :red) (assign :tl_peds :red)))
+  (init (parallel-sub (assign :tl_cars :red) (assign :tl_peds :red)))
   (operations
     (operation [] :Send_command_cars_ry [] skip)
     (operation [] :Send_command_cars_y [] skip)
