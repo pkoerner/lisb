@@ -13,13 +13,13 @@
               bmachine bmodel bsystem brefinement bimplementation
               ;;; machine clauses
               ;; machine inclusions
-              buses bincludes bmachine-reference bsees bextends bpromotes
+              buses bincludes bmch-ref bsees bextends bpromotes
               ;; machine sections
               bconstraints bsets bdeferred-set benumerated-set bconstants bproperties bdefinitions bvariables
               binvariants bassertions binit boperations boperation
               ;;; substitutions
-              bskip bblock bassign bbecomes-element-of bbecomes-such boperation-call bparallel-substitution
-              bsequence-substitution bany blet-sub bvar bprecondition bassert bchoice bif-sub bselect bop-subs
+              bskip bblock bassign bbecomes-element-of bbecomes-such bop-call bparallel-sub bsequential-sub bany
+              blet-sub bvar bprecondition bassert bchoice bif-sub bselect bop-sub
               ;;; if
               bif-expr
               ;;; let
@@ -29,23 +29,23 @@
               ;;; string
               bstring-set
               ;;; records
-              bstruct brecord brec-get
+              bstruct brec bget
               ;;; sequences
-              bsequence bseq bseq1 biseq biseq1 bperm bsize bconcat bcons bconj breverse bfirst blast bdrop-last brest
-              bconc btake bdrop
+              bsequence bseq bseq1 biseq biseq1 bperm bsize bconcat b-> b<- brev bfirst blast bfront btail bconc
+              btake bdrop
               ;;; functions
               b+-> b--> b+->> b-->> b>+> b>-> b>+>> b>->> blambda bapply
               ;;; relations
-              b<-> btotal-relation bsurjective-relation btotal-surjective-relation bcouple bdom bran bid b<| b<<| b|>
-              b|>> binverse bimage b<+ b>< bcomp b|| bprj1 bprj2 bclosure1 bclosure biterate bfnc brel
+              b<-> b<<-> b<->> b<<->> bcouple bdom bran bid b<| b<<| b|> b|>> binverse bimage b<+ b>< bcomp b|| bprj1
+              bprj2 bclosure1 bclosure biterate bfnc brel
               ;;; numbers
               binteger-set bnatural-set bnatural1-set bint-set bnat-set bnat1-set binterval brange bmin-int bmax-int
-              bmax bmin b+ b- b* bdiv b** bmod bpi bsigma binc bdec
+              bmax bmin b+ b- b* bdiv b** bmod bpi bsigma bsucc bpred
               ;; number predicates
-              b< b> b<= b=>
+              b< b> b<= b>=
               ;;; sets
-              bcomp-set bpow bpow1 bfin bfin1 bcount bunion bintersection bdifference bmember? bcontains? bsubset?
-              bsubset-strict? bsuperset? bsuperset-strict? bunite-sets bunion-pe bintersect-sets bintersection-pe
+              bcomp-set bpow bpow1 bfin bfin1 bcard bunion bintersection bdifference bmember? bcontains? bsubset?
+              bstrict-subset? bsuperset? bstrict-superset? bunite-sets bunion-pe bintersect-sets bintersection-pe
               ;;; booleans
               bbool-set bpred->bool
               ;;; equality predicates

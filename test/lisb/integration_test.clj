@@ -70,7 +70,7 @@
 
     (is (eval-ir-formula (b= :x (bfin1 #{1 2}))))
 
-    (is (eval-ir-formula (b= 2 (bcount #{1 2}))))
+    (is (eval-ir-formula (b= 2 (bcard #{1 2}))))
 
     (is (eval-ir-formula (b= #{} (b* #{} #{}))))
 
@@ -105,9 +105,9 @@
 
     (is (eval-ir-formula (bsuperset? #{1 2} #{1})))
 
-    (is (eval-ir-formula (bsubset-strict? #{1} #{1 2})))
+    (is (eval-ir-formula (bstrict-subset? #{1} #{1 2})))
 
-    (is (eval-ir-formula (bsuperset-strict? #{1 2} #{1})))
+    (is (eval-ir-formula (bstrict-superset? #{1 2} #{1})))
 
     (is (eval-ir-formula (bmember? true bbool-set)))
     (is (eval-ir-formula (bmember? 0 bnatural-set)))
@@ -126,9 +126,9 @@
 
     (is (eval-ir-formula (b= 2 (bmod 5 3))))
 
-    (is (eval-ir-formula (b= 2 (binc 1))))
+    (is (eval-ir-formula (b= 2 (bsucc 1))))
 
-    (is (eval-ir-formula (b= 0 (bdec 1))))
+    (is (eval-ir-formula (b= 0 (bpred 1))))
 
     (is (eval-ir-formula (b= :x #{[1 2]})))
 
@@ -213,8 +213,8 @@
     (is (eval-ir-formula (b=> (b= true true) (b= true true))))
     (is (eval-ir-formula (b=> (b= true true) (b= true false) (b= true true))))
 
-    (is (eval-ir-formula (bfor-all [:x] (b=> (bmember? :x bbool-set) (b= true true)))))
-    (is (eval-ir-formula (bfor-all [:x :y] (b=> (b< 0 :x :y 3) (b<= (binc :x) :y)))))
+    (is (eval-ir-formula (bfor-all [:x] (bmember? :x bbool-set) (b= true true))))
+    (is (eval-ir-formula (bfor-all [:x :y] (b< 0 :x :y 3) (b<= (bsucc :x) :y))))
 
     (is (eval-ir-formula (b= (binterval 1 5) #{1 2 3 4 5})))
 
@@ -231,19 +231,18 @@
     (is (eval-ir-formula (b= (bsequence 3 4 1 5) (bconcat (bsequence 3 4) (bsequence 1 5)))))
     (is (eval-ir-formula (b= (bsequence 3 4 1 5 2) (bconcat (bsequence 3 4) (bsequence 1 5) (bsequence 2)))))
 
-    (is (eval-ir-formula (b= (bsequence 3 1 4) (bcons (bsequence 1 4) 3))))
-    (is (eval-ir-formula (b= (bsequence 3 1 4) (bcons (bsequence 4) 1 3))))
+    (is (eval-ir-formula (b= (bsequence 3 1 4) (b-> 3 (bsequence 1 4)))))
 
-    (is (eval-ir-formula (b= (bsequence 3 1 4) (bconj (bsequence 3 1) 4))))
-    (is (eval-ir-formula (b= (bsequence 3 1 4) (bconj (bsequence 3) 1 4))))
+    (is (eval-ir-formula (b= (bsequence 3 1 4) (b<- (bsequence 3 1) 4))))
+    (is (eval-ir-formula (b= (bsequence 3 1 4) (b<- (bsequence 3) 1 4))))
 
-    (is (eval-ir-formula (b= (breverse (bsequence 3 1 4)) (bsequence 4 1 3))))
+    (is (eval-ir-formula (b= (brev (bsequence 3 1 4)) (bsequence 4 1 3))))
 
     (is (eval-ir-formula (b= (bfirst (bsequence 3 1 4)) 3)))
     (is (eval-ir-formula (b= (blast (bsequence 3 1 4)) 4)))
 
-    (is (eval-ir-formula (b= (bdrop-last (bsequence 3 1 4)) (bsequence 3 1))))
-    (is (eval-ir-formula (b= (brest (bsequence 3 1 4)) (bsequence 1 4))))
+    (is (eval-ir-formula (b= (bfront (bsequence 3 1 4)) (bsequence 3 1))))
+    (is (eval-ir-formula (b= (btail (bsequence 3 1 4)) (bsequence 1 4))))
 
     (is (eval-ir-formula (b= (btake 3 (bsequence 3 1 4 1 5)) (bsequence 3 1 4))))
     (is (eval-ir-formula (b= (bdrop 3 (bsequence 3 1 4 1 5)) (bsequence 1 5))))
@@ -264,9 +263,9 @@
 
     (is (eval-ir-formula (b= :x (bstruct :x #{1 2 3}))))
 
-    (is (eval-ir-formula (bmember? (brecord :x 1) (bstruct :x #{1 2 3}))))
+    (is (eval-ir-formula (bmember? (brec :x 1) (bstruct :x #{1 2 3}))))
 
-    (is (eval-ir-formula (b= 1 (brec-get (brecord :x 1) :x))))
+    (is (eval-ir-formula (b= 1 (bget (brec :x 1) :x))))
 
     (is (eval-ir-formula (b= :x "foo")))
     (is (eval-ir-formula (bmember? "foo" bstring-set)))
@@ -284,10 +283,10 @@
     (is (eval-ir-formula (eval `(b ~(ast->lisb (b-predicate->ast "1<2"))))))
     (is (eval-ir-formula (b= 2 (eval `(b ~(ast->lisb (b-expression->ast "1+1")))))))
     ;(is (eval-ir-formula (b= :x (bcall "CHOOSE" #{1 2 3})))) TODO: approach when definitions are implemented
-    (is (eval-ir-formula (blet-pred [:foo 1] (b< :foo 2))))
-    (is (eval-ir-formula (blet-pred [:foo 1 :bar 2] (b< :foo :bar))))
-    (is (eval-ir-formula (b= 1 (blet-expr [:foo 1] :foo))))
-    (is (eval-ir-formula (b= 3 (blet-expr [:foo 1 :bar 2] (b+ :foo :bar)))))
+    (is (eval-ir-formula (blet [:foo 1] (b< :foo 2))))
+    (is (eval-ir-formula (blet [:foo 1 :bar 2] (b< :foo :bar))))
+    (is (eval-ir-formula (b= 1 (blet [:foo 1] :foo))))
+    (is (eval-ir-formula (b= 3 (blet [:foo 1 :bar 2] (b+ :foo :bar)))))
     (is (eval-ir-formula (b= -1 (b- 1 2))))
     (is (eval-ir-formula (b= #{1} (bdifference #{1 2} #{2}))))))
 

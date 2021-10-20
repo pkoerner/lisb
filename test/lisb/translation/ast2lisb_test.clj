@@ -77,12 +77,12 @@
                   '(becomes-element-of (:x) :S) "x :: S"
                   '(becomes-such (:x) (> :x 0))  "x : (x>0)"
                   '(operation-call (:x) :OP (:y)) "x <-- OP(y)"
-                  '(parallel-substitution skip skip) "skip||skip"
-                  '(parallel-substitution skip skip skip) "skip||skip||skip"
-                  '(sequence-substitution skip skip) "skip;skip"
-                  '(sequence-substitution skip skip skip) "skip;skip;skip"
+                  '(parallel-sub skip skip) "skip||skip"
+                  '(parallel-sub skip skip skip) "skip||skip||skip"
+                  '(sequential-sub skip skip) "skip;skip"
+                  '(sequential-sub skip skip skip) "skip;skip;skip"
                   '(any [:x] (> :x 0) skip) "ANY x WHERE (x>0) THEN skip END"
-                  '(let-sub (:x) (= :x 1) skip) "LET x BE x=1 IN skip END"
+                  '(let-sub [:x 1] skip) "LET x BE x=1 IN skip END"
                   '(var-sub [:x] skip) "VAR x IN skip END"
                   '(pre (= 1 2) skip) "PRE 1=2 THEN skip END"
                   '(assert (= 1 2) skip) "ASSERT 1=2 THEN skip END"
@@ -104,7 +104,7 @@
   (testing "if"
     (are [lisb b] (= lisb (b-expression->lisb b))
                              '(if-expr (= 1 1) 2 3) "IF 1=1 THEN 2 ELSE 3 END")
-    (are [lisb b] (= lisb (ast->b (b-predicate->ast b)))
+    (are [lisb b] (= lisb (b-predicate->lisb b))
                   '(and (=> (= 1 1) (= 2 2)) (=> (not (= 1 1)) (= 3 3))) "IF 1=1 THEN 2=2 ELSE 3=3 END")))
 
 
@@ -122,8 +122,8 @@
                   "astring" "\"astring\""
                   "astring" "'''astring'''"
                   'string-set "STRING"
-                  '(count-seq "s") "size('''s''')"
-                  '(reverse "s") "rev('''s''')"
+                  '(size "s") "size('''s''')"
+                  '(rev "s") "rev('''s''')"
                   '(concat "s" "t") "'''s'''^'''t'''"
                   '(conc (sequence "s" "t")) "conc(['''s''', '''t'''])")))
 
@@ -133,9 +133,9 @@
     (are [lisb b] (= lisb (b-expression->lisb b))
                   '(struct :n nat-set) "struct(n:NAT)"
                   '(struct :n nat-set, :b bool-set) "struct(n:NAT,b:BOOL)"
-                  '(record :n 1) "rec(n:1)"
-                  '(record :n 1, :b true) "rec(n:1,b:TRUE)"
-                  '(rec-get :E :n) "E'n")))
+                  '(rec :n 1) "rec(n:1)"
+                  '(rec :n 1, :b true) "rec(n:1,b:TRUE)"
+                  '(get :E :n) "E'n")))
 
 
 (deftest sequences-test
@@ -150,17 +150,16 @@
                   '(iseq :S) "iseq(S)"
                   '(iseq1 :S) "iseq1(S)"
                   '(perm :S) "perm(S)"
-                  '(count-seq :S) "size(S)"
+                  '(size :S) "size(S)"
                   '(concat :s :t) "s^t"
-                  '(cons :s :E) "E->s"
-                  '(cons :s :E :F) "F->(E->s)"
-                  '(cons :s :E :F :G) "G->(F->(E->s))"
-                  '(append :s :E) "s<-E"
-                  '(reverse :S) "rev(S)"
+                  '(-> :E :s) "E->s"
+                  '(<- :s :E) "s<-E"
+                  '(<- :s :E :F) "s<-E<-F"
+                  '(rev :S) "rev(S)"
                   '(first :S) "first(S)"
                   '(last :S) "last(S)"
-                  '(drop-last :S) "front(S)"
-                  '(rest :S) "tail(S)"
+                  '(front :S) "front(S)"
+                  '(tail :S) "tail(S)"
                   '(conc :S) "conc(S)"
                   '(take :n :s) "s/|\\n"
                   '(drop :n :s) "s\\|/n")))
@@ -186,12 +185,12 @@
     (are [lisb b] (= lisb (b-expression->lisb b))
                   '(<-> :S :T) "S<->T"
                   '(<-> :S :T :U) "S<->T<->U"
-                  '(total-relation :S :T) "S<<->T"
-                  '(total-relation :S :T :U) "S<<->T<<->U"
-                  '(surjective-relation :S :T) "S<->>T"
-                  '(surjective-relation :S :T :U) "S<->>T<->>U"
-                  '(total-surjective-relation :S :T) "S<<->>T"
-                  '(total-surjective-relation :S :T :U) "S<<->>T<<->>U"
+                  '(<<-> :S :T) "S<<->T"
+                  '(<<-> :S :T :U) "S<<->T<<->U"
+                  '(<->> :S :T) "S<->>T"
+                  '(<->> :S :T :U) "S<->>T<->>U"
+                  '(<<->> :S :T) "S<<->>T"
+                  '(<<->> :S :T :U) "S<<->>T<<->>U"
                   '[:E :F] "E|->F"
                   '[[:E :F] :G] "E|->F|->G"
                   '(dom :r) "dom(r)"
@@ -250,8 +249,8 @@
                     '(** 1 2) "1**2"
                     '(mod 1 2) "1 mod 2"
                     '(mod 1 2 3) "1 mod 2 mod 3"
-                    '(inc 1) "succ(1)"
-                    '(dec 1) "pred(1)"))
+                    '(succ 1) "succ(1)"
+                    '(pred 1) "pred(1)"))
     (testing "predicates"
       (are [lisb b] (= lisb (b-predicate->lisb b))
                     '(> 1 2) "1>2"
@@ -272,7 +271,7 @@
                   '(pow1 #{}) "POW1({})"
                   '(fin #{}) "FIN({})"
                   '(fin1 #{}) "FIN1({})"
-                  '(count #{}) "card({})"
+                  '(card #{}) "card({})"
                   '(* #{:E} #{:F}) "{E}*{F}"
                   '(* #{:E} #{:F} #{:G})"{E}*{F}*{G}"
                   '(union #{:E} #{:F})"{E}\\/{F}"
@@ -290,8 +289,8 @@
                   '(not (contains? #{} 1)) "1/:{}"
                   '(subset? #{:E} #{:G}) "{E}<:{G}"
                   '(not (subset? #{:E} #{:G})) "{E}/<:{G}"
-                  '(subset-strict? #{:E} #{:G}) "{E}<<:{G}"
-                  '(not (subset-strict? #{:E} #{:G})) "{E}/<<:{G}")))
+                  '(strict-subset? #{:E} #{:G}) "{E}<<:{G}"
+                  '(not (strict-subset? #{:E} #{:G})) "{E}/<<:{G}")))
 
 
 (deftest booleans-test
@@ -322,5 +321,5 @@
                        '(<=> (= 1 1) (= 2 2)) "1=1 <=> 2=2"
                        '(<=> (= 1 1) (= 2 2) (= 3 3)) "1=1 <=> 2=2 <=> 3=3"
                        '(not (= 1 1)) "not(1=1)"
-                       '(for-all [:x] (=> (contains? nat-set :x) (< 0 :x))) "!(x).(x:NAT => 0<x)"
+                       '(for-all [:x] (contains? nat-set :x) (< 0 :x)) "!(x).(x:NAT => 0<x)"
                        '(exists [:x] (and (= 1 1) (= 2 2))) "#(x).(1=1 & 2=2)")))

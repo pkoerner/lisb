@@ -8,8 +8,8 @@
                                 (and
                                   (contains? :PERSON :nn)
                                   (contains? (union :male :female) :nn))
-                                (parallel-substitution
-                                  (op-subs :die :nn)
+                                (parallel-sub
+                                  (op-sub :die :nn)
                                   (cond
-                                    (contains? (dom :marriage) :nn) (op-subs :part :nn (apply :marriage :nn))
-                                    (contains? (ran :marriage) :nn) (op-subs :part (apply (inverse :marriage) :nn) :nn)))))))
+                                    (contains? (dom :marriage) :nn) (op-sub :part :nn (apply :marriage :nn))
+                                    (contains? (ran :marriage) :nn) (op-sub :part (apply (inverse :marriage) :nn) :nn)))))))

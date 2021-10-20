@@ -34,31 +34,31 @@
 
 (deftest equality-predicates-test
   (testing " equality-predicates"
-    (is (= {:tag :equal
+    (is (= {:tag :=
             :left true
             :right false}
            (b (= true false))))))
 
 (deftest logical-predicates-test
   (testing "logical-predicates"
-    (is (= {:tag        :and
-           :predicates [{:tag :equal, :left 1, :right 1}
-                        {:tag :equal, :left 2, :right 2}
-                        {:tag :equal, :left 3, :right 3}]}
+    (is (= {:tag :and
+           :preds [{:tag :=, :left 1, :right 1}
+                        {:tag :=, :left 2, :right 2}
+                        {:tag :=, :left 3, :right 3}]}
            (b (and (= 1 1) (= 2 2) (= 3 3)))))))
 
 
 (deftest minus-test
   (testing "minus is special and must have a unary version"
     (is (= {:tag    :unary-minus
-            :number :a}
+            :num :a}
            (b (- :a)))))
   (testing "minus also works with more arguments"
-    (is (= {:tag :minus
-           :numbers [:a :b]}
+    (is (= {:tag :-
+           :nums [:a :b]}
            (b (- :a :b))))
-    (is (= {:tag :minus
-            :numbers [:a :b :c]}
+    (is (= {:tag :-
+            :nums [:a :b :c]}
            (b (- :a :b :c))))))
 
 
@@ -85,12 +85,16 @@
 
 (deftest for-all-test
   (testing "universal quantification representation"
-    (is (= {:tag         :for-all
-            :identifiers [:x]
-            :implication {:tag        :implication
-                          :predicates [:a :b]}}
-           (b (for-all [:x] (=> :a :b)))
-           (b (for-all [:x] :a :b))))))
+    (is (= {:tag      :for-all
+            :id-types [:x {:tag :nat-set}]
+            :pred     {:tag  :<=
+                       :nums [:x 0]}}
+           (b (for-all [:x nat-set] (<= :x 0)))))
+    (is (= {:tag      :bfor-all
+            :ids      [:x]
+            :=>-left  {:tag :member?, :elem :x, :set {:tag :nat-set}}
+            :=>-right {:tag :<=, :nums [:x 0]}}
+           (b (for-all [:x] (member? :x nat-set) (<= :x 0)))))))
 
 (deftest pred-test
   (testing "the pred macro allows to write b-macrofied expressions
@@ -102,7 +106,7 @@
 
   (testing "the resulting function generates a representation
             which replaces the parameter symbols with the values provided"
-    (is (= {:tag :less :numbers [1 2]}
+    (is (= {:tag :< :nums [1 2]}
            ((pred [x y] (< x y)) 1 2))))
   
   (testing "the pred macro flattens sets properly"
@@ -112,30 +116,22 @@
 
 (deftest let-tests
   (testing "one binding and predicate"
-    (is (= {:tag         :let-pred
-            :identifiers [:foo]
-            :assignment  {:tag :equal, :left :foo, :right 1}
-            :predicate   {:tag :less, :numbers [:foo 2]}}
-           (b (let-pred [:foo 1] (< :foo 2))))))
+    (is (= {:tag         :let
+            :id-vals [:foo 1 ]
+            :expr-or-pred   {:tag :<, :nums [:foo 2]}}
+           (b (let [:foo 1] (< :foo 2))))))
   (testing "more bindings and a predicate"
-    (is (= {:tag         :let-pred
-            :identifiers [:foo :bar]
-            :assignment  {:tag        :and
-                          :predicates [{:tag :equal, :left :foo, :right 1}
-                                       {:tag :equal, :left :bar, :right 2}]}
-            :predicate   {:tag :less, :numbers [:foo :bar]}}
-           (b (let-pred [:foo 1 :bar 2] (< :foo :bar))))))
+    (is (= {:tag         :let
+            :id-vals [:foo 1 :bar 2]
+            :expr-or-pred   {:tag :<, :nums [:foo :bar]}}
+           (b (let [:foo 1 :bar 2] (< :foo :bar))))))
   (testing "one binding and expression"
-    (is (= {:tag :let-pred
-            :identifiers [:foo]
-            :assignment {:tag :equal, :left :foo, :right 1}
-            :predicate {:tag :plus, :numbers [:foo 2]}}
-           (b (let-pred [:foo 1] (+ :foo 2))))))
+    (is (= {:tag :let
+            :id-vals [:foo 1]
+            :expr-or-pred {:tag :+, :nums [:foo 2]}}
+           (b (let [:foo 1] (+ :foo 2))))))
   (testing "more bindings and an expression"
-    (is (= {:tag         :let-pred
-            :identifiers [:foo :bar]
-            :assignment  {:tag        :and
-                          :predicates [{:tag :equal, :left :foo, :right 1}
-                                       {:tag :equal, :left :bar, :right 2}]}
-            :predicate   {:tag :plus, :numbers [:foo :bar]}}
-                                                   (b (let-pred [:foo 1 :bar 2] (+ :foo :bar)))))))
+    (is (= {:tag         :let
+            :id-vals [:foo 1 :bar 2]
+            :expr-or-pred   {:tag :+, :nums [:foo :bar]}}
+           (b (let [:foo 1 :bar 2] (+ :foo :bar)))))))

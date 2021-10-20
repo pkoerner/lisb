@@ -8,7 +8,7 @@
     (>= :jj 0))
   (init (assign :ii 2 :jj 10))
   (operations
-    (operation [] :inc [] (select (> :jj 0) (parallel-substitution
+    (operation [] :inc [] (select (> :jj 0) (parallel-sub
                                               (assign :ii (+ :ii 1))
                                               (assign :jj (- :jj 1)))))
     (operation [:result] :res [] (assign :result :ii))))

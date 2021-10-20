@@ -1,5 +1,5 @@
 (ns lisb.translation.ir2ast
-  (:require [lisb.translation.lisb2ir :refer [b= band]]
+  (:require [lisb.translation.lisb2ir :refer [b= band bmember? b=>]]
             [clojure.math.combinatorics :refer [combinations]])
   (:import (de.be4.classicalb.core.parser.node Start
                                                EOF
@@ -189,50 +189,50 @@
   (ir->ast-node (:right ir-node)))
 (defn ir-node-values->ast [ir-node]
   (map ir->ast-node (:values ir-node)))
-(defn ir-node-predicate->ast [ir-node]
-  (ir->ast-node (:predicate ir-node)))
-(defn ir-node-predicates->ast [ir-node]
-  (map ir->ast-node (:predicates ir-node)))
-(defn ir-node-expression->ast [ir-node]
-  (ir->ast-node (:expression ir-node)))
+(defn ir-node-pred->ast [ir-node]
+  (ir->ast-node (:pred ir-node)))
+(defn ir-node-preds->ast [ir-node]
+  (map ir->ast-node (:preds ir-node)))
+(defn ir-node-expr->ast [ir-node]
+  (ir->ast-node (:expr ir-node)))
 (defn ir-node-set->ast [ir-node]
   (ir->ast-node (:set ir-node)))
 (defn ir-node-sets->ast [ir-node]
   (map ir->ast-node (:sets ir-node)))
-(defn ir-node-number->ast [ir-node]
-  (ir->ast-node (:number ir-node)))
-(defn ir-node-numbers->ast [ir-node]
-  (map ir->ast-node (:numbers ir-node)))
-(defn ir-node-relation->ast [ir-node]
-  (ir->ast-node (:relation ir-node)))
-(defn ir-node-relations->ast [ir-node]
-  (map ir->ast-node (:relations ir-node)))
+(defn ir-node-num->ast [ir-node]
+  (ir->ast-node (:num ir-node)))
+(defn ir-node-nums->ast [ir-node]
+  (map ir->ast-node (:nums ir-node)))
+(defn ir-node-rel->ast [ir-node]
+  (ir->ast-node (:rel ir-node)))
+(defn ir-node-rels->ast [ir-node]
+  (map ir->ast-node (:rels ir-node)))
 (defn ir-node-seq->ast [ir-node]
   (ir->ast-node (:seq ir-node)))
 (defn ir-node-seqs->ast [ir-node]
   (map ir->ast-node (:seqs ir-node)))
-(defn ir-node-substitution->ast [ir-node]
-  (ir->ast-node (:substitution ir-node)))
-(defn ir-node-substitutions->ast [ir-node]
-  (map ir->ast-node (:substitutions ir-node)))
-(defn ir-node-element->ast [ir-node]
-  (ir->ast-node (:element ir-node)))
-(defn ir-node-elements->ast [ir-node]
-  (map ir->ast-node (:elements ir-node)))
+(defn ir-node-sub->ast [ir-node]
+  (ir->ast-node (:sub ir-node)))
+(defn ir-node-subs->ast [ir-node]
+  (map ir->ast-node (:subs ir-node)))
+(defn ir-node-elem->ast [ir-node]
+  (ir->ast-node (:elem ir-node)))
+(defn ir-node-elems->ast [ir-node]
+  (map ir->ast-node (:elems ir-node)))
 (defn ir-node-assignment->ast [ir-node]
   (ir->ast-node (:assignment ir-node)))
-(defn ir-node-condition->ast [ir-node]
-  (ir->ast-node (:condition ir-node)))
+(defn ir-node-cond->ast [ir-node]
+  (ir->ast-node (:cond ir-node)))
 (defn ir-node-then->ast [ir-node]
   (ir->ast-node (:then ir-node)))
 (defn ir-node-else->ast [ir-node]
   (ir->ast-node (:else ir-node)))
-(defn ir-node-identifier->ast [ir-node]
-  (ir->ast-node (:identifier ir-node)))
-(defn ir-node-identifiers->ast [ir-node]
-  (map ir->ast-node (:identifiers ir-node)))
-(defn ir-node-parameters->ast [ir-node]
-  (map ir->ast-node (:parameters ir-node)))
+(defn ir-node-id->ast [ir-node]
+  (ir->ast-node (:id ir-node)))
+(defn ir-node-ids->ast [ir-node]
+  (map ir->ast-node (:ids ir-node)))
+(defn ir-node-args->ast [ir-node]
+  (map ir->ast-node (:args ir-node)))
 
 
 (defn left-associative [f ir-nodes]
@@ -256,6 +256,18 @@
 
 (defn chain-combinitions-arity-two [ir-nodes f]
   (chain (combinations ir-nodes 2) f))
+
+(defn id-vals->ids [id-vals]
+  (map ir->ast-node (map first (partition 2 id-vals))))
+(defn id-vals->vals [id-vals]
+  (map ir->ast-node (map second (partition 2 id-vals))))
+(defn id-types->ids [id-types]
+  (id-vals->ids id-types))
+
+(defn id-vals->assignment [id-vals]
+  (ir->ast-node (apply band (map #(apply b= %) (partition 2 id-vals)))))
+(defn id-types->assignment [id-types]
+  (ir->ast-node (apply band (map #(apply bmember? %) (partition 2 id-types)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -301,8 +313,8 @@
 
 (defmethod ir-node->ast-node :includes [ir-node]
   (AIncludesMachineClause. (ir-node-values->ast ir-node)))
-(defmethod ir-node->ast-node :machine-reference [ir-node]
-  (AMachineReference. [(TIdentifierLiteral. (name (:name ir-node)))] (map ir->ast-node (:parameters ir-node))))
+(defmethod ir-node->ast-node :mch-ref [ir-node]
+  (AMachineReference. [(TIdentifierLiteral. (name (:name ir-node)))] (map ir->ast-node (:args ir-node))))
 
 (defmethod ir-node->ast-node :sees [ir-node]
   (ASeesMachineClause. (ir-node-values->ast ir-node)))
@@ -321,9 +333,9 @@
 (defmethod ir-node->ast-node :sets [ir-node]
   (ASetsMachineClause. (ir-node-values->ast ir-node)))
 (defmethod ir-node->ast-node :deferred-set [ir-node]
-  (ADeferredSetSet. (.getIdentifier (ir-node-identifier->ast ir-node))))
+  (ADeferredSetSet. (.getIdentifier (ir-node-id->ast ir-node))))
 (defmethod ir-node->ast-node :enumerated-set [ir-node]
-  (AEnumeratedSetSet. (.getIdentifier (ir-node-identifier->ast ir-node)) (ir-node-elements->ast ir-node)))
+  (AEnumeratedSetSet. (.getIdentifier (ir-node-id->ast ir-node)) (ir-node-elems->ast ir-node)))
 
 (defmethod ir-node->ast-node :constants [ir-node]
   (AConstantsMachineClause. (ir-node-values->ast ir-node)))
@@ -345,16 +357,13 @@
 (defmethod ir-node->ast-node :assertions [ir-node]
   (AAssertionsMachineClause. (ir-node-values->ast ir-node)))
 
-(defmethod ir-node->ast-node :assign [ir-node]
-  (AAssertionsMachineClause. (ir-node-values->ast ir-node)))
-
 (defmethod ir-node->ast-node :init [ir-node]
   (AInitialisationMachineClause. (ASequenceSubstitution. (ir-node-values->ast ir-node))))
 
 (defmethod ir-node->ast-node :operations [ir-node]
   (AOperationsMachineClause. (ir-node-values->ast ir-node)))
 (defmethod ir-node->ast-node :operation [ir-node]
-  (AOperation. (map ir->ast-node (:return ir-node)) (list (TIdentifierLiteral. (name (:name ir-node)))) (ir-node-parameters->ast ir-node) (ir->ast-node (:body ir-node))))
+  (AOperation. (map ir->ast-node (:return-vals ir-node)) (list (TIdentifierLiteral. (name (:name ir-node)))) (ir-node-args->ast ir-node) (ir->ast-node (:body ir-node))))
 
 ;;; substitutions
 
@@ -362,32 +371,40 @@
   (ASkipSubstitution.))
 
 (defmethod ir-node->ast-node :block [ir-node]
-  (ABlockSubstitution. (ir-node-substitution->ast ir-node)))
+  (ABlockSubstitution. (ir-node-sub->ast ir-node)))
 
 (defmethod ir-node->ast-node :assign [ir-node]
-  (AAssignSubstitution. (ir-node-identifiers->ast ir-node) (map ir->ast-node (:values ir-node))))
+  (let [id-vals (:id-vals ir-node)
+        ids (id-vals->ids id-vals)
+        vals (id-vals->vals id-vals)]
+    (AAssignSubstitution. ids vals)))
 
-(defmethod ir-node->ast-node :becomes-element-of [ir-node] (ABecomesElementOfSubstitution. (ir-node-identifiers->ast ir-node) (ir-node-set->ast ir-node)))
-(defmethod ir-node->ast-node :becomes-such [ir-node] (ABecomesSuchSubstitution. (ir-node-identifiers->ast ir-node) (ir-node-predicate->ast ir-node)))
-(defmethod ir-node->ast-node :operation-call [ir-node]
-  (AOperationCallSubstitution. (ir-node-identifiers->ast ir-node) (list (TIdentifierLiteral. (name (:operation ir-node)))) (ir-node-parameters->ast ir-node)))
-(defmethod ir-node->ast-node :parallel-substitution [ir-node] (AParallelSubstitution. (ir-node-substitutions->ast ir-node)))
-(defmethod ir-node->ast-node :sequence-substitution [ir-node] (ASequenceSubstitution. (ir-node-substitutions->ast ir-node)))
-(defmethod ir-node->ast-node :any [ir-node] (AAnySubstitution. (ir-node-identifiers->ast ir-node) (ir->ast-node (:where ir-node)) (ir-node-then->ast ir-node)))
-(defmethod ir-node->ast-node :let-sub [ir-node] (ALetSubstitution. (ir-node-identifiers->ast ir-node) (ir-node-predicate->ast ir-node) (ir-node-substitution->ast ir-node)))
+(defmethod ir-node->ast-node :becomes-element-of [ir-node] (ABecomesElementOfSubstitution. (ir-node-ids->ast ir-node) (ir-node-set->ast ir-node)))
+(defmethod ir-node->ast-node :becomes-such [ir-node] (ABecomesSuchSubstitution. (ir-node-ids->ast ir-node) (ir-node-pred->ast ir-node)))
+(defmethod ir-node->ast-node :op-call [ir-node]
+  (AOperationCallSubstitution. (ir-node-ids->ast ir-node) (list (TIdentifierLiteral. (name (:op ir-node)))) (ir-node-args->ast ir-node)))
+(defmethod ir-node->ast-node :parallel-sub [ir-node] (AParallelSubstitution. (ir-node-subs->ast ir-node)))
+(defmethod ir-node->ast-node :sequential-sub [ir-node] (ASequenceSubstitution. (ir-node-subs->ast ir-node)))
+(defmethod ir-node->ast-node :any [ir-node] (AAnySubstitution. (ir-node-ids->ast ir-node) (ir->ast-node (:where ir-node)) (ir-node-then->ast ir-node)))
+(defmethod ir-node->ast-node :let-sub [ir-node]
+  (let [id-vals (:id-vals ir-node)
+        ids (id-vals->ids id-vals)
+        assignment (id-vals->assignment id-vals)
+        sub (ir-node-sub->ast ir-node)]
+    (ALetSubstitution. ids assignment sub)))
 (defmethod ir-node->ast-node :var [ir-node]
-  (AVarSubstitution. (ir-node-identifiers->ast ir-node) (ir-node-substitution->ast ir-node)))
-(defmethod ir-node->ast-node :precondition [ir-node] (APreconditionSubstitution. (ir-node-predicate->ast ir-node) (ir-node-substitution->ast ir-node)))
-(defmethod ir-node->ast-node :assert [ir-node] (AAssertionSubstitution. (ir-node-predicate->ast ir-node) (ir-node-substitution->ast ir-node)))
+  (AVarSubstitution. (ir-node-ids->ast ir-node) (ir-node-sub->ast ir-node)))
+(defmethod ir-node->ast-node :pre [ir-node] (APreconditionSubstitution. (ir-node-pred->ast ir-node) (ir-node-sub->ast ir-node)))
+(defmethod ir-node->ast-node :assert [ir-node] (AAssertionSubstitution. (ir-node-pred->ast ir-node) (ir-node-sub->ast ir-node)))
 
 (defn choice-or-substitution [sub]
   (AChoiceOrSubstitution. sub))
 (defmethod ir-node->ast-node :choice [ir-node]
-  (let [subs (ir-node-substitutions->ast ir-node)]
+  (let [subs (ir-node-subs->ast ir-node)]
     (AChoiceSubstitution. (conj (map choice-or-substitution (rest subs)) (first subs)))))
 
 (defmethod ir-node->ast-node :if-sub [ir-node]
-  (AIfSubstitution. (ir-node-condition->ast ir-node) (ir-node-then->ast ir-node) () (ir-node-else->ast ir-node)))
+  (AIfSubstitution. (ir-node-cond->ast ir-node) (ir-node-then->ast ir-node) () (ir-node-else->ast ir-node)))
 
 (defn if-else-sub [[condition then]]
   (AIfElsifSubstitution. condition then))
@@ -421,15 +438,15 @@
 
 ;;; if
 
-(defmethod ir-node->ast-node :if-expr [ir-node] (AIfThenElseExpression. (ir-node-condition->ast ir-node) (ir-node-then->ast ir-node) '() (ir-node-else->ast ir-node)))
+(defmethod ir-node->ast-node :if-expr [ir-node] (AIfThenElseExpression. (ir-node-cond->ast ir-node) (ir-node-then->ast ir-node) '() (ir-node-else->ast ir-node)))
 
 
 ;;; let
 
 (defmethod ir-node->ast-node :let [ir-node]
   (let [id-vals  (:id-vals ir-node)
-        ids (map ir->ast-node (map first (partition 2 id-vals)))
-        assignment (ir->ast-node (apply band (map #(apply b= %) (partition 2 id-vals))))
+        ids (id-vals->ids id-vals)
+        assignment (id-vals->assignment id-vals)
         expr-or-pred (ir->ast-node (:expr-or-pred ir-node))]
     (cond
       (instance? PExpression expr-or-pred) (ALetExpressionExpression. ids assignment expr-or-pred)
@@ -437,10 +454,10 @@
       :else (throw (str "Unsupported ast node for let-block" expr-or-pred)))))
 
 (defmethod ir-node->ast-node :let-expr [ir-node]
-  (ALetExpressionExpression. (ir-node-identifiers->ast ir-node) (ir-node-assignment->ast ir-node) (ir-node-expression->ast ir-node)))
+  (ALetExpressionExpression. (ir-node-ids->ast ir-node) (ir-node-assignment->ast ir-node) (ir-node-expr->ast ir-node)))
 
 (defmethod ir-node->ast-node :let-pred [ir-node]
-  (ALetPredicatePredicate. (ir-node-identifiers->ast ir-node) (ir-node-assignment->ast ir-node) (ir-node-predicate->ast ir-node)))
+  (ALetPredicatePredicate. (ir-node-ids->ast ir-node) (ir-node-assignment->ast ir-node) (ir-node-pred->ast ir-node)))
 
 
 ;;; strings
@@ -455,13 +472,13 @@
                         (fn [[k v]] (ARecEntry. (ir->ast-node k) (ir->ast-node v)))
                         (partition 2 (:id-types ir-node)))))
 
-(defmethod ir-node->ast-node :record [ir-node]
+(defmethod ir-node->ast-node :rec [ir-node]
   (ARecExpression. (map
                      (fn [[k v]] (ARecEntry. (ir->ast-node k) (ir->ast-node v)))
-                     (partition 2 (:id-values ir-node)))))
+                     (partition 2 (:id-vals ir-node)))))
 
-(defmethod ir-node->ast-node :rec-get [ir-node]
-  (ARecordFieldExpression. (ir->ast-node (:record ir-node)) (ir-node-identifier->ast ir-node)))
+(defmethod ir-node->ast-node :get [ir-node]
+  (ARecordFieldExpression. (ir->ast-node (:rec ir-node)) (ir-node-id->ast ir-node)))
 
 
 ;;; sequences
@@ -470,7 +487,7 @@
   (AEmptySequenceExpression.))
 
 (defmethod ir-node->ast-node :sequence [ir-node]
-  (ASequenceExtensionExpression. (ir-node-elements->ast ir-node)))
+  (ASequenceExtensionExpression. (ir-node-elems->ast ir-node)))
 
 (defmethod ir-node->ast-node :seq [ir-node]
   (ASeqExpression. (ir-node-set->ast ir-node)))
@@ -488,18 +505,18 @@
   (APermExpression. (ir-node-set->ast ir-node)))
 
 (defmethod ir-node->ast-node :size [ir-node]
-  (ASizeExpression. (ir-node-set->ast ir-node)))
+  (ASizeExpression. (ir-node-seq->ast ir-node)))
 
 (defmethod ir-node->ast-node :concat [ir-node]
   (left-associative #(AConcatExpression. %1 %2) (ir-node-seqs->ast ir-node)))
 
-(defmethod ir-node->ast-node :insert-front [ir-node]
-  (right-associative #(AInsertFrontExpression. %1 %2) (reverse (conj (ir-node-elements->ast ir-node) (ir-node-seq->ast ir-node)))))
+(defmethod ir-node->ast-node :-> [ir-node]
+  (AInsertFrontExpression. (ir-node-elem->ast ir-node) (ir-node-seq->ast ir-node)))
 
-(defmethod ir-node->ast-node :insert-tail [ir-node]
-  (left-associative #(AInsertTailExpression. %1 %2) (conj (ir-node-elements->ast ir-node) (ir-node-seq->ast ir-node))))
+(defmethod ir-node->ast-node :<- [ir-node]
+  (left-associative #(AInsertTailExpression. %1 %2) (conj (ir-node-elems->ast ir-node) (ir-node-seq->ast ir-node))))
 
-(defmethod ir-node->ast-node :reverse [ir-node]
+(defmethod ir-node->ast-node :rev [ir-node]
   (ARevExpression. (ir-node-seq->ast ir-node)))
 
 (defmethod ir-node->ast-node :first [ir-node]
@@ -517,41 +534,41 @@
 (defmethod ir-node->ast-node :conc [ir-node]
   (AGeneralConcatExpression. (ir->ast-node (:seq-of-seqs ir-node))))
 
-(defmethod ir-node->ast-node :restrict-front [ir-node]
-  (ARestrictFrontExpression. (ir-node-seq->ast ir-node) (ir-node-number->ast ir-node)))
+(defmethod ir-node->ast-node :take [ir-node]
+  (ARestrictFrontExpression. (ir-node-seq->ast ir-node) (ir-node-num->ast ir-node)))
 
-(defmethod ir-node->ast-node :restrict-tail [ir-node]
-  (ARestrictTailExpression. (ir-node-seq->ast ir-node) (ir-node-number->ast ir-node)))
+(defmethod ir-node->ast-node :drop [ir-node]
+  (ARestrictTailExpression. (ir-node-seq->ast ir-node) (ir-node-num->ast ir-node)))
 
 
 ;;; functions
 
-(defmethod ir-node->ast-node :partial-fn [ir-node]
+(defmethod ir-node->ast-node :+-> [ir-node]
   (left-associative #(APartialFunctionExpression. %1 %2) (ir-node-sets->ast ir-node)))
 
-(defmethod ir-node->ast-node :total-fn [ir-node]
+(defmethod ir-node->ast-node :--> [ir-node]
   (left-associative #(ATotalFunctionExpression. %1 %2) (ir-node-sets->ast ir-node)))
 
-(defmethod ir-node->ast-node :partial-surjection [ir-node]
+(defmethod ir-node->ast-node :+->> [ir-node]
   (left-associative #(APartialSurjectionExpression. %1 %2) (ir-node-sets->ast ir-node)))
 
-(defmethod ir-node->ast-node :total-surjection [ir-node]
+(defmethod ir-node->ast-node :-->> [ir-node]
   (left-associative #(ATotalSurjectionExpression. %1 %2) (ir-node-sets->ast ir-node)))
 
-(defmethod ir-node->ast-node :partial-injection [ir-node]
+(defmethod ir-node->ast-node :>+> [ir-node]
   (left-associative #(APartialInjectionExpression. %1 %2) (ir-node-sets->ast ir-node)))
 
-(defmethod ir-node->ast-node :total-injection [ir-node]
+(defmethod ir-node->ast-node :>-> [ir-node]
   (left-associative #(ATotalInjectionExpression. %1 %2) (ir-node-sets->ast ir-node)))
 
-(defmethod ir-node->ast-node :partial-bijection [ir-node]
+(defmethod ir-node->ast-node :>+>> [ir-node]
   (left-associative #(APartialBijectionExpression. %1 %2) (ir-node-sets->ast ir-node)))
 
-(defmethod ir-node->ast-node :total-bijection [ir-node]
+(defmethod ir-node->ast-node :>->> [ir-node]
   (left-associative #(ATotalBijectionExpression. %1 %2) (ir-node-sets->ast ir-node)))
 
 (defmethod ir-node->ast-node :lambda [ir-node]
-  (ALambdaExpression. (ir-node-identifiers->ast ir-node) (ir-node-predicate->ast ir-node) (ir-node-expression->ast ir-node)))
+  (ALambdaExpression. (ir-node-ids->ast ir-node) (ir-node-pred->ast ir-node) (ir-node-expr->ast ir-node)))
 
 (defmethod ir-node->ast-node :apply [ir-node]
   (AFunctionExpression. (ir->ast-node (:f ir-node)) (map ir->ast-node (:args ir-node))))
@@ -559,59 +576,59 @@
 
 ;;; relations
 
-(defmethod ir-node->ast-node :relation [ir-node]
+(defmethod ir-node->ast-node :<-> [ir-node]
   (left-associative #(ARelationsExpression. %1 %2) (ir-node-sets->ast ir-node)))
 
-(defmethod ir-node->ast-node :total-relation [ir-node]
+(defmethod ir-node->ast-node :<<-> [ir-node]
   (left-associative #(ATotalRelationExpression. %1 %2) (ir-node-sets->ast ir-node)))
 
-(defmethod ir-node->ast-node :surjective-relation [ir-node]
+(defmethod ir-node->ast-node :<->> [ir-node]
   (left-associative #(ASurjectionRelationExpression. %1 %2) (ir-node-sets->ast ir-node)))
 
-(defmethod ir-node->ast-node :total-surjective-relation [ir-node]
+(defmethod ir-node->ast-node :<<->> [ir-node]
   (left-associative #(ATotalSurjectionRelationExpression. %1 %2) (ir-node-sets->ast ir-node)))
 
 (defmethod ir-node->ast-node :couple [ir-node]
-  (ACoupleExpression. (ir-node-elements->ast ir-node)))
+  (ACoupleExpression. [(ir-node-left->ast ir-node) (ir-node-right->ast ir-node)]))
 
-(defmethod ir-node->ast-node :domain [ir-node]
-  (ADomainExpression. (ir-node-relation->ast ir-node)))
+(defmethod ir-node->ast-node :dom [ir-node]
+  (ADomainExpression. (ir-node-rel->ast ir-node)))
 
-(defmethod ir-node->ast-node :range [ir-node]
-  (ARangeExpression. (ir-node-relation->ast ir-node)))
+(defmethod ir-node->ast-node :ran [ir-node]
+  (ARangeExpression. (ir-node-rel->ast ir-node)))
 
-(defmethod ir-node->ast-node :identity-relation [ir-node]
+(defmethod ir-node->ast-node :id [ir-node]
   (AIdentityExpression. (ir-node-set->ast ir-node)))
 
 (defmethod ir-node->ast-node :domain-restriction [ir-node]
-  (ADomainRestrictionExpression. (ir-node-set->ast ir-node) (ir-node-relation->ast ir-node)))
+  (ADomainRestrictionExpression. (ir-node-set->ast ir-node) (ir-node-rel->ast ir-node)))
 
 (defmethod ir-node->ast-node :domain-subtraction [ir-node]
-  (ADomainSubtractionExpression. (ir-node-set->ast ir-node) (ir-node-relation->ast ir-node)))
+  (ADomainSubtractionExpression. (ir-node-set->ast ir-node) (ir-node-rel->ast ir-node)))
 
 (defmethod ir-node->ast-node :range-restriction [ir-node]
-  (ARangeRestrictionExpression. (ir-node-relation->ast ir-node) (ir-node-set->ast ir-node)))
+  (ARangeRestrictionExpression. (ir-node-rel->ast ir-node) (ir-node-set->ast ir-node)))
 
 (defmethod ir-node->ast-node :range-subtraction [ir-node]
-  (ARangeSubtractionExpression. (ir-node-relation->ast ir-node) (ir-node-set->ast ir-node)))
+  (ARangeSubtractionExpression. (ir-node-rel->ast ir-node) (ir-node-set->ast ir-node)))
 
-(defmethod ir-node->ast-node :inverse-relation [ir-node]
-  (AReverseExpression. (ir-node-relation->ast ir-node)))
+(defmethod ir-node->ast-node :inverse [ir-node]
+  (AReverseExpression. (ir-node-rel->ast ir-node)))
 
-(defmethod ir-node->ast-node :relational-image [ir-node]
-  (AImageExpression. (ir-node-relation->ast ir-node) (ir-node-set->ast ir-node)))
+(defmethod ir-node->ast-node :image [ir-node]
+  (AImageExpression. (ir-node-rel->ast ir-node) (ir-node-set->ast ir-node)))
 
-(defmethod ir-node->ast-node :relational-override [ir-node]
-  (left-associative #(AOverwriteExpression. %1 %2) (ir-node-relations->ast ir-node)))
+(defmethod ir-node->ast-node :<+ [ir-node]
+  (left-associative #(AOverwriteExpression. %1 %2) (ir-node-rels->ast ir-node)))
 
-(defmethod ir-node->ast-node :direct-product [ir-node]
-  (left-associative #(ADirectProductExpression. %1 %2) (ir-node-relations->ast ir-node)))
+(defmethod ir-node->ast-node :>< [ir-node]
+  (left-associative #(ADirectProductExpression. %1 %2) (ir-node-rels->ast ir-node)))
 
-(defmethod ir-node->ast-node :relational-composition [ir-node]
-  (left-associative #(ACompositionExpression. %1 %2) (ir-node-relations->ast ir-node)))
+(defmethod ir-node->ast-node :comp [ir-node]
+  (left-associative #(ACompositionExpression. %1 %2) (ir-node-rels->ast ir-node)))
 
 (defmethod ir-node->ast-node :parallel-product [ir-node]
-  (left-associative #(AParallelProductExpression. %1 %2) (ir-node-relations->ast ir-node)))
+  (left-associative #(AParallelProductExpression. %1 %2) (ir-node-rels->ast ir-node)))
 
 (defmethod ir-node->ast-node :prj1 [ir-node]
   (AFirstProjectionExpression. (ir->ast-node (:set1 ir-node)) (ir->ast-node (:set2 ir-node))))
@@ -620,25 +637,25 @@
   (ASecondProjectionExpression. (ir->ast-node (:set1 ir-node)) (ir->ast-node (:set2 ir-node))))
 
 (defmethod ir-node->ast-node :closure1 [ir-node]
-  (AClosureExpression. (ir-node-relation->ast ir-node)))
+  (AClosureExpression. (ir-node-rel->ast ir-node)))
 
 (defmethod ir-node->ast-node :closure [ir-node]
-  (AReflexiveClosureExpression. (ir-node-relation->ast ir-node)))
+  (AReflexiveClosureExpression. (ir-node-rel->ast ir-node)))
 
 (defmethod ir-node->ast-node :iterate [ir-node]
-  (AIterationExpression. (ir-node-relation->ast ir-node) (ir-node-number->ast ir-node)))
+  (AIterationExpression. (ir-node-rel->ast ir-node) (ir-node-num->ast ir-node)))
 
-(defmethod ir-node->ast-node :functionise [ir-node]
-  (ATransFunctionExpression. (ir-node-relation->ast ir-node)))
+(defmethod ir-node->ast-node :fnc [ir-node]
+  (ATransFunctionExpression. (ir-node-rel->ast ir-node)))
 
-(defmethod ir-node->ast-node :relationise [ir-node]
-  (ATransRelationExpression. (ir-node-relation->ast ir-node)))
+(defmethod ir-node->ast-node :rel [ir-node]
+  (ATransRelationExpression. (ir-node-rel->ast ir-node)))
 
 
 ;;; numbers
 
 (defmethod ir-node->ast-node :unary-minus [ir-node]
-  (AUnaryMinusExpression. (ir-node-number->ast ir-node)))
+  (AUnaryMinusExpression. (ir-node-num->ast ir-node)))
 
 (defmethod ir-node->ast-node :integer-set [_]
   (AIntegerSetExpression.))
@@ -667,17 +684,17 @@
 (defmethod ir-node->ast-node :max-int [_]
   (AMaxIntExpression.))
 
-(defmethod ir-node->ast-node :less [ir-node]
-  (chain-arity-two (:numbers ir-node) #(ALessPredicate. %1 %2)))
+(defmethod ir-node->ast-node :< [ir-node]
+  (chain-arity-two (:nums ir-node) #(ALessPredicate. %1 %2)))
 
-(defmethod ir-node->ast-node :greater [ir-node]
-  (chain-arity-two (:numbers ir-node) #(AGreaterPredicate. %1 %2)))
+(defmethod ir-node->ast-node :> [ir-node]
+  (chain-arity-two (:nums ir-node) #(AGreaterPredicate. %1 %2)))
 
-(defmethod ir-node->ast-node :less-eq [ir-node]
-  (chain-arity-two (:numbers ir-node) #(ALessEqualPredicate. %1 %2)))
+(defmethod ir-node->ast-node :<= [ir-node]
+  (chain-arity-two (:nums ir-node) #(ALessEqualPredicate. %1 %2)))
 
-(defmethod ir-node->ast-node :greater-eq [ir-node]
-  (chain-arity-two (:numbers ir-node) #(AGreaterEqualPredicate. %1 %2)))
+(defmethod ir-node->ast-node :>= [ir-node]
+  (chain-arity-two (:nums ir-node) #(AGreaterEqualPredicate. %1 %2)))
 
 (defmethod ir-node->ast-node :max [ir-node]
   (AMaxExpression. (ir-node-set->ast ir-node)))
@@ -685,41 +702,41 @@
 (defmethod ir-node->ast-node :min [ir-node]
   (AMinExpression. (ir-node-set->ast ir-node)))
 
-(defmethod ir-node->ast-node :plus [ir-node]
-  (left-associative #(AAddExpression. %1 %2) (ir-node-numbers->ast ir-node)))
+(defmethod ir-node->ast-node :+ [ir-node]
+  (left-associative #(AAddExpression. %1 %2) (ir-node-nums->ast ir-node)))
 
-(defmethod ir-node->ast-node :minus [ir-node]
-  (left-associative #(AMinusOrSetSubtractExpression. %1 %2) (ir-node-numbers->ast ir-node)))
+(defmethod ir-node->ast-node :- [ir-node]
+  (left-associative #(AMinusOrSetSubtractExpression. %1 %2) (ir-node-nums->ast ir-node)))
 
-(defmethod ir-node->ast-node :mult-or-cart [ir-node]
-  (left-associative #(AMultOrCartExpression. %1 %2) (ir-node-numbers->ast ir-node)))
+(defmethod ir-node->ast-node :* [ir-node]
+  (left-associative #(AMultOrCartExpression. %1 %2) (ir-node-nums->ast ir-node)))
 
 (defmethod ir-node->ast-node :div [ir-node]
-  (left-associative #(ADivExpression. %1 %2) (ir-node-numbers->ast ir-node)))
+  (left-associative #(ADivExpression. %1 %2) (ir-node-nums->ast ir-node)))
 
-(defmethod ir-node->ast-node :pow [ir-node]
-  (right-associative #(APowerOfExpression. %1 %2) (ir-node-numbers->ast ir-node)))
+(defmethod ir-node->ast-node :** [ir-node]
+  (right-associative #(APowerOfExpression. %1 %2) (ir-node-nums->ast ir-node)))
 
 (defmethod ir-node->ast-node :mod [ir-node]
-  (left-associative #(AModuloExpression. %1 %2) (ir-node-numbers->ast ir-node)))
+  (left-associative #(AModuloExpression. %1 %2) (ir-node-nums->ast ir-node)))
 
 (defmethod ir-node->ast-node :pi [ir-node]
-  (AGeneralProductExpression. (ir-node-identifiers->ast ir-node) (ir-node-predicate->ast ir-node) (ir-node-expression->ast ir-node)))
+  (AGeneralProductExpression. (ir-node-ids->ast ir-node) (ir-node-pred->ast ir-node) (ir-node-expr->ast ir-node)))
 
 (defmethod ir-node->ast-node :sigma [ir-node]
-  (AGeneralSumExpression. (ir-node-identifiers->ast ir-node) (ir-node-predicate->ast ir-node) (ir-node-expression->ast ir-node)))
+  (AGeneralSumExpression. (ir-node-ids->ast ir-node) (ir-node-pred->ast ir-node) (ir-node-expr->ast ir-node)))
 
-(defmethod ir-node->ast-node :inc [ir-node]
-  (AFunctionExpression. (ASuccessorExpression.) (list (ir-node-number->ast ir-node))))
+(defmethod ir-node->ast-node :succ [ir-node]
+  (AFunctionExpression. (ASuccessorExpression.) (list (ir-node-num->ast ir-node))))
 
-(defmethod ir-node->ast-node :dec [ir-node]
-  (AFunctionExpression. (APredecessorExpression.) (list (ir-node-number->ast ir-node))))
+(defmethod ir-node->ast-node :pred [ir-node]
+  (AFunctionExpression. (APredecessorExpression.) (list (ir-node-num->ast ir-node))))
 
 
 ;;; sets
 
 (defmethod ir-node->ast-node :comp-set [ir-node]
-  (AComprehensionSetExpression. (ir-node-identifiers->ast ir-node) (ir-node-predicate->ast ir-node)))
+  (AComprehensionSetExpression. (ir-node-ids->ast ir-node) (ir-node-pred->ast ir-node)))
 
 (defmethod ir-node->ast-node :power-set [ir-node]
   (APowSubsetExpression. (ir-node-set->ast ir-node)))
@@ -745,14 +762,14 @@
 (defmethod ir-node->ast-node :difference [ir-node]
   (left-associative #(ASetSubtractionExpression. %1 %2) (ir-node-sets->ast ir-node)))
 
-(defmethod ir-node->ast-node :member [ir-node]
-  (AMemberPredicate. (ir-node-element->ast ir-node) (ir-node-set->ast ir-node)))
+(defmethod ir-node->ast-node :member? [ir-node]
+  (AMemberPredicate. (ir-node-elem->ast ir-node) (ir-node-set->ast ir-node)))
 
-(defmethod ir-node->ast-node :subset [ir-node]
+(defmethod ir-node->ast-node :subset? [ir-node]
   (ASubsetPredicate. (ir->ast-node (:subset ir-node)) (ir-node-set->ast ir-node)))
 
-(defmethod ir-node->ast-node :subset-strict [ir-node]
-  (ASubsetStrictPredicate. (ir->ast-node (:subset-strict ir-node)) (ir-node-set->ast ir-node)))
+(defmethod ir-node->ast-node :strict-subset? [ir-node]
+  (ASubsetStrictPredicate. (ir->ast-node (:strict-subset ir-node)) (ir-node-set->ast ir-node)))
 
 (defmethod ir-node->ast-node :general-union [ir-node]
   (AGeneralUnionExpression. (ir->ast-node (:set-of-sets ir-node))))
@@ -761,10 +778,10 @@
   (AGeneralIntersectionExpression. (ir->ast-node (:set-of-sets ir-node))))
 
 (defmethod ir-node->ast-node :union-pe [ir-node]
-  (AQuantifiedUnionExpression. (ir-node-identifiers->ast ir-node) (ir-node-predicate->ast ir-node) (ir-node-expression->ast ir-node)))
+  (AQuantifiedUnionExpression. (ir-node-ids->ast ir-node) (ir-node-pred->ast ir-node) (ir-node-expr->ast ir-node)))
 
 (defmethod ir-node->ast-node :intersection-pe [ir-node]
-  (AQuantifiedIntersectionExpression. (ir-node-identifiers->ast ir-node) (ir-node-predicate->ast ir-node) (ir-node-expression->ast ir-node)))
+  (AQuantifiedIntersectionExpression. (ir-node-ids->ast ir-node) (ir-node-pred->ast ir-node) (ir-node-expr->ast ir-node)))
 
 
 ;;; booleans
@@ -773,37 +790,37 @@
   (ABoolSetExpression.))
 
 (defmethod ir-node->ast-node :pred->bool [ir-node]
-  (AConvertBoolExpression. (ir-node-predicate->ast ir-node)))
+  (AConvertBoolExpression. (ir-node-pred->ast ir-node)))
 
 
 ;;; equal predicates
 
-(defmethod ir-node->ast-node :equal [ir-node]
+(defmethod ir-node->ast-node := [ir-node]
   (AEqualPredicate. (ir-node-left->ast ir-node) (ir-node-right->ast ir-node)))
 
-(defmethod ir-node->ast-node :not-equal [ir-node]
+(defmethod ir-node->ast-node :not= [ir-node]
   (ANotEqualPredicate. (ir-node-left->ast ir-node) (ir-node-right->ast ir-node)))
 
-(defmethod ir-node->ast-node :distinct [ir-node]
+(defmethod ir-node->ast-node :distinct? [ir-node]
   (chain-combinitions-arity-two (:elements ir-node) #(ANotEqualPredicate. %1 %2)))
 
 
 ;;; logical predicates
 
 (defmethod ir-node->ast-node :and [ir-node]
-  (left-associative #(AConjunctPredicate. %1 %2) (ir-node-predicates->ast ir-node)))
+  (left-associative #(AConjunctPredicate. %1 %2) (ir-node-preds->ast ir-node)))
 
 (defmethod ir-node->ast-node :or [ir-node]
-  (left-associative #(ADisjunctPredicate. %1 %2) (ir-node-predicates->ast ir-node)))
+  (left-associative #(ADisjunctPredicate. %1 %2) (ir-node-preds->ast ir-node)))
 
-(defmethod ir-node->ast-node :implication [ir-node]
-  (left-associative #(AImplicationPredicate. %1 %2) (ir-node-predicates->ast ir-node)))
+(defmethod ir-node->ast-node :=> [ir-node]
+  (left-associative #(AImplicationPredicate. %1 %2) (ir-node-preds->ast ir-node)))
 
-(defmethod ir-node->ast-node :equivalence [ir-node]
-  (left-associative #(AEquivalencePredicate. %1 %2) (ir-node-predicates->ast ir-node)))
+(defmethod ir-node->ast-node :<=> [ir-node]
+  (left-associative #(AEquivalencePredicate. %1 %2) (ir-node-preds->ast ir-node)))
 
 (defmethod ir-node->ast-node :not [ir-node]
-  (let [predicate (ir-node-predicate->ast ir-node)
+  (let [predicate (ir-node-pred->ast ir-node)
         pt (type predicate)]
     ; simplify
     (cond
@@ -812,11 +829,18 @@
       (= ASubsetStrictPredicate pt) (ANotSubsetStrictPredicate. (.getLeft predicate) (.getRight predicate))
       :else (ANegationPredicate. predicate))))
 
+(defmethod ir-node->ast-node :bfor-all [ir-node]
+  (let [implication (ir-node->ast-node (b=> (:=>-left ir-node) (:=>-right ir-node)))]
+    (AForallPredicate. (ir-node-ids->ast ir-node) implication)))
 (defmethod ir-node->ast-node :for-all [ir-node]
-  (AForallPredicate. (ir-node-identifiers->ast ir-node) (ir->ast-node (:implication ir-node))))
+  (let [id-types (:id-types ir-node)
+        ids (id-types->ids id-types)
+        assignment (id-types->assignment id-types)
+        implication (AImplicationPredicate. assignment (ir-node-pred->ast ir-node))]
+    (AForallPredicate. ids implication)))
 
 (defmethod ir-node->ast-node :exists [ir-node]
-  (AExistsPredicate. (ir-node-identifiers->ast ir-node) (ir-node-predicate->ast ir-node)))
+  (AExistsPredicate. (ir-node-ids->ast ir-node) (ir-node-pred->ast ir-node)))
 
 
 ;;; misc

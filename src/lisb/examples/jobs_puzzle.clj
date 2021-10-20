@@ -4,7 +4,7 @@
 
 (defpred jobs-pred [holds-job]
   ;; using strings in lack of constants
-  (let [roberta "Roberta"
+  (clojure.core/let [roberta "Roberta"
         thelma "Thelma"
         steve "Steve"
         pete "Pete"

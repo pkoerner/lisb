@@ -19,10 +19,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Changed all machine-clause-ir-nodes to use :values instead of individually keys for arguments.
   - Changed lisb machine layout.
   - Changed let.
+  - Changed lisb and ir op-subs to op-sub.
+  - Changed lisb and ir parallel-substitutions to parallel-sub.
+  - Changed lisb and ir sequence-substitutions to sequential-sub.
+  - Changed lisb and ir count-seq to size.
+  - Changed lisb and ir record to rec.
+  - Changed lisb and ir rec-get to get.
+  - Changed lisb and ir total-relation to <<->.
+  - Changed lisb and ir surjective-relation to <->>.
+  - Changed lisb and ir total-surjective-relation to <<->>.
+  - Changed lisb and ir subset-strict? to strict-subset?.
+  - Changed lisb superset-strict? to strict-superset?.
+  - Changed lisb and ir order of cons.
   ### Removed
   - Removed lisb and ir call. Only apply is now used for function calls.
   - Removed maplet/couple chaining.
   - Removed b machines for machine-clauses
+  - Removed multi-arity for lisb and ir cons.
 
 
 ## [0.0.1] - 2021-09-17

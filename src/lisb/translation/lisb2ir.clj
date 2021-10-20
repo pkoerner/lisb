@@ -4,14 +4,14 @@
 (declare b=)
 (declare band)
 (declare bnot)
-(declare bdec)
+(declare bpred)
 
 (defn bif
-  ([node condition then] (assoc node :condition condition :then then))
-  ([node condition then else]
+  ([node cond then] (assoc node :cond cond :then then))
+  ([node cond then else]
    (if else
-     (assoc node :condition condition :then then :else else)
-     (bif node condition then))))
+     (assoc node :cond cond :then then :else else)
+     (bif node cond then))))
 
 #_(defn blet [node kvs]
   (let [kv-pairs (partition 2 kvs)
@@ -24,8 +24,8 @@
 
 (defn process-header [m header]
   (if (seqable? header)
-    (let [[name & parameters] header]
-      (assoc m :name name :parameters parameters))
+    (let [[name & args] header]
+      (assoc m :name name :args args))
     (assoc m :name header)))
 
 (defn bmachine [header & clauses]
@@ -43,15 +43,15 @@
                    :clauses clauses}
                   header))
 
-(defn brefinement [header ref-machine & clauses]
+(defn brefinement [header ref-mch & clauses]
   (process-header {:tag :refinement
-                   :ref-machine ref-machine
+                   :ref-mch ref-mch
                    :clauses clauses}
                   header))
 
-(defn bimplementation [header ref-machine & clauses]
+(defn bimplementation [header ref-mch & clauses]
   (process-header {:tag :implementation
-                   :ref-machine ref-machine
+                   :ref-mch ref-mch
                    :clauses clauses}
                   header))
 
@@ -59,91 +59,91 @@
 ;;; machine clauses
 ;; machine inclusions
 
-(defn process-machine-reference [machine-reference]
-  (let [m {:tag :machine-reference}]
-    (if (seqable? machine-reference)
-      (let [[name & parameters] machine-reference]
-        (assoc m :name name :parameters parameters))
-      (assoc m :name machine-reference))))
+(defn process-mch-ref [mch-ref]
+  (let [m {:tag :mch-ref}]
+    (if (seqable? mch-ref)
+      (let [[name & args] mch-ref]
+        (assoc m :name name :args args))
+      (assoc m :name mch-ref :args []))))
 
-(defn bmachine-reference [name & parameters]
-  {:tag :machine-reference
+(defn bmch-ref [name & args]
+  {:tag :mch-ref
    :name name
-   :parameters parameters})
+   :args args})
 
-(defn buses [& machine-names]
+(defn buses [& mch-names]
   {:tag :uses
-   :values machine-names})
+   :values mch-names})
 
-(defn bincludes [& machine-references]
+(defn bincludes [& mch-refs]
   {:tag :includes
-   :values (map process-machine-reference machine-references)})
+   :values (map process-mch-ref mch-refs)})
 
-(defn bsees [& machine-names]
+(defn bsees [& mch-names]
   {:tag :sees
-   :values machine-names})
+   :values mch-names})
 
-(defn bextends [& machine-references]
+(defn bextends [& mch-refs]
   {:tag    :extends
-   :values (map process-machine-reference machine-references)})
+   :values (map process-mch-ref mch-refs)})
 
-(defn bpromotes [& op-names]
+(defn bpromotes [& ops]
   {:tag :promotes
-   :values op-names})
+   :values ops})
 
 ;; machine sections
 
-(defn bconstraints [& predicates]
+(defn bconstraints [& preds]
   {:tag :contraints
-   :values predicates})
+   :values preds})
 
-(defn bsets [& set-definitions]
+(defn bsets [& set-defs]
   {:tag :sets
-   :values set-definitions})
-(defn bdeferred-set [identifier]
+   :values set-defs})
+(defn bdeferred-set [id]
   {:tag :deferred-set
-   :identifier identifier})
-(defn benumerated-set [identifier & elements]
+   :id id})
+(defn benumerated-set [id & elems]
   {:tag :enumerated-set
-   :identifier identifier
-   :elements elements})
+   :id id
+   :elems elems})
 
-(defn bconstants [& identifiers]
+(defn bconstants [& ids]
   {:tag :constants
-   :values identifiers})
+   :values ids})
 
-(defn bproperties [& predicates]
+(defn bproperties [& preds]
   {:tag :properties
-   :values predicates})
+   :values preds})
 
-(defn bdefinitions [& definitions]
+(defn bdefinitions [& defs]
   {:tag :definitions
-   :values definitions})
+   :values defs})
 
-(defn bvariables [& identifiers]
+(defn bvariables [& ids]
   {:tag :variables
-   :values identifiers})
+   :values ids})
 
-(defn binvariants [& predicates]
+(defn binvariants [& preds]
   {:tag :invariants
-   :values predicates})
+   :values preds})
 
-(defn bassertions [& predicates]
+(defn bassertions [& preds]
   {:tag :assertions
-   :values predicates})
+   :values preds})
 
-(defn binit [& substitutions]
+(defn binit [& subs]
   {:tag :init
-   :values substitutions})
+   :values subs})
 
-(defn boperations [& operations]
+(defn boperations [& op-defs]
   {:tag :operations
-   :values operations})
-(defn boperation [return-values name parameters body]
+   :values op-defs})
+(defn boperation [return-vals name args body]
   {:tag :operation
-   :return return-values
+   :return-vals return-vals
    :name name
-   :parameters parameters
+   :args args
    :body body})
 
 
@@ -151,79 +151,75 @@
 
 (def bskip {:tag :skip})
 
-(defn bblock [substitution]
+(defn bblock [sub]
   {:tag :block
-   :substitution substitution})
+   :sub sub})
 
-(defn bassign [& idvals]
-  (let [idvals (apply map list (partition 2 idvals))
-        identifiers (first idvals)
-        values (second idvals)]
-    {:tag         :assign
-     :identifiers identifiers
-     :values        values}))
+(defn bassign [& id-vals]
+  {:tag :assign
+   :id-vals id-vals})
 
-(defn bbecomes-element-of [identifiers set]
+(defn bbecomes-element-of [ids set]
   {:tag :becomes-element-of
-   :identifiers identifiers
+   :ids ids
    :set set})
 
-(defn bbecomes-such [identifiers predicate]
+(defn bbecomes-such [ids pred]
   {:tag :becomes-such
-   :identifiers identifiers
-   :predicate predicate})
+   :ids ids
+   :pred pred})
 
-(defn boperation-call [identifiers operation parameters]
-  {:tag :operation-call
-   :identifiers identifiers
-   :operation operation
-   :parameters parameters})
+(defn bop-call [ids op args]
+  {:tag :op-call
+   :ids ids
+   :op op
+   :args args})
 
-(defn bparallel-substitution [& substitutions]
-  (if (= 1 (count substitutions))
-    (first substitutions)
-    {:tag           :parallel-substitution
-     :substitutions substitutions}))
+(defn bparallel-sub [& subs]
+  (if (= 1 (count subs))
+    (first subs)
+    {:tag           :parallel-sub
+     :subs subs}))
 
-(defn bsequence-substitution [& substitutions]
-  (if (= 1 (count substitutions))
-    (first substitutions)
-    {:tag           :sequence-substitution
-     :substitutions substitutions}))
+(defn bsequential-sub [& subs]
+  (if (= 1 (count subs))
+    (first subs)
+    {:tag           :sequential-sub
+     :subs subs}))
 
-(defn bany [identifiers where then]
+(defn bany [ids where then]
   {:tag :any
-   :identifiers identifiers
+   :ids ids
    :where where
    :then then})
 
-(defn blet-sub [id-vals substitution]
+(defn blet-sub [id-vals sub]
   {:tag :let-sub
    :id-vals id-vals
-   :substitution substitution})
+   :sub sub})
 
-(defn bvar [identifiers substitution]
+(defn bvar [ids sub]
   {:tag :var
-   :identifiers identifiers
-   :substitution substitution})
+   :ids ids
+   :sub sub})
 
-(defn bprecondition [predicate substitution]
-  {:tag :precondition
-   :predicate predicate
-   :substitution substitution})
+(defn bprecondition [pred sub]
+  {:tag :pre
+   :pred pred
+   :sub sub})
 
-(defn bassert [predicate substitution]
+(defn bassert [pred sub]
   {:tag :assert
-   :predicate predicate
-   :substitution substitution})
+   :pred pred
+   :sub sub})
 
-(defn bchoice [& substitutions]
+(defn bchoice [& subs]
   {:tag :choice
-   :substitutions substitutions})
+   :subs subs})
 
 (defn bif-sub
-  ([predicate then] (bif {:tag :if-sub} predicate then))
-  ([predicate then else] (bif {:tag :if-sub} predicate then else)))
+  ([cond then] (bif {:tag :if-sub} cond then))
+  ([cond then else] (bif {:tag :if-sub} cond then else)))
 (defn bcond [& clauses]
     {:tag :cond
      :clauses clauses})
@@ -232,8 +228,8 @@
   {:tag :select
    :clauses clauses})
 
-(defn bop-subs [op & args]
-  {:tag :op-subs
+(defn bop-sub [op & args]
+  {:tag :op-sub
    :op op
    :args args})
 
@@ -241,7 +237,7 @@
 ;;; if
 
 (defn bif-expr
-  ([condition then else] (bif {:tag :if-expr} condition then else))) ; else is always present
+  ([cond then else] (bif {:tag :if-expr} cond then else))) ; else is always present
 
 
 ;;; let
@@ -249,7 +245,7 @@
 (defn blet [id-vals expr-or-pred]
   {:tag :let
    :id-vals id-vals
-   :expr-or-pred :expr-or-pred})
+   :expr-or-pred expr-or-pred})
 
 ;;; trees
 
@@ -269,23 +265,23 @@
   {:tag :struct
    :id-types id-types})
 
-(defn brecord [& id-values]
-  {:tag :record
-   :id-values id-values})
+(defn brec [& id-vals]
+  {:tag :rec
+   :id-vals id-vals})
 
-(defn brec-get [record identifier]
-  {:tag :rec-get
-   :record record
-   :identifier identifier})
+(defn bget [rec id]
+  {:tag :get
+   :rec rec
+   :id id})
 
 
 ;;; sequences
 
 (defn bsequence
   ([] {:tag :empty-sequence})
-  ([& args]
+  ([& elems]
    {:tag    :sequence
-    :elements args}))
+    :elems elems}))
 
 (defn bseq [set]
   {:tag :seq
@@ -307,27 +303,26 @@
   {:tag :perm
    :set set})
 
-(defn bsize [set]
+(defn bsize [seq]
   {:tag :size
-   :set set})
+   :seq seq})
 
 (defn bconcat [& seqs]
   {:tag :concat
    :seqs seqs})
 
-(defn bcons [seq & elements]
-  {:tag :insert-front
-   :seq seq
-   :elements elements})
+(defn b-> [elem seq]
+  {:tag :->
+   :elem elem
+   :seq seq})
 
-; TODO: Documentation: hinten anfügen
-(defn bconj [seq & elements]
-  {:tag :insert-tail
+(defn b<- [seq & elems]
+  {:tag :<-
    :seq seq
-   :elements elements})
+   :elems elems})
 
-(defn breverse [seq]
-  {:tag :reverse
+(defn brev [seq]
+  {:tag :rev
    :seq seq})
 
 (defn bfirst [seq]
@@ -338,11 +333,11 @@
   {:tag :last
    :seq seq})
 
-(defn bdrop-last [seq]
+(defn bfront [seq]
   {:tag :front
    :seq seq})
 
-(defn brest [seq]
+(defn btail [seq]
   {:tag :tail
    :seq seq})
 
@@ -350,56 +345,61 @@
   {:tag :conc
    :seq-of-seqs seq-of-seqs})
 
-(defn btake [n seq]
-  {:tag :restrict-front
+(defn btake [num seq]
+  {:tag :take
    :seq seq
-   :number n})
+   :num num})
 
-(defn bdrop [n seq]
-  {:tag :restrict-tail
+(defn bdrop [num seq]
+  {:tag :drop
    :seq seq
-   :number n})
+   :num num})
 
 
 ;;; functions
 
 (defn b+-> [& sets]
-  {:tag :partial-fn
+  {:tag :+->
    :sets sets})
 
 (defn b--> [& sets]
-  {:tag :total-fn
+  {:tag :-->
    :sets sets})
 
 (defn b+->> [& sets]
-  {:tag :partial-surjection
+  {:tag :+->>
    :sets sets})
 
 (defn b-->> [& sets]
-  {:tag :total-surjection
+  {:tag :-->>
    :sets sets})
 
 (defn b>+> [& sets]
-  {:tag :partial-injection
+  {:tag :>+>
    :sets sets})
 
 (defn b>-> [& sets]
-  {:tag :total-injection
+  {:tag :>->
    :sets sets})
 
 (defn b>+>> [& sets]
-  {:tag :partial-bijection
+  {:tag :>+>>
    :sets sets})
 
 (defn b>->> [& sets]
-  {:tag :total-bijection
+  {:tag :>->>
    :sets sets})
 
-(defn blambda [identifiers predicate expression]
+(defn blambda [ids pred expr]
   {:tag :lambda
-   :identifiers identifiers
-   :predicate predicate
-   :expression expression})
+   :ids ids
+   :pred pred
+   :expr expr})
+; sugar
+(defn bfn [id-types expr]
+  {:tag :fn
+   :id-types id-types
+   :expr expr})
 
 (defn bapply [f & args]
   {:tag :apply
@@ -410,81 +410,82 @@
 ;;; relations
 
 (defn b<-> [& sets]
-  {:tag :relation
+  {:tag :<->
    :sets sets})
 
-(defn btotal-relation [& sets]
-  {:tag :total-relation
+(defn b<<-> [& sets]
+  {:tag :<<->
    :sets sets})
 
-(defn bsurjective-relation [& sets]
-  {:tag :surjective-relation
+(defn b<->> [& sets]
+  {:tag :<->>
    :sets sets})
 
-(defn btotal-surjective-relation [& sets]
-  {:tag :total-surjective-relation
+(defn b<<->> [& sets]
+  {:tag :<<->>
    :sets sets})
 
-(defn bcouple [& elements]
+(defn bcouple [left right]
   {:tag :couple
-   :elements elements})
+   :left left
+   :right right})
 
-(defn bdom [relation]
-  {:tag :domain
-   :relation relation})
+(defn bdom [rel]
+  {:tag :dom
+   :rel rel})
 
-(defn bran [relation]
-  {:tag :range
-   :relation relation})
+(defn bran [rel]
+  {:tag :ran
+   :rel rel})
 
 (defn bid [set]
-  {:tag :identity-relation
+  {:tag :id
    :set set})
 
-(defn b<| [set relation]
+(defn b<| [set rel]
   {:tag :domain-restriction
    :set set
-   :relation relation})
+   :rel rel})
 
-(defn b<<| [set relation]
+(defn b<<| [set rel]
   {:tag :domain-subtraction
    :set set
-   :relation relation})
+   :rel rel})
 
-(defn b|> [relation set]
+(defn b|> [rel set]
   {:tag :range-restriction
-   :relation relation
+   :rel rel
    :set set})
 
-(defn b|>> [relation set]
+(defn b|>> [rel set]
   {:tag :range-subtraction
-   :relation relation
+   :rel rel
    :set set})
 
-(defn binverse [relation]
-  {:tag :inverse-relation
-   :relation relation})
+(defn binverse [rel]
+  {:tag :inverse
+   :rel rel})
 
-(defn bimage [relation set]
-  {:tag :relational-image
-   :relation relation
+(defn bimage [rel set]
+  {:tag :image
+   :rel rel
    :set set})
 
-(defn b<+ [& relations]
-  {:tag :relational-override
-   :relations relations})
+(defn b<+ [& rels]
+  {:tag :<+
+   :rels rels})
 
-(defn b>< [& relations]
-  {:tag :direct-product
-   :relations relations})
+(defn b>< [& rels]
+  {:tag :><
+   :rels rels})
 
-(defn bcomp [& relations]
-  {:tag :relational-composition
-   :relations relations})
+(defn bcomp [& rels]
+  {:tag :comp
+   :rels rels})
 
-(defn b|| [& relations]
+(defn b|| [& rels]
   {:tag :parallel-product
-   :relations relations})
+   :rels rels})
 
 (defn bprj1 [set1 set2]
   {:tag :prj1
@@ -496,26 +497,26 @@
    :set1 set1
    :set2 set2})
 
-(defn bclosure1 [relation]
+(defn bclosure1 [rel]
   {:tag :closure1
-   :relation relation})
+   :rel rel})
 
-(defn bclosure [relation]
+(defn bclosure [rel]
   {:tag :closure
-   :relation relation})
+   :rel rel})
 
-(defn biterate [relation number]
+(defn biterate [rel num]
   {:tag :iterate
-   :relation relation
-   :number number})
+   :rel rel
+   :num num})
 
-(defn bfnc [relation]
-  {:tag :functionise
-   :relation relation})
+(defn bfnc [rel]
+  {:tag :fnc
+   :rel rel})
 
-(defn brel [relation]
-  {:tag :relationise
-   :relation relation})
+(defn brel [rel]
+  {:tag :rel
+   :rel rel})
 
 
 ;;; numbers
@@ -538,11 +539,10 @@
    :to to})
 
 (defn brange [from to]
-  (let [partial-binterval (partial binterval from)]
-    (cond
-      (number? to) (partial-binterval (dec to))
-      (= :succ (:tag to)) (partial-binterval (:number to))
-      :else (partial-binterval (bdec to)))))
+  (cond
+    (number? to) (binterval from (dec to))
+    (= :succ (:tag to)) (binterval from (:number to))
+    :else (binterval from (bpred to))))
 
 (def bmin-int
   {:tag :min-int})
@@ -554,88 +554,88 @@
   ([set]
    {:tag :max, :set set})
   ; adds enumeration to max
-  ([el & r]
-   (let [args (conj (set r) el)]
-     (bmax args))))
+  ([num & nums]
+   (let [nums (into #{num} nums)]
+     (bmax nums))))
 
 (defn bmin
   ([set]
    {:tag :min, :set set})
   ; adds enumeration to min
-  ([el & r]
-   (let [args (conj (set r) el)]
-     (bmin args))))
+  ([num & nums]
+   (let [nums (into #{num} nums)]
+     (bmin nums))))
 
-(defn b+ [& numbers]
-  {:tag :plus
-   :numbers numbers})
+(defn b+ [& nums]
+  {:tag :+
+   :nums nums})
 
-(defn b- [& numbers]
-  (if (= 1 (count numbers))
-    {:tag :unary-minus, :number (first numbers)}
-    {:tag :minus, :numbers numbers}))
+(defn b- [& nums]
+  (if (= 1 (count nums))
+    {:tag :unary-minus, :num (first nums)}
+    {:tag :-, :nums nums}))
 
-(defn b* [& numbers]
-  {:tag :mult-or-cart
-   :numbers numbers})
+(defn b* [& nums]
+  {:tag :*
+   :nums nums})
 
-(defn bdiv [& numbers]
+(defn bdiv [& nums]
   {:tag :div
-   :numbers numbers})
+   :nums nums})
 
-(defn b** [& numbers]
-  {:tag :pow
-   :numbers numbers})
+(defn b** [& nums]
+  {:tag :**
+   :nums nums})
 
-(defn bmod [& numbers]
+(defn bmod [& nums]
   {:tag :mod
-   :numbers numbers})
+   :nums nums})
 
-(defn bpi [identifiers predicate expression]
+(defn bpi [ids pred expr]
   {:tag :pi
-   :identifiers identifiers
-   :predicate predicate
-   :expression expression})
+   :ids ids
+   :pred pred
+   :expr expr})
 
-(defn bsigma [identifiers predicate expression]
+(defn bsigma [ids pred expr]
   {:tag :sigma
-   :identifiers identifiers
-   :predicate predicate
-   :expression expression})
+   :ids ids
+   :pred pred
+   :expr expr})
 
-(defn binc [n]
-  {:tag :inc
-   :number n})
+(defn bsucc [num]
+  {:tag :succ
+   :num num})
 
-(defn bdec [n]
-  {:tag :dec
-   :number n})
+(defn bpred [num]
+  {:tag :pred
+   :num num})
 
 ; number predicates
 
-(defn b< [& numbers]
-  {:tag :less
-   :numbers numbers})
+(defn b< [& nums]
+  {:tag :<
+   :nums nums})
 
-(defn b> [& numbers]
-  {:tag :greater
-   :numbers numbers})
+(defn b> [& nums]
+  {:tag :>
+   :nums nums})
 
-(defn b<= [& numbers]
-  {:tag :less-eq
-   :numbers numbers})
+(defn b<= [& nums]
+  {:tag :<=
+   :nums nums})
 
-(defn b>= [& numbers]
-  {:tag :greater-eq
-   :numbers numbers})
+(defn b>= [& nums]
+  {:tag :>=
+   :nums nums})
 
 
 ;;; sets
 
-(defn bcomp-set [identifiers predicate]
+(defn bcomp-set [ids pred]
   {:tag :comp-set
-   :identifiers identifiers
-   :predicate predicate})
+   :ids ids
+   :pred pred})
 
 (defn bpow [set]
   {:tag :power-set
@@ -653,7 +653,7 @@
   {:tag :fin1
    :set set})
 
-(defn bcount [set]
+(defn bcard [set]
   {:tag :card
    :set set})
 
@@ -669,23 +669,23 @@
   {:tag :difference
    :sets sets})
 
-(defn bmember? [element set]
-  {:tag :member
-   :element element
+(defn bmember? [elem set]
+  {:tag :member?
+   :elem elem
    :set set})
 
 ; TODO: (bcontains-all? set & elements)
-(defn bcontains? [set element]
- (bmember? element set))
+(defn bcontains? [set elem]
+ (bmember? elem set))
 
 (defn bsubset? [subset set]
-  {:tag :subset
+  {:tag :subset?
    :subset subset
    :set set})
 
-(defn bsubset-strict? [subset-strict set]
-  {:tag :subset-strict
-   :subset-strict subset-strict
+(defn bstrict-subset? [strict-subset set]
+  {:tag :strict-subset?
+   :strict-subset strict-subset
    :set set})
 
 ; adds superset to lisb
@@ -693,8 +693,8 @@
   (bsubset? set superset))
 
 ; adds superset-strict to lisb
-(defn bsuperset-strict? [superset-strict set]
-  (bsubset-strict? set superset-strict))
+(defn bstrict-superset? [strict-superset set]
+  (bstrict-subset? set strict-superset))
 
 (defn bunite-sets [set-of-sets]
   {:tag :general-union
@@ -704,85 +704,88 @@
   {:tag :general-intersection
    :set-of-sets set-of-sets})
 
-(defn bunion-pe [identifiers predicate expression]
+(defn bunion-pe [ids pred expr]
   {:tag :union-pe
-   :identifiers identifiers
-   :predicate predicate
-   :expression expression})
+   :ids ids
+   :pred pred
+   :expr expr})
 
-(defn bintersection-pe [identifiers predicate expression]
+(defn bintersection-pe [ids pred expr]
   {:tag :intersection-pe
-   :identifiers identifiers
-   :predicate predicate
-   :expression expression})
+   :ids ids
+   :pred pred
+   :expr expr})
 
 
 ;;; booleans
 
 (def bbool-set {:tag :bool-set})
 
-(defn bpred->bool [predicate]
+(defn bpred->bool [pred]
   {:tag :pred->bool
-   :predicate predicate})
+   :pred pred})
 
 
 ;;; equality predicates
 
 (defn b= [left right]
-  {:tag :equal
+  {:tag :=
    :left left
    :right right})
 
 (defn bnot= [left right]
-  {:tag :not-equal
+  {:tag :not=
    :left left
    :right right})
 ; syntactic sugar
-(defn bdistinct? [& elements]
-  {:tag :distinct
-   :elements elements})
+(defn bdistinct? [& elems]
+  {:tag :distinct?
+   :elements elems})
 
 
 ;;; logical predicates
 
-(defn band [& predicates]
-  (if (= 1 (count predicates))
-    (first predicates)
+(defn band [& preds]
+  (if (= 1 (count preds))
+    (first preds)
     {:tag :and
-     :predicates predicates}))
+     :preds preds}))
 
-(defn bor [& predicates]
-  (if (= 1 (count predicates))
-                          (first predicates)
-                          {:tag :or
-                           :predicates predicates}))
+(defn bor [& preds]
+  (if (= 1 (count preds))
+    (first preds)
+    {:tag :or
+     :preds preds}))
 
-(defn b=> [& predicates]
-  {:tag :implication
-   :predicates predicates})
+(defn b=> [& preds]
+  {:tag :=>
+   :preds preds})
 
-(defn b<=> [& predicates]
-  {:tag :equivalence
-   :predicates predicates})
+(defn b<=> [& preds]
+  {:tag :<=>
+   :preds preds})
 
-(defn bnot [predicate]
+(defn bnot [pred]
   {:tag :not
-   :predicate predicate})
+   :pred pred})
 
 (defn bfor-all
-  ([identifiers implication]
-   {:tag         :for-all
-    :identifiers identifiers
-    :implication implication})
-  ;syntactic sugar
-  ([identifiers implication-left implication-right]
-   (bfor-all identifiers (b=> implication-left implication-right))))
+  ([ids =>-left =>-right]
+   {:tag      :bfor-all
+    :ids      ids
+    :=>-left  =>-left
+    :=>-right =>-right})
+  ; syntactic sugar for most cases
+  ([id-types pred]
+   {:tag :for-all
+    :id-types id-types
+    :pred pred})
+  )
 
-
-(defn bexists [identifiers predicate]
+(defn bexists [ids pred]
   {:tag :exists
-   :identifiers identifiers
-   :predicate predicate})
+   :ids ids
+   :pred pred})
 
 
 ;;; misc
@@ -832,9 +835,10 @@
          ~'assign bassign
          ~'becomes-element-of bbecomes-element-of
          ~'becomes-such bbecomes-such
-         ~'operation-call boperation-call
-         ~'parallel-substitution bparallel-substitution
-         ~'sequence-substitution bsequence-substitution
+         ~'op-call bop-call
+         ~'parallel-sub bparallel-sub
+         ~'|| bparallel-sub                                 ; sugar
+         ~'sequential-sub bsequential-sub
          ~'any bany
          ~'let-sub blet-sub
          ~'var-sub bvar
@@ -844,7 +848,7 @@
          ~'if-sub bif-sub
          ~'cond bcond
          ~'select bselect
-         ~'op-subs bop-subs
+         ~'op-sub bop-sub
          ;~'case bcase
 
          ; if
@@ -862,8 +866,8 @@
 
          ; records
          ~'struct bstruct
-         ~'record brecord
-         ~'rec-get brec-get
+         ~'rec brec
+         ~'get bget
 
          ; sequences
          ~'sequence bsequence
@@ -872,17 +876,17 @@
          ~'iseq biseq
          ~'iseq1 biseq1
          ~'perm bperm
-         ~'count-seq bsize
+         ~'size bsize
          ~'concat bconcat
-         ~'cons bcons
-         ~'conj bconj
-         ~'prepend bcons
-         ~'append bconj
-         ~'reverse breverse
+         ~'-> b->
+         ~'<- b<-
+         ~'rev brev
          ~'first bfirst
          ~'last blast
-         ~'drop-last bdrop-last
-         ~'rest brest
+         ~'front bfront
+         ~'drop-last bfront                                 ; clojure
+         ~'tail btail
+         ~'rest btail                                       ; clojure
          ~'conc bconc
          ~'take btake
          ~'drop bdrop
@@ -908,17 +912,18 @@
          ~'total-bijection b>->>
 
          ~'lambda blambda
+         ~'fn bfn  ; sugar
          ~'apply bapply
 
          ; relations
          ~'<-> b<->
-         ~'total-relation btotal-relation
-         ~'surjective-relation bsurjective-relation
-         ~'total-surjective-relation btotal-surjective-relation
+         ~'<<-> b<<->
+         ~'<->> b<->>
+         ~'<<->> b<<->>
          ~'couple bcouple
          ~'dom bdom
          ~'ran bran
-         ~'identity bid
+         ~'id bid
          ~'<| b<|
          ~'<<| b<<|
          ~'|> b|>
@@ -962,8 +967,10 @@
          ~'mod bmod
          ~'sigma bsigma
          ~'pi bpi
-         ~'inc binc
-         ~'dec bdec
+         ~'succ bsucc
+         ~'inc bsucc                                        ; clojure
+         ~'pred bpred
+         ~'dec bpred                                        ; clojure
 
          ;;; sets
          ~'comp-set bcomp-set
@@ -971,7 +978,7 @@
          ~'pow1 bpow1
          ~'fin bfin
          ~'fin1 bfin1
-         ~'count bcount
+         ~'card bcard
          ~'union bunion
          ~'intersection bintersection
          ~'difference bdifference
@@ -979,12 +986,12 @@
          ~'intersect-sets bintersect-sets
          ~'union-pe bunion-pe
          ~'intersection-pe bintersection-pe
-         ~'contains? bcontains?
          ~'member? bmember?
+         ~'contains? bcontains?                             ; clojure
          ~'subset? bsubset?
-         ~'subset-strict? bsubset-strict?
-         ~'superset? bsuperset?
-         ~'superset-strict? bsuperset-strict?
+         ~'strict-subset? bstrict-subset?
+         ~'superset? bsuperset?                             ; sugar
+         ~'strict-superset? bstrict-superset?               ; sugar
 
          ;;; booleans
          ~'bool-set bbool-set
@@ -1007,7 +1014,8 @@
      ~lisb
     ))
 
-(defn lisb->ir [lisb] (eval `(b ~lisb)))
+(defn lisb->ir [lisb]
+  (eval `(b ~lisb)))
 
 
 (def bempty-machine (bmachine :Empty))

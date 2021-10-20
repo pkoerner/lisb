@@ -9,7 +9,7 @@
     (subset? :female :PERSON)
     (= (intersection :male :female) #{}))
   (init
-    (parallel-substitution
+    (parallel-sub
       (assign :male #{})
       (assign :female #{})))
   (operations
