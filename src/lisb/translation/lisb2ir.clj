@@ -225,6 +225,11 @@
   {:tag :select
    :clauses clauses})
 
+(defn bcase [expr & clauses]
+  {:tag :case
+   :expr expr
+   :clauses clauses})
+
 (defn bop-sub [op & args]
   {:tag :op-sub
    :op op
@@ -744,6 +749,7 @@
 
 ;;; logical predicates
 
+; TODO: Überprüfung mit precondition map oder mit spec
 (defn band [& preds]
   (if (= 1 (count preds))
     (first preds)
@@ -781,7 +787,6 @@
    :ids ids
    :pred pred})
 
-
 ;;; misc
 
 (defn bset-enum [& elements]
@@ -790,6 +795,10 @@
 
 (defn bmap-set [p s]
   (bran (blambda [:x] (bmember? :x s) (p :x))))
+
+; | -> comp-set
+; 3-stellig
+; keyword or vector -> identifier[s]
 
 
 (defmacro b [lisb]
@@ -844,8 +853,8 @@
          ~'if-sub bif-sub
          ~'cond bcond
          ~'select bselect
+         ~'case bcase
          ~'op-sub bop-sub
-         ;~'case bcase
 
          ; if
          ~'if-expr bif-expr

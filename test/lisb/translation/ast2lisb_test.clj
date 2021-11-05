@@ -93,10 +93,11 @@
                   '(cond (= 1 2) skip (= 1 3) skip skip) "IF 1=2 THEN skip ELSIF 1=3 THEN skip ELSE skip END"
                   '(select (= 1 2) skip) "SELECT 1=2 THEN skip END"
                   '(select (= 1 2) skip (assign :x 1)) "SELECT 1=2 THEN skip ELSE x:= 1 END"
-                  ;"SELECT 1=1 THEN skip WHEN 2=2 THEN skip END"
-                  ;"SELECT 1=1 THEN G WHEN Q THEN H ELSE I END"
-                  ;"CASE E OF EITHER m THEN G OR n THEN H END END"
-                  ;"CASE E OF EITHER m THEN G OR n THEN H ELSE I END END"
+                  '(select (= 1 1) skip (= 2 2) skip) "SELECT 1=1 THEN skip WHEN 2=2 THEN skip END"
+                  '(select (= 1 1) skip (= 2 2) skip skip) "SELECT 1=1 THEN skip WHEN 2=2 THEN skip ELSE skip END"
+                  '(case (+ 1 1) 1 skip 2 skip) "CASE 1+1 OF EITHER 1 THEN skip OR 2 THEN skip END END"
+                  '(case (+ 1 1) 1 skip 2 skip skip) "CASE 1+1 OF EITHER 1 THEN skip OR 2 THEN skip ELSE skip END END"
+                  '(case (+ 1 1) [1 2] skip [3 4] skip skip) "CASE 1+1 OF EITHER (1,2) THEN skip OR (3,4) THEN skip ELSE skip END END"
                   )))
 
 

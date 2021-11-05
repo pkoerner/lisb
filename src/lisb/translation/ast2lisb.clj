@@ -176,7 +176,7 @@
              ASelectSubstitution
              ASelectWhenSubstitution
              AOperation
-             AMachineClauseParseUnit AUsesMachineClause AExtendsMachineClause AMachineReference AIncludesMachineClause APromotesMachineClause AOpSubstitution ARefinementMachineParseUnit AImplementationMachineParseUnit AModelMachineVariant ASystemMachineVariant ASeesMachineClause)
+             AMachineClauseParseUnit AUsesMachineClause AExtendsMachineClause AMachineReference AIncludesMachineClause APromotesMachineClause AOpSubstitution ARefinementMachineParseUnit AImplementationMachineParseUnit AModelMachineVariant ASystemMachineVariant ASeesMachineClause ACaseSubstitution ACaseOrSubstitution)
            (java.util LinkedList)))
 
 (declare ast->lisb read-bmachine)
@@ -421,6 +421,22 @@
       (concat (list 'select condition then) else-ifs))))
 (defmethod ast->lisb ASelectWhenSubstitution [node]
   [(ast->lisb (.getCondition node)) (ast->lisb (.getSubstitution node))])
+
+(defn return-element-if-only-one [v]
+  (if (= 1 (count v))
+    (nth v 0)
+    v))
+(defmethod ast->lisb ACaseSubstitution [node]
+  (let [expr (ast->lisb (.getExpression node))
+        either-exprs (return-element-if-only-one (mapv ast->lisb (.getEitherExpr node)))
+        either-sub (ast->lisb (.getEitherSubst node))
+        or-sub (mapcat identity (ast->lisb (.getOrSubstitutions node)))
+        else (ast->lisb (.getElse node))]
+    (if else
+      (concat (list 'case expr either-exprs either-sub) or-sub [else])
+      (concat (list 'case expr either-exprs either-sub) or-sub))))
+(defmethod ast->lisb ACaseOrSubstitution [node]
+  [(return-element-if-only-one (map ast->lisb (.getExpressions node))) (ast->lisb (.getSubstitution node))])
 
 (defmethod ast->lisb AOpSubstitution [node]
   (concat-last 'op-sub (.getName node) (.getParameters node))

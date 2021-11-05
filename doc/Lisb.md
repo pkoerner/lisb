@@ -238,11 +238,9 @@
 | `IF P1 THEN G1 ELSIF P2 THEN G2 ... END`                   | `(cond-sub cond1 then1 cond2 then2 ...)`      | `{:tag :cond-sub, :clauses clauses}`                    |                                        |
 | `IF P1 THEN G1 ESLIF P2 THEN G2 ... ELSE Gn END`           | `(cond-sub cond1 then1 cond2 then2 ... else)` | `{:tag :cond-sub, :clauses clauses}`                    |                                        |
 | `SELECT P THEN G WHEN ... WHEN Q THEN H END`               | `(select cond1 then1 cond2 then2 ...)`        | `{:tag :select, :clauses clauses}`                      |                                        |
-| `SELECT P THEN G WHEN ... WHEN Q THEN H ELSE I END`        | `(select cond1 then1 cond 2 then2 ... else)`  | `{:tag :select, :clauses clauses}`                      |                                         |
-| `CASE E OF EITHER m THEN G OR n THEN H ... END END`        |                                               |                                                         |                                        | <!-- TODO -->
-| `CASE E OF EITHER m THEN G OR n THEN H ... ELSE I END END` |                                               |                                                         |                                        | <!-- TODO -->
-|                                                            |                                               |                                                         |                                        | 
-| `WHEN P THEN G END  is a synonym for SELECT P THEN G END`  |                                               |                                                         |                                        | <!-- TODO -->
+| `SELECT P THEN G WHEN ... WHEN Q THEN H ELSE I END`        | `(select cond1 then1 cond 2 then2 ... else)`  | `{:tag :select, :clauses clauses}`                      |                                        |
+| `CASE E OF EITHER m THEN G OR n THEN H ... END END`        |                                               |                                                         |                                        |
+| `CASE E OF EITHER m THEN G OR n THEN H ... ELSE I END END` |                                               |                                                         |                                        |
 
 ##Machine clauses
 ###Machine inclusion
