@@ -439,7 +439,7 @@
         [or-subs else] (process-clauses case-or-sub (drop 2 clauses))]
     (ACaseSubstitution. expr either-expr either-sub or-subs else)))
 
-(defmethod ir-node->ast-node :op-subs [ir-node]
+(defmethod ir-node->ast-node :op-sub [ir-node]
   (AOpSubstitution. (ir->ast-node (:op ir-node)) (map ir->ast-node (:args ir-node))))
 
 
