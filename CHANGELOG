@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ### Added
   - Added work in progress lisb api doc
   - Added machine-headers refinement, implementation, model and system.
-  - Added translation of USES, EXTENDS, INCLUDES, SEES, PROMOTES and operation substitutions.
+  - Added translation of USES, EXTENDS, INCLUDES, SEES, PROMOTES substitutions.
+  - Added translation of case and operation substitution
   - Added parameter support to machine-name.
   - Added multiple arguments for constraints, properties, invariants and init.
       Arguments for constraints, properties and invariants are chained via AConjunctPredicate.
