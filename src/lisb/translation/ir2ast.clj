@@ -266,6 +266,10 @@
 (defn id-types->assignment [id-types]
   (ir->ast-node (apply band (map #(apply bmember? %) (partition 2 id-types)))))
 
+(defn process-clauses [f clauses]
+  (if (even? (count clauses))
+    [(map f (partition 2 clauses)) nil]
+    [(map f (partition 2 (drop-last clauses))) (last clauses)]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -408,26 +412,18 @@
 (defmethod ir-node->ast-node :cond [ir-node]
   (let [clauses (map ir->ast-node (:clauses ir-node))
         condition (first clauses)
-        then (second clauses)]
-        (if (even? (count clauses))
-          (let [else-ifs (map if-else-sub (partition 2 (drop 2 clauses)))]
-            (AIfSubstitution. condition then else-ifs nil))
-          (let [else (last clauses)
-                else-ifs (map if-else-sub (partition 2 (drop-last 1 (drop 2 clauses))))]
-            (AIfSubstitution. condition then else-ifs else)))))
+        then (second clauses)
+        [else-ifs else] (process-clauses if-else-sub (drop 2 clauses))]
+    (AIfSubstitution. condition then else-ifs else)))
 
 (defn select-when-sub [[condition then]]
   (ASelectWhenSubstitution. condition then))
 (defmethod ir-node->ast-node :select [ir-node]
   (let [clauses (map ir->ast-node (:clauses ir-node))
         condition (first clauses)
-        then (second clauses)]
-    (if (even? (count clauses))
-      (let [else-ifs (map select-when-sub (partition 2 (drop 2 clauses)))]
-        (ASelectSubstitution. condition then else-ifs nil))
-      (let [else (last clauses)
-            else-ifs (map select-when-sub (partition 2 (drop-last 1 (drop 2 clauses))))]
-        (ASelectSubstitution. condition then else-ifs else)))))
+        then (second clauses)
+        [else-ifs else] (process-clauses select-when-sub (drop 2 clauses))]
+    (ASelectSubstitution. condition then else-ifs else)))
 
 (defn to-vec [v]
   (if (vector? v)
@@ -435,16 +431,12 @@
     [v]))
 (defn case-or-sub [[case then]]
   (ACaseOrSubstitution. (to-vec case) then))
-(defn get-or-subs-and-else [cases]
-  (if (even? (count cases))
-    [(map case-or-sub (partition 2 cases)) nil]
-    [(map case-or-sub (partition 2 (drop-last cases))) (last cases)]))
 (defmethod ir-node->ast-node :case [ir-node]
   (let [expr (ir-node-expr->ast ir-node)
         clauses (map ir->ast-node (:clauses ir-node))
         either-expr (to-vec (first clauses))
         either-sub (second clauses)
-        [or-subs else] (get-or-subs-and-else (drop 2 clauses))]
+        [or-subs else] (process-clauses case-or-sub (drop 2 clauses))]
     (ACaseSubstitution. expr either-expr either-sub or-subs else)))
 
 (defmethod ir-node->ast-node :op-subs [ir-node]
