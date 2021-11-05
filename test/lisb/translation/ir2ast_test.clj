@@ -88,7 +88,7 @@
                 "skip" (b skip)
                 "x := E" (b (assign :x :E))
                 "x,y := E,F" (b (assign :x :E :y :F))
-                  ;"f(x) := E"
+                "f(x) := E" (b (assign (fn-call :f :x) :E))
                 "x::S" (b (becomes-element-of [:x] :S))
                 "x :(x>0) " (b (becomes-such [:x] (> :x 0)))
                 "x<--OP(y)" (b (op-call [:x] :OP [:y]))

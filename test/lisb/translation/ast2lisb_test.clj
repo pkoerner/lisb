@@ -73,7 +73,7 @@
     (are [lisb b] (= lisb (b-substitution->lisb b))
                   'skip "skip"
                   '(assign :x :E) "x := E"
-                  ; "f(x) := E"
+                  '(assign (fn-call :f :x) :E) "f(x) := E"
                   '(becomes-element-of (:x) :S) "x :: S"
                   '(becomes-such (:x) (> :x 0))  "x : (x>0)"
                   '(operation-call (:x) :OP (:y)) "x <-- OP(y)"
