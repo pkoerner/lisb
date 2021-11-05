@@ -4,7 +4,7 @@
 
 (defpred subset-sum-p [coins target sol]
   (and (member? sol (--> coins natural-set))
-       (= target (sigma [:x] (member? :x coins) (* (apply sol :x) :x)))))
+       (= target (sigma [:x] (member? :x coins) (* (fn-call sol :x) :x)))))
 
 (defn subset-sum
   ([coins target]

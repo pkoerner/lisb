@@ -467,13 +467,13 @@
   (concat (list 'struct) (mapcat ast->lisb (.getEntries node))))
 
 (defmethod ast->lisb ARecExpression [node]
-  (concat (list 'rec) (mapcat ast->lisb (.getEntries node))))
+  (concat (list 'record) (mapcat ast->lisb (.getEntries node))))
 
 (defmethod ast->lisb ARecEntry [node]
   [(ast->lisb (.getIdentifier node)) (ast->lisb (.getValue node))])
 
 (defmethod ast->lisb ARecordFieldExpression [node]
-  (lisbify 'get (.getRecord node) (.getIdentifier node)))
+  (lisbify 'record-get (.getRecord node) (.getIdentifier node)))
 
 
 ;;; sequences
@@ -501,7 +501,7 @@
 (defmethod ast->lisb AInsertTailExpression [node]
   (multi-arity '<- node))
 (defmethod ast->lisb ARevExpression [node]
-  (expression 'rev node))
+  (expression 'reverse node))
 (defmethod ast->lisb AFirstExpression [node]
   (expression 'first node))
 (defmethod ast->lisb ALastExpression [node]
@@ -542,9 +542,9 @@
   (let [f (.getIdentifier node)
         params (.getParameters node)]
     (cond
-      (= (class f) ASuccessorExpression) (concat-last 'succ params)
-      (= (class f) APredecessorExpression) (concat-last 'pred params)
-      :else (concat-last 'apply f params))))
+      (= (class f) ASuccessorExpression) (concat-last 'inc params)
+      (= (class f) APredecessorExpression) (concat-last 'dec params)
+      :else (concat-last 'fn-call f params))))
 
 
 ;;; relations
@@ -582,9 +582,9 @@
 (defmethod ast->lisb ADirectProductExpression [node]
   (multi-arity '>< node))
 (defmethod ast->lisb ACompositionExpression [node]
-  (multi-arity 'comp node))
+  (multi-arity 'composition node))
 (defmethod ast->lisb AParallelProductExpression [node]
-  (multi-arity '|| node))
+  (multi-arity 'parallel-product node))
 (defmethod ast->lisb AFirstProjectionExpression [node]
   (list 'prj1 (ast->lisb (.getExp1 node)) (ast->lisb (.getExp2 node))))
 (defmethod ast->lisb ASecondProjectionExpression [node]
@@ -647,9 +647,9 @@
 (defmethod ast->lisb AModuloExpression [node]
   (multi-arity 'mod node))
 (defmethod ast->lisb AGeneralProductExpression [node]
-  (lisbify 'pi (.getIdentifiers node) (.getPredicates node) (.getExpression node)))  ; (.getPredicates node) returns ONE Predicate and no list!
+  (lisbify 'π (.getIdentifiers node) (.getPredicates node) (.getExpression node)))  ; (.getPredicates node) returns ONE Predicate and no list!
 (defmethod ast->lisb AGeneralSumExpression [node]
-  (lisbify 'sigma (.getIdentifiers node) (.getPredicates node) (.getExpression node)))  ; (.getPredicates node) returns ONE Predicate and no list!
+  (lisbify 'Σ (.getIdentifiers node) (.getPredicates node) (.getExpression node)))  ; (.getPredicates node) returns ONE Predicate and no list!
 ; ASuccessorExpression - processed in AFunctionExpression
 ; APredecessorExpression - processed in AFunctionExpression
 
@@ -663,7 +663,7 @@
   (into #{} (map ast->lisb (.getExpressions node))))
 
 (defmethod ast->lisb AComprehensionSetExpression [node]
- (lisbify 'comp-set (.getIdentifiers node) (.getPredicates node)))  ; .getPredicates returns ONE predicate)
+ (lisbify 'comprehension-set (.getIdentifiers node) (.getPredicates node)))  ; .getPredicates returns ONE predicate)
 
 (defmethod ast->lisb APowSubsetExpression [node]
   (expression 'pow node))
@@ -687,13 +687,13 @@
   (multi-arity 'intersection node))
 
 (defmethod ast->lisb ASetSubtractionExpression [node]
-  (multi-arity 'difference node))
+  (multi-arity 'set- node))
 
 (defmethod ast->lisb AMemberPredicate [node]
-  (lisbify 'contains? (.getRight node) (.getLeft node)))
+  (lisbify 'member? (.getLeft node) (.getRight node)))
 
 (defmethod ast->lisb ANotMemberPredicate [node]
-  (list 'not (lisbify 'contains? (.getRight node) (.getLeft node))))
+  (list 'not (lisbify 'member? (.getLeft node) (.getRight node))))
 
 (defmethod ast->lisb ASubsetPredicate [node]
   (left-right 'subset? node))
@@ -761,10 +761,10 @@
   (lisbify 'not (.getPredicate node)))
 
 (defmethod ast->lisb AForallPredicate [node]
-  (let [=> (.getImplication node)
-        =>-left (.getLeft =>)
-        =>-right (.getRight =>)]
-    (lisbify 'for-all (.getIdentifiers node) =>-left =>-right)))
+  (let [implication (.getImplication node)
+        premise (.getLeft implication)
+        conclusion (.getRight implication)]
+    (lisbify 'for-all (.getIdentifiers node) premise conclusion)))
 
 (defmethod ast->lisb AExistsPredicate [node]
   (lisbify 'exists (.getIdentifiers node) (.getPredicate node)))

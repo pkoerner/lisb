@@ -1,21 +1,27 @@
 (machine
   [:GenericTimersMC :TIMERS]
   (variables :curDeadlines)
-  (invariants (contains? (+-> :TIMERS natural-set) :curDeadlines))
+  (invariants
+    (member? :curDeadlines (+-> :TIMERS natural-set)))
   (init (assign :curDeadlines #{}))
   (operations
     (operation [] :AbsoluteSetDeadline [:timer :deadline]
-      (pre (and (contains? :TIMERS :timer) (contains? natural-set :deadline))
-        (assign (apply :curDeadlines :timer) :deadline)))
+      (pre (and (member? :timer :TIMERS) (member? :deadline natural-set))
+        (assign (fn-call :curDeadlines :timer) :deadline)))
     (operation [] :AddDeadline [:timer :deadline]
-      (pre (and (contains? :TIMERS :timer) (contains? natural-set :deadline))
-        (assign (apply :curDeadlines :timer) :deadline)))
+      (pre (and (member? :timer :TIMERS) (member? :deadline natural-set))
+        (assign (fn-call :curDeadlines :timer) :deadline)))
     (operation [] :TimeoutDeadline [:timer :deadline]
-      (pre (and (contains? :TIMERS :timer) (contains? natural-set :deadline))
-        (assign :curDeadlines (difference :curDeadlines #{[:timer :deadline]}))))
+      (pre (and (member? :timer :TIMERS) (member? :deadline natural-set))
+        (assign :curDeadlines (set- :curDeadlines #{[:timer :deadline]}))))
     (operation [] :IncreaseTime [:delta]
-      (select (and (contains? natural-set :delta) (=> (not= :curDeadlines #{}) (<= :delta (min (ran :curDeadlines)))))
-        (assign :curDeadlines (lambda [:x] (contains? (dom :curDeadlines) :x) (- (apply :curDeadlines :x) :delta)))))
+      (select (and (member? :delta natural-set) (=> (not= :curDeadlines #{}) (<= :delta (min (ran :curDeadlines)))))
+        (assign :curDeadlines (lambda [:x] (member? :x (dom :curDeadlines)) (- (fn-call :curDeadlines :x) :delta)))))
     (operation [] :IncreaseTimeUntilDeadline [:timer :delta]
-      (select (and (contains? natural-set :delta) (contains? (dom :curDeadlines) :timer) (= :delta (min (ran :curDeadlines))) (= :delta (apply :curDeadlines :timer)))
-        (assign :curDeadlines (lambda [:x] (contains? (difference (dom :curDeadlines) #{:timer}) :x) (- (apply :curDeadlines :x) :delta)))))))
+      (select (and
+                (member? :delta natural-set)
+                (member? :timer (dom :curDeadlines))
+                (= :delta (min (ran :curDeadlines)))
+                (= :delta (fn-call :curDeadlines :timer)))
+        (assign :curDeadlines
+          (lambda [:x] (member? :x (set- (dom :curDeadlines) #{:timer})) (- (fn-call :curDeadlines :x) :delta)))))))

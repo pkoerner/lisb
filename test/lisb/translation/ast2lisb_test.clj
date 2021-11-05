@@ -123,7 +123,7 @@
                   "astring" "'''astring'''"
                   'string-set "STRING"
                   '(size "s") "size('''s''')"
-                  '(rev "s") "rev('''s''')"
+                  '(reverse "s") "rev('''s''')"
                   '(concat "s" "t") "'''s'''^'''t'''"
                   '(conc (sequence "s" "t")) "conc(['''s''', '''t'''])")))
 
@@ -133,9 +133,9 @@
     (are [lisb b] (= lisb (b-expression->lisb b))
                   '(struct :n nat-set) "struct(n:NAT)"
                   '(struct :n nat-set, :b bool-set) "struct(n:NAT,b:BOOL)"
-                  '(rec :n 1) "rec(n:1)"
-                  '(rec :n 1, :b true) "rec(n:1,b:TRUE)"
-                  '(get :E :n) "E'n")))
+                  '(record :n 1) "rec(n:1)"
+                  '(record :n 1, :b true) "rec(n:1,b:TRUE)"
+                  '(record-get :E :n) "E'n")))
 
 
 (deftest sequences-test
@@ -155,7 +155,7 @@
                   '(-> :E :s) "E->s"
                   '(<- :s :E) "s<-E"
                   '(<- :s :E :F) "s<-E<-F"
-                  '(rev :S) "rev(S)"
+                  '(reverse :S) "rev(S)"
                   '(first :S) "first(S)"
                   '(last :S) "last(S)"
                   '(front :S) "front(S)"
@@ -176,8 +176,8 @@
                   '(>-> :S :T) "S>->T"
                   '(>->> :S :T) "S>->>T"
                   '(lambda [:x] (= 1 1) 1) "%x.(1=1|1)"
-                  '(apply :f :E) "f(E)"
-                  '(apply :f :E :F) "f(E,F)")))
+                  '(fn-call :f :E) "f(E)"
+                  '(fn-call :f :E :F) "f(E,F)")))
 
 
 (deftest relation-test
@@ -204,8 +204,8 @@
                   '(image :r :S) "r[S]"
                   '(<+ :r1 :r2) "r1<+r2"
                   '(>< :r1 :r2) "r1><r2"
-                  '(comp :r1 :r2) "(r1;r2)"
-                  '(|| :r1 :r2) "(r1||r2)"
+                  '(composition :r1 :r2) "(r1;r2)"
+                  '(parallel-product :r1 :r2) "(r1||r2)"
                   '(prj1 :S :T) "prj1(S,T)"
                   '(prj2 :S :T) "prj2(S,T)"
                   '(closure1 :r) "closure1(r)"
@@ -234,8 +234,8 @@
                     'max-int "MAXINT"
                     '(max nat-set) "max(NAT)"
                     '(min nat-set) "min(NAT)"
-                    '(pi [:z] (contains? nat-set :z) 1) "PI(z).(z:NAT|1)"
-                    '(sigma [:z] (contains? nat-set :z) 1) "SIGMA(z).(z:NAT|1)"))
+                    '(π [:z] (member? :z nat-set) 1) "PI(z).(z:NAT|1)"
+                    '(Σ [:z] (member? :z nat-set) 1) "SIGMA(z).(z:NAT|1)"))
     (testing "arithmetic"
       (are [lisb b] (= lisb (b-expression->lisb b))
                     '(+ 1 2) "1+2"
@@ -249,8 +249,8 @@
                     '(** 1 2) "1**2"
                     '(mod 1 2) "1 mod 2"
                     '(mod 1 2 3) "1 mod 2 mod 3"
-                    '(succ 1) "succ(1)"
-                    '(pred 1) "pred(1)"))
+                    '(inc 1) "succ(1)"
+                    '(dec 1) "pred(1)"))
     (testing "predicates"
       (are [lisb b] (= lisb (b-predicate->lisb b))
                     '(> 1 2) "1>2"
@@ -266,7 +266,7 @@
                   #{} "{}"
                   #{:E} "{E}"
                   #{:E :F} "{E, F}"
-                  '(comp-set [:x] (contains? nat-set :x)) "{x|x:NAT}"
+                  '(comprehension-set [:x] (member? :x nat-set)) "{x|x:NAT}"
                   '(pow #{}) "POW({})"
                   '(pow1 #{}) "POW1({})"
                   '(fin #{}) "FIN({})"
@@ -278,19 +278,19 @@
                   '(union #{:E} #{:F} #{:G})"{E}\\/{F}\\/{G}"
                   '(intersection #{:E} #{:F})"{E}/\\{F}"
                   '(intersection #{:E} #{:F} #{:G})"{E}/\\{F}/\\{G}"
-                  '(difference #{:E} #{:F}) "{E}\\{F}"
-                  '(difference #{:E} #{:F} #{:G}) "{E}\\{F}\\{G}"
+                  '(set- #{:E} #{:F}) "{E}\\{F}"
+                  '(set- #{:E} #{:F} #{:G}) "{E}\\{F}\\{G}"
                   '(unite-sets #{#{}}) "union({{}})"
                   '(intersect-sets #{#{}}) "inter({{}})"
-                  '(union-pe [:z] (contains? nat-set :z) 1) "UNION(z).(z:NAT|1)"
-                  '(intersection-pe [:z] (contains? nat-set :z) 1) "INTER(z).(z:NAT|1)")
+                  '(union-pe [:z] (member? :z nat-set) 1) "UNION(z).(z:NAT|1)"
+                  '(intersection-pe [:z] (member? :z nat-set) 1) "INTER(z).(z:NAT|1)")
     (are [lisb b-pred] (= lisb (b-predicate->lisb b-pred))
-                  '(contains? #{} 1) "1:{}"
-                  '(not (contains? #{} 1)) "1/:{}"
-                  '(subset? #{:E} #{:G}) "{E}<:{G}"
-                  '(not (subset? #{:E} #{:G})) "{E}/<:{G}"
-                  '(strict-subset? #{:E} #{:G}) "{E}<<:{G}"
-                  '(not (strict-subset? #{:E} #{:G})) "{E}/<<:{G}")))
+                       '(member? 1 #{}) "1:{}"
+                       '(not (member? 1 #{})) "1/:{}"
+                       '(subset? #{:E} #{:F}) "{E}<:{F}"
+                       '(not (subset? #{:E} #{:F})) "{E}/<:{F}"
+                       '(strict-subset? #{:E} #{:F}) "{E}<<:{F}"
+                       '(not (strict-subset? #{:E} #{:F})) "{E}/<<:{F}")))
 
 
 (deftest booleans-test
@@ -321,5 +321,5 @@
                        '(<=> (= 1 1) (= 2 2)) "1=1 <=> 2=2"
                        '(<=> (= 1 1) (= 2 2) (= 3 3)) "1=1 <=> 2=2 <=> 3=3"
                        '(not (= 1 1)) "not(1=1)"
-                       '(for-all [:x] (contains? nat-set :x) (< 0 :x)) "!(x).(x:NAT => 0<x)"
+                       '(for-all [:x] (member? :x nat-set) (< 0 :x)) "!(x).(x:NAT => 0<x)"
                        '(exists [:x] (and (= 1 1) (= 2 2))) "#(x).(1=1 & 2=2)")))

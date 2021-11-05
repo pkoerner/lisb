@@ -1,12 +1,13 @@
-(machine
-  :GCD
+(machine :GCD
   (variables :x :y)
-  (invariants (contains? nat-set :x) (contains? nat-set :y))
-  (init (parallel-sub (assign :x 70) (assign :y 40)))
+  (invariants (member? :x nat-set) (member? :y nat-set))
+  (init
+    (parallel-sub
+      (assign :x 70)
+      (assign :y 40)))
   (operations
     (operation [:s] :GCDSolution [] (if-sub (= :y 0) (assign :s :x) (assign :s -1)))
     (operation [] :Step [] (if-sub (> :y 0) (parallel-sub (assign :x :y) (assign :y (mod :x :y)))))
-    (operation [] :Restart [:w1 :w2] (pre (and (contains? nat1-set :w1) (contains? nat1-set :w2))
-                                       (if-sub (> :w1 :w2)
-                                         (assign :x :w1 :y :w2)
-                                         (assign :y :w1 :x :w2))))))
+    (operation [] :Restart [:w1 :w2]
+      (pre (and (member? :w1 nat1-set) (member? :w2 nat1-set)) (if-sub (> :w1 :w2) (assign :x :w1 :y :w2)
+                                                                 (assign :y :w1 :x :w2))))))

@@ -1,11 +1,10 @@
-(machine
-  :Bakery1
+(machine :Bakery1
   (variables :p1 :p2 :y1 :y2)
   (invariants
-    (contains? (interval 0 2) :p1)
-    (contains? (interval 0 2) :p2)
-    (contains? natural-set :y1)
-    (contains? natural-set :y2)
+    (member? :p1 (interval 0 2))
+    (member? :p2 (interval 0 2))
+    (member? :y1 natural-set)
+    (member? :y2 natural-set)
     (=> (= :p1 2) (< :p2 2))
     (=> (= :p2 2) (< :p1 2)))
   (init (assign :p1 0 :p2 0 :y1 0 :y2 0))

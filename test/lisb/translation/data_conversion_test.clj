@@ -27,10 +27,10 @@
            (bset-enum [1 2])))
     
     (is (= (convert {:x 1} :record [{:x :int}])
-           (brec :x 1)))
+           (brecord :x 1)))
   
     (is (= (convert {:x 1 :y 2} :record [{:x :int}])
-           (brec :x 1)))))
+           (brecord :x 1)))))
 
 
 
@@ -60,7 +60,7 @@
            (bset-enum [(bset-enum 1) (bset-enum 2)])))
     
     (is (= (convert {:x #{1}} :record [{:x [:set :int]}])
-           (brec :x (bset-enum 1))))
+           (brecord :x (bset-enum 1))))
 
     (is (= (convert {:x #{1} :y 2} :record [{:x [:set :int]}])
-           (brec :x (bset-enum 1))))))
+           (brecord :x (bset-enum 1))))))
