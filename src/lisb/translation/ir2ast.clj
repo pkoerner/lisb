@@ -370,7 +370,7 @@
 (defmethod ir-node->ast-node :block [ir-node]
   (ABlockSubstitution. (ir-node-sub->ast ir-node)))
 
-(defmethod ir-node->ast-node :assign [ir-node]
+(defmethod ir-node->ast-node :assignment [ir-node]
   (let [id-vals (:id-vals ir-node)
         ids (id-vals->ids id-vals)
         vals (id-vals->vals id-vals)]

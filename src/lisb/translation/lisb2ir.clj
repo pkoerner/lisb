@@ -153,7 +153,7 @@
    :sub sub})
 
 (defn bassign [& id-vals]
-  {:tag :assign
+  {:tag :assignment
    :id-vals id-vals})
 
 (defn bbecomes-element-of [ids set]

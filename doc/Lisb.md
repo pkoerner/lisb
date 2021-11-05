@@ -98,7 +98,9 @@
 |                         | `(successor n)`        | `{:tag :increment, :num num}`                       | sugar                                                                |
 | `pred(n)`               | `(dec n)`              | `{:tag :decrement, :num num}`                       | predecessor (n-1)                                                    |
 |                         | `(predecessor n)`      | `{:tag :decrement, :num num}`                       | sugar                                                                |
-| `0xH`                   | `16rf1`                | `clojure literal hex zahl`                          | hexadecimal literal, where H is a sequence of letters in [0-9A-Fa-f] | <!-- implement -->
+| `2`                     | `2`                    | `2`                                                 | integer literal                                                      |
+| `-2`                    | `-2`                   | `-2`                                                | integer literal                                                      |
+| `0xF`                   | `15`                   | `15`                                                | hexadecimal literal (cannot be retranslated)                         |
 
 ##Relations
 | B                                                    | Lisb                                | IR                                               | Description                                                      |
@@ -218,7 +220,7 @@
 | `skip`                                                     | `skip`                                        | `{:tag :skip}`                                          | no operation                           |
 | `id1,id2,... := val1,val2,...`                             | `(assign & id-vals)`                          | `{:tag :assignment, :id-vals id-vals}`                  | assignment                             |
 |                                                            | `(set! & id-vals)`                            | `{:tag :assignment, :id-vals id-vals}`                  | sugar                                  |
-| `f(x) := E`                                                |                                               |                                                         | functional override                    | <!-- TODO -->
+| `f(x) := E`                                                | `(assign (fn-call f x) E) `                   | `(bassign (bfn-call f x) E`                             | functional override                    |
 | `ids :: set`                                               | `(becomes-element-of ids set)`                | `{:tag :becomes-element-of, :ids ids, :set set}`        | choice from set                        |
 |                                                            | `(becomes-member ids set)`                    | `{:tag :becomes-element-of, :ids ids, :set set}`        | sugar                                  |
 | `ids : (pred)`                                             | `(becomes-such ids set)`                      | `{:tag :becomes-such, :ids ids, :pred pred}`            | choice by pred (constraining ids)      |

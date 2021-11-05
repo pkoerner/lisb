@@ -135,6 +135,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       :rec-get -> :record-get,
       :rec -> :record,
       :op-subs -> :op-sub,
+      :assign -> :assignment,
       :pre -> :precondition,
       :sequence-substitution -> sequential-sub,
       :parallel-substitution -> parallel-sub,
