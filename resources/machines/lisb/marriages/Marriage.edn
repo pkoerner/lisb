@@ -1,32 +1,30 @@
-(machine
-  :Marriage
+(machine :Marriage
   (uses :Life)
   (variables :marriage)
   (invariants
-    (contains? (>+> :male :female) :marriage))
+    (member? :marriage (>+> :male :female)))
   (init
     (assign :marriage #{}))
   (operations
     (operation [] :wed [:mm :ff]
       (pre
-        (and
-          (contains? :male :mm)
-          (not (contains? (dom :marriage) :mm))
-          (contains? :female :ff)
-          (not (contains? (ran :marriage) :ff)))
-        (assign (apply :marriage :mm) :ff)))
+        (and (member? :mm :male)
+          (not (member? :mm (dom :marriage)))
+          (member? :ff :female)
+          (not (member? :ff (ran :marriage))))
+        (assign (fn-call :marriage :mm) :ff)))
     (operation [] :part [:mm :ff]
       (pre
         (and
-          (contains? :male :mm)
-          (contains? :female :ff)
-          (contains? :marriage [:mm :ff]))
+          (member? :mm :male)
+          (member? :ff :female)
+          (member? [:mm :ff] :marriage))
         (assign :marriage (- :marriage #{[:mm :ff]}))))
     (operation [:pp] :partner [:nn]
       (pre
         (and
-          (contains? :PERSON :nn)
-          (contains? (union (dom :marriage) (ran :marriage)) :nn))
-        (if-sub (contains? (dom :marriage) :nn)
-          (assign :pp (apply :marriage :nn))
-          (assign :pp (apply (inverse :marriage) :nn)))))))
+          (member? :nn :PERSON)
+          (member? :nn (union (dom :marriage) (ran :marriage))))
+        (if-sub (member? :nn (dom :marriage))
+          (assign :pp (fn-call :marriage :nn))
+          (assign :pp (fn-call (inverse :marriage) :nn)))))))

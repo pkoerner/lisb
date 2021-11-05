@@ -1,24 +1,25 @@
 # Work in progress lisb api doc
 
 ##Logical predicates
-| B                                                    | Lisb                               | IR                                                                    | Description                |
-|------------------------------------------------------|------------------------------------|-----------------------------------------------------------------------|----------------------------|
-| `pred1 & pred2 & ...`                                | `(and & preds)`                    | `{:tag :and, :preds preds}`                                           | conjunction                |
-| `pred1 or pred2 or ...`                              | `(or & preds)`                     | `{:tag :or, :preds preds}`                                            | disjunction                |
-| `pred1 => pred2 => ...`                              | `(=> & preds)`                     | `{:tag :implication, :preds preds}`                                   | implication                |
-|                                                      | `(implication & preds)`            | `{:tag :implication, :preds preds}`                                   | sugar                      |
-| `pred1 <=> pred2 <=> ...`                            | `(<=> & preds)`                    | `{:tag :equivalence, :preds preds}`                                   | equivalence                |
-|                                                      | `(equivalence & preds)`            | `{:tag :equivalence, :preds preds}`                                   | sugar                |
-| `not(pred)`                                          | `(not pred)`                       | `{:tag :not, :pred pred}`                                             | not                        |
-| `!(id1,id2,...).(premise => conclusion)`             | `(for-all ids premise conclusion)` | `{:tag :for-all, :ids ids, :premise premise, :conclusion conclusion}` | universal quantification   |
-| `#(id1,id2,...).(pred)`                              | `(exists ids pred)`                | `{:tag :exists, :ids ids, :pred pred}`                                | existential quantification |
+| B                                                    | Lisb                               | IR                                                                         | Description                |
+|------------------------------------------------------|------------------------------------|----------------------------------------------------------------------------|----------------------------|
+| `pred1 & pred2 & ...`                                | `(and & preds)`                    | `{:tag :and, :preds preds}`                                                | conjunction                |
+| `pred1 or pred2 or ...`                              | `(or & preds)`                     | `{:tag :or, :preds preds}`                                                 | disjunction                |
+| `pred1 => pred2 => ...`                              | `(=> & preds)`                     | `{:tag :implication, :preds preds}`                                        | implication                |
+|                                                      | `(implication & preds)`            | `{:tag :implication, :preds preds}`                                        | sugar                      |
+| `pred1 <=> pred2 <=> ...`                            | `(<=> & preds)`                    | `{:tag :equivalence, :preds preds}`                                        | equivalence                |
+|                                                      | `(equivalence & preds)`            | `{:tag :equivalence, :preds preds}`                                        | sugar                      |
+| `not(pred)`                                          | `(not pred)`                       | `{:tag :not, :pred pred}`                                                  | not                        |
+| `!(id1,id2,...).(implication)`                       | `(for-all ids implication)`        | `{:tag :for-all, :ids ids, :implication implication}`                      | universal quantification   |
+|                                                      | `(for-all ids premise conclusion)` | `{:tag :for-all, :ids ids, :implication (implication premise conclusion)}` | sugar                      |
+| `#(id1,id2,...).(pred)`                              | `(exists ids pred)`                | `{:tag :exists, :ids ids, :pred pred}`                                     | existential quantification |
 
 ##Equality
-| B                                                         | Lisb                  | IR                                             | Description |
-|-----------------------------------------------------------|-----------------------|------------------------------------------------|-------------|
-| `left = right`                                            | `(= left right)`      | `{:tag :equals, :left left, :right right}`     | equality    |
-| `left /= right`                                           | `(not= left right)`   | `{:tag :not-equals, :left left, :right right}` | disequality |
-| `elem1/=elem2 & elem1/=elem3 & ... & elem2/=elem3 & ... ` | `(distinct? & elems)` |                                                | distinct    |
+| B                                                         | Lisb                  | IR                                                 | Description |
+|-----------------------------------------------------------|-----------------------|----------------------------------------------------|-------------|
+| `left = right`                                            | `(= left right)`      | `{:tag :equals, :left left, :right right}`         | equality    |
+| `left /= right`                                           | `(not= left right)`   | `{:tag :not-equals, :left left, :right right}`     | disequality |
+| `elem1/=elem2 & elem1/=elem3 & ... & elem2/=elem3 & ... ` | `(distinct? & elems)` | `(band (not= elem1 elem2) (not= elem1 elem3) ...)` | distinct    |
 
 ##Booleans
 | B            | Lisb                | IR                               | Description                          |
@@ -32,27 +33,28 @@
 | B                             | Lisb                                       | IR                                                                 | Description                                |
 |-------------------------------|--------------------------------------------|--------------------------------------------------------------------|--------------------------------------------|
 | `{elem1,elem2,...}`           | `#{elem1 elem2 ...}`                       | `#{elem1 elem2 ...}`                                               | set enumeration                            |
-| `{id1,id2,...&#124;pred}`     | `(comp-set ids pred)`                      | `{:tag :comp-set, :ids ids, :pred pred}`                           | comprehension set                          |
-|                               | `#{ids &#124; pred}`                       | `{:tag :comp-set, :ids ids, :pred pred}`                           | sugar                                      | <!-- implement -->
+| `{id1,id2,...&#124;pred}`     | `(comprehension-set ids pred)`             | `{:tag :comprehension-set, :ids ids, :pred pred}`                  | comprehension set                          |
+|                               | `#{ids &#124; pred}`                       | `{:tag :comprehension-set, :ids ids, :pred pred}`                  | sugar                                      | <!-- implement -->
 | `POW(set)`                    | `(pow set)`                                | `{:tag :power-set, :set set}`                                      | power set                                  |
 | `POW1(set)`                   | `(pow1 set)`                               | `{:tag :power1-set, :set set}`                                     | set of non-empty subsets                   |
 | `FIN(set)`                    | `(fin set)`                                | `{:tag :fin, :set set}`                                            | set of all finite subsets                  |
 | `FIN1(set)`                   | `(fin1 set)`                               | `{:tag :fin1, :set set}`                                           | set of all non-empty finite subsets        |
 | `card(set)`                   | `(card set)`                               | `{:tag :cardinality, :set set}`                                    | cardinality                                |
-| `set1*set2*...`               | `(cart-or-mult & elems)`                   | `{:tag :cartesian-product-or-multiplication, :elems elems}`        | cartesian product                          |
-|                               | `(x & elems)`                              | `{:tag :cartesian-product, :elems elems}`                          | cartesian product                          | 
+| `set1*set2*...`               | `(cart-or-mult & sets)`                    | `{:tag :cartesian-product-or-multiplication, :nums-or-sets sets}`  | cartesian product or multiplication        |
+|                               | `(cartesian-product & sets)`               | `{:tag :cartesian-product, :sets sets}`                            | cartesian product                          | 
+|                               | `(x & sets)`                               | `{:tag :cartesian-product, :sets set}`                             | sugar                                      |
 | `set1\/set2\/...`             | `(union & sets)`                           | `{:tag :union, :sets sets}`                                        | set union                                  |
 | `set1/\set2/\...`             | `(intersection & sets)`                    | `{:tag :intersection, :sets sets}`                                 | set intersection                           |
 | `set1-set2-...`               | `(set- & sets)`                            | `{:tag :difference, :sets sets}`                                   | set difference                             |
 | `elem:set`                    | `(member? elem set)`                       | `{:tag :member, :elem elem, :set set}`                             | element of                                 |
-|                               | `(in elem set)`                            | `{:tag :member, :elem elem, :set set}`                             | sugar                                      | <!-- implement -->
-|                               | `(contains? set & elems)`                  | `(and (member? elem1 set) (member? elem2 set) ...)`                | sugar                                      | <!-- implement -->
+|                               | `(in elem set)`                            | `{:tag :member, :elem elem, :set set}`                             | sugar                                      | 
+|                               | `(contains? set & elems)`                  | `(and (member? elem1 set) (member? elem2 set) ...)`                | sugar                                      | 
 | `elem/:set`                   | `(not (member? set elem))`                 |                                                                    | not element of                             | 
 | `set1<:set2&set2<:...`        | `(subset? & sets)`                         | `{:tag :subset?, :sets sets}`                                      | subset of                                  |
-|                               | `(superset? & sets)`                       |                                                                    | sugar                                      |
+|                               | `(superset? & sets)`                       | `{:tag :subset?, :sets (clore.core/reverse sets)}`                 | sugar                                      |
 | `set1/<:set2&set2/<:...`      | `(not (subset? sets))`                     |                                                                    | not subset of                              |
 | `set1<<:set2&set2<<:...`      | `(strict-subset? sets)`                    | `{:tag :strict-subset?, :sets sets}`                               | strict subset of                           |
-|                               | `(strict-superset? sets)`                  |                                                                    | sugar                                      |
+|                               | `(strict-superset? sets)`                  | `{:tag :strict-subset?, :sets (clojure.core/reverse sets)}`        | sugar                                      |
 | `set1/<<:set2&set2/<<:...`    | `(not (strict-subset? sets))`              |                                                                    | not strict subset of                       |
 | `union(set-of-sets)`          | `(unite-sets set-of-sets)`                 | `{:tag :unite-sets, :set-of-sets set-of-sets}`                     | generalised union over sets of sets        |
 | `inter(set-of-sets)`          | `(intersect-sets set-of-sets)`             | `{:tag :intersect-sets, :set-of-sets set-of-sets}`                 | generalised intersection over sets of sets |
@@ -60,42 +62,43 @@
 | `INTER(ids).(pred&#124;expr)` | `(intersection-pe ids pred expr)`          | `{:tag :intersection-pe, :ids ids, :pred pred, :expr expr}`        | generalised intersection with predicate    |
 
 ##Numbers
-| B                       | Lisb                 | IR                                                  | Description                                                          |
-|-------------------------|----------------------|-----------------------------------------------------|----------------------------------------------------------------------|
-| `INTEGER`               | `integer-set`        | `{:tag :integer-set}`                               | set of integers                                                      |
-| `NATURAL`               | `natural-set`        | `{:tag :natural-set}`                               | set of natural numbers                                               |
-| `NATURAL1`              | `natural1-set`       | `{:tag :natural1-set}`                              | set of non-zero natural numbers                                      |
-| `INT`                   | `int-set`            | `{:tag :int-set}`                                   | set of implementable integers (MININT..MAXINT)                       |
-| `NAT`                   | `nat-set`            | `{:tag :nat-set}`                                   | set of implementable natural numbers                                 |
-| `NAT1`                  | `nat1-set`           | `{:tag :nat1-set}`                                  | set of non-zero implementable natural numbers                        |
-| `from..to`              | `(interval from to)` | `{:tag :interval, :from from, :to to}`              | set of numbers from n to m                                           |
-|                         | `(range from to)`    | `{:tag :interval, :from from, :to (dec to)}`        | clojure                                                              |
-| `MININT`                | `min-int`            | `{:tag :min-int}`                                   | the minimum implementable integer                                    |
-| `MAXINT`                | `max-int`            | `{:tag :max-int}`                                   | the maximum implementable integer                                    |
-| `num1>num2>...`         | `(> & nums)`         | `{:tag :greater, :nums nums}`                       | greater than                                                         |
-| `num1<num2<...`         | `(< & nums)`         | `{:tag :less, :nums nums}`                          | less than                                                            |
-| `num1=>num2=>...`       | `(>= & nums)`        | `{:tag :greater-equals, :nums nums}`                | greater than or equal                                                |
-| `nums1<=num2<=...`      | `(<= & nums)`        | `{:tag :less-equals, :nums nums}`                   | less than or equal                                                   |
-| `max(S)`                | `(max S)`            | `{:tag :max, :set set}`                             | maximum of a set of numbers                                          |
-| `max({m,n,o})`          | `(max m n o)`        | `{:tag :max, :set set}`                             | sugar                                                                |
-| `min(S)`                | `(min S)`            | `{:tag :min, :set set}`                             | minimum of a set of numbers                                          |
-| `min({m,n,o})`          | `(min m n o)`        | `{:tag :min, :set set}`                             | sugar                                                                |
-| `num1+num2+...`         | `(+ & nums)`         | `{:tag :add, :nums nums}`                           | addition                                                             |
-| `num1-num2-...`         | `(- & nums)`         | `{:tag :sub, :nums nums}`                           | difference                                                           |
-| `num1*num2*...`         | `(* & nums)`         | `{:tag :mul, :nums nums}`                           | multiplication                                                       |
-| `num1/num2/...`         | `(div & nums)`       | `{:tag :div, :nums nums}`                           | division                                                             |
-| `num1/num2/...`         | `(/ & nums)`         | `{:tag :div, :nums nums}`                           | sugar                                                                |
-| `num1**num2**...`       | `(** & nums)`        | `{:tag :pow, :nums nums}`                           | power                                                                |
-| `num1 mod num2 mod ...` | `(mod & nums)`       | `{:tag :mod, :nums nums}`                           | remainder of division                                                |
-| `PI(z).(P&#124;E)`      | `(π #{z} P E)`       | `{:tag :product, :ids ids, :pred pred, :expr expr}` | Set product                                                          | 
-|                         | `(pi #{z} P E)`      | `{:tag :product, :ids ids, :pred pred, :expr expr}` | sugar                                                                | 
-| `SIGMA(z).(P&#124;E)`   | `(Σ #{z} P E)`       | `{:tag :sum, :ids ids, :pred pred, :expr expr}`     | Set summation                                                        |
-|                         | `(sigma #{z} P E)`   | `{:tag :sum, :ids ids, :pred pred, :expr expr}`     | sugar                                                                | 
-| `succ(n)`               | `(inc n)`            | `{:tag :increment, :num num}`                       | successor (n+1)                                                      |
-|                         | `(successor n)`      | `{:tag :increment, :num num}`                       | sugar                                                                |
-| `pred(n)`               | `(dec n)`            | `{:tag :decrement, :num num}`                       | predecessor (n-1)                                                    |
-|                         | `(predecessor n)`    | `{:tag :decrement, :num num}`                       | sugar                                                                |
-| `0xH`                   | `16rf1`              | `clojure literal hex zahl`                          | hexadecimal literal, where H is a sequence of letters in [0-9A-Fa-f] | <!-- implement -->
+| B                       | Lisb                   | IR                                                  | Description                                                          |
+|-------------------------|------------------------|-----------------------------------------------------|----------------------------------------------------------------------|
+| `INTEGER`               | `integer-set`          | `{:tag :integer-set}`                               | set of integers                                                      |
+| `NATURAL`               | `natural-set`          | `{:tag :natural-set}`                               | set of natural numbers                                               |
+| `NATURAL1`              | `natural1-set`         | `{:tag :natural1-set}`                              | set of non-zero natural numbers                                      |
+| `INT`                   | `int-set`              | `{:tag :int-set}`                                   | set of implementable integers (MININT..MAXINT)                       |
+| `NAT`                   | `nat-set`              | `{:tag :nat-set}`                                   | set of implementable natural numbers                                 |
+| `NAT1`                  | `nat1-set`             | `{:tag :nat1-set}`                                  | set of non-zero implementable natural numbers                        |
+| `from..to`              | `(interval from to)`   | `{:tag :interval, :from from, :to to}`              | set of numbers from n to m                                           |
+|                         | `(range from to)`      | `{:tag :interval, :from from, :to (dec to)}`        | clojure                                                              |
+| `MININT`                | `min-int`              | `{:tag :min-int}`                                   | the minimum implementable integer                                    |
+| `MAXINT`                | `max-int`              | `{:tag :max-int}`                                   | the maximum implementable integer                                    |
+| `num1>num2>...`         | `(> & nums)`           | `{:tag :greater, :nums nums}`                       | greater than                                                         |
+| `num1<num2<...`         | `(< & nums)`           | `{:tag :less, :nums nums}`                          | less than                                                            |
+| `num1=>num2=>...`       | `(>= & nums)`          | `{:tag :greater-equals, :nums nums}`                | greater than or equal                                                |
+| `nums1<=num2<=...`      | `(<= & nums)`          | `{:tag :less-equals, :nums nums}`                   | less than or equal                                                   |
+| `max(S)`                | `(max S)`              | `{:tag :max, :set set}`                             | maximum of a set of numbers                                          |
+| `max({m,n,o})`          | `(max m n o)`          | `{:tag :max, :set set}`                             | sugar                                                                |
+| `min(S)`                | `(min S)`              | `{:tag :min, :set set}`                             | minimum of a set of numbers                                          |
+| `min({m,n,o})`          | `(min m n o)`          | `{:tag :min, :set set}`                             | sugar                                                                |
+| `num1+num2+...`         | `(+ & nums)`           | `{:tag :add, :nums nums}`                           | addition                                                             |
+| `num1-num2-...`         | `(- & nums)`           | `{:tag :sub, :nums nums}`                           | difference                                                           |
+| `num1*num2*...`         | `(cart-or-mul & nums)` | `{:tag :cart-or-mul, :nums-or-sets nums}`           | cartesian product or multiplication                                  |
+|                         | `(* & elems)`          | `{:tag :mul, :elems elems}`                         | multiplication                                                       | 
+| `num1/num2/...`         | `(div & nums)`         | `{:tag :div, :nums nums}`                           | division                                                             |
+| `num1/num2/...`         | `(/ & nums)`           | `{:tag :div, :nums nums}`                           | sugar                                                                |
+| `num1**num2**...`       | `(** & nums)`          | `{:tag :pow, :nums nums}`                           | power                                                                |
+| `num1 mod num2 mod ...` | `(mod & nums)`         | `{:tag :mod, :nums nums}`                           | remainder of division                                                |
+| `PI(z).(P&#124;E)`      | `(π #{z} P E)`         | `{:tag :product, :ids ids, :pred pred, :expr expr}` | Set product                                                          | 
+|                         | `(pi #{z} P E)`        | `{:tag :product, :ids ids, :pred pred, :expr expr}` | sugar                                                                | 
+| `SIGMA(z).(P&#124;E)`   | `(Σ #{z} P E)`         | `{:tag :sum, :ids ids, :pred pred, :expr expr}`     | Set summation                                                        |
+|                         | `(sigma #{z} P E)`     | `{:tag :sum, :ids ids, :pred pred, :expr expr}`     | sugar                                                                | 
+| `succ(n)`               | `(inc n)`              | `{:tag :increment, :num num}`                       | successor (n+1)                                                      |
+|                         | `(successor n)`        | `{:tag :increment, :num num}`                       | sugar                                                                |
+| `pred(n)`               | `(dec n)`              | `{:tag :decrement, :num num}`                       | predecessor (n-1)                                                    |
+|                         | `(predecessor n)`      | `{:tag :decrement, :num num}`                       | sugar                                                                |
+| `0xH`                   | `16rf1`                | `clojure literal hex zahl`                          | hexadecimal literal, where H is a sequence of letters in [0-9A-Fa-f] | <!-- implement -->
 
 ##Relations
 | B                                                    | Lisb                                | IR                                               | Description                                                      |
@@ -121,8 +124,9 @@
 | `rel~`                                               | `(inverse rel)`                     | `{:tag :inverse, :rel rel}`                      | inverse of relation                                              |
 | `rel[set]`                                           | `(image rel set)`                   | `{:tag :image, :rel rel, :set set}`              | relational image                                                 |
 | `rel1<+rel2<+...`                                    | `(override & rels)`                 | `{:tag :override, :rels rels}`                   | relational overriding (r2 overrides r1)                          |
-| `rel1<+rel2<+...`                                    | `(<+ & rels)`                       | `{:tag :override, :rels rels}`                   | relational overriding (r2 overrides r1)                          |
-| `rel1><rel2><...`                                    | `(>< & rels)`                       | `{:tag :direct-product, :rels rels}`             | direct product {x,(y,z) &#124; x,y:r1 & x,z:r2}                  |
+|                                                      | `(<+ & rels)`                       | `{:tag :override, :rels rels}`                   | sugar                                                            |
+| `rel1><rel2><...`                                    | `(direct-product & rels)`           | `{:tag :direct-product, :rels rels}`             | direct product {x,(y,z) &#124; x,y:r1 & x,z:r2}                  |
+|                                                      | `(>< & rels)`                       | `{:tag :direct-product, :rels rels}`             | sugar                                                            |
 | `((rel1;rel2);...)`                                  | `(composition & rels)`              | `{:tag :composition, :rels rels}`                | relational composition {x,y&#124; x&#124;->z:r1 & z&#124;->y:r2} |
 | <code>((rel1&#124;&#124;rel2)&#124;&#124;...)</code> | `(parallel-product & rels)`         | `{:tag :parallel-product, :rels rels}`           | parallel product {((x,v),(y,w)) &#124; x,y:r1 & v,w:r2}          | 
 | `prj1(set1, set2)`                                   | `(prj1 set1 set2)`                  | `{:tag :prj1, :set1 set1, :set2 set2}`           | projection function (usage prj1(Dom,Ran)(Pair))                  | 
@@ -138,22 +142,22 @@
 |----------------------------------|-------------------------------|----------------------------------------------------|----------------------|
 | `set1+->set2+->...`              | `(+-> & sets)`                | `{:tag :partial-function, :sets sets}`             | partial function     |
 |                                  | `(partial-function & sets)`   | `{:tag :partial-function, :sets sets}`             | sugar                |
-| `set1-->set2-->...`              | `(--> & sets)`                | `{:tag :-->, :sets sets}`                          | total function       |
-|                                  | `(total-function & sets)`     | `{:tag :-->, :sets sets}`                          | sugar                |
-| `set1+->>set2+->>...`            | `(+->> & sets)`               | `{:tag :+->>, :sets sets}`                         | partial surjection   |
-|                                  | `(partial-surjection & sets)` | `{:tag :+->>, :sets sets}`                         | sugar                |
-| `set1-->>set2-->>...`            | `(-->> & sets)`               | `{:tag :-->>, :sets sets}`                         | total surjection     |
-|                                  | `(total-surjection & sets)`   | `{:tag :-->>, :sets sets}`                         | sugar                |
-| `set1>+>set2>+>...`              | `(>+> & sets)`                | `{:tag :>+>, :sets sets}`                          | partial injection    |
-|                                  | `(partial-injection & sets)`  | `{:tag :>+>, :sets sets}`                          | sugar                |
-| `set1>->set2>->...`              | `(>-> & sets)`                | `{:tag :>->, :sets sets}`                          | total injection      |
-|                                  | `(total-injection & sets)`    | `{:tag :>->, :sets sets}`                          | sugar                |
-| `set1>+>>set2>+>>...`            | `(>+>> & sets)`               | `{:tag :>+>>, :sets sets}`                         | partial bijection    |
-|                                  | `(partial-bijection & sets)`  | `{:tag :>+>>, :sets sets}`                         | sugar                |
-| `set1>->>set2>->>...`            | `(>->> & sets)`               | `{:tag :>->>, :sets sets}`                         | total bijection      |
-|                                  | `(total-bijection & sets)`    | `{:tag :>->>, :sets sets}`                         | sugar                |
+| `set1-->set2-->...`              | `(--> & sets)`                | `{:tag :total-function, :sets sets}`               | total function       |
+|                                  | `(total-function & sets)`     | `{:tag :total-function, :sets sets}`               | sugar                |
+| `set1+->>set2+->>...`            | `(+->> & sets)`               | `{:tag :partial-surjection, :sets sets}`           | partial surjection   |
+|                                  | `(partial-surjection & sets)` | `{:tag :partial-surjection, :sets sets}`           | sugar                |
+| `set1-->>set2-->>...`            | `(-->> & sets)`               | `{:tag :total-surjection, :sets sets}`             | total surjection     |
+|                                  | `(total-surjection & sets)`   | `{:tag :total-surjection, :sets sets}`             | sugar                |
+| `set1>+>set2>+>...`              | `(>+> & sets)`                | `{:tag :partial-injection, :sets sets}`            | partial injection    |
+|                                  | `(partial-injection & sets)`  | `{:tag :partial-injection, :sets sets}`            | sugar                |
+| `set1>->set2>->...`              | `(>-> & sets)`                | `{:tag :total-injection, :sets sets}`              | total injection      |
+|                                  | `(total-injection & sets)`    | `{:tag :total-injection, :sets sets}`              | sugar                |
+| `set1>+>>set2>+>>...`            | `(>+>> & sets)`               | `{:tag :partial-bijection, :sets sets}`            | partial bijection    |
+|                                  | `(partial-bijection & sets)`  | `{:tag :partial-bijection, :sets sets}`            | sugar                |
+| `set1>->>set2>->>...`            | `(>->> & sets)`               | `{:tag :total-bijection, :sets sets}`              | total bijection      |
+|                                  | `(total-bijection & sets)`    | `{:tag :total-bijection, :sets sets}`              | sugar                |
 | `%id1,id2,... .(pred&#124;expr)` | `(lambda ids pred expr)`      | `{:tag :lambda, :ids ids, :pred pred, :expr expr}` | lambda abstraction   |
-| `f(arg1,arg2,...)`               | `(call f & args)`             | `{:tag :fn-call, :f f, :args args}`                | function application |
+| `f(arg1,arg2,...)`               | `(fn-call f & args)`          | `{:tag :fn-call, :f f, :args args}`                | function application |
 
 <!-- | `%id1,id2,... .(id1:type1&id2:type2&... &#124;expr)`        | `(fn [id-types] expr)`   | `{:tag :fn, :id-types id-types, :expr expr}`       | sugar                | -->
 
@@ -170,26 +174,26 @@
 | `size(seq)`              | `(size seq)`          | `{:tag :size, :seq seq}`                 | size of sequence                          |
 | `seq1^seq2...`           | `(concat seqs)`       | `{:tag :concat, :seqs seqs}`             | concatenation                             |
 | `elem->seq`              | `(-> elem seq)`       | `{:tag :prepend, :elem elem, :set seq}`  | prepend element                           |
+|                          | `(prepend elem seq)`  | `{:tag :prepend, :elem elem, :set seq}`  | prepend element                           |
 | `(seq<-elem1)<-elem2...` | `(<- seq elems)`      | `{:tag :append, :set seq, :elem elems}`  | append element                            |
+|                          | `(append seq elems)`  | `{:tag :append, :set seq, :elem elems}`  | append element                            |
 | `rev(seq)`               | `(reverse seq)`       | `{:tag :reverse, :seq seq}`              | reverse of sequence                       |
 | `first(seq)`             | `(first seq)`         | `{:tag :first, :seq seq}`                | first element                             |
 | `last(seq)`              | `(last seq)`          | `{:tag :last, :seq seq}`                 | last element                              |
 | `front(seq)`             | `(front seq)`         | `{:tag :front, :seq seq}`                | front of sequence (all but last element)  |
-| `front(seq)`             | `(drop-last seq)`     | `{:tag :front, :seq seq}`                | clojure                                   |
+|                          | `(drop-last seq)`     | `{:tag :front, :seq seq}`                | clojure                                   |
 | `tail(seq)`              | `(tail seq)`          | `{:tag :tail, :seq seq}`                 | tail of sequence (all but first element)  |
-| `tail(seq)`              | `(rest seq)`          | `{:tag :tail, :seq seq}`                 | clojure                                   |
+|                          | `(rest seq)`          | `{:tag :tail, :seq seq}`                 | clojure                                   |
 | `conc(seq-of-seqs)`      | `(conc seq-of-seqs)`  | `{:tag :conc, :seq-of-seqs seq-of-seqs}` | concatenation of sequence of sequences    |
 | `seq/&#124;\num`         | `(take num seq)`      | `{:tag :take, :num num, :seq seq}`       | take first n elements of sequence         |
-| `seq/&#124;\num`         | `(/&#124;\ num seq)`  | `{:tag :take, :num num, :seq seq}`       | sugar                                     |
 | `seq\&#124;/num`         | `(drop num seq)`      | `{:tag :drop, :num num, :seq seq}`       | drop first n elements from sequence       |
-| `seq\&#124;/num`         | `(\&#124;/ num seq)`  | `{:tag :drop, :num num, :seq seq}`       | sugar                                     |
 
 ##Records
 | B                                 | Lisb                  | IR                                     | Description                                          |
 |-----------------------------------|-----------------------|----------------------------------------|------------------------------------------------------|
 | `struct(id1:type1,id2:type2,...)` | `(struct & id-types)` | `{:tag :struct, :id-types id-types}`   | set of records with given fields and field types     |
-| `rec(id1:val1,id2:val2,...)`      | `(rec & id-vals)`     | `{:tag :record, :id-vals id-vals}`     | construct a record with given field names and values |
-| `rec'id`                          | `(get rec id)`        | `{:tag :record-get, :rec rec, :id id}` | get value of field with name ID                      |
+| `rec(id1:val1,id2:val2,...)`      | `(record & id-vals)`  | `{:tag :record, :id-vals id-vals}`     | construct a record with given field names and values |
+| `rec'id`                          | `(record-get rec id)` | `{:tag :record-get, :rec rec, :id id}` | get value of field with name ID                      |
 
 ##Strings
 | B               | Lisb           | IR                   | Description                                                           |
@@ -213,7 +217,6 @@
 |------------------------------------------------------------|-----------------------------------------------|---------------------------------------------------------|----------------------------------------|
 | `skip`                                                     | `skip`                                        | `{:tag :skip}`                                          | no operation                           |
 | `id1,id2,... := val1,val2,...`                             | `(assign & id-vals)`                          | `{:tag :assignment, :id-vals id-vals}`                  | assignment                             |
-|                                                            | `(:= & id-vals)`                              | `{:tag :assignment, :id-vals id-vals}`                  | sugar                                  |
 |                                                            | `(set! & id-vals)`                            | `{:tag :assignment, :id-vals id-vals}`                  | sugar                                  |
 | `f(x) := E`                                                |                                               |                                                         | functional override                    | <!-- TODO -->
 | `ids :: set`                                               | `(becomes-element-of ids set)`                | `{:tag :becomes-element-of, :ids ids, :set set}`        | choice from set                        |
@@ -241,18 +244,18 @@
 
 ##Machine clauses
 ###Machine inclusion
-| B                                | Lisb                    | IR                                  | Description                          |
-|----------------------------------|-------------------------|-------------------------------------|--------------------------------------|
-| `USES mch-name1,mch-name2,...`   | `(uses & mch-names)`    | `{:tag :uses :values mch-names}`    |                                      |
-| `INDLUDES mch-ref1,mch-ref2,...` | `(includes & mch-refs)` | `{:tag :includes :values mch-refs}` |                                      |
-| `SEES mch-name1,mch-name2,...`   | `(sees & mch-names)`    | `{:tag :sees :values mch-names}`    |                                      |
-| `EXTENDS mch-ref1,mch-ref2,...`  | `(extends & mch-refs)`  | `{:tag :extends :values mch-refs}`  |                                      |
-| `PROMOTES op1,op2,...`           | `(promotes & ops)`      | `{:tag :promotes :values ops}`      |                                      |
+| B                                | Lisb                              | IR                                            | Description                          |
+|----------------------------------|-----------------------------------|-----------------------------------------------|--------------------------------------|
+| `USES mch-name1,mch-name2,...`   | `(uses & machine-names)`          | `{:tag :uses :values machine-names}`          |                                      |
+| `INDLUDES mch-ref1,mch-ref2,...` | `(includes & machine-references)` | `{:tag :includes :values machine-references}` |                                      |
+| `SEES mch-name1,mch-name2,...`   | `(sees & machine-names)`          | `{:tag :sees :values machine-names}`          |                                      |
+| `EXTENDS mch-ref1,mch-ref2,...`  | `(extends & machine-references)`  | `{:tag :extends :values machine-references}`  |                                      |
+| `PROMOTES op1,op2,...`           | `(promotes & ops)`                | `{:tag :promotes :values ops}`                |                                      |
 ####Machine reference
-| B                         | Lisb              | IR                                             | Description                  |
-|---------------------------|-------------------|------------------------------------------------|------------------------------|
-| `name`                    | `name`            | `{:tag :mch-ref, :name name}`                  | machine name                 |
-| `name(param1,param2,...)` | `[name & params]` | `{:tag :mch-ref, :name name, :params :params}` | machine name with parameters |
+| B                     | Lisb            | IR                                                  | Description                  |
+|-----------------------|-----------------|-----------------------------------------------------|------------------------------|
+| `name`                | `name`          | `{:tag :machine-reference, :name name}`             | machine name                 |
+| `name(arg1,arg2,...)` | `[name & args]` | `{:tag :machine-reference, :name name, :args args}` | machine name with parameters |
 ###Machine section
 | B                                  | Lisb                     | IR                                    | Description                          |
 |------------------------------------|--------------------------|---------------------------------------|--------------------------------------|
@@ -285,13 +288,13 @@
 
 
 ##Machine
-| B                                                   | Lisb                                                            | IR                                                                                                            | Description         |
-|-----------------------------------------------------|-----------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|---------------------|
-| `MACHINE header clauses END`                        | `(machine machine-name & clauses)`                              | `(merge {:tag :machine, :clauses clauses} machine-name)`                                                      | machine             |
-| `MODEL header clauses END`                          | `(model machine-name & clauses)`                                | `(merge {:tag :model, :clauses clauses} machine-name)`                                                        | synonym for machine |
-| `SYSTEM header clauses END`                         | `(system machine-name & clauses)`                               | `(merge {:tag :system, :clauses clauses} machine-name)`                                                       | synonym for machine |
-| `REFINEMENT header REFINES ref-mch clauses END`     | `(refinement machine-name abstract-machine-name & clauses)`     | `(merge {:tag :refinement, :abstract-machine-name abstract-machine-name, :clauses clauses} machine-name)`     | refinement          |
-| `IMPLEMENTATION header REFINES ref-mch clauses END` | `(implementation machine-name abstract-machine-name & clauses)` | `(merge {:tag :implementation, :abstract-machine-name abstract-machine-name, :clauses clauses} machine-name)` | implementation      |
+| B                                                                       | Lisb                                                            | IR                                                                                                            | Description         |
+|-------------------------------------------------------------------------|-----------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|---------------------|
+| `MACHINE machine-name clauses END`                                      | `(machine machine-name & clauses)`                              | `(merge {:tag :machine, :clauses clauses} machine-name)`                                                      | machine             |
+| `MODEL machine-name clauses END`                                        | `(model machine-name & clauses)`                                | `(merge {:tag :model, :clauses clauses} machine-name)`                                                        | synonym for machine |
+| `SYSTEM machine-name clauses END`                                       | `(system machine-name & clauses)`                               | `(merge {:tag :system, :clauses clauses} machine-name)`                                                       | synonym for machine |
+| `REFINEMENT machine-name REFINES abstract-machine-name clauses END`     | `(refinement machine-name abstract-machine-name & clauses)`     | `(merge {:tag :refinement, :abstract-machine-name abstract-machine-name, :clauses clauses} machine-name)`     | refinement          |
+| `IMPLEMENTATION machine-name REFINES abstract-machine-name clauses END` | `(implementation machine-name abstract-machine-name & clauses)` | `(merge {:tag :implementation, :abstract-machine-name abstract-machine-name, :clauses clauses} machine-name)` | implementation      |
 ###Machine name
 | B                         | Lisb              | IR                             | Description                  |
 |---------------------------|-------------------|--------------------------------|------------------------------|

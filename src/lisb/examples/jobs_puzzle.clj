@@ -17,7 +17,7 @@
         teacher "teacher"
         actor "actor"
         boxer "boxer"
-        holds-job-fn (partial apply holds-job)]
+        holds-job-fn (partial fn-call holds-job)]
     (and
       (= :people #{roberta, thelma, steve, pete})
       (= :jobs #{chef guard nurse clerk police teacher actor boxer})

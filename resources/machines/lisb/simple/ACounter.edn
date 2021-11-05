@@ -1,14 +1,11 @@
-(machine
-  :ACounter
+(machine :ACounter
   (variables :ii :jj)
   (invariants
-    (contains? (interval 0 10) :ii)
-    (contains? (interval 0 10) :jj)
-    (< :ii 11)
-    (>= :jj 0))
+    (member? :ii (interval 0 10))
+    (member? :jj (interval 0 10))
+    (< :ii 11) (>= :jj 0))
   (init (assign :ii 2 :jj 10))
   (operations
-    (operation [] :inc [] (select (> :jj 0) (parallel-sub
-                                              (assign :ii (+ :ii 1))
-                                              (assign :jj (- :jj 1)))))
+    (operation [] :inc []
+      (select (> :jj 0) (parallel-sub (assign :ii (+ :ii 1)) (assign :jj (- :jj 1)))))
     (operation [:result] :res [] (assign :result :ii))))

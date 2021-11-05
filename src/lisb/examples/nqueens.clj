@@ -14,8 +14,8 @@
                               (band (bmember? :q1 width)
                                     (bmember? :q2 width)
                                     (b> :q2 :q1))
-                              (band (bnot= (b+ (bapply :queens :q1) (b- :q2 :q1)) (bapply :queens :q2))
-                                    (bnot= (b+ (bapply :queens :q1) (b- :q1 :q2)) (bapply :queens :q2)))))
+                              (band (bnot= (b+ (bfn-call :queens :q1) (b- :q2 :q1)) (bfn-call :queens :q2))
+                                    (bnot= (b+ (bfn-call :queens :q1) (b- :q1 :q2)) (bfn-call :queens :q2)))))
          result (eval-ir-formula repr)]
      result)))
 
@@ -24,8 +24,8 @@
   "the n-queens problem in B using the b macro"
   ([size1]
    (clojure.core/let [width (b (range 1 :n))
-         q1pos (b (apply :queens :q1))
-         q2pos (b (apply :queens :q2))
+         q1pos (b (fn-call :queens :q1))
+         q2pos (b (fn-call :queens :q2))
          repr  (b (and (= :n size1)
                        (member? :queens (>-> width width))
                        (for-all [:q1 :q2]
@@ -41,8 +41,8 @@
 
 (defpred nqueens-p [size1 sol]
   (clojure.core/let [width (range 1 size1)
-        q1pos (apply sol :q1)
-        q2pos (apply sol :q2)]
+        q1pos (fn-call sol :q1)
+        q2pos (fn-call sol :q2)]
         (and (member? sol (>-> width width))
              (for-all [:q1 :q2]
                       (and (member? :q1 width)

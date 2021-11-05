@@ -9,33 +9,159 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added work in progress lisb api doc
   - Added machine-headers refinement, implementation, model and system.
   - Added translation of USES, EXTENDS, INCLUDES, SEES, PROMOTES and operation substitutions.
-  - Added parameter support to machine-header and machine-reference.
-  - Added to lisb and ir multiple arguments for constraints, properties, invariants and init.
-  Arguments for constraints, properties and invariants are chained via AConjunctPredicate.
-  Arguments for init are chained via ASequenceSubstitution.
+  - Added parameter support to machine-name.
+  - Added multiple arguments for constraints, properties, invariants and init.
+      Arguments for constraints, properties and invariants are chained via AConjunctPredicate.
+      Arguments for init are chained via ASequenceSubstitution.
   - Added example sebastian with tests.
+  - Added multi-arity for subset and strict-subset.
+  - Added multi-arity for contains.
+  - Added cartesian-product and mul to lisb-dsl and ir.
+  - Added lisb-dsl:
+      equivalence -> bequivalence,
+      implication -> bimplication,
+      in -> bmember,
+      π -> bpi,
+      Σ -> bsigma,
+      successor -> bsuccessor,
+      predecessor -> bpredecessor,
+      div -> bdiv,
+      direct-product -> bdirect-product,
+      override -> boverride,
+      range-subtraction -> brange-subtraction,
+      range-restriction -> brange-restriction,
+      domain-subtraction -> bdomain-subtraction,
+      domain-restriction -> bdomain-restriction,
+      |-> bmaplet,
+      relation -> brelation,
+      <<-> -> btotal-relation,
+      <->> -> bsurjective-relation,
+      <<->> -> btotal-surjective-relation,
+      <- -> bappend,
+      -> -> bprepend,
+      || -> bparallel-sub,
+      becomes-member -> bbecomes-element-of,
+      set! -> bassign
   ### Changed
-  - Changed lisb and ir invariant to invariants.
+  - Changed lisb-dsl machine layout.
   - Changed all machine-clause-ir-nodes to use :values instead of individually keys for arguments.
-  - Changed lisb machine layout.
   - Changed let.
-  - Changed lisb and ir op-subs to op-sub.
-  - Changed lisb and ir parallel-substitutions to parallel-sub.
-  - Changed lisb and ir sequence-substitutions to sequential-sub.
-  - Changed lisb and ir count-seq to size.
-  - Changed lisb and ir record to rec.
-  - Changed lisb and ir rec-get to get.
-  - Changed lisb and ir total-relation to <<->.
-  - Changed lisb and ir surjective-relation to <->>.
-  - Changed lisb and ir total-surjective-relation to <<->>.
-  - Changed lisb and ir subset-strict? to strict-subset?.
-  - Changed lisb superset-strict? to strict-superset?.
-  - Changed lisb and ir order of cons.
+  - Changed ir subset and strict-subset to support multi-arity.
+  - Changed ir contains to support multi-arity.
+  - Changed order of cons.
+  - Changed ir keys:
+      identifier[s] -> id[s],
+      predicate[s] -> pred[s],
+      expression[s] -> epxr[s],
+      element[s] -> elem[s],
+      number[s] -> num[s],
+      relation[s] -> rel[s],
+      operation[s] -> op[s],
+      substitution[s] -> sub[s],
+      record -> record,
+      id-values -> id-vals,
+      parameters -> args,
+      return -> return-vals
+  - Changed lisb2ir function names:
+      b<=> -> bequivalence,
+      b=> -> bimplication,
+      bsubset-strict? -> bstrict-subset?,
+      bsuperset-strict? -> bstrict-superset?,
+      bcount -> bcard,
+      bdifference -> set-,
+      bcount-seq -> bsize,
+      bcomp-set -> bcomprehension-set,
+      binc -> bsuccessor,
+      bdec -> bpredecessor,
+      b* -> bmul-or-cart,
+      b|| -> bparallel-product,
+      bcomp -> bcomposition,
+      b>< -> bdirect-product,
+      b<+ -> boverride,
+      b|>> -> brange-subtraction,
+      b|> -> brange-restriction,
+      b<<| -> bdomain-subtraction,
+      b<| -> bdomain-restriction,
+      bcouple -< bmaplet,
+      b<-> -> brelation,
+      bapply -> bfn-call,
+      b>->> -> btotal-bijection,
+      b>+>> -> bpartial-bijection,
+      b>-> -> btotal-injection,
+      b>+> -> bpartial-injection,
+      b-->> -> btotal-surjection,
+      b+->> -> bpartial-surjection,
+      b--> -> btotal-function,
+      b+-> -> bpartial-function,
+      brest -> btail,
+      bdrop-last -> bfront,
+      bconj -> bappend,
+      bcons -> bprepend,
+      brec-get -> brecord-get,
+      brec -> brecord,
+      bop-subs -> bop-sub,
+      bsequence-substitution -> bsequential-sub,
+      bparallel-substitution -> bparallel-sub,
+      boperation-call -> bop-call,
+      binvariant -> binvariants
+  - Changed ir tags:
+      :not= -> :not-equal,
+      := -> :equal,
+      :subset-strict -> :strict-subset,
+      :card -> :cardinality,
+      :comp-set -> :comprehension-set,
+      :inc -> :successor,
+      :dec -> :predecessor,
+      :mult-or-cart -> :mul-or-cart,
+      :minus -> :sub,
+      :plus -> :add,
+      :less-eq -> :less-equals,
+      :greater-eq -> :greater-equals,
+      :relationise -> :rel,
+      :functionise -> :fnc,
+      :relational-composition -> :composition,
+      :relational-override -> :override,
+      :relational-image -> :image,
+      :inverse-relation -> :inverse,
+      :identity-relation -> :id,
+      :range -> range,
+      :domain -> domain,
+      :couple -> maplet,
+      :apply -> :fn-call,
+      :restrict-tail -> :drop,
+      :restrict-front -> :take,
+      :insert-tail -> :append,
+      :insert-front -> :prepend,
+      :rec-get -> :record-get,
+      :rec -> :record,
+      :op-subs -> :op-sub,
+      :pre -> :precondition,
+      :sequence-substitution -> sequential-sub,
+      :parallel-substitution -> parallel-sub,
+      :operation-call -> op-call
+  - Changed lisb-dsl:
+      count -> card,
+      comp-set -> comprehension-set,
+      difference -> set-,
+      count-seq -> size,
+      subset-strict? -> strict-subset?,
+      superset-strict? -> strict-superset?,
+      || -> parallel-product,
+      comp -> composition,
+      identity -> id,
+      couple -> maplet,
+      apply -> fn-call,
+      rec-get -> record-get,
+      op-subs -> op-sub,
+      sequence-substitution -> sequential-sub,
+      parallel-substitution -> parallel-sub,
+      operation-call -> op-call,
+      invariant -> invariants
   ### Removed
-  - Removed lisb and ir call. Only apply is now used for function calls.
   - Removed maplet/couple chaining.
-  - Removed b machines for machine-clauses
-  - Removed multi-arity for lisb and ir cons.
+  - Removed b machine examples for machine-clauses.
+  - Removed multi-arity for cons.
+  - Removed ir node :distinct. :distinct in now resolved in lisb2ir.
 
 
 ## [0.0.1] - 2021-09-17

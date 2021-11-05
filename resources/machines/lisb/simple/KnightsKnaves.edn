@@ -1,9 +1,8 @@
-(machine
-  :KnightsKnaves
+(machine :KnightsKnaves
   (constants :A :B :C)
   (properties
-    (contains? bool-set :A)
-    (contains? bool-set :B)
-    (contains? bool-set :C)
+    (member? :A bool-set)
+    (member? :B bool-set)
+    (member? :C bool-set)
     (<=> (= :A true) (or (= :B false) (= :C false)))
     (<=> (= :B true) (= :A true))))

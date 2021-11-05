@@ -13,7 +13,7 @@
               bmachine bmodel bsystem brefinement bimplementation
               ;;; machine clauses
               ;; machine inclusions
-              buses bincludes bmch-ref bsees bextends bpromotes
+              buses bincludes bsees bextends bpromotes
               ;; machine sections
               bconstraints bsets bdeferred-set benumerated-set bconstants bproperties bdefinitions bvariables
               binvariants bassertions binit boperations boperation
@@ -29,29 +29,29 @@
               ;;; string
               bstring-set
               ;;; records
-              bstruct brec bget
+              bstruct brecord brecord-get
               ;;; sequences
-              bsequence bseq bseq1 biseq biseq1 bperm bsize bconcat b-> b<- brev bfirst blast bfront btail bconc
-              btake bdrop
+              bsequence bseq bseq1 biseq biseq1 bperm bsize bconcat bprepend bappend breverse bfirst blast bfront btail
+              bconc btake bdrop
               ;;; functions
-              b+-> b--> b+->> b-->> b>+> b>-> b>+>> b>->> blambda bapply
+              bpartial-function btotal-function bpartial-surjection btotal-surjection bpartial-injection btotal-injection
+              bpartial-bijection btotal-bijection blambda bfn-call
               ;;; relations
-              b<-> b<<-> b<->> b<<->> bcouple bdom bran bid b<| b<<| b|> b|>> binverse bimage b<+ b>< bcomp b|| bprj1
-              bprj2 bclosure1 bclosure biterate bfnc brel
+              brelation btotal-relation bsurjective-relation btotal-surjective-relation bmaplet bdom bran bid
+              bdomain-restriction bdomain-subtraction brange-restriction brange-subtraction binverse bimage boverride
+              bdirect-product bcomposition bparallel-product bprj1 bprj2 bclosure1 bclosure biterate bfnc brel
               ;;; numbers
               binteger-set bnatural-set bnatural1-set bint-set bnat-set bnat1-set binterval brange bmin-int bmax-int
-              bmax bmin b+ b- b* bdiv b** bmod bpi bsigma bsucc bpred
-              ;; number predicates
-              b< b> b<= b>=
+              b< b> b<= b>= bmax bmin b+ b- b* bdiv b** bmod bpi bsigma bsuccessor bpredecessor
               ;;; sets
-              bcomp-set bpow bpow1 bfin bfin1 bcard bunion bintersection bdifference bmember? bcontains? bsubset?
+              bcomprehension-set bpow bpow1 bfin bfin1 bcard bunion bintersection bset- bmember? bcontains? bsubset?
               bstrict-subset? bsuperset? bstrict-superset? bunite-sets bunion-pe bintersect-sets bintersection-pe
               ;;; booleans
               bbool-set bpred->bool
               ;;; equality predicates
               b= bnot= bdistinct?
               ;;; logical predicates
-              band bor b=> b<=> bnot bfor-all bexists
+              band bor bimplication bequivalence bnot bfor-all bexists
               ;;; misc
               bset-enum bmap-set defpred pred almost-flatten wrap bempty-machine])
 

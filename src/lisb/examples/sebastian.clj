@@ -9,19 +9,19 @@
                            (operations
                              (operation [] :AbsoluteSetDeadline [:timer :deadline]
                                         (pre (and (contains? :TIMERS :timer) (contains? natural-set :deadline))
-                                             (assign (apply :curDeadlines :timer) :deadline)))
+                                             (assign (fn-call :curDeadlines :timer) :deadline)))
                              (operation [] :AddDeadline [:timer :deadline]
                                         (pre (and (contains? :TIMERS :timer) (contains? natural-set :deadline))
-                                             (assign (apply :curDeadlines :timer) :deadline)))
+                                             (assign (fn-call :curDeadlines :timer) :deadline)))
                              (operation [] :TimeoutDeadline [:timer :deadline]
                                         (pre (and (contains? :TIMERS :timer) (contains? natural-set :deadline))
-                                             (assign :curDeadlines (difference :curDeadlines #{[:timer :deadline]}))))
+                                             (assign :curDeadlines (set- :curDeadlines #{[:timer :deadline]}))))
                              (operation [] :IncreaseTime [:delta]
                                         (select (and (contains? natural-set :delta) (=> (not= :curDeadlines #{}) (<= :delta (min (ran :curDeadlines)))))
-                                                (assign :curDeadlines (lambda [:x] (contains? (dom :curDeadlines) :x) (- (apply :curDeadlines :x) :delta)))))
+                                                (assign :curDeadlines (lambda [:x] (contains? (dom :curDeadlines) :x) (- (fn-call :curDeadlines :x) :delta)))))
                              (operation [] :IncreaseTimeUntilDeadline [:timer :delta]
-                                        (select (and (contains? natural-set :delta) (contains? (dom :curDeadlines) :timer) (= :delta (min (ran :curDeadlines))) (= :delta (apply :curDeadlines :timer)))
-                                                (assign :curDeadlines (lambda [:x] (contains? (difference (dom :curDeadlines) #{:timer}) :x) (- (apply :curDeadlines :x) :delta)))))))))
+                                        (select (and (contains? natural-set :delta) (contains? (dom :curDeadlines) :timer) (= :delta (min (ran :curDeadlines))) (= :delta (fn-call :curDeadlines :timer)))
+                                                (assign :curDeadlines (lambda [:x] (contains? (set- (dom :curDeadlines) #{:timer}) :x) (- (fn-call :curDeadlines :x) :delta)))))))))
 
 (def traffic-light2 (b (machine :TrafficLight2
                                 (sets
@@ -60,7 +60,7 @@
                                              (operation [] :Send_command_cars_r [] (select (= :tl_cars :yellow) (op-sub :AddDeadline :cmd_cars_red 500)))
                                              (operation [] :Send_command_peds_r [] (select (= :tl_peds :green) (op-sub :AddDeadline :cmd_peds_red 500)))
                                              (operation [] :Send_command_peds_g [] (select (and (= :tl_cars :red) (= :tl_peds :red)) (op-sub :AddDeadline :cmd_peds_green 500)))
-                                             (operation [] :Timeout [:cmd] (select (and (contains? (dom :curDeadlines) :cmd) (= (apply :curDeadlines :cmd) 0)) (op-sub :TimeoutDeadline :cmd 0)))
+                                             (operation [] :Timeout [:cmd] (select (and (contains? (dom :curDeadlines) :cmd) (= (fn-call :curDeadlines :cmd) 0)) (op-sub :TimeoutDeadline :cmd 0)))
                                              (operation [] :cars_ry [] (select (and (= :tl_cars :red) (= :tl_peds :red)) (parallel-sub (assign :tl_cars :redyellow) (any [:delta] (contains? (interval 0 500) :delta) (op-sub :IncreaseTimeUntilDeadline :cmd_cars_redyellow :delta)))))
                                              (operation [] :cars_y [] (select (= :tl_cars :green) (parallel-sub (assign :tl_cars :yellow) (any [:delta] (contains? (interval 0 500) :delta) (op-sub :IncreaseTimeUntilDeadline :cmd_cars_yellow :delta)))))
                                              (operation [] :cars_g [] (select (= :tl_cars :redyellow) (parallel-sub (assign :tl_cars :green) (any [:delta] (contains? (interval 0 500) :delta) (op-sub :IncreaseTimeUntilDeadline :cmd_cars_green :delta)))))

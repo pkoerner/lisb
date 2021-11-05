@@ -1,15 +1,12 @@
-(machine
-  :Registrar
+(machine :Registrar
   (extends :Marriage)
   (includes :Life)
   (promotes :born)
   (operations
-    (operation [] :dies [:nn] (pre
-                                (and
-                                  (contains? :PERSON :nn)
-                                  (contains? (union :male :female) :nn))
-                                (parallel-sub
-                                  (op-sub :die :nn)
-                                  (cond
-                                    (contains? (dom :marriage) :nn) (op-sub :part :nn (apply :marriage :nn))
-                                    (contains? (ran :marriage) :nn) (op-sub :part (apply (inverse :marriage) :nn) :nn)))))))
+    (operation [] :dies [:nn]
+      (pre (and (member? :nn :PERSON) (member? :nn (union :male :female)))
+        (parallel-sub
+          (op-sub :die :nn)
+          (cond
+            (member? :nn (dom :marriage)) (op-sub :part :nn (fn-call :marriage :nn))
+            (member? :nn (ran :marriage)) (op-sub :part (fn-call (inverse :marriage) :nn) :nn)))))))

@@ -48,7 +48,7 @@
                                     (not (contains? (dom :marriage) :mm))
                                     (contains? :female :ff)
                                     (not (contains? (ran :marriage) :ff)))
-                                  (assign (apply :marriage :mm) :ff)))
+                                  (assign (fn-call :marriage :mm) :ff)))
                      (operation [] :part [:mm :ff]
                                 (pre
                                   (and
@@ -62,8 +62,8 @@
                                     (contains? :PERSON :nn)
                                     (contains? (union (dom :marriage) (ran :marriage)) :nn))
                                   (if-sub (contains? (dom :marriage) :nn)
-                                          (assign :pp (apply :marriage :nn))
-                                          (assign :pp (apply (inverse :marriage) :nn)))))))))
+                                          (assign :pp (fn-call :marriage :nn))
+                                          (assign :pp (fn-call (inverse :marriage) :nn)))))))))
 
 (def registrar (b (machine
                     :Registrar
@@ -78,5 +78,5 @@
                                                   (parallel-sub
                                                     (op-sub :die :nn)
                                                     (cond
-                                                      (contains? (dom :marriage) :nn) (op-sub :part :nn (apply :marriage :nn))
-                                                      (contains? (ran :marriage) :nn) (op-sub :part (apply (inverse :marriage) :nn) :nn)))))))))
+                                                      (contains? (dom :marriage) :nn) (op-sub :part :nn (fn-call :marriage :nn))
+                                                      (contains? (ran :marriage) :nn) (op-sub :part (fn-call (inverse :marriage) :nn) :nn)))))))))
