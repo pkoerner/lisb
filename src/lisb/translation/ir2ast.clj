@@ -739,7 +739,8 @@
 ;;; sets
 
 (defmethod ir-node->ast-node :comprehension-set [ir-node]
-  (AComprehensionSetExpression. (ir-node-ids->ast ir-node) (ir-node-pred->ast ir-node)))
+  (let [ids (map ir->ast-node (to-vec (:ids ir-node)))]
+    (AComprehensionSetExpression. ids (ir-node-pred->ast ir-node))))
 
 (defmethod ir-node->ast-node :power-set [ir-node]
   (APowSubsetExpression. (ir-node-set->ast ir-node)))

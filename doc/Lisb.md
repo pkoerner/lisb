@@ -34,7 +34,7 @@
 |-------------------------------|--------------------------------------------|--------------------------------------------------------------------|--------------------------------------------|
 | `{elem1,elem2,...}`           | `#{elem1 elem2 ...}`                       | `#{elem1 elem2 ...}`                                               | set enumeration                            |
 | `{id1,id2,...&#124;pred}`     | `(comprehension-set ids pred)`             | `{:tag :comprehension-set, :ids ids, :pred pred}`                  | comprehension set                          |
-|                               | `#{ids &#124; pred}`                       | `{:tag :comprehension-set, :ids ids, :pred pred}`                  | sugar                                      | <!-- implement -->
+|                               | `#{ids &#124; pred}`                       | `{:tag :comprehension-set, :ids ids, :pred pred}`                  | sugar                                      |
 | `POW(set)`                    | `(pow set)`                                | `{:tag :power-set, :set set}`                                      | power set                                  |
 | `POW1(set)`                   | `(pow1 set)`                               | `{:tag :power1-set, :set set}`                                     | set of non-empty subsets                   |
 | `FIN(set)`                    | `(fin set)`                                | `{:tag :fin, :set set}`                                            | set of all finite subsets                  |

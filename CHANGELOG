@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added multi-arity for contains.
   - Added cartesian-product and mul to lisb-dsl and ir.
   - Added lisb-dsl:
+      {ids | pred} -> (bcomprehension-set ids pred)
       equivalence -> bequivalence,
       implication -> bimplication,
       in -> bmember,
@@ -50,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Changed ir subset and strict-subset to support multi-arity.
   - Changed ir contains to support multi-arity.
   - Changed order of cons.
+  - Changed comprehension-set ids from set to keyword or vector.
   - Changed ir keys:
       identifier[s] -> id[s],
       predicate[s] -> pred[s],
