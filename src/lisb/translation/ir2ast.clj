@@ -178,7 +178,7 @@
                                                AParseUnitDefinitionParseUnit
                                                PMachineClause
                                                PSubstitution
-                                               PDefinition AExtendsMachineClause AIncludesMachineClause AMachineReference AUsesMachineClause APromotesMachineClause AOpSubstitution ASystemMachineVariant AModelMachineVariant ARefinementMachineParseUnit AImplementationMachineParseUnit ASeesMachineClause)))
+                                               PDefinition AExtendsMachineClause AIncludesMachineClause AMachineReference AUsesMachineClause APromotesMachineClause AOpSubstitution ASystemMachineVariant AModelMachineVariant ARefinementMachineParseUnit AImplementationMachineParseUnit ASeesMachineClause ACaseOrSubstitution ACaseSubstitution)))
 
 
 (declare ir->ast-node)
@@ -428,6 +428,24 @@
       (let [else (last clauses)
             else-ifs (map select-when-sub (partition 2 (drop-last 1 (drop 2 clauses))))]
         (ASelectSubstitution. condition then else-ifs else)))))
+
+(defn to-vec [v]
+  (if (vector? v)
+    v
+    [v]))
+(defn case-or-sub [[case then]]
+  (ACaseOrSubstitution. (to-vec case) then))
+(defn get-or-subs-and-else [cases]
+  (if (even? (count cases))
+    [(map case-or-sub (partition 2 cases)) nil]
+    [(map case-or-sub (partition 2 (drop-last cases))) (last cases)]))
+(defmethod ir-node->ast-node :case [ir-node]
+  (let [expr (ir-node-expr->ast ir-node)
+        clauses (map ir->ast-node (:clauses ir-node))
+        either-expr (to-vec (first clauses))
+        either-sub (second clauses)
+        [or-subs else] (get-or-subs-and-else (drop 2 clauses))]
+    (ACaseSubstitution. expr either-expr either-sub or-subs else)))
 
 (defmethod ir-node->ast-node :op-subs [ir-node]
   (AOpSubstitution. (ir->ast-node (:op ir-node)) (map ir->ast-node (:args ir-node))))
