@@ -114,7 +114,7 @@
                 "CASE 1+1 OF EITHER 1 THEN skip OR 2 THEN skip ELSE skip END END " (b (case (+ 1 1) 1 skip 2 skip skip))
                 "CASE 1+1 OF EITHER (1,2) THEN skip OR (3,4) THEN skip ELSE skip END END " (b (case (+ 1 1) [1 2] skip [3 4] skip skip))
                 ; TODO: wrong in pretty printer
-                ;"op(a)" (b (op-subs :op :a))
+                ;"op(a)" (b (op-sub :op :a))
                 )))
 
 
