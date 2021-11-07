@@ -69,6 +69,7 @@
                   "CONSTRAINTS 1=1\n" (b (constraints (= 1 1)))
                   "CONSTRAINTS 1=1 & 2=2 & 3=3\n" (b (constraints (= 1 1) (= 2 2) (= 3 3)))
                   "SETS S; T={e1,e2}\n" (b (sets (deferred-set :S) (enumerated-set :T :e1 :e2)))
+                  "SETS S; T={e1,e2}\n" (b (sets :S :T #{:e1 :e2}))
                   "CONSTANTS x, y\n" (b (constants :x :y))
                   "PROPERTIES\n1=1\n" (b (properties (= 1 1)))
                   "PROPERTIES\n1=1 & 2=2 & 3=3\n" (b (properties (= 1 1) (= 2 2) (= 3 3)))

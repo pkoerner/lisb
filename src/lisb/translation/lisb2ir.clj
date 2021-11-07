@@ -798,27 +798,42 @@
   (bran (blambda [:x] (bmember? :x s) (p :x))))
 
 
-(defn is-keyword-or-vector [e]
-  (or
-    (= clojure.lang.PersistentVector (type e))
-    (= clojure.lang.Keyword (type e))))
+(defn process-set-definitions [sets-clause]
+  (loop [todo-set-defs (rest sets-clause)
+         finished-set-defs []]
+    (if (empty? todo-set-defs)
+      (cons 'sets finished-set-defs)
+      (let [current (first todo-set-defs)]
+        (cond
+          (list? current) (recur (rest todo-set-defs) (conj finished-set-defs current))
+          (keyword? current) (if (set? (second todo-set-defs))
+                               (recur (drop 2 todo-set-defs) (conj finished-set-defs (concat (list 'enumerated-set current) (second todo-set-defs))))
+                               (recur (rest todo-set-defs) (conj finished-set-defs (cons 'deferred-set [current]))))
+          :else (throw (Exception. (str "Unsupported way of set definitions: " sets-clause))))))))
 
 (defn process-comprehension-set [lisb]
-  (if (and (set? lisb) (contains? lisb '|))
-    (if (= 3 (count lisb))
-      (let [lisb (disj lisb '|)
-            [ids pred] (cond
-                         (is-keyword-or-vector (first lisb)) [(first lisb) (second lisb)]
-                         (is-keyword-or-vector (second lisb)) [(second lisb) (first lisb)]
-                         :else (throw (str "Unsupported way of set comprehension!" lisb)))]
-        (conj (list ids pred) 'comprehension-set))
-      (throw (str "Unsupported way of set comprehension!" lisb)))
-    (if (seqable? lisb)
-      (walk process-comprehension-set identity lisb)
-      lisb)))
+  (if (= 3 (count lisb))
+    (let [lisb (disj lisb '|)
+          [ids pred]
+          (let [f (first lisb)
+                s (second lisb)]
+            (cond
+              (or (vector? f) (keyword? f)) [f s]
+              (or (vector? s) (keyword? s)) [s f]
+              :else (throw (Exception. (str "Unsupported way of set comprehension: " lisb)))))]
+      (conj (list ids pred) 'comprehension-set))
+    (throw (Exception. (str "Unsupported way of set comprehension: " lisb)))))
+
+(defn pre-process-lisb [lisb]
+  (cond
+    (and (set? lisb) (contains? lisb '|)) (process-comprehension-set lisb)
+    (and (list? lisb) (= 'sets (first lisb))) (process-set-definitions lisb)
+    (seqable? lisb) (walk pre-process-lisb identity lisb)
+    :else lisb))
+
 
 (defmacro b [lisb]
-  (let [removed-pipes (process-comprehension-set lisb)]
+  (let [pre-processed-lisb (pre-process-lisb lisb)]
     `(let [
            ; parse units
            ~'machine bmachine
@@ -1052,7 +1067,7 @@
            ~'not bnot
            ~'for-all bfor-all
            ~'exists bexists]
-       ~removed-pipes
+       ~pre-processed-lisb
        )))
 
 (defn lisb->ir [lisb]
