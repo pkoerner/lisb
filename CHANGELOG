@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added cartesian-product and mul to lisb-dsl and ir.
   - Added lisb-dsl:
       {ids | pred} -> (bcomprehension-set ids pred)
+      (sets :E :F #{:a :b}) -> (bsets (bdeferred-set :E) (benumerated-set :F :a :b))
       equivalence -> bequivalence,
       implication -> bimplication,
       in -> bmember,

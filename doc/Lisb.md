@@ -274,10 +274,10 @@
 ####Set definitions
 | B                      | Lisb                          | IR                                             | Description    |
 |------------------------|-------------------------------|------------------------------------------------|----------------|
-| `id`                   | `id`                          | `{:tag :deferred-set, :id id}`                 | deferred set   | <!-- implement -->
-|                        | `(deferred-set id)`           | `{:tag :deferred-set, :id id}`                 | sugar          | 
-| `id={elem1,elem2,...}` | `id #{elem1 elem2 ...}`       | `{:tag :enumerated-set, :id id, :elems elems}` | enumerated set | <!-- implement -->
-|                        | `(enumerated-set id & elems)` | `{:tag :enumerated-set, :id id, :elems elems}` | sugar          | 
+| `id`                   | `id`                          | `{:tag :deferred-set, :id id}`                 | deferred set   |
+|                        | `(deferred-set id)`           | `{:tag :deferred-set, :id id}`                 | deferred set   | 
+| `id={elem1,elem2,...}` | `id #{elem1 elem2 ...}`       | `{:tag :enumerated-set, :id id, :elems elems}` | enumerated set |
+|                        | `(enumerated-set id & elems)` | `{:tag :enumerated-set, :id id, :elems elems}` | enumerated set | 
 ####Operation definitions
 | B                                                    | Lisb                            | IR                                                                         | Description                           |
 |------------------------------------------------------|---------------------------------|----------------------------------------------------------------------------|---------------------------------------|
