@@ -6,25 +6,25 @@
   (init
     (assign :marriage #{}))
   (operations
-    (operation [] :wed [:mm :ff]
+    (:wed [:mm :ff]
       (pre
         (and (member? :mm :male)
           (not (member? :mm (dom :marriage)))
           (member? :ff :female)
           (not (member? :ff (ran :marriage))))
         (assign (fn-call :marriage :mm) :ff)))
-    (operation [] :part [:mm :ff]
+    (:part [:mm :ff]
       (pre
         (and
           (member? :mm :male)
           (member? :ff :female)
           (member? [:mm :ff] :marriage))
         (assign :marriage (- :marriage #{[:mm :ff]}))))
-    (operation [:pp] :partner [:nn]
+    (<-- [:pp] (:partner [:nn]
       (pre
         (and
           (member? :nn :PERSON)
           (member? :nn (union (dom :marriage) (ran :marriage))))
         (if-sub (member? :nn (dom :marriage))
           (assign :pp (fn-call :marriage :nn))
-          (assign :pp (fn-call (inverse :marriage) :nn)))))))
+          (assign :pp (fn-call (inverse :marriage) :nn))))))))

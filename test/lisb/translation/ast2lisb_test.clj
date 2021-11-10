@@ -65,7 +65,9 @@
                     '(properties (= 1 1) (= 2 2)) "PROPERTIES 1=1 & 2=2"
                     '(variables :var) "VARIABLES var"
                     '(invariants (= 1 1) (= 2 2)) "INVARIANT 1=1 & 2=2"
-                    '(init (assign :x 0) (assign :y 0)) "INITIALISATION BEGIN x := 0; y := 0 END"))))
+                    '(init (assign :x 0) (assign :y 0)) "INITIALISATION BEGIN x := 0; y := 0 END"
+                    '(operations (:inc [:x] (assign :x (inc :x)))) "OPERATIONS inc(x)=x:=succ(x)"
+                    '(operations (<-- [:a] (:inc [:x] (assign :x (inc :x))))) "OPERATIONS a<--inc(x)=x:=succ(x)"))))
 
 
 (deftest substitutions-test
@@ -76,7 +78,6 @@
                   '(assign (fn-call :f :x) :E) "f(x) := E"
                   '(becomes-element-of (:x) :S) "x :: S"
                   '(becomes-such (:x) (> :x 0))  "x : (x>0)"
-                  '(operation-call (:x) :OP (:y)) "x <-- OP(y)"
                   '(parallel-sub skip skip) "skip||skip"
                   '(parallel-sub skip skip skip) "skip||skip||skip"
                   '(sequential-sub skip skip) "skip;skip"
@@ -98,6 +99,10 @@
                   '(case (+ 1 1) 1 skip 2 skip) "CASE 1+1 OF EITHER 1 THEN skip OR 2 THEN skip END END"
                   '(case (+ 1 1) 1 skip 2 skip skip) "CASE 1+1 OF EITHER 1 THEN skip OR 2 THEN skip ELSE skip END END"
                   '(case (+ 1 1) [1 2] skip [3 4] skip skip) "CASE 1+1 OF EITHER (1,2) THEN skip OR (3,4) THEN skip ELSE skip END END"
+                  '(op-call :op :x) "op(x)"
+                  '(op-call :op :x :y) "op(x,y)"
+                  '(<-- [:a] (op-call :op :x)) "a <-- op(x)"
+                  '(<-- [:a :b] (op-call :op :x :y)) "a,b <-- op(x,y)"
                   )))
 
 

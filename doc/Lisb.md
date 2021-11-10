@@ -279,12 +279,12 @@
 | `id={elem1,elem2,...}` | `id #{elem1 elem2 ...}`       | `{:tag :enumerated-set, :id id, :elems elems}` | enumerated set |
 |                        | `(enumerated-set id & elems)` | `{:tag :enumerated-set, :id id, :elems elems}` | enumerated set | 
 ####Operation definitions
-| B                                                    | Lisb                            | IR                                                                         | Description                           |
-|------------------------------------------------------|---------------------------------|----------------------------------------------------------------------------|---------------------------------------|
-| `name = body`                                        | `(name body)`                   | `{:tag :op, :return-vals return-vals, :name name, :args args, :body body}` | operation                             | <!-- TODO -->
-| `name(arg1,arg2,...) = body`                         | `(name args body)`              | `{:tag :op, :return-vals return-vals, :name name, :args args, :body body}` | operation with parameters             | <!-- TODO -->
-| `return1,return2,... <-- name = body`                | `(<-- returns (name body))`     | `{:tag :op, :return-vals return-vals, :name name, :args args, :body body}` | operation with returns                | <!-- TODO -->
-| `return1,return2,... <-- name(arg1,arg2,...) = body` | `(<-- returns (name args body)` | `{:tag :op, :return-vals return-vals, :name name, :args args, :body body}` | operation with parameters and returns | <!-- TODO -->
+| B                                                    | Lisb                             | IR                                                                     | Description                           |
+|------------------------------------------------------|----------------------------------|------------------------------------------------------------------------|---------------------------------------|
+| `name = body`                                        | `(name [] body)`                 | `{:tag :op, :returns [], :name name, :args [], :body body}`            | operation                             | 
+| `name(arg1,arg2,...) = body`                         | `(name args body)`               | `{:tag :op, :returns [], :name name, :args args, :body body}`          | operation with parameters             | 
+| `return1,return2,... <-- name = body`                | `(<-- returns (name [] body))`   | `{:tag :op, :returns return-vals, :name name, :args [], :body body}`   | operation with returns                |
+| `return1,return2,... <-- name(arg1,arg2,...) = body` | `(<-- returns (name args body))` | `{:tag :op, :returns return-vals, :name name, :args args, :body body}` | operation with parameters and returns |
 
 
 ##Machine

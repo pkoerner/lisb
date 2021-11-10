@@ -4,7 +4,8 @@
             [lisb.examples.simple :as simple]
             [lisb.examples.marriages :as marriages]
             [lisb.examples.function-returns :as function-returns]
-            [lisb.examples.sebastian :as sebastian]))
+            [lisb.examples.sebastian :as sebastian]
+            ))
 
 (defn normalize-string [string]
   (clojure.string/replace string #"[ \n\r\t]" ""))
@@ -80,7 +81,9 @@
                   "ASSERTIONS\nTRUE=TRUE; FALSE=FALSE\n" (b (assertions (= true true) (= false false)))
                   "INITIALISATION x := 0\n" (b (init (assign :x 0)))
                   "INITIALISATION x := 0 ; y := 0 ; z := 0\n" (b (init (assign :x 0) (assign :y 0) (assign :z 0)))
-                  "OPERATIONS\ninc = x := x+1;\ndec = x := x-1\n" (b (operations (operation () :inc () (assign :x (+ :x 1))) (operation () :dec () (assign :x (- :x 1)))))))))
+                  "OPERATIONS\ninc = x := x+1;\na <-- dec(x) = x := x-1\n" (b (operations
+                                                                                (:inc [] (assign :x (+ :x 1)))
+                                                                                (<-- [:a] (:dec [:x] (assign :x (- :x 1))))))))))
 
 
 (deftest substitutions-test
@@ -92,7 +95,9 @@
                 "f(x) := E" (b (assign (fn-call :f :x) :E))
                 "x::S" (b (becomes-element-of [:x] :S))
                 "x :(x>0) " (b (becomes-such [:x] (> :x 0)))
-                "x<--OP(y)" (b (op-call [:x] :OP [:y]))
+                ; TODO: wrong in pretty printer
+                ;"op(x)" (b (op-call :op :x))
+                "a<--op(x)" (b (<-- [:a] (op-call :op :x)))
                 "skip || skip" (b (parallel-sub skip skip))
                 "skip || skip || skip" (b (parallel-sub skip skip skip))
                 "skip ; skip" (b (sequential-sub skip skip))
@@ -114,8 +119,6 @@
                 "CASE 1+1 OF EITHER 1 THEN skip OR 2 THEN skip END END " (b (case (+ 1 1) 1 skip 2 skip))
                 "CASE 1+1 OF EITHER 1 THEN skip OR 2 THEN skip ELSE skip END END " (b (case (+ 1 1) 1 skip 2 skip skip))
                 "CASE 1+1 OF EITHER (1,2) THEN skip OR (3,4) THEN skip ELSE skip END END " (b (case (+ 1 1) [1 2] skip [3 4] skip skip))
-                ; TODO: wrong in pretty printer
-                ;"op(a)" (b (op-sub :op :a))
                 )))
 
 

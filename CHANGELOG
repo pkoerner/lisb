@@ -48,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ### Changed
   - Changed lisb-dsl machine layout.
   - Changed all machine-clause-ir-nodes to use :values instead of individually keys for arguments.
+  - Changed operations.
   - Changed let.
   - Changed ir subset and strict-subset to support multi-arity.
   - Changed ir contains to support multi-arity.

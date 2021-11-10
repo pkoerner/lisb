@@ -137,12 +137,18 @@
 (defn boperations [& op-defs]
   {:tag :operations
    :values op-defs})
-(defn boperation [return-vals name args body]
-  {:tag :operation
-   :return-vals return-vals
-   :name name
-   :args args
-   :body body})
+(defn bop
+  ([name args body]
+   {:tag         :op
+    :name        name
+    :args        args
+    :body        body})
+  ([returns name args body]
+   {:tag         :op
+    :returns returns
+    :name        name
+    :args        args
+    :body        body}))
 
 
 ;;; substitutions
@@ -167,11 +173,18 @@
    :ids ids
    :pred pred})
 
-(defn bop-call [ids op args]
-  {:tag :op-call
-   :ids ids
-   :op op
-   :args args})
+(defn bop-call
+  [op & args]
+  {:tag     :op-call
+   :op      op
+   :args    args})
+
+(defn bop-call-with-returns
+  [returns op & args]
+  {:tag     :op-call
+   :returns returns
+   :op      op
+   :args    args})
 
 (defn bparallel-sub [& subs]
   (if (= 1 (count subs))
@@ -230,11 +243,6 @@
   {:tag :case
    :expr expr
    :clauses clauses})
-
-(defn bop-sub [op & args]
-  {:tag :op-sub
-   :op op
-   :args args})
 
 
 ;;; if
@@ -790,6 +798,7 @@
 
 ;;; misc
 
+
 (defn bset-enum [& elements]
   {:tag :set-enum
    :elements elements})
@@ -798,18 +807,7 @@
   (bran (blambda [:x] (bmember? :x s) (p :x))))
 
 
-(defn process-set-definitions [sets-clause]
-  (loop [todo-set-defs (rest sets-clause)
-         finished-set-defs []]
-    (if (empty? todo-set-defs)
-      (cons 'sets finished-set-defs)
-      (let [current (first todo-set-defs)]
-        (cond
-          (list? current) (recur (rest todo-set-defs) (conj finished-set-defs current))
-          (keyword? current) (if (set? (second todo-set-defs))
-                               (recur (drop 2 todo-set-defs) (conj finished-set-defs (concat (list 'enumerated-set current) (second todo-set-defs))))
-                               (recur (rest todo-set-defs) (conj finished-set-defs (cons 'deferred-set [current]))))
-          :else (throw (Exception. (str "Unsupported way of set definitions: " sets-clause))))))))
+(declare pre-process-lisb)
 
 (defn process-comprehension-set [lisb]
   (if (= 3 (count lisb))
@@ -824,10 +822,47 @@
       (conj (list ids pred) 'comprehension-set))
     (throw (Exception. (str "Unsupported way of set comprehension: " lisb)))))
 
+(defn process-set-definitions [sets-clause]
+  (loop [todo-set-defs (rest sets-clause)
+         finished-set-defs []]
+    (if (empty? todo-set-defs)
+      (cons 'sets finished-set-defs)
+      (let [current (first todo-set-defs)]
+        (cond
+          (seq? current) (recur (rest todo-set-defs) (conj finished-set-defs current))
+          (keyword? current) (if (set? (second todo-set-defs))
+                               (recur (drop 2 todo-set-defs) (conj finished-set-defs (concat (list 'enumerated-set current) (second todo-set-defs))))
+                               (recur (rest todo-set-defs) (conj finished-set-defs (cons 'deferred-set [current]))))
+          :else (throw (Exception. (str "Unsupported way of set definitions: " current))))))))
+
+(defn process-op-definitions [operations-clause]
+  (list* 'operations (reduce
+                      (fn [acc op]
+                        (cond (= '<-- (first op)) (let [returns (second op)
+                                                        operation (last op)
+                                                        name (first operation)
+                                                        args (second operation)
+                                                        body (pre-process-lisb (last operation))]
+                                                    (conj acc (list 'op returns name args body)))
+                              (keyword? (first op)) (conj acc (cons 'op op))
+                              :else (throw (Exception. (str "Unsupported way of operation definitions: " op)))))
+                      []
+                      (rest operations-clause))))
+
+
+(defn process-assign-returns [lisb]
+  (if (= 3 (count lisb))
+    (let [returns (second lisb)
+          op-call (last lisb)]
+      (list* 'op-call-with-returns returns (rest op-call)))
+    (throw (Exception. (str "Unsupported way of assign-returns: " lisb)))))
+
 (defn pre-process-lisb [lisb]
   (cond
     (and (set? lisb) (contains? lisb '|)) (process-comprehension-set lisb)
-    (and (list? lisb) (= 'sets (first lisb))) (process-set-definitions lisb)
+    (and (seq? lisb) (= 'sets (first lisb))) (process-set-definitions lisb)
+    (and (seq? lisb) (= 'operations (first lisb))) (process-op-definitions lisb)
+    (and (seq? lisb) (= '<-- (first lisb))) (process-assign-returns lisb)
     (seqable? lisb) (walk pre-process-lisb identity lisb)
     :else lisb))
 
@@ -862,7 +897,7 @@
            ~'assertions bassertions
            ~'init binit
            ~'operations boperations
-           ~'operation boperation
+           ~'op bop
 
            ; substitutions
            ~'skip bskip
@@ -873,6 +908,7 @@
            ~'becomes-member bbecomes-element-of             ; sugar
            ~'becomes-such bbecomes-such
            ~'op-call bop-call
+           ~'op-call-with-returns bop-call-with-returns
            ~'parallel-sub bparallel-sub
            ~'|| bparallel-sub                               ; sugar
            ~'sequential-sub bsequential-sub
@@ -886,7 +922,6 @@
            ~'cond bcond
            ~'select bselect
            ~'case bcase
-           ~'op-sub bop-sub
 
            ; if
            ~'if-expr bif-expr

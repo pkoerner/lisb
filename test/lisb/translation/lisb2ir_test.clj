@@ -1,9 +1,10 @@
 (ns lisb.translation.lisb2ir-test
   (:require [clojure.test :refer :all]
             [lisb.translation.util :refer [lisb->ir b pred]]
-            [lisb.examples.simple :as simple]
-            [lisb.examples.marriages :as marriages]
-            [lisb.examples.sebastian :as sebastian]))
+    [lisb.examples.simple :as simple]
+    [lisb.examples.marriages :as marriages]
+    [lisb.examples.sebastian :as sebastian]
+            ))
 
 
 (deftest examples-sebastian-test
@@ -32,8 +33,34 @@
                 simple/bakery1 "Bakery1"
                 )))
 
+(deftest machine-clauses-test
+  (testing "machine-clauses"
+    (is (= {:tag    :operations,
+            :values [{:tag :op, :name :inc, :args (), :body {:tag :assignment, :id-vals [:x {:tag :add, :nums [:x 1]}]}}
+                     {:tag :op, :name :dec, :args (), :body {:tag :assignment, :id-vals [:x {:tag :sub, :nums [:x 1]}]}}]}
+           (b (operations (:inc () (assign :x (+ :x 1))) (:dec () (assign :x (- :x 1)))))))
+    (is (= {:tag    :sets,
+            :values [{:tag :deferred-set, :id :E}
+                     {:tag :enumerated-set, :id :F, :elems [:y :z :x]}]}
+           (b (sets :E :F #{:x :y :z}))))
+    (is (= {:tag    :operations
+            :values [{:tag  :op
+                      :name :inc
+                      :args [:x]
+                      :body {:tag     :assignment
+                             :id-vals [:x {:tag :successor, :num :x}]}}]}
+           (b (operations (:inc [:x] (assign :x (inc :x)))))))
+    (is (= {:tag    :operations
+            :values [{:tag     :op
+                      :returns [:a]
+                      :name    :inc
+                      :args    [:x]
+                      :body    {:tag     :assignment
+                                :id-vals [:x {:tag :successor, :num :x}]}}]}
+           (b (operations (<-- [:a] (:inc [:x] (assign :x (inc :x))))))))))
+
 (deftest equality-predicates-test
-  (testing " equality-predicates"
+  (testing "equality-predicates"
     (is (= {:tag :=
             :left true
             :right false}
