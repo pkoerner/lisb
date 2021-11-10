@@ -5,19 +5,20 @@
     (member? :curDeadlines (+-> :TIMERS natural-set)))
   (init (assign :curDeadlines #{}))
   (operations
-    (operation [] :AbsoluteSetDeadline [:timer :deadline]
+    (:AbsoluteSetDeadline [:timer :deadline]
       (pre (and (member? :timer :TIMERS) (member? :deadline natural-set))
         (assign (fn-call :curDeadlines :timer) :deadline)))
-    (operation [] :AddDeadline [:timer :deadline]
+    (:AddDeadline [:timer :deadline]
       (pre (and (member? :timer :TIMERS) (member? :deadline natural-set))
         (assign (fn-call :curDeadlines :timer) :deadline)))
-    (operation [] :TimeoutDeadline [:timer :deadline]
+    (:TimeoutDeadline [:timer :deadline]
       (pre (and (member? :timer :TIMERS) (member? :deadline natural-set))
         (assign :curDeadlines (set- :curDeadlines #{[:timer :deadline]}))))
-    (operation [] :IncreaseTime [:delta]
-      (select (and (member? :delta natural-set) (=> (not= :curDeadlines #{}) (<= :delta (min (ran :curDeadlines)))))
+    (:IncreaseTime [:delta]
+      (select (and (member? :delta natural-set) (=> (not= :curDeadlines #{})
+                                                  (<= :delta (min (ran :curDeadlines)))))
         (assign :curDeadlines (lambda [:x] (member? :x (dom :curDeadlines)) (- (fn-call :curDeadlines :x) :delta)))))
-    (operation [] :IncreaseTimeUntilDeadline [:timer :delta]
+    (:IncreaseTimeUntilDeadline [:timer :delta]
       (select (and
                 (member? :delta natural-set)
                 (member? :timer (dom :curDeadlines))

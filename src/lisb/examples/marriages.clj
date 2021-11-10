@@ -16,21 +16,23 @@
                    (assign :male #{})
                    (assign :female #{})))
                (operations
-                 (operation [] :born [:nn :ss] (pre
-                                                 (and
-                                                   (contains? :PERSON :nn)
-                                                   (not (contains? (union :male :female) :nn))
-                                                   (contains? :SEX :ss))
-                                                 (if-sub (= :ss :boy)
-                                                         (assign :male (union :male #{:nn}))
-                                                         (assign :female (union :female #{:nn})))))
-                 (operation [] :die [:nn] (pre
-                                            (and
-                                              (contains? :PERSON :nn)
-                                              (contains? (union :male :female) :nn))
-                                            (if-sub (contains? :male :nn)
-                                                    (assign :male (- :male #{:nn}))
-                                                    (assign :female (- :female #{:nn})))))))))
+                 (:born [:nn :ss]
+                   (pre
+                     (and
+                       (contains? :PERSON :nn)
+                       (not (contains? (union :male :female) :nn))
+                       (contains? :SEX :ss))
+                     (if-sub (= :ss :boy)
+                             (assign :male (union :male #{:nn}))
+                             (assign :female (union :female #{:nn})))))
+                 (:die [:nn]
+                   (pre
+                     (and
+                       (contains? :PERSON :nn)
+                       (contains? (union :male :female) :nn))
+                     (if-sub (contains? :male :nn)
+                             (assign :male (- :male #{:nn}))
+                             (assign :female (- :female #{:nn})))))))))
 
 (def marriage (b (machine
                    :Marriage
@@ -41,29 +43,29 @@
                    (init
                      (assign :marriage #{}))
                    (operations
-                     (operation [] :wed [:mm :ff]
-                                (pre
-                                  (and
-                                    (contains? :male :mm)
-                                    (not (contains? (dom :marriage) :mm))
-                                    (contains? :female :ff)
-                                    (not (contains? (ran :marriage) :ff)))
-                                  (assign (fn-call :marriage :mm) :ff)))
-                     (operation [] :part [:mm :ff]
-                                (pre
-                                  (and
-                                    (contains? :male :mm)
-                                    (contains? :female :ff)
-                                    (contains? :marriage [:mm :ff]))
-                                  (assign :marriage (- :marriage #{[:mm :ff]}))))
-                     (operation [:pp] :partner [:nn]
-                                (pre
-                                  (and
-                                    (contains? :PERSON :nn)
-                                    (contains? (union (dom :marriage) (ran :marriage)) :nn))
-                                  (if-sub (contains? (dom :marriage) :nn)
-                                          (assign :pp (fn-call :marriage :nn))
-                                          (assign :pp (fn-call (inverse :marriage) :nn)))))))))
+                     (:wed [:mm :ff]
+                       (pre
+                         (and
+                           (contains? :male :mm)
+                           (not (contains? (dom :marriage) :mm))
+                           (contains? :female :ff)
+                           (not (contains? (ran :marriage) :ff)))
+                         (assign (fn-call :marriage :mm) :ff)))
+                     (:part [:mm :ff]
+                       (pre
+                         (and
+                           (contains? :male :mm)
+                           (contains? :female :ff)
+                           (contains? :marriage [:mm :ff]))
+                         (assign :marriage (- :marriage #{[:mm :ff]}))))
+                     (<-- [:pp] (:partner [:nn]
+                                  (pre
+                                    (and
+                                      (contains? :PERSON :nn)
+                                      (contains? (union (dom :marriage) (ran :marriage)) :nn))
+                                    (if-sub (contains? (dom :marriage) :nn)
+                                            (assign :pp (fn-call :marriage :nn))
+                                            (assign :pp (fn-call (inverse :marriage) :nn))))))))))
 
 (def registrar (b (machine
                     :Registrar
@@ -71,12 +73,12 @@
                     (includes :Life)
                     (promotes :born)
                     (operations
-                      (operation [] :dies [:nn] (pre
-                                                  (and
-                                                    (contains? :PERSON :nn)
-                                                    (contains? (union :male :female) :nn))
-                                                  (parallel-sub
-                                                    (op-sub :die :nn)
-                                                    (cond
-                                                      (contains? (dom :marriage) :nn) (op-sub :part :nn (fn-call :marriage :nn))
-                                                      (contains? (ran :marriage) :nn) (op-sub :part (fn-call (inverse :marriage) :nn) :nn)))))))))
+                      (:dies [:nn] (pre
+                                     (and
+                                       (contains? :PERSON :nn)
+                                       (contains? (union :male :female) :nn))
+                                     (parallel-sub
+                                       (op-call :die :nn)
+                                       (cond
+                                         (contains? (dom :marriage) :nn) (op-call :part :nn (fn-call :marriage :nn))
+                                         (contains? (ran :marriage) :nn) (op-call :part (fn-call (inverse :marriage) :nn) :nn)))))))))

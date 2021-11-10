@@ -1,6 +1,6 @@
 (ns lisb.translation.circle-test
   (:require [clojure.test :refer :all]
-            [lisb.translation.util :refer [ast->ir ir->ast b ast->lisb]]))
+            [lisb.translation.util :refer [ast->ir ir->ast b ast->lisb ir->b b->lisb b->ir lisb->ir]]))
 
 (deftest machine-test
   (testing "machine"
@@ -14,13 +14,12 @@
               (b (sets (deferred-set :S) (enumerated-set :T :e1 :e2)))
               (b (constants :a :b :c))
               (b (properties (= true true)))
-              ;(b (definitions))
+              (b (definitions))
               (b (variables :x :y))
               (b (invariants (= true true)))
               (b (assertions (= true true) (= false false)))
               (b (init (assign :x 0 :y 0)))
-              (b (operations (operation () :inc () (assign :x (+ :x 1))) (operation () :dec () (assign :x (- :x 1)))))
-              )))
+              (b (operations (:inc [] (assign :x (+ :x 1))) (:dec [] (assign :x (- :x 1))))))))
 
 (deftest substitutions-test
   (testing "substitutions"

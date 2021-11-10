@@ -337,11 +337,14 @@
 (defmethod ast->lisb AOperationsMachineClause [node]
   (concat-last 'operations (.getOperations node)))
 (defmethod ast->lisb AOperation [node]
-  (lisbify 'operation
-           (.getReturnValues node)  ; TODO: test if multiple return values are possible
-           (first (.getOpName node))  ; there should be exact one identifier
-           (.getParameters node)
-           (.getOperationBody node)))
+  (let [name (ast->lisb (first (.getOpName node)))
+        params (map ast->lisb (.getParameters node)) ; there should be exact one identifier
+        body (ast->lisb (.getOperationBody node))
+        returns (map ast->lisb (.getReturnValues node))
+        op (list name params body)]
+    (if (empty? returns)
+      op
+      (list '<-- returns op))))
 
 
 ;;; substitutions
@@ -357,16 +360,11 @@
         right (ast->lisb (.getRhsExpressions node))]
     (concat ['assign] (interleave left right))))
 
-; TODO: functional override
-
 (defmethod ast->lisb ABecomesElementOfSubstitution [node]
   (lisbify 'becomes-element-of (.getIdentifiers node) (.getSet node)))
 
 (defmethod ast->lisb ABecomesSuchSubstitution [node]
   (lisbify 'becomes-such (.getIdentifiers node) (.getPredicate node)))
-
-(defmethod ast->lisb AOperationCallSubstitution [node]
-  (lisbify 'operation-call (.getResultIdentifiers node) (first (.getOperation node)) (.getParameters node))) ; there should be exact one identifier in .getOperation
 
 (defmethod ast->lisb AParallelSubstitution [node]
   (concat-last 'parallel-sub (.getSubstitutions node)))
@@ -439,10 +437,13 @@
   [(return-element-if-only-one (map ast->lisb (.getExpressions node))) (ast->lisb (.getSubstitution node))])
 
 (defmethod ast->lisb AOpSubstitution [node]
-  (concat-last 'op-sub (.getName node) (.getParameters node))
-  )
+  (concat-last 'op-call (.getName node) (.getParameters node)))
 
-; TODO: case
+(defmethod ast->lisb AOperationCallSubstitution [node]
+  (let [returns (mapv ast->lisb (.getResultIdentifiers node))
+        op (first (.getOperation node))                     ; there should be exact one identifier in .getOperation
+        params (.getParameters node)]
+    (list '<-- returns (concat-last 'op-call op params))))
 
 ;;; if-then-else
 

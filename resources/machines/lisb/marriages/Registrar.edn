@@ -3,10 +3,10 @@
   (includes :Life)
   (promotes :born)
   (operations
-    (operation [] :dies [:nn]
+    (:dies [:nn]
       (pre (and (member? :nn :PERSON) (member? :nn (union :male :female)))
         (parallel-sub
-          (op-sub :die :nn)
+          (op-call :die :nn)
           (cond
-            (member? :nn (dom :marriage)) (op-sub :part :nn (fn-call :marriage :nn))
-            (member? :nn (ran :marriage)) (op-sub :part (fn-call (inverse :marriage) :nn) :nn)))))))
+            (member? :nn (dom :marriage)) (op-call :part :nn (fn-call :marriage :nn))
+            (member? :nn (ran :marriage)) (op-call :part (fn-call (inverse :marriage) :nn) :nn)))))))

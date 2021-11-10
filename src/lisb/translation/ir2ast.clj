@@ -363,8 +363,8 @@
 
 (defmethod ir-node->ast-node :operations [ir-node]
   (AOperationsMachineClause. (ir-node-values->ast ir-node)))
-(defmethod ir-node->ast-node :operation [ir-node]
-  (AOperation. (map ir->ast-node (:return-vals ir-node)) (list (TIdentifierLiteral. (name (:name ir-node)))) (ir-node-args->ast ir-node) (ir->ast-node (:body ir-node))))
+(defmethod ir-node->ast-node :op [ir-node]
+  (AOperation. (map ir->ast-node (:returns ir-node)) (list (TIdentifierLiteral. (name (:name ir-node)))) (ir-node-args->ast ir-node) (ir->ast-node (:body ir-node))))
 
 ;;; substitutions
 
@@ -383,7 +383,12 @@
 (defmethod ir-node->ast-node :becomes-element-of [ir-node] (ABecomesElementOfSubstitution. (ir-node-ids->ast ir-node) (ir-node-set->ast ir-node)))
 (defmethod ir-node->ast-node :becomes-such [ir-node] (ABecomesSuchSubstitution. (ir-node-ids->ast ir-node) (ir-node-pred->ast ir-node)))
 (defmethod ir-node->ast-node :op-call [ir-node]
-  (AOperationCallSubstitution. (ir-node-ids->ast ir-node) (list (TIdentifierLiteral. (name (:op ir-node)))) (ir-node-args->ast ir-node)))
+  (let [returns (map ir->ast-node (:returns ir-node))
+        name (list (TIdentifierLiteral. (name (:op ir-node))))
+        args (ir-node-args->ast ir-node)]
+    (if (empty? returns)
+      (AOpSubstitution. name args )
+      (AOperationCallSubstitution. returns name args))))
 (defmethod ir-node->ast-node :parallel-sub [ir-node] (AParallelSubstitution. (ir-node-subs->ast ir-node)))
 (defmethod ir-node->ast-node :sequential-sub [ir-node] (ASequenceSubstitution. (ir-node-subs->ast ir-node)))
 (defmethod ir-node->ast-node :any [ir-node] (AAnySubstitution. (ir-node-ids->ast ir-node) (ir->ast-node (:where ir-node)) (ir-node-then->ast ir-node)))
@@ -438,9 +443,6 @@
         either-sub (second clauses)
         [or-subs else] (process-clauses case-or-sub (drop 2 clauses))]
     (ACaseSubstitution. expr either-expr either-sub or-subs else)))
-
-(defmethod ir-node->ast-node :op-sub [ir-node]
-  (AOpSubstitution. (ir->ast-node (:op ir-node)) (map ir->ast-node (:args ir-node))))
 
 
 ;;; if
