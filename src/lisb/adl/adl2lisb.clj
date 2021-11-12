@@ -4,7 +4,7 @@
 (defn assign [pc & kvs]
   {:pc (inc pc)
    :ops (fn [jump?]
-          (let [opname (keyword (gensym "assign"))
+          (let [opname (keyword (str "assign" pc))
                 newpc (if jump? jump? (inc pc))]
             [`(bop ~opname [] (bprecondition (b= :pc ~pc)
                                              (bsequential-sub (bassign ~@kvs)
@@ -22,8 +22,8 @@
 
 
 (defn while [pc condition & body]
-  (let [opname-enter (keyword (gensym "while_enter"))
-        opname-exit (keyword (gensym "while_exit"))
+  (let [opname-enter (keyword (str "while_enter" pc))
+        opname-exit (keyword (str "while_exit" pc))
         body-pc (inc pc)
         res (apply do body-pc body)]
     {:pc (:pc res)
@@ -41,8 +41,8 @@
 (defn if 
   ([pc condition then] (apply if pc condition then [nil]))
   ([pc condition then else]
-   (let [opname-then (keyword (gensym "ifte-then"))
-         opname-else (keyword (gensym "ifte-else"))
+   (let [opname-then (keyword (str "ifte-then" pc))
+         opname-else (keyword (str "ifte-else" pc))
          then-pc (inc pc)
          then-res (apply do then-pc [then])
          else-pc (:pc then-res)
