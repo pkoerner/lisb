@@ -2,77 +2,83 @@
   (:require [lisb.translation.util :refer :all]))
 
 (defn assign [pc & kvs]
-  (let [opname (keyword (gensym "assign"))
-        newpc (inc pc)]
-    {:pc newpc
-     :ops [`(~opname [] (bprecondition (b= :pc ~pc)
-                                     (bsequential-sub (bassign ~@kvs)
-                                                      (bassign :pc ~newpc))))]}))
+  {:pc (inc pc)
+   :ops (fn [jump?]
+          (let [opname (keyword (gensym "assign"))
+                newpc (if jump? jump? (inc pc))]
+            [`(bop ~opname [] (bprecondition (b= :pc ~pc)
+                                             (bsequential-sub (bassign ~@kvs)
+                                                              (bassign :pc ~newpc))))]))})
 
-(defn accumulate-block [jump? a e]
-  (let [{:keys [pc ops]} (apply (resolve (first e)) (if jump? jump? (:pc a)) (rest e))]
-    {:pc pc, :ops (into (:ops a) ops)}))
+(defn do [pc & args]
+  (loop [[instr & instrs :as allinstrs] args
+         pc pc
+         ops []]
+    (let [res (apply (resolve (first instr)) pc (rest instr))]
+      (if (seq instrs)
+        (recur instrs (:pc res) (into ops ((:ops res) nil)))
+        {:pc (:pc res)
+         :ops (fn [jump] (into ops ((:ops res) jump)))}))))
 
-(defn algorithm-aux [pc & args]
-  (accumulate-block
-    false
-    (reduce (partial accumulate-block false)
-          {:pc pc, :ops []}
-          (butlast args))
-    (last args)))
 
 (defn while [pc condition & body]
   (let [opname-enter (keyword (gensym "while_enter"))
         opname-exit (keyword (gensym "while_exit"))
         body-pc (inc pc)
-        res (apply algorithm-aux body-pc body)
-        exit-pc (inc (:pc res))]
-    {:pc exit-pc
-     :ops (into (:ops res)
-     [`(~opname-enter [] (bprecondition (band (b= :pc ~pc)
-                                              ~condition)
-                                        (bassign :pc ~body-pc)))
-      `(~opname-exit [] (bprecondition (band (b= :pc ~pc)
-                                             (bnot ~condition))
-                                       (bassign :pc ~exit-pc)))])}))
+        res (apply do body-pc body)]
+    {:pc (:pc res)
+     :ops (fn [jump?]
+            (let [exit-pc (if jump? jump? (:pc res))]
+              (into ((:ops res) pc)
+                    [`(bop ~opname-enter [] (bprecondition (band (b= :pc ~pc)
+                                                                 ~condition)
+                                                           (bassign :pc ~body-pc)))
+                     `(bop ~opname-exit [] (bprecondition (band (b= :pc ~pc)
+                                                                (bnot ~condition))
+                                                          (bassign :pc ~exit-pc)))])))}))
+         
 
 (defn if 
-  ([pc condition then] (apply if [pc condition then nil]))
+  ([pc condition then] (apply if pc condition then [nil]))
   ([pc condition then else]
    (let [opname-then (keyword (gensym "ifte-then"))
          opname-else (keyword (gensym "ifte-else"))
          then-pc (inc pc)
-         then-res (apply algorithm-aux then-pc [then])
+         then-res (apply do then-pc [then])
          else-pc (:pc then-res)
-         else-res (when else (apply algorithm-aux else-pc [else]))
+         else-res (when else (apply do else-pc [else]))
          exit-pc (if else (:pc else-res) else-pc)]
     {:pc exit-pc
-     :ops (into (:ops then-res)
-      [`(~opname-then [] (bprecondition (band (b= :pc ~pc)
-                                              ~condition)
-                                        (bassign :pc ~then-pc)))
-       `(~opname-else [] (bprecondition (band (b= :pc ~pc)
-                                              (bnot ~condition))        
-                                        (bassign :pc ~(if else else-pc exit-pc))))])})))
-
-(defn do [pc & args]
-  (apply algorithm-aux pc args))
+     :ops (fn [jump?]
+            (concat ((:ops then-res) (if jump? jump? exit-pc))
+                    (when else ((:ops else-res) (if jump? jump? exit-pc)))
+                    [`(bop ~opname-then [] (bprecondition (band (b= :pc ~pc)
+                                                                ~condition)
+                                                          (bassign :pc ~then-pc)))
+                     `(bop ~opname-else [] (bprecondition (band (b= :pc ~pc)
+                                                                (bnot ~condition))        
+                                                          (bassign :pc ~(if else else-pc (if jump? jump? exit-pc)))))]))})))
 
 (defmacro algorithm [& args]
-  (apply algorithm-aux 0 args))
+  ((:ops (apply lisb.adl.adl2lisb/do 0 args)) nil))
 
-(clojure.pprint/pprint (macroexpand '(algorithm 
-                          (while (> :x 0)
-                             (assign :p (+ :p :y))
-                             (assign :x (/ :x 2) :y (* :y 2)))             )))
+(defmacro adl [namey & args]
+  (let [vardecls (butlast args)
+        algorythm (last args)
+    algensalat (:ops (macroexpand algorythm))]
+    `(b (apply boperations ~algensalat))))
+
 
 (clojure.pprint/pprint (macroexpand '(algorithm
-                           (while (> :x 0)
-                             (if (not= 0 (mod :x 2))
-                               (assign :p (+ :p :y)))
-                             (assign :x (/ :x 2) :y (* :y 2))))))
+             (while (> :x 0)
+               (assign :x (/ :x 2) :y (* :y 2))
+               (if (not= 0 (mod :x 2))
+                 (assign :p (+ :p :y)))
+               ))))
 
-                           
+
+
+
 
 (comment 
 (def programm-counter (atom 0))
