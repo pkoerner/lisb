@@ -1,0 +1,32 @@
+(machine [:Multiply :x0 :y0]
+  (variables :pc :x :y :p)
+  (invariants
+    (=> (= :pc 0) (= (+ :p (* :x :y)) (* :x0 :y0)))
+    (=> (= :pc 3) (= :p (* :x0 :y0))))
+  (init
+    (assign :x :x0 :y :y0 :p 0 :pc 0))
+  (operations
+    (:while0_enter [] (pre
+                        (and (= :pc 0) (> :x 0))
+                        (assign :pc 1)))
+    (:if0_then [] (pre
+                    (and (= :pc 1) (not= 0 (mod :x 2)))
+                    (sequential-sub
+                      (assign :p (+ :p :y))
+                      (assign :pc 2))))
+    (:assign1 [] (pre
+                   (= :pc 2)
+                   (sequential-sub
+                     (assign :x (/ :x 2) :y (* :y 2))
+                     (assign :pc 0))))
+    (:if0_else [] (pre
+                    (and (= :pc 1) (not (not= 0 (mod :x 2))))
+                    (sequential-sub
+                      (assign :x (/ :x 2) :y (* :y 2))
+                      (assign :pc 0))))
+    (:while0_exit [] (pre
+                       (and (= :pc 0) (not (> :x 0)))
+                       (assign :pc 3)))
+    (:algorithm_end [] (pre
+                         (= :pc 3)
+                         skip))))

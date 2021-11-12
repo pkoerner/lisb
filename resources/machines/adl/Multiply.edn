@@ -1,0 +1,10 @@
+(groovy :Multiply
+  (var :x (in :x nat-set) 5)
+  (var :y (in :y nat-set) 3)
+  (var :p (in :p nat-set) 0)
+  (while (> :x 0)
+    (assert (= (+ :p (* :x :y)) (* 5 3)))
+    (if (not= 0 (mod :x 2))
+      (assign :p (+ :p :y)))
+    (assign :x (/ :x 2) :y (* :y 2)))
+  (assert (= :p (* :x :y))))
