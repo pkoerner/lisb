@@ -36,7 +36,7 @@
                      `(bop ~opname-exit [] (bprecondition (band (b= :pc ~pc)
                                                                 (bnot ~condition))
                                                           (bassign :pc ~exit-pc)))])))}))
-         
+
 
 (defn if 
   ([pc condition then] (apply if pc condition then [nil]))
@@ -60,7 +60,8 @@
                                                           (bassign :pc ~(if else else-pc (if jump? jump? exit-pc)))))]))})))
 
 (defmacro algorithm [& args]
-  ((:ops (apply lisb.adl.adl2lisb/do 0 args)) nil))
+  (let [ops ((:ops (apply lisb.adl.adl2lisb/do 0 args)) nil)]
+    `(b (apply boperations ~ops))))
 
 (defmacro adl [namey & args]
   (let [vardecls (butlast args)
@@ -69,7 +70,7 @@
     `(b (apply boperations ~algensalat))))
 
 
-(clojure.pprint/pprint (macroexpand '(algorithm
+#_(clojure.pprint/pprint (macroexpand '(algorithm
              (while (> :x 0)
                (assign :x (/ :x 2) :y (* :y 2))
                (if (not= 0 (mod :x 2))
