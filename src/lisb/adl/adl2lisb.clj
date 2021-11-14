@@ -29,13 +29,13 @@
     {:pc (:pc res)
      :ops (fn [jump?]
             (let [exit-pc (if jump? jump? (:pc res))]
-              (into ((:ops res) pc)
-                    [`(bop ~opname-enter [] (bprecondition (band (b= :pc ~pc)
+              (into [`(bop ~opname-enter [] (bprecondition (band (b= :pc ~pc)
                                                                  ~condition)
                                                            (bassign :pc ~body-pc)))
                      `(bop ~opname-exit [] (bprecondition (band (b= :pc ~pc)
                                                                 (bnot ~condition))
-                                                          (bassign :pc ~exit-pc)))])))}))
+                                                          (bassign :pc ~exit-pc)))]
+                    ((:ops res) pc))))}))
 
 
 (defn if 
@@ -50,14 +50,14 @@
          exit-pc (if else (:pc else-res) else-pc)]
     {:pc exit-pc
      :ops (fn [jump?]
-            (concat ((:ops then-res) (if jump? jump? exit-pc))
-                    (when else ((:ops else-res) (if jump? jump? exit-pc)))
-                    [`(bop ~opname-then [] (bprecondition (band (b= :pc ~pc)
+            (concat [`(bop ~opname-then [] (bprecondition (band (b= :pc ~pc)
                                                                 ~condition)
                                                           (bassign :pc ~then-pc)))
                      `(bop ~opname-else [] (bprecondition (band (b= :pc ~pc)
-                                                                (bnot ~condition))        
-                                                          (bassign :pc ~(if else else-pc (if jump? jump? exit-pc)))))]))})))
+                                                                (bnot ~condition))
+                                                          (bassign :pc ~(if else else-pc (if jump? jump? exit-pc)))))]
+                    ((:ops then-res) (if jump? jump? exit-pc))
+                    (when else ((:ops else-res) (if jump? jump? exit-pc)))))})))
 
 (defmacro algorithm [& args]
   (let [ops ((:ops (apply lisb.adl.adl2lisb/do 0 args)) nil)]
