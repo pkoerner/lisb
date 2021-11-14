@@ -64,12 +64,12 @@
   (testing "multiply-example"
     (is (=
           (b (operations
-               (:assign2 [] (pre (= :pc 2) (sequential-sub (assign :p (+ :p :y)) (assign :pc 3))))
+               (:while_enter0 [] (pre (and (= :pc 0) (> :x 0)) (assign :pc 1)))
+               (:while_exit0 [] (pre (and (= :pc 0) (not (> :x 0))) (assign :pc 4)))
                (:ifte-then1 [] (pre (and (= :pc 1) (not= 0 (mod :x 2))) (assign :pc 2)))
                (:ifte-else1 [] (pre (and (= :pc 1) (not (not= 0 (mod :x 2)))) (assign :pc 3)))
-               (:assign3 [] (pre (= :pc 3) (sequential-sub (assign :x (/ :x 2) :y (* :y 2)) (assign :pc 0))))
-               (:while_enter0 [] (pre (and (= :pc 0) (> :x 0)) (assign :pc 1)))
-               (:while_exit0 [] (pre (and (= :pc 0) (not (> :x 0))) (assign :pc 4)))))
+               (:assign2 [] (pre (= :pc 2) (sequential-sub (assign :p (+ :p :y)) (assign :pc 3))))
+               (:assign3 [] (pre (= :pc 3) (sequential-sub (assign :x (/ :x 2) :y (* :y 2)) (assign :pc 0))))))
           (algorithm
             (while (> :x 0)
               #_(assert (= (+ :p (* :x :y)) (* 5 3)))
@@ -82,10 +82,10 @@
   (testing "do"
     (is (= (b (operations
                 (:assign0 [] (pre (= :pc 0) (sequential-sub (assign :x 0) (assign :pc 1))))
-                (:assign2 [] (pre (= :pc 2) (sequential-sub (assign :x 2) (assign :pc 3))))
-                (:assign3 [] (pre (= :pc 3) (sequential-sub (assign :x 3) (assign :pc 4))))
                 (:ifte-then1 [] (pre (band (= :pc 1) (> :x 1)) (assign :pc 2)))
-                (:ifte-else1 [] (pre (band (= :pc 1) (not (> :x 1))) (assign :pc 4)))))
+                (:ifte-else1 [] (pre (band (= :pc 1) (not (> :x 1))) (assign :pc 4)))
+                (:assign2 [] (pre (= :pc 2) (sequential-sub (assign :x 2) (assign :pc 3))))
+                (:assign3 [] (pre (= :pc 3) (sequential-sub (assign :x 3) (assign :pc 4))))))
            (algorithm
              (do
                (assign :x 0))
@@ -97,13 +97,13 @@
 (deftest if-test
   (testing "if"
     (is (= (b (operations
-                (:assign1 [] (pre (= :pc 1) (sequential-sub (assign :x 1) (assign :pc 2))))
                 (:ifte-then0 [] (pre (and (= :pc 0) (> :x 0)) (assign :pc 1)))
                 (:ifte-else0 [] (pre (and (= :pc 0) (not (> :x 0))) (assign :pc 2)))
-                (:assign3 [] (pre (= :pc 3) (sequential-sub (assign :x 3) (assign :pc 5))))
-                (:assign4 [] (pre (= :pc 4) (sequential-sub (assign :y 4) (assign :pc 5))))
+                (:assign1 [] (pre (= :pc 1) (sequential-sub (assign :x 1) (assign :pc 2))))
                 (:ifte-then2 [] (pre (and (= :pc 2) (> :x 2)) (assign :pc 3)))
-                (:ifte-else2 [] (pre (and (= :pc 2) (not (> :x 2))) (assign :pc 4)))))
+                (:ifte-else2 [] (pre (and (= :pc 2) (not (> :x 2))) (assign :pc 4)))
+                (:assign3 [] (pre (= :pc 3) (sequential-sub (assign :x 3) (assign :pc 5))))
+                (:assign4 [] (pre (= :pc 4) (sequential-sub (assign :y 4) (assign :pc 5))))))
           (algorithm
              (if (> :x 0)
                (assign :x 1))
@@ -114,13 +114,13 @@
 (deftest while-test
   (testing "while"
     (is (= (b (operations
-                (:assign1 [] (pre (= :pc 1) (sequential-sub (assign :x 1) (assign :pc 0))))
                 (:while_enter0 [] (pre (and (= :pc 0) (> :x 0)) (assign :pc 1)))
                 (:while_exit0 [] (pre (and (= :pc 0) (not (> :x 0))) (assign :pc 2)))
-                (:assign3 [] (pre (= :pc 3) (sequential-sub (assign :x 3) (assign :pc 4))))
-                (:assign4 [] (pre (= :pc 4) (sequential-sub (assign :y 4) (assign :pc 2))))
+                (:assign1 [] (pre (= :pc 1) (sequential-sub (assign :x 1) (assign :pc 0))))
                 (:while_enter2 [] (pre (and (= :pc 2) (> :x 2)) (assign :pc 3)))
-                (:while_exit2 [] (pre (and (= :pc 2) (not (> :x 2))) (assign :pc 5)))))
+                (:while_exit2 [] (pre (and (= :pc 2) (not (> :x 2))) (assign :pc 5)))
+                (:assign3 [] (pre (= :pc 3) (sequential-sub (assign :x 3) (assign :pc 4))))
+                (:assign4 [] (pre (= :pc 4) (sequential-sub (assign :y 4) (assign :pc 2))))))
            (algorithm
              (while (> :x 0)
                (assign :x 1))
