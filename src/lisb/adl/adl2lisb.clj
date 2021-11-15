@@ -1,24 +1,36 @@
 (ns lisb.adl.adl2lisb
   (:require [lisb.translation.util :refer :all]))
 
+(defn assert [pc pred]
+  {:pc         (inc pc)
+   :ops        (fn [jump?]
+                 (let [opname (keyword (str "assert" pc))
+                       newpc (if jump? jump? (inc pc))]
+                   [`(bop ~opname [] (bprecondition (b= :pc ~pc)
+                                                    (bassign :pc ~newpc)))]))
+   :invariants [`(bimplication (b= :pc ~pc) (b ~pred))]})
+
 (defn assign [pc & kvs]
-  {:pc (inc pc)
-   :ops (fn [jump?]
-          (let [opname (keyword (str "assign" pc))
-                newpc (if jump? jump? (inc pc))]
-            [`(bop ~opname [] (bprecondition (b= :pc ~pc)
-                                             (bsequential-sub (bassign ~@kvs)
-                                                              (bassign :pc ~newpc))))]))})
+  {:pc         (inc pc)
+   :ops        (fn [jump?]
+                 (let [opname (keyword (str "assign" pc))
+                       newpc (if jump? jump? (inc pc))]
+                   [`(bop ~opname [] (bprecondition (b= :pc ~pc)
+                                                    (bsequential-sub (b (bassign ~@kvs))
+                                                                     (bassign :pc ~newpc))))]))
+   :invariants []})
 
 (defn do [pc & args]
   (loop [[instr & instrs :as allinstrs] args
          pc pc
-         ops []]
+         ops []
+         invariants []]
     (let [res (apply (resolve (first instr)) pc (rest instr))]
       (if (seq instrs)
-        (recur instrs (:pc res) (into ops ((:ops res) nil)))
+        (recur instrs (:pc res) (into ops ((:ops res) nil)) (into invariants (:invariants res)))
         {:pc (:pc res)
-         :ops (fn [jump] (into ops ((:ops res) jump)))}))))
+         :ops (fn [jump] (into ops ((:ops res) jump)))
+         :invariants (into invariants (:invariants res))}))))
 
 
 (defn while [pc condition & body]
@@ -26,16 +38,17 @@
         opname-exit (keyword (str "while_exit" pc))
         body-pc (inc pc)
         res (apply do body-pc body)]
-    {:pc (:pc res)
-     :ops (fn [jump?]
-            (let [exit-pc (if jump? jump? (:pc res))]
-              (into [`(bop ~opname-enter [] (bprecondition (band (b= :pc ~pc)
-                                                                 ~condition)
-                                                           (bassign :pc ~body-pc)))
-                     `(bop ~opname-exit [] (bprecondition (band (b= :pc ~pc)
-                                                                (bnot ~condition))
-                                                          (bassign :pc ~exit-pc)))]
-                    ((:ops res) pc))))}))
+    {:pc         (:pc res)
+     :ops        (fn [jump?]
+                   (let [exit-pc (if jump? jump? (:pc res))]
+                     (into [`(bop ~opname-enter [] (bprecondition (band (b= :pc ~pc)
+                                                                        (b ~condition))
+                                                                  (bassign :pc ~body-pc)))
+                            `(bop ~opname-exit [] (bprecondition (band (b= :pc ~pc)
+                                                                       (bnot (b ~condition)))
+                                                                 (bassign :pc ~exit-pc)))]
+                           ((:ops res) pc))))
+     :invariants (:invariants res)}))
 
 
 (defn if 
@@ -48,20 +61,25 @@
          else-pc (:pc then-res)
          else-res (when else (apply do else-pc [else]))
          exit-pc (if else (:pc else-res) else-pc)]
-    {:pc exit-pc
-     :ops (fn [jump?]
-            (concat [`(bop ~opname-then [] (bprecondition (band (b= :pc ~pc)
-                                                                ~condition)
-                                                          (bassign :pc ~then-pc)))
-                     `(bop ~opname-else [] (bprecondition (band (b= :pc ~pc)
-                                                                (bnot ~condition))
-                                                          (bassign :pc ~(if else else-pc (if jump? jump? exit-pc)))))]
-                    ((:ops then-res) (if jump? jump? exit-pc))
-                    (when else ((:ops else-res) (if jump? jump? exit-pc)))))})))
+     {:pc         exit-pc
+      :ops        (fn [jump?]
+                    (concat [`(bop ~opname-then [] (bprecondition (band (b= :pc ~pc)
+                                                                        (b ~condition))
+                                                                  (bassign :pc ~then-pc)))
+                             `(bop ~opname-else [] (bprecondition (band (b= :pc ~pc)
+                                                                        (bnot (b ~condition)))
+                                                                  (bassign :pc ~(if else else-pc (if jump? jump? exit-pc)))))]
+                            ((:ops then-res) (if jump? jump? exit-pc))
+                            (when else ((:ops else-res) (if jump? jump? exit-pc)))))
+      :invariants (into (:invariants then-res) (:invariants else-res))})))
 
 (defmacro algorithm [& args]
-  (let [ops ((:ops (apply lisb.adl.adl2lisb/do 0 args)) nil)]
-    `(b (apply boperations ~ops))))
+  (let [res (apply lisb.adl.adl2lisb/do 0 args)
+        operations ((:ops res) nil)
+        invariants (:invariants res)]
+    `{:invariants ~invariants
+      :operations ~operations}
+    #_`(b (apply boperations ~ops))))
 
 (defmacro adl [namey & args]
   (let [vardecls (butlast args)
