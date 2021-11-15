@@ -63,29 +63,33 @@
 (deftest multiply-example-test
   (testing "multiply-example"
     (is (=
-          (b (operations
-               (:while_enter0 [] (pre (and (= :pc 0) (> :x 0)) (assign :pc 1)))
-               (:while_exit0 [] (pre (and (= :pc 0) (not (> :x 0))) (assign :pc 4)))
-               (:ifte-then1 [] (pre (and (= :pc 1) (not= 0 (mod :x 2))) (assign :pc 2)))
-               (:ifte-else1 [] (pre (and (= :pc 1) (not (not= 0 (mod :x 2)))) (assign :pc 3)))
-               (:assign2 [] (pre (= :pc 2) (sequential-sub (assign :p (+ :p :y)) (assign :pc 3))))
-               (:assign3 [] (pre (= :pc 3) (sequential-sub (assign :x (/ :x 2) :y (* :y 2)) (assign :pc 0))))))
+          {:invariants [(bimplication (b= :pc 1) (b= (b+ :p (b* :x :y)) (b* 5 3)))
+                        (bimplication (b= :pc 5) (b= :p (b* :x :y)))]
+           :operations [
+                        (bop :while_enter0 [] (bprecondition (band (b= :pc 0) (b> :x 0)) (bassign :pc 1)))
+                        (bop :while_exit0 [] (bprecondition (band (b= :pc 0) (bnot (b> :x 0))) (bassign :pc 5)))
+                        (bop :assert1 [] (bprecondition (b= :pc 1) (bassign :pc 2)))
+                        (bop :ifte-then2 [] (bprecondition (band (b= :pc 2) (bnot= 0 (bmod :x 2))) (bassign :pc 3)))
+                        (bop :ifte-else2 [] (bprecondition (band (b= :pc 2) (bnot (bnot= 0 (bmod :x 2)))) (bassign :pc 4)))
+                        (bop :assign3 [] (bprecondition (b= :pc 3) (bsequential-sub (bassign :p (b+ :p :y)) (bassign :pc 4))))
+                        (bop :assign4 [] (bprecondition (b= :pc 4) (bsequential-sub (bassign :x (bdiv :x 2) :y (b* :y 2)) (bassign :pc 0))))
+                        (bop :assert5 [] (bprecondition (b= :pc 5) (bassign :pc 6)))]}
           (algorithm
             (while (> :x 0)
-              #_(assert (= (+ :p (* :x :y)) (* 5 3)))
+              (assert (= (+ :p (* :x :y)) (* 5 3)))
               (if (not= 0 (mod :x 2))
                 (assign :p (+ :p :y)))
               (assign :x (/ :x 2) :y (* :y 2)))
-            #_(assert (= :p (* :x :y))))))))
+            (assert (= :p (* :x :y))))))))
 
 (deftest do-test
   (testing "do"
-    (is (= (b (operations
-                (:assign0 [] (pre (= :pc 0) (sequential-sub (assign :x 0) (assign :pc 1))))
-                (:ifte-then1 [] (pre (band (= :pc 1) (> :x 1)) (assign :pc 2)))
-                (:ifte-else1 [] (pre (band (= :pc 1) (not (> :x 1))) (assign :pc 4)))
-                (:assign2 [] (pre (= :pc 2) (sequential-sub (assign :x 2) (assign :pc 3))))
-                (:assign3 [] (pre (= :pc 3) (sequential-sub (assign :x 3) (assign :pc 4))))))
+    (is (= {:invariants []
+            :operations [(bop :assign0 [] (bprecondition (b= :pc 0) (bsequential-sub (bassign :x 0) (bassign :pc 1))))
+                         (bop :ifte-then1 [] (bprecondition (band (b= :pc 1) (b> :x 1)) (bassign :pc 2)))
+                         (bop :ifte-else1 [] (bprecondition (band (b= :pc 1) (bnot (b> :x 1))) (bassign :pc 4)))
+                         (bop :assign2 [] (bprecondition (b= :pc 2) (bsequential-sub (bassign :x 2) (bassign :pc 3))))
+                         (bop :assign3 [] (bprecondition (b= :pc 3) (bsequential-sub (bassign :x 3) (bassign :pc 4))))]}
            (algorithm
              (do
                (assign :x 0))
@@ -96,15 +100,16 @@
 
 (deftest if-test
   (testing "if"
-    (is (= (b (operations
-                (:ifte-then0 [] (pre (and (= :pc 0) (> :x 0)) (assign :pc 1)))
-                (:ifte-else0 [] (pre (and (= :pc 0) (not (> :x 0))) (assign :pc 2)))
-                (:assign1 [] (pre (= :pc 1) (sequential-sub (assign :x 1) (assign :pc 2))))
-                (:ifte-then2 [] (pre (and (= :pc 2) (> :x 2)) (assign :pc 3)))
-                (:ifte-else2 [] (pre (and (= :pc 2) (not (> :x 2))) (assign :pc 4)))
-                (:assign3 [] (pre (= :pc 3) (sequential-sub (assign :x 3) (assign :pc 5))))
-                (:assign4 [] (pre (= :pc 4) (sequential-sub (assign :y 4) (assign :pc 5))))))
-          (algorithm
+    (is (= {:invariants []
+            :operations [
+                         (bop :ifte-then0 [] (bprecondition (band (b= :pc 0) (b> :x 0)) (bassign :pc 1)))
+                         (bop :ifte-else0 [] (bprecondition (band (b= :pc 0) (bnot (b> :x 0))) (bassign :pc 2)))
+                         (bop :assign1 [] (bprecondition (b= :pc 1) (bsequential-sub (bassign :x 1) (bassign :pc 2))))
+                         (bop :ifte-then2 [] (bprecondition (band (b= :pc 2) (b> :x 2)) (bassign :pc 3)))
+                         (bop :ifte-else2 [] (bprecondition (band (b= :pc 2) (bnot (b> :x 2))) (bassign :pc 4)))
+                         (bop :assign3 [] (bprecondition (b= :pc 3) (bsequential-sub (bassign :x 3) (bassign :pc 5))))
+                         (bop :assign4 [] (bprecondition (b= :pc 4) (bsequential-sub (bassign :y 4) (bassign :pc 5))))]}
+           (algorithm
              (if (> :x 0)
                (assign :x 1))
              (if (> :x 2)
@@ -113,14 +118,15 @@
 
 (deftest while-test
   (testing "while"
-    (is (= (b (operations
-                (:while_enter0 [] (pre (and (= :pc 0) (> :x 0)) (assign :pc 1)))
-                (:while_exit0 [] (pre (and (= :pc 0) (not (> :x 0))) (assign :pc 2)))
-                (:assign1 [] (pre (= :pc 1) (sequential-sub (assign :x 1) (assign :pc 0))))
-                (:while_enter2 [] (pre (and (= :pc 2) (> :x 2)) (assign :pc 3)))
-                (:while_exit2 [] (pre (and (= :pc 2) (not (> :x 2))) (assign :pc 5)))
-                (:assign3 [] (pre (= :pc 3) (sequential-sub (assign :x 3) (assign :pc 4))))
-                (:assign4 [] (pre (= :pc 4) (sequential-sub (assign :y 4) (assign :pc 2))))))
+    (is (= {:invariants []
+            :operations [
+                         (bop :while_enter0 [] (bprecondition (band (b= :pc 0) (b> :x 0)) (bassign :pc 1)))
+                         (bop :while_exit0 [] (bprecondition (band (b= :pc 0) (bnot (b> :x 0))) (bassign :pc 2)))
+                         (bop :assign1 [] (bprecondition (b= :pc 1) (bsequential-sub (bassign :x 1) (bassign :pc 0))))
+                         (bop :while_enter2 [] (bprecondition (band (b= :pc 2) (b> :x 2)) (bassign :pc 3)))
+                         (bop :while_exit2 [] (bprecondition (band (b= :pc 2) (bnot (b> :x 2))) (bassign :pc 5)))
+                         (bop :assign3 [] (bprecondition (b= :pc 3) (bsequential-sub (bassign :x 3) (bassign :pc 4))))
+                         (bop :assign4 [] (bprecondition (b= :pc 4) (bsequential-sub (bassign :y 4) (bassign :pc 2))))]}
            (algorithm
              (while (> :x 0)
                (assign :x 1))
@@ -131,9 +137,19 @@
 (deftest assign-test
     (testing "assign"
       (is (=
-            (b (operations
-                 (:assign0 [] (pre (= :pc 0) (sequential-sub (assign :x 1) (assign :pc 1))))
-                 (:assign1 [] (pre (= :pc 1) (sequential-sub (assign :x 2 :y 3) (assign :pc 2))))))
+            {:invariants []
+             :operations [(bop :assign0 [] (bprecondition (b= :pc 0) (bsequential-sub (bassign :x 1) (bassign :pc 1))))
+                          (bop :assign1 [] (bprecondition (b= :pc 1) (bsequential-sub (bassign :x 2 :y 3) (bassign :pc 2))))
+                          (bop :assign2 [] (bprecondition (b= :pc 2) (bsequential-sub (bassign :x {:tag :successor, :num :x}) (bassign :pc 3))))]}
             (algorithm
                (assign :x 1)
-               (assign :x 2 :y 3))))))
+               (assign :x 2 :y 3)
+               (assign :x (inc :x)))))))
+
+(deftest assert-test
+  (testing "assert"
+    (is (=
+          {:invariants [(bimplication (b= :pc 0) (b= :p (b* :x :y)))]
+           :operations [(bop :assert0 [] (bprecondition (b= :pc 0) (bassign :pc 1)))]}
+          (algorithm
+            (assert (= :p (* :x :y))))))))
