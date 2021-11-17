@@ -67,7 +67,13 @@
                     '(invariants (= 1 1) (= 2 2)) "INVARIANT 1=1 & 2=2"
                     '(init (assign :x 0) (assign :y 0)) "INITIALISATION BEGIN x := 0; y := 0 END"
                     '(operations (:inc [:x] (assign :x (inc :x)))) "OPERATIONS inc(x)=x:=succ(x)"
-                    '(operations (<-- [:a] (:inc [:x] (assign :x (inc :x))))) "OPERATIONS a<--inc(x)=x:=succ(x)"))))
+                    '(operations (<-- [:a] (:inc [:x] (assign :x (inc :x))))) "OPERATIONS a<--inc(x)=x:=succ(x)"))
+    (testing "translation to vector"
+      (is (vector? (second (b-machine-clause->lisb "INCLUDES Lift(FLOORS)"))))
+      (is (vector? (second (b-machine-clause->lisb "EXTENDS Lift(FLOORS)"))))
+      (is (vector? (second (second (b-machine-clause->lisb "OPERATIONS inc(x)=x:=succ(x)")))))
+      (is (vector? (second (nth (second (b-machine-clause->lisb "OPERATIONS a<--inc(x)=x:=succ(x)")) 2))))
+      (is (vector? (second (second (b-machine-clause->lisb "OPERATIONS a<--inc(x)=x:=succ(x)"))))))))
 
 
 (deftest substitutions-test
@@ -102,8 +108,12 @@
                   '(op-call :op :x) "op(x)"
                   '(op-call :op :x :y) "op(x,y)"
                   '(<-- [:a] (op-call :op :x)) "a <-- op(x)"
-                  '(<-- [:a :b] (op-call :op :x :y)) "a,b <-- op(x,y)"
-                  )))
+                  '(<-- [:a :b] (op-call :op :x :y)) "a,b <-- op(x,y)")
+    (testing "translation to vector"
+      (is (vector? (second (b-substitution->lisb "ANY x WHERE (x>0) THEN skip END"))))
+      (is (vector? (second (b-substitution->lisb "LET x BE x=1 IN skip END"))))
+      (is (vector? (second (b-substitution->lisb "a <-- op(x)"))))
+      (is (vector? (second (b-substitution->lisb "a,b <-- op(x,y)")))))))
 
 
 (deftest if-test
@@ -119,7 +129,10 @@
     (are [lisb b] (= lisb (b-expression->lisb b))
                   '(let [:x 1 :y 2] 3) "LET x, y BE x=1 & y=2 IN 3 END")
     (are [lisb b] (= lisb (b-predicate->lisb b))
-                  '(let [:x 1 :y 2] (= 0 0)) "LET x, y BE x=1 & y=2 IN 0=0 END")))
+                  '(let [:x 1 :y 2] (= 0 0)) "LET x, y BE x=1 & y=2 IN 0=0 END")
+    (testing "translation to vector"
+      (is (vector? (second (b-expression->lisb "LET x, y BE x=1 & y=2 IN 3 END"))))
+      (is (vector? (second (b-predicate->lisb "LET x, y BE x=1 & y=2 IN 0=0 END")))))))
 
 
 (deftest strings-test
@@ -183,7 +196,9 @@
                   '(>->> :S :T) "S>->>T"
                   '(lambda [:x] (= 1 1) 1) "%x.(1=1|1)"
                   '(fn-call :f :E) "f(E)"
-                  '(fn-call :f :E :F) "f(E,F)")))
+                  '(fn-call :f :E :F) "f(E,F)")
+    (testing "translation to vector"
+      (is (vector? (second (b-expression->lisb "%x.(1=1|1)")))))))
 
 
 (deftest relation-test
@@ -218,7 +233,11 @@
                   '(closure :r) "closure(r)"
                   '(iterate :r :n) "iterate(r,n)"
                   '(fnc :r) "fnc(r)"
-                  '(rel :r) "rel(r)")))
+                  '(rel :r) "rel(r)")
+    (testing "translation to vector"
+      (is (vector? (b-expression->lisb "E|->F")))
+      (is (vector? (b-expression->lisb "E|->F|->G")))
+      (is (vector? (first (b-expression->lisb "E|->F|->G")))))))
 
 
 (deftest number-test
@@ -241,7 +260,10 @@
                     '(max nat-set) "max(NAT)"
                     '(min nat-set) "min(NAT)"
                     '(π [:z] (member? :z nat-set) 1) "PI(z).(z:NAT|1)"
-                    '(Σ [:z] (member? :z nat-set) 1) "SIGMA(z).(z:NAT|1)"))
+                    '(Σ [:z] (member? :z nat-set) 1) "SIGMA(z).(z:NAT|1)")
+      (testing "translation to vector"
+        (is (vector? (second (b-expression->lisb "PI(z).(z:NAT|1)"))))
+        (is (vector? (second (b-expression->lisb "SIGMA(z).(z:NAT|1)"))))))
     (testing "arithmetic"
       (are [lisb b] (= lisb (b-expression->lisb b))
                     '(+ 1 2) "1+2"
@@ -290,6 +312,9 @@
                   '(intersect-sets #{#{}}) "inter({{}})"
                   '(union-pe [:z] (member? :z nat-set) 1) "UNION(z).(z:NAT|1)"
                   '(intersection-pe [:z] (member? :z nat-set) 1) "INTER(z).(z:NAT|1)")
+    (testing "translation to vector"
+      (is (vector? (second (b-expression->lisb "UNION(z).(z:NAT|1)"))))
+      (is (vector? (second (b-expression->lisb "INTER(z).(z:NAT|1)")))))
     (are [lisb b-pred] (= lisb (b-predicate->lisb b-pred))
                        '(member? 1 #{}) "1:{}"
                        '(not (member? 1 #{})) "1/:{}"
@@ -328,4 +353,7 @@
                        '(<=> (= 1 1) (= 2 2) (= 3 3)) "1=1 <=> 2=2 <=> 3=3"
                        '(not (= 1 1)) "not(1=1)"
                        '(for-all [:x] (member? :x nat-set) (< 0 :x)) "!(x).(x:NAT => 0<x)"
-                       '(exists [:x] (and (= 1 1) (= 2 2))) "#(x).(1=1 & 2=2)")))
+                       '(exists [:x] (and (= 1 1) (= 2 2))) "#(x).(1=1 & 2=2)")
+    (testing "translation to vector"
+      (is (vector? (second (b-predicate->lisb "!(x).(x:NAT => 0<x)"))))
+      (is (vector? (second (b-predicate->lisb "#(x).(1=1 & 2=2)")))))))
