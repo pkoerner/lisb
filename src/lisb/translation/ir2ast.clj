@@ -215,6 +215,11 @@
   (ir->ast-node (:sub ir-node)))
 (defn ir-node-subs->ast [ir-node]
   (map ir->ast-node (:subs ir-node)))
+(defn ir-node-subs->seq-sub-ast [ir-node]
+  (let [subs (ir-node-subs->ast ir-node)]
+    (if (= 1 (count subs))
+      (first subs)
+      (ASequenceSubstitution. subs))))
 (defn ir-node-elem->ast [ir-node]
   (ir->ast-node (:elem ir-node)))
 (defn ir-node-elems->ast [ir-node]
@@ -391,17 +396,17 @@
       (AOperationCallSubstitution. returns name args))))
 (defmethod ir-node->ast-node :parallel-sub [ir-node] (AParallelSubstitution. (ir-node-subs->ast ir-node)))
 (defmethod ir-node->ast-node :sequential-sub [ir-node] (ASequenceSubstitution. (ir-node-subs->ast ir-node)))
-(defmethod ir-node->ast-node :any [ir-node] (AAnySubstitution. (ir-node-ids->ast ir-node) (ir->ast-node (:where ir-node)) (ir-node-then->ast ir-node)))
+(defmethod ir-node->ast-node :any [ir-node] (AAnySubstitution. (ir-node-ids->ast ir-node) (ir-node-pred->ast ir-node) (ir-node-subs->seq-sub-ast ir-node)))
 (defmethod ir-node->ast-node :let-sub [ir-node]
   (let [id-vals (:id-vals ir-node)
         ids (id-vals->ids id-vals)
         assignment (id-vals->assignment id-vals)
-        sub (ir-node-sub->ast ir-node)]
+        sub (ir-node-subs->seq-sub-ast ir-node)]
     (ALetSubstitution. ids assignment sub)))
 (defmethod ir-node->ast-node :var [ir-node]
-  (AVarSubstitution. (ir-node-ids->ast ir-node) (ir-node-sub->ast ir-node)))
-(defmethod ir-node->ast-node :pre [ir-node] (APreconditionSubstitution. (ir-node-pred->ast ir-node) (ir-node-sub->ast ir-node)))
-(defmethod ir-node->ast-node :assert [ir-node] (AAssertionSubstitution. (ir-node-pred->ast ir-node) (ir-node-sub->ast ir-node)))
+  (AVarSubstitution. (ir-node-ids->ast ir-node) (ir-node-subs->seq-sub-ast ir-node)))
+(defmethod ir-node->ast-node :pre [ir-node] (APreconditionSubstitution. (ir-node-pred->ast ir-node) (ir-node-subs->seq-sub-ast ir-node)))
+(defmethod ir-node->ast-node :assert [ir-node] (AAssertionSubstitution. (ir-node-pred->ast ir-node) (ir-node-subs->seq-sub-ast ir-node)))
 
 (defn choice-or-substitution [sub]
   (AChoiceOrSubstitution. sub))

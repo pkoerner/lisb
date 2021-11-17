@@ -198,31 +198,31 @@
     {:tag           :sequential-sub
      :subs subs}))
 
-(defn bany [ids where then]
+(defn bany [ids pred & subs]
   {:tag :any
    :ids ids
-   :where where
-   :then then})
+   :pred pred
+   :subs subs})
 
-(defn blet-sub [id-vals sub]
+(defn blet-sub [id-vals & subs]
   {:tag :let-sub
    :id-vals id-vals
-   :sub sub})
+   :subs subs})
 
-(defn bvar [ids sub]
+(defn bvar [ids & subs]
   {:tag :var
    :ids ids
-   :sub sub})
+   :subs subs})
 
-(defn bprecondition [pred sub]
+(defn bprecondition [pred & subs]
   {:tag :pre
    :pred pred
-   :sub sub})
+   :subs subs})
 
-(defn bassert [pred sub]
+(defn bassert [pred & subs]
   {:tag :assert
    :pred pred
-   :sub sub})
+   :subs subs})
 
 (defn bchoice [& subs]
   {:tag :choice
