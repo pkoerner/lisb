@@ -285,7 +285,7 @@
         parameters (map ast->lisb (.getParameters node))]
     (if (empty? parameters)
       name
-      (cons name parameters))))
+      (into [name] parameters))))
 
 (defmethod ast->lisb ASeesMachineClause [node]
   (concat-last 'sees (.getMachineNames node)))
@@ -338,9 +338,9 @@
   (concat-last 'operations (.getOperations node)))
 (defmethod ast->lisb AOperation [node]
   (let [name (ast->lisb (first (.getOpName node)))
-        params (map ast->lisb (.getParameters node)) ; there should be exact one identifier
+        params (mapv ast->lisb (.getParameters node)) ; there should be exact one identifier
         body (ast->lisb (.getOperationBody node))
-        returns (map ast->lisb (.getReturnValues node))
+        returns (mapv ast->lisb (.getReturnValues node))
         op (list name params body)]
     (if (empty? returns)
       op
