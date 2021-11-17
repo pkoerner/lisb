@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added example sebastian with tests.
   - Added multi-arity for subset and strict-subset.
   - Added multi-arity for contains.
+  - Added multi-arity subs for any, let-sub, var, precondition and assert.
   - Added cartesian-product and mul to lisb-dsl and ir.
   - Added lisb-dsl:
       {ids | pred} -> (bcomprehension-set ids pred)
