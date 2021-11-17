@@ -809,10 +809,10 @@
 
 ;;; equal predicates
 
-(defmethod ir-node->ast-node := [ir-node]
+(defmethod ir-node->ast-node :equals [ir-node]
   (AEqualPredicate. (ir-node-left->ast ir-node) (ir-node-right->ast ir-node)))
 
-(defmethod ir-node->ast-node :not= [ir-node]
+(defmethod ir-node->ast-node :not-equals [ir-node]
   (ANotEqualPredicate. (ir-node-left->ast ir-node) (ir-node-right->ast ir-node)))
 
 

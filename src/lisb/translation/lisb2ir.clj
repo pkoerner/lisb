@@ -743,12 +743,12 @@
 ;;; equality predicates
 
 (defn b= [left right]
-  {:tag :=
+  {:tag :equals
    :left left
    :right right})
 
 (defn bnot= [left right]
-  {:tag :not=
+  {:tag :not-equals
    :left left
    :right right})
 ; syntactic sugar

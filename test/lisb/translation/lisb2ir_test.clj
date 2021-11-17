@@ -61,7 +61,7 @@
 
 (deftest equality-predicates-test
   (testing "equality-predicates"
-    (is (= {:tag :=
+    (is (= {:tag :equals
             :left true
             :right false}
            (b (= true false))))))
@@ -69,9 +69,9 @@
 (deftest logical-predicates-test
   (testing "logical-predicates"
     (is (= {:tag :and
-           :preds [{:tag :=, :left 1, :right 1}
-                        {:tag :=, :left 2, :right 2}
-                        {:tag :=, :left 3, :right 3}]}
+           :preds [{:tag :equals, :left 1, :right 1}
+                        {:tag :equals, :left 2, :right 2}
+                        {:tag :equals, :left 3, :right 3}]}
            (b (and (= 1 1) (= 2 2) (= 3 3)))))))
 
 
