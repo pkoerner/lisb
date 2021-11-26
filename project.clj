@@ -1,4 +1,4 @@
-(defproject org.clojars.pkoerner/lisb "0.0.2-SNAPSHOT"
+(defproject org.clojars.pkoerner/lisb "0.0.3"
   :description "lisb: A Clojure library that wraps ProB's constraint solver. Use it to write/transform B machines with less pain or interact with the constraint solver."
   :url "https://gitlab.cs.uni-duesseldorf.de/mager/lisb-clone" ;; subject to change
   :license {:name "Eclipse Public License"
