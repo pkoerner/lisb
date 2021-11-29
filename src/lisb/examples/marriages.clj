@@ -31,8 +31,8 @@
                        (contains? :PERSON :nn)
                        (contains? (union :male :female) :nn))
                      (if-sub (contains? :male :nn)
-                             (assign :male (- :male #{:nn}))
-                             (assign :female (- :female #{:nn})))))))))
+                             (assign :male (set- :male #{:nn}))
+                             (assign :female (set- :female #{:nn})))))))))
 
 (def marriage (b (machine
                    :Marriage
@@ -56,8 +56,8 @@
                          (and
                            (contains? :male :mm)
                            (contains? :female :ff)
-                           (contains? :marriage [:mm :ff]))
-                         (assign :marriage (- :marriage #{[:mm :ff]}))))
+                           (contains? :marriage (maplet :mm :ff)))
+                         (assign :marriage (set- :marriage #{(maplet :mm :ff)}))))
                      (<-- [:pp] (:partner [:nn]
                                   (pre
                                     (and

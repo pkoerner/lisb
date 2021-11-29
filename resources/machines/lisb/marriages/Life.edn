@@ -26,5 +26,5 @@
                     (member? :nn :PERSON)
                     (member? :nn (union :male :female)))
                   (if-sub (member? :nn :male)
-                    (assign :male (- :male #{:nn}))
-                    (assign :female (- :female #{:nn})))))))
+                    (assign :male (set- :male #{:nn}))
+                    (assign :female (set- :female #{:nn})))))))

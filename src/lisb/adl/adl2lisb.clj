@@ -98,7 +98,7 @@
      (bvariables ~@(:variables clauses))
      (binvariants ~@(:invariants clauses))
      (binit ~@(:init clauses))
-     (boperations ~@(:operations clauses)) ))
+     (boperations ~@(:operations clauses))))
 
 (defmacro adl [name & args]
   (let [decls (process-decls (cons `(var :pc (bmember? :pc bnat-set) 0) (butlast args)))

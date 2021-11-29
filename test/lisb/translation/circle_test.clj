@@ -132,7 +132,7 @@
               (b (<<-> :S :T))
               (b (<->> :S :T))
               (b (<<->> :S :T))
-              (b [:E :F])
+              (b (|-> :E :F))
               (b (dom :r))
               (b (ran :r))
               (b (identity :S))

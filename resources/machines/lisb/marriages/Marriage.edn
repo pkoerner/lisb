@@ -18,8 +18,8 @@
         (and
           (member? :mm :male)
           (member? :ff :female)
-          (member? [:mm :ff] :marriage))
-        (assign :marriage (- :marriage #{[:mm :ff]}))))
+          (member? (|-> :mm :ff) :marriage))
+        (assign :marriage (set- :marriage #{(|-> :mm :ff)}))))
     (<-- [:pp] (:partner [:nn]
       (pre
         (and

@@ -36,8 +36,8 @@
 (deftest machine-clauses-test
   (testing "machine-clauses"
     (is (= {:tag    :operations,
-            :values [{:tag :op, :name :inc, :args (), :body {:tag :assignment, :id-vals [:x {:tag :add, :nums [:x 1]}]}}
-                     {:tag :op, :name :dec, :args (), :body {:tag :assignment, :id-vals [:x {:tag :sub, :nums [:x 1]}]}}]}
+            :values [{:tag :op, :name :inc, :args (), :returns (), :body {:tag :assignment, :id-vals [:x {:tag :add, :nums [:x 1]}]}}
+                     {:tag :op, :name :dec, :args (), :returns (), :body {:tag :assignment, :id-vals [:x {:tag :sub, :nums [:x 1]}]}}]}
            (b (operations (:inc () (assign :x (+ :x 1))) (:dec () (assign :x (- :x 1)))))))
     (is (= {:tag    :sets,
             :values [{:tag :deferred-set, :id :E}
@@ -47,6 +47,7 @@
             :values [{:tag  :op
                       :name :inc
                       :args [:x]
+                      :returns (),
                       :body {:tag     :assignment
                              :id-vals [:x {:tag :successor, :num :x}]}}]}
            (b (operations (:inc [:x] (assign :x (inc :x)))))))

@@ -94,10 +94,10 @@
 |                         | `(pi #{z} P E)`        | `{:tag :product, :ids ids, :pred pred, :expr expr}` | sugar                                                                | 
 | `SIGMA(z).(P&#124;E)`   | `(Σ #{z} P E)`         | `{:tag :sum, :ids ids, :pred pred, :expr expr}`     | Set summation                                                        |
 |                         | `(sigma #{z} P E)`     | `{:tag :sum, :ids ids, :pred pred, :expr expr}`     | sugar                                                                | 
-| `succ(n)`               | `(inc n)`              | `{:tag :increment, :num num}`                       | successor (n+1)                                                      |
-|                         | `(successor n)`        | `{:tag :increment, :num num}`                       | sugar                                                                |
-| `pred(n)`               | `(dec n)`              | `{:tag :decrement, :num num}`                       | predecessor (n-1)                                                    |
-|                         | `(predecessor n)`      | `{:tag :decrement, :num num}`                       | sugar                                                                |
+| `succ(n)`               | `(successor n)`        | `{:tag :successor, :num num}`                       | successor (n+1)                                                      |
+|                         | `(inc n)`              | `{:tag :successor, :num num}`                       | sugar                                                                |
+| `pred(n)`               | `(predecessor n)`      | `{:tag :predecessor, :num num}`                     | predecessor (n-1)                                                    |
+|                         | `(dec n)`              | `{:tag :predecessor, :num num}`                     | sugar                                                                |
 | `2`                     | `2`                    | `2`                                                 | integer literal                                                      |
 | `-2`                    | `-2`                   | `-2`                                                | integer literal                                                      |
 | `0xF`                   | `15`                   | `15`                                                | hexadecimal literal (cannot be retranslated)                         |
@@ -133,8 +133,8 @@
 | <code>((rel1&#124;&#124;rel2)&#124;&#124;...)</code> | `(parallel-product & rels)`         | `{:tag :parallel-product, :rels rels}`           | parallel product {((x,v),(y,w)) &#124; x,y:r1 & v,w:r2}          | 
 | `prj1(set1, set2)`                                   | `(prj1 set1 set2)`                  | `{:tag :prj1, :set1 set1, :set2 set2}`           | projection function (usage prj1(Dom,Ran)(Pair))                  | 
 | `prj2(set1, set2)`                                   | `(prj2 set1 set2)`                  | `{:tag :prj2, :set1 set1, :set2 set2}`           | projection function (usage prj2(Dom,Ran)(Pair))                  | 
-| `clojure1(rel)`                                      | `(clojure1 rel)`                    | `{:tag :clojure1, :rel rel}`                     | transitive closure                                               |
-| `clojure(rel)`                                       | `(clojure rel)`                     | `{:tag :clojure, :rel rel}`                      | reflexive & transitive closure                                   |
+| `closure1(rel)`                                      | `(closure1 rel)`                    | `{:tag :closure1, :rel rel}`                     | transitive closure                                               |
+| `closure(rel)`                                       | `(closure rel)`                     | `{:tag :closure, :rel rel}`                      | reflexive & transitive closure                                   |
 | `iterate(rel,num)`                                   | `(iterate rel num)`                 | `{:tag :iterate, :rel rel, :num num}`            | iteration of r with n>=0                                         |
 | `fnc(rel)`                                           | `(fnc rel)`                         | `{:tag :fnc, :rel rel}`                          | translate relation A<->B into function A+->POW(B)                |
 | `rel(rel)`                                           | `(rel rel)`                         | `{:tag :rel, :rel rel}`                          | translate relation A<->POW(B) into relation A<->B                |
@@ -142,10 +142,10 @@
 ##Functions
 | B                                | Lisb                          | IR                                                 | Description          |
 |----------------------------------|-------------------------------|----------------------------------------------------|----------------------|
-| `set1+->set2+->...`              | `(+-> & sets)`                | `{:tag :partial-function, :sets sets}`             | partial function     |
-|                                  | `(partial-function & sets)`   | `{:tag :partial-function, :sets sets}`             | sugar                |
-| `set1-->set2-->...`              | `(--> & sets)`                | `{:tag :total-function, :sets sets}`               | total function       |
-|                                  | `(total-function & sets)`     | `{:tag :total-function, :sets sets}`               | sugar                |
+| `set1+->set2+->...`              | `(+-> & sets)`                | `{:tag :partial-fn, :sets sets}`                   | partial function     |
+|                                  | `(partial-function & sets)`   | `{:tag :partial-fn, :sets sets}`                   | sugar                |
+| `set1-->set2-->...`              | `(--> & sets)`                | `{:tag :total-fn, :sets sets}`                     | total function       |
+|                                  | `(total-function & sets)`     | `{:tag :total-fn, :sets sets}`                     | sugar                |
 | `set1+->>set2+->>...`            | `(+->> & sets)`               | `{:tag :partial-surjection, :sets sets}`           | partial surjection   |
 |                                  | `(partial-surjection & sets)` | `{:tag :partial-surjection, :sets sets}`           | sugar                |
 | `set1-->>set2-->>...`            | `(-->> & sets)`               | `{:tag :total-surjection, :sets sets}`             | total surjection     |
@@ -240,8 +240,8 @@
 | `IF cond1 THEN sub2 ESLIF cond2 THEN sub2 ... ELSE else-sub END`                   | `(cond-sub & clauses)`                        | `{:tag :cond-sub, :clauses clauses}`                    |                                        |
 | `SELECT cond1 THEN sub1 WHEN cond2 THEN sub2 ... END`                              | `(select & clauses)`                          | `{:tag :select, :clauses clauses}`                      |                                        |
 | `SELECT cond1 THEN sub1 WHEN cond2 THEN sub2 ... ELSE sub-else END`                | `(select & clauses)`                          | `{:tag :select, :clauses clauses}`                      |                                        |
-| `CASE expr OF EITHER cond1 THEN sub1 OR cond2 THEN sub2 ... END END`               | `(case expr & clauses)`                       |                                                         |                                        |
-| `CASE expr OF EITHER cond1 THEN sub1 OR cond2 THEN sub2 ... ELSE sub-else END END` | `(case expr & clauses)`                       |                                                         |                                        |
+| `CASE expr OF EITHER cond1 THEN sub1 OR cond2 THEN sub2 ... END END`               | `(case expr & cases)`                         |                                                         |                                        |
+| `CASE expr OF EITHER cond1 THEN sub1 OR cond2 THEN sub2 ... ELSE sub-else END END` | `(case expr & case)`                          |                                                         |                                        |
 
 ##Machine clauses
 ###Machine inclusion
@@ -289,13 +289,13 @@
 
 
 ##Machine
-| B                                                                       | Lisb                                                            | IR                                                                                                            | Description         |
-|-------------------------------------------------------------------------|-----------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|---------------------|
-| `MACHINE machine-name clauses END`                                      | `(machine machine-name & clauses)`                              | `(merge {:tag :machine, :clauses clauses} machine-name)`                                                      | machine             |
-| `MODEL machine-name clauses END`                                        | `(model machine-name & clauses)`                                | `(merge {:tag :model, :clauses clauses} machine-name)`                                                        | synonym for machine |
-| `SYSTEM machine-name clauses END`                                       | `(system machine-name & clauses)`                               | `(merge {:tag :system, :clauses clauses} machine-name)`                                                       | synonym for machine |
-| `REFINEMENT machine-name REFINES abstract-machine-name clauses END`     | `(refinement machine-name abstract-machine-name & clauses)`     | `(merge {:tag :refinement, :abstract-machine-name abstract-machine-name, :clauses clauses} machine-name)`     | refinement          |
-| `IMPLEMENTATION machine-name REFINES abstract-machine-name clauses END` | `(implementation machine-name abstract-machine-name & clauses)` | `(merge {:tag :implementation, :abstract-machine-name abstract-machine-name, :clauses clauses} machine-name)` | implementation      |
+| B                                                                       | Lisb                                                                    | IR                                                                                                                            | Description         |
+|-------------------------------------------------------------------------|-------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|---------------------|
+| `MACHINE machine-name clauses END`                                      | `(machine machine-name & machine-clauses)`                              | `(merge {:tag :machine, :machine-clauses machine-clauses} machine-name)`                                                      | machine             |
+| `MODEL machine-name clauses END`                                        | `(model machine-name & machine-clauses)`                                | `(merge {:tag :model, :machine-clauses machine-clauses} machine-name)`                                                        | synonym for machine |
+| `SYSTEM machine-name clauses END`                                       | `(system machine-name & machine-clauses)`                               | `(merge {:tag :system, :machine-clauses machine-clauses} machine-name)`                                                       | synonym for machine |
+| `REFINEMENT machine-name REFINES abstract-machine-name clauses END`     | `(refinement machine-name abstract-machine-name & machine-clauses)`     | `(merge {:tag :refinement, :abstract-machine-name abstract-machine-name, :machine-clauses machine-clauses} machine-name)`     | refinement          |
+| `IMPLEMENTATION machine-name REFINES abstract-machine-name clauses END` | `(implementation machine-name abstract-machine-name & machine-clauses)` | `(merge {:tag :implementation, :abstract-machine-name abstract-machine-name, :machine-clauses machine-clauses} machine-name)` | implementation      |
 ###Machine name
 | B                         | Lisb              | IR                             | Description                  |
 |---------------------------|-------------------|--------------------------------|------------------------------|

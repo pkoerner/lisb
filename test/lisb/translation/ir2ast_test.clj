@@ -4,8 +4,10 @@
             [lisb.examples.simple :as simple]
             [lisb.examples.marriages :as marriages]
             [lisb.examples.function-returns :as function-returns]
-            [lisb.examples.sebastian :as sebastian]
-            ))
+            [lisb.examples.sebastian :as sebastian])
+  (:require [clojure.spec.alpha :as s]))
+
+(s/check-asserts true)
 
 (defn normalize-string [string]
   (clojure.string/replace string #"[ \n\r\t]" ""))
@@ -123,7 +125,7 @@
                 "SELECT 1=1 THEN skip WHEN 2=2 THEN skip ELSE skip END " (b (select (= 1 1) skip (= 2 2) skip skip))
                 "CASE 1+1 OF EITHER 1 THEN skip OR 2 THEN skip END END " (b (case (+ 1 1) 1 skip 2 skip))
                 "CASE 1+1 OF EITHER 1 THEN skip OR 2 THEN skip ELSE skip END END " (b (case (+ 1 1) 1 skip 2 skip skip))
-                "CASE 1+1 OF EITHER (1,2) THEN skip OR (3,4) THEN skip ELSE skip END END " (b (case (+ 1 1) [1 2] skip [3 4] skip skip))
+                "CASE 1+1 OF EITHER 1 THEN skip OR 2 THEN skip ELSE skip END END " (b (case (+ 1 1) 1 skip 2 skip skip))
                 )))
 
 
@@ -146,11 +148,11 @@
 (deftest strings-test
   (testing "strings"
     (are [b ir] (= b (ast->b (ir->ast ir)))
-                  "\"astring\"" (b "astring")
-                  "STRING" (b string-set)
-                  "size(\"s\")" (b (size "s"))
-                  "rev(\"s\")" (b (reverse "s"))
-                  "\"s\"^\"t\"" (b (concat "s" "t"))
+                ; "\"astring\"" (b "astring")
+                ; "STRING" (b string-set)
+                ; "size(\"s\")" (b (size "s"))
+                ;  "rev(\"s\")" (b (reverse "s"))
+                ;"\"s\"^\"t\"" (b (concat "s" "t"))
                   "conc([\"s\",\"t\"])" (b (conc (sequence "s" "t"))))))
 
 
@@ -340,9 +342,9 @@
                 "FIN({})" (b (fin #{}))
                 "FIN1({})" (b (fin1 #{}))
                 "card({})" (b (card #{}))
-                "{E}*{F}" (b (* #{:E} #{:F}))
-                "{E}*{F}*{G}" (b (* #{:E} #{:F} #{:G}))
-                "{E}*{F}*{G}*{H}" (b (* #{:E} #{:F} #{:G} #{:H}))
+                "{E}*{F}" (b (cartesian-product #{:E} #{:F}))
+                "{E}*{F}*{G}" (b (cartesian-product #{:E} #{:F} #{:G}))
+                "{E}*{F}*{G}*{H}" (b (cartesian-product #{:E} #{:F} #{:G} #{:H}))
                 "{E}\\/{F}" (b (union #{:E} #{:F}))
                 "{E}\\/{F}\\/{G}" (b (union #{:E} #{:F} #{:G}))
                 "{E}\\/{F}\\/{G}\\/{H}" (b (union #{:E} #{:F} #{:G} #{:H}))
@@ -405,6 +407,7 @@
 (deftest logical-predicates-test
   (testing "logical-predicates"
     (are [b ir] (= b (ast->b (ir->ast ir)))
+                ;"1=1 & 2=2" {:tag :and, :preds [1]}
                 "1=1 & 2=2" (b (and (= 1 1) (= 2 2)))
                 "1=1 & 2=2 & 3=3" (b (and (= 1 1) (= 2 2) (= 3 3)))
                 "1=1 & 2=2 & 3=3 & 4=4" (b (and (= 1 1) (= 2 2) (= 3 3) (= 4 4)))

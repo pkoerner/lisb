@@ -130,85 +130,85 @@
 
     (is (eval-ir-formula (b= 0 (bpredecessor 1))))
 
-    (is (eval-ir-formula (b= :x #{[1 2]})))
+    (is (eval-ir-formula (b= :x #{(bmaplet 1 2)})))
 
     (is (eval-ir-formula (bmember? :x (brelation #{1 2} #{3 4}))))
     (is (eval-ir-formula (bmember? :x (brelation #{1 2} #{3 4} #{5 6}))))
 
-    (is (eval-ir-formula (b= #{1 2} (bdom #{[1 0] [1 1] [2 42]}))))
+    (is (eval-ir-formula (b= #{1 2} (bdom #{(bmaplet 1 0) (bmaplet 1 1) (bmaplet 2 42)}))))
 
-    (is (eval-ir-formula (b= #{0 1 42} (bran #{[1 0] [1 1] [2 42]}))))
+    (is (eval-ir-formula (b= #{0 1 42} (bran #{(bmaplet 1 0) (bmaplet 1 1) (bmaplet 2 42)}))))
 
-    (is (eval-ir-formula (b= #{[1 1]} (bid #{1}))))
+    (is (eval-ir-formula (b= #{(bmaplet 1 1)} (bid #{1}))))
 
-    (is (eval-ir-formula (b= #{[1 1]} (bdomain-restriction #{1 2} #{[1 1] [3 0]}))))
+    (is (eval-ir-formula (b= #{(bmaplet 1 1)} (bdomain-restriction #{1 2} #{(bmaplet 1 1) (bmaplet 3 0)}))))
 
-    (is (eval-ir-formula (b= #{[3 0]} (bdomain-subtraction #{1 2} #{[1 1] [3 0]}))))
+    (is (eval-ir-formula (b= #{(bmaplet 3 0)} (bdomain-subtraction #{1 2} #{(bmaplet 1 1) (bmaplet 3 0)}))))
 
-    (is (eval-ir-formula (b= #{[1 1]} (brange-restriction #{[1 1] [3 0]} #{1 2}))))
+    (is (eval-ir-formula (b= #{(bmaplet 1 1)} (brange-restriction #{(bmaplet 1 1) (bmaplet 3 0)} #{1 2}))))
 
-    (is (eval-ir-formula (b= #{[3 0]} (brange-subtraction #{[1 1] [3 0]} #{1 2}))))
+    (is (eval-ir-formula (b= #{(bmaplet 3 0)} (brange-subtraction #{(bmaplet 1 1) (bmaplet 3 0)} #{1 2}))))
 
-    (is (eval-ir-formula (b= #{[3 0]} (binverse #{[0 3]}))))
+    (is (eval-ir-formula (b= #{(bmaplet 3 0)} (binverse #{(bmaplet 0 3)}))))
 
-    (is (eval-ir-formula (b= #{2} (bimage #{[1 2] [0 3]} #{1 2}))))
+    (is (eval-ir-formula (b= #{2} (bimage #{(bmaplet 1 2) (bmaplet 0 3)} #{1 2}))))
 
-    (is (eval-ir-formula (b= #{[0 0]} (boverride #{[0 1]} #{[0 0]}))))
-    (is (eval-ir-formula (b= #{[0 0] [1 0]} (boverride #{[0 1]} #{[0 0]} #{[1 0]}))))
+    (is (eval-ir-formula (b= #{(bmaplet 0 0)} (boverride #{(bmaplet 0 1)} #{(bmaplet 0 0)}))))
+    (is (eval-ir-formula (b= #{(bmaplet 0 0) (bmaplet 1 0)} (boverride #{(bmaplet 0 1)} #{(bmaplet 0 0)} #{(bmaplet 1 0)}))))
 
-    (is (eval-ir-formula (b= #{[0 [1 1]] [0 [2 1]]} (bdirect-product #{[0 1] [0 2]} #{[0 1]}))))
-    (is (eval-ir-formula (b= #{[0 [[1 1] 3]] [0 [[2 1] 3]]} (bdirect-product #{[0 1] [0 2]} #{[0 1]} #{[0 3]}))))
+    (is (eval-ir-formula (b= #{(bmaplet 0 (bmaplet 1 1)) (bmaplet 0 (bmaplet 2 1))} (bdirect-product #{(bmaplet 0 1) (bmaplet 0 2)} #{(bmaplet 0 1)}))))
+    (is (eval-ir-formula (b= #{(bmaplet 0 (bmaplet (bmaplet 1 1) 3)) (bmaplet 0 (bmaplet (bmaplet 2 1) 3))} (bdirect-product #{(bmaplet 0 1) (bmaplet 0 2)} #{(bmaplet 0 1)} #{(bmaplet 0 3)}))))
 
 
-    (is (eval-ir-formula (b= #{[0 0]} (bcomposition #{[0 1]} #{[1 0]}))))
-    (is (eval-ir-formula (b= #{[0 5]} (bcomposition #{[0 1]} #{[1 2]} #{[2 5]}))))
+    (is (eval-ir-formula (b= #{(bmaplet 0 0)} (bcomposition #{(bmaplet 0 1)} #{(bmaplet 1 0)}))))
+    (is (eval-ir-formula (b= #{(bmaplet 0 5)} (bcomposition #{(bmaplet 0 1)} #{(bmaplet 1 2)} #{(bmaplet 2 5)}))))
 
-    (is (eval-ir-formula (b= #{[[0 0] [1 1]] [[0 0] [2 1]]} (bparallel-product #{[0 1] [0 2]} #{[0 1]}))))
-    (is (eval-ir-formula (b= :a (bparallel-product #{[0 1] [0 2]} #{[0 1]} #{[1 1]})))) ;; if it works, that's good enough for me
+    (is (eval-ir-formula (b= #{(bmaplet (bmaplet 0 0) (bmaplet 1 1)) (bmaplet (bmaplet 0 0) (bmaplet 2 1))} (bparallel-product #{(bmaplet 0 1) (bmaplet 0 2)} #{(bmaplet 0 1)}))))
+    (is (eval-ir-formula (b= :a (bparallel-product #{(bmaplet 0 1) (bmaplet 0 2)} #{(bmaplet 0 1)} #{(bmaplet 1 1)})))) ;; if it works, that's good enough for me
 
-    (is (eval-ir-formula (b= #{[[1 3] 1] [[1 4] 1]} (bprj1 #{1} #{3, 4}))))
-    (is (eval-ir-formula (b= #{[[1 3] 3] [[1 4] 4]} (bprj2 #{1} #{3, 4}))))
+    (is (eval-ir-formula (b= #{(bmaplet (bmaplet 1 3) 1) (bmaplet (bmaplet 1 4) 1)} (bprj1 #{1} #{3, 4}))))
+    (is (eval-ir-formula (b= #{(bmaplet (bmaplet 1 3) 3) (bmaplet (bmaplet 1 4) 4)} (bprj2 #{1} #{3, 4}))))
 
     ; TODO: An enumeration warning was observed
     ;(is (eval-lisb-predicate ( (b= #{[1 1] [1 2] [2 2]} (bclosure #{[1 2]})))))
     ;(is (eval-lisb-predicate ( (b= #{[1 2]} (bclosure1 #{[1 2]})))))
 
-    (is (eval-ir-formula (b= #{[1 3] [4 2] [5 3]} (biterate #{[1 2] [2 3] [4 5] [5 2]} 2))))
+    (is (eval-ir-formula (b= #{(bmaplet 1 3) (bmaplet 4 2) (bmaplet 5 3)} (biterate #{(bmaplet 1 2) (bmaplet 2 3) (bmaplet 4 5) (bmaplet 5 2)} 2))))
 
-    (is (eval-ir-formula (b= #{[1 #{2 3}] [3 #{4}]} (bfnc #{[1 2] [1 3] [3 4]}))))
+    (is (eval-ir-formula (b= #{(bmaplet 1 #{2 3}) (bmaplet 3 #{4})} (bfnc #{(bmaplet 1 2) (bmaplet 1 3) (bmaplet 3 4)}))))
 
-    (is (eval-ir-formula (b= #{[1 2] [1 3] [3 4]} (brel #{[1 #{2 3}] [3 #{4}]}))))
+    (is (eval-ir-formula (b= #{(bmaplet 1 2) (bmaplet 1 3) (bmaplet 3 4)} (brel #{(bmaplet 1 #{2 3}) (bmaplet 3 #{4})}))))
 
-    (is (eval-ir-formula (b= #{#{} #{[1 2]} #{[1 2] [2 2]} #{[2 2]}} (bpartial-function #{1 2} #{2}))))
+    (is (eval-ir-formula (b= #{#{} #{(bmaplet 1 2)} #{(bmaplet 1 2) (bmaplet 2 2)} #{(bmaplet 2 2)}} (bpartial-function #{1 2} #{2}))))
     ; TODO: de.hhu.stups.prob.translator.exceptions.TranslationException: de.be4.claicalb.core.parser.exceptions.BCompoundException: Invalid combination of symbols: '(' and '..'. Argument to binary operator is miing.
     ;(is (eval-lisb-predicate ( (b= :a #{(b+-> #{1 2} #{2} #{3 4})}))))
 
-    (is (eval-ir-formula (b= #{#{[1 2] [2 2]}} (btotal-function #{1 2} #{2}))))
-    (is (eval-ir-formula (b= #{#{[#{[1 2] [2 2]} 3]}} (btotal-function #{1 2} #{2} #{3}))))
+    (is (eval-ir-formula (b= #{#{(bmaplet 1 2) (bmaplet 2 2)}} (btotal-function #{1 2} #{2}))))
+    (is (eval-ir-formula (b= #{#{(bmaplet #{(bmaplet 1 2) (bmaplet 2 2)} 3)}} (btotal-function #{1 2} #{2} #{3}))))
 
-    (is (eval-ir-formula (b= #{#{[1 2]} #{[1 2] [2 2]} #{[2 2]}} (bpartial-surjection #{1 2} #{2}))))
+    (is (eval-ir-formula (b= #{#{(bmaplet 1 2)} #{(bmaplet 1 2) (bmaplet 2 2)} #{(bmaplet 2 2)}} (bpartial-surjection #{1 2} #{2}))))
     (is (eval-ir-formula (b= :a #{(bpartial-surjection #{1 2} #{2} #{3 4})})))
 
-    (is (eval-ir-formula (b= #{#{[1 2] [2 2]}} (btotal-surjection #{1 2} #{2}))))
+    (is (eval-ir-formula (b= #{#{(bmaplet 1 2) (bmaplet 2 2)}} (btotal-surjection #{1 2} #{2}))))
     (is (eval-ir-formula (b= #{} (btotal-surjection #{1 2} #{2} #{3 4}))))
 
-    (is (eval-ir-formula (b= #{#{} #{[1 3]} #{[1 4]}} (bpartial-injection #{1} #{3 4}))))
-    (is (eval-ir-formula (b= #{#{} #{[#{} 2]} #{[#{[1 3]} 2]} #{[#{[1 4]} 2]}} (bpartial-injection #{1} #{3 4} #{2}))))
+    (is (eval-ir-formula (b= #{#{} #{(bmaplet 1 3)} #{(bmaplet 1 4)}} (bpartial-injection #{1} #{3 4}))))
+    (is (eval-ir-formula (b= #{#{} #{(bmaplet #{} 2)} #{(bmaplet #{(bmaplet 1 3)} 2)} #{(bmaplet #{(bmaplet 1 4)} 2)}} (bpartial-injection #{1} #{3 4} #{2}))))
 
-    (is (eval-ir-formula (b= #{#{[1 3]} #{[1 4]}} (btotal-injection #{1} #{3 4}))))
+    (is (eval-ir-formula (b= #{#{(bmaplet 1 3)} #{(bmaplet 1 4)}} (btotal-injection #{1} #{3 4}))))
     (is (eval-ir-formula (b= :a #{(btotal-injection #{1} #{3 4} #{5 6})})))
 
-    (is (eval-ir-formula (b= #{#{[1 3] [2 4]} #{[1 4] [2 3]}} (bpartial-bijection #{1 2} #{3 4}))))
-    (is (eval-ir-formula (b= #{#{[#{[1 3] [2 4]} 5]} #{[#{[1 4] [2 3]} 5]}} (bpartial-bijection #{1 2} #{3 4} #{5}))))
+    (is (eval-ir-formula (b= #{#{(bmaplet 1 3) (bmaplet 2 4)} #{(bmaplet 1 4) (bmaplet 2 3)}} (bpartial-bijection #{1 2} #{3 4}))))
+    (is (eval-ir-formula (b= #{#{(bmaplet #{(bmaplet 1 3) (bmaplet 2 4)} 5)} #{(bmaplet #{(bmaplet 1 4) (bmaplet 2 3)} 5)}} (bpartial-bijection #{1 2} #{3 4} #{5}))))
 
-    (is (eval-ir-formula (b= #{#{[1 3] [2 4]} #{[1 4] [2 3]}} (btotal-bijection #{1 2} #{3 4}))))
+    (is (eval-ir-formula (b= #{#{(bmaplet 1 3) (bmaplet 2 4)} #{(bmaplet 1 4) (bmaplet 2 3)}} (btotal-bijection #{1 2} #{3 4}))))
     (is (eval-ir-formula (b= :a #{(btotal-bijection #{1 2} #{3 4} #{5 6})})))
 
-    (is (eval-ir-formula (b= #{[3 9] [4 16]} (blambda [:x] (b< 2 :x 5) (b* :x :x)))))
+    (is (eval-ir-formula (b= #{(bmaplet 3 9) (bmaplet 4 16)} (blambda [:x] (b< 2 :x 5) (b* :x :x)))))
 
-    (is (eval-ir-formula (b= 2 (bfn-call #{[1 2]} 1))))
-    (is (eval-ir-formula (b= 3 (bfn-call #{[[1 2] 3]} 1 2))))
-    (is (eval-ir-formula (b= 3 (bfn-call #{[[1 2] 3]} [1 2]))))
+    (is (eval-ir-formula (b= 2 (bfn-call #{(bmaplet 1 2)} 1))))
+    (is (eval-ir-formula (b= 3 (bfn-call #{(bmaplet (bmaplet 1 2) 3)} 1 2))))
+    (is (eval-ir-formula (b= 3 (bfn-call #{(bmaplet (bmaplet 1 2) 3)} (bmaplet 1 2)))))
 
     (is (eval-ir-formula (bimplication (b= true true) (b= true true))))
     (is (eval-ir-formula (bimplication (b= true true) (b= true false) (b= true true))))
@@ -220,13 +220,13 @@
 
     (is (eval-ir-formula (bexists [:x :y] (band (bcontains? bint-set :x) (bcontains? bint-set :y) (b< :x :y)))))
 
-    (is (eval-ir-formula (b= (bsequence 3 2 1) #{[1 3] [2 2] [3 1]})))
+    (is (eval-ir-formula (b= (bsequence 3 2 1) #{(bmaplet 1 3) (bmaplet 2 2) (bmaplet 3 1)})))
     (is (eval-ir-formula (b= (bsequence) #{})))
 
-    (is (eval-ir-formula (bmember? (bsequence [3 3] [2 2] [1 4]) (biseq (bsequence 4 2 3)))))
-    (is (eval-ir-formula (bmember? (bsequence [3 3] [2 2] [1 4]) (biseq1 (bsequence 4 2 3)))))
+    (is (eval-ir-formula (bmember? (bsequence (bmaplet 3 3) (bmaplet 2 2) (bmaplet 1 4)) (biseq (bsequence 4 2 3)))))
+    (is (eval-ir-formula (bmember? (bsequence (bmaplet 3 3) (bmaplet 2 2) (bmaplet 1 4)) (biseq1 (bsequence 4 2 3)))))
 
-    (is (eval-ir-formula (b= #{#{[1 [1 4]] [2 [2 2]]} #{[1 [2 2]] [2 [1 4]]}} (bperm (bsequence 4 2)))))
+    (is (eval-ir-formula (b= #{#{(bmaplet 1 (bmaplet 1 4)) (bmaplet 2 (bmaplet 2 2))} #{(bmaplet 1 (bmaplet 2 2)) (bmaplet 2 (bmaplet 1 4))}} (bperm (bsequence 4 2)))))
 
     (is (eval-ir-formula (b= (bsequence 3 4 1 5) (bconcat (bsequence 3 4) (bsequence 1 5)))))
     (is (eval-ir-formula (b= (bsequence 3 4 1 5 2) (bconcat (bsequence 3 4) (bsequence 1 5) (bsequence 2)))))

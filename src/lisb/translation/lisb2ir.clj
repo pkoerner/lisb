@@ -8,6 +8,11 @@
 (declare bnot)
 (declare bpredecessor)
 
+(defn to-vec [v]
+  (if (vector? v)
+    v
+    [v]))
+
 (defn bif
   ([node cond then] (assoc node :cond cond :then then))
   ([node cond then else]
@@ -28,38 +33,38 @@
   (if (seqable? machine-name)
     (let [[name & args] machine-name]
       (assoc m :name name :args args))
-    (assoc m :name machine-name)))
+    (assoc m :name machine-name :args [])))
 
-(defn bmachine [machine-name & clauses]
+(defn bmachine [machine-name & machine-clauses]
   (process-machine-name
     {:tag :machine
-     :clauses clauses}
+     :machine-clauses machine-clauses}
     machine-name))
 
-(defn bmodel [machine-name & clauses]
+(defn bmodel [machine-name & machine-clauses]
   (process-machine-name
     {:tag :model
-     :clauses   clauses}
+     :machine-clauses   machine-clauses}
     machine-name))
 
-(defn bsystem [machine-name & clauses]
+(defn bsystem [machine-name & machine-clauses]
   (process-machine-name
     {:tag :system
-     :clauses clauses}
+     :machine-clauses machine-clauses}
     machine-name))
 
-(defn brefinement [machine-name abstract-machine-name & clauses]
+(defn brefinement [machine-name abstract-machine-name & machine-clauses]
   (process-machine-name
     {:tag :refinement
      :abstract-machine-name abstract-machine-name
-     :clauses clauses}
+     :machine-clauses machine-clauses}
     machine-name))
 
-(defn bimplementation [machine-name abstract-machine-name & clauses]
+(defn bimplementation [machine-name abstract-machine-name & machine-clauses]
   (process-machine-name
     {:tag :implementation
      :abstract-machine-name abstract-machine-name
-     :clauses clauses}
+     :machine-clauses machine-clauses}
     machine-name))
 
 
@@ -138,17 +143,14 @@
   {:tag :operations
    :values op-defs})
 (defn bop
-  ([name args body]
-   {:tag         :op
-    :name        name
-    :args        args
-    :body        body})
   ([returns name args body]
    {:tag         :op
     :returns returns
     :name        name
     :args        args
-    :body        body}))
+    :body        body})
+  ([name args body]
+   (bop [] name args body)))
 
 
 ;;; substitutions
@@ -215,7 +217,7 @@
    :subs subs})
 
 (defn bprecondition [pred & subs]
-  {:tag :pre
+  {:tag :precondition
    :pred pred
    :subs subs})
 
@@ -239,10 +241,10 @@
   {:tag :select
    :clauses clauses})
 
-(defn bcase [expr & clauses]
+(defn bcase [expr & cases]
   {:tag :case
    :expr expr
-   :clauses clauses})
+   :cases cases})
 
 
 ;;; if
@@ -598,8 +600,8 @@
     {:tag :unary-minus, :num (first nums)}
     {:tag :sub, :nums nums}))
 
-(defn bmul-or-cart [& nums-or-sets]
-  {:tag :mul-or-cart
+(defn bcart-or-mult [& nums-or-sets]
+  {:tag :cartesian-product-or-multiplication
    :nums-or-sets nums-or-sets})
 
 (defn b* [& nums]
@@ -642,8 +644,8 @@
 ;;; sets
 
 (defn bcomprehension-set [ids pred]
-  {:tag :comprehension-set
-   :ids ids
+  {:tag  :comprehension-set
+   :ids  (to-vec ids)
    :pred pred})
 
 (defn bpow [set]
@@ -711,11 +713,11 @@
   (apply bstrict-subset? (reverse sets)))
 
 (defn bunite-sets [set-of-sets]
-  {:tag :general-union
+  {:tag :unite-sets
    :set-of-sets set-of-sets})
 
 (defn bintersect-sets [set-of-sets]
-  {:tag :general-intersection
+  {:tag :intersect-sets
    :set-of-sets set-of-sets})
 
 (defn bunion-pe [ids pred expr]
@@ -1043,7 +1045,7 @@
            ~'min bmin
            ~'+ b+
            ~'- b-
-           ~'mul-or-cart bmul-or-cart
+           ~'cart-or-mult bcart-or-mult
            ~'* b*                                           ; added separat multiplication
            ~'div bdiv
            ~'/ bdiv
