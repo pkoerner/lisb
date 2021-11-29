@@ -20,10 +20,8 @@
 (deftest examples-sebastian-test
   (testing "examples-sebastian"
     (are [b lisb] (= (normalize-string (slurp (clojure.java.io/resource (str "machines/b/sebastian/" b)))) (normalize-string (ast->b (ir->ast lisb))))
-                  ; TODO: wait for de.hhu.stups/bparser "2.9.29"
                   ;"GenericTimersMC.mch" sebastian/generic-timer-mc
                   "TrafficLight2.mch" sebastian/traffic-light2
-                  ; TODO: wait for de.hhu.stups/bparser "2.9.29"
                   ;"TrafficLightTime_Ref.mch" sebastian/traffic-light-time-ref
                   )))
 
@@ -32,8 +30,7 @@
     (are [b lisb] (= (normalize-string (slurp (clojure.java.io/resource (str "machines/b/marriages/" b)))) (normalize-string (ast->b (ir->ast lisb))))
                   "Life.mch" marriages/life
                   "Marriage.mch" marriages/marriage
-                  ; TODO: wait for de.hhu.stups/bparser "2.9.29"
-                  ;"Registrar.mch" marriages/registrar
+                  "Registrar.mch" marriages/registrar
                   )))
 
 (deftest examples-simple-test
@@ -59,12 +56,10 @@
       (are [b ir] (= b (ast->b (ir->ast ir)))
                   "USES Lift\n" (b (uses :Lift))
                   "INCLUDES Lift\n" (b (includes :Lift))
-                  ; TODO: wait for de.hhu.stups/bparser "2.9.29"
-                  ;"INCLUDES Lift(FLOORS)\n" (b (includes [:Lift :FLOORS]))
+                  "INCLUDES Lift(FLOORS)\n" (b (includes [:Lift :FLOORS]))
                   "SEES Lift\n" (b (sees :Lift))
-                  ; TODO: wait for de.hhu.stups/bparser "2.9.29"
-                  ;"EXTENDS Lift\n" (b (extends :Lift))
-                  ;"EXTENDS Lift(FLOORS)\n" (b (extends [:Lift :FLOORS]))
+                  "EXTENDS Lift\n" (b (extends :Lift))
+                  "EXTENDS Lift(FLOORS)\n" (b (extends [:Lift :FLOORS]))
                   "PROMOTES inc\n" (b (promotes :inc))
                   ))
     (testing "machine-sections"
@@ -97,8 +92,7 @@
                 "f(x) := E" (b (assign (fn-call :f :x) :E))
                 "x::S" (b (becomes-element-of [:x] :S))
                 "x :(x>0) " (b (becomes-such [:x] (> :x 0)))
-                ; TODO: wrong in pretty printer
-                ;"op(x)" (b (op-call :op :x))
+                "op(x)" (b (op-call :op :x))
                 "a<--op(x)" (b (<-- [:a] (op-call :op :x)))
                 "skip || skip" (b (parallel-sub skip skip))
                 "skip || skip || skip" (b (parallel-sub skip skip skip))
