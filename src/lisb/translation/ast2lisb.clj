@@ -575,7 +575,7 @@
 (defmethod ast->lisb ATotalSurjectionRelationExpression [node]
   (multi-arity '<<->> node))
 (defmethod ast->lisb ACoupleExpression [node]
-  (mapv ast->lisb (.getList node)))
+  (concat-last '|-> (.getList node)))
 (defmethod ast->lisb ADomainExpression [node]
   (expression 'dom node))
 (defmethod ast->lisb ARangeExpression [node]

@@ -104,7 +104,7 @@
                   '(select (= 1 1) skip (= 2 2) skip skip) "SELECT 1=1 THEN skip WHEN 2=2 THEN skip ELSE skip END"
                   '(case (+ 1 1) 1 skip 2 skip) "CASE 1+1 OF EITHER 1 THEN skip OR 2 THEN skip END END"
                   '(case (+ 1 1) 1 skip 2 skip skip) "CASE 1+1 OF EITHER 1 THEN skip OR 2 THEN skip ELSE skip END END"
-                  '(case (+ 1 1) [1 2] skip [3 4] skip skip) "CASE 1+1 OF EITHER (1,2) THEN skip OR (3,4) THEN skip ELSE skip END END"
+                  '(case (+ 1 1) 1 skip 2 skip skip) "CASE 1+1 OF EITHER 1 THEN skip OR 2 THEN skip ELSE skip END END"
                   '(op-call :op :x) "op(x)"
                   '(op-call :op :x :y) "op(x,y)"
                   '(<-- [:a] (op-call :op :x)) "a <-- op(x)"
@@ -212,8 +212,8 @@
                   '(<->> :S :T :U) "S<->>T<->>U"
                   '(<<->> :S :T) "S<<->>T"
                   '(<<->> :S :T :U) "S<<->>T<<->>U"
-                  '[:E :F] "E|->F"
-                  '[[:E :F] :G] "E|->F|->G"
+                  '(|-> :E :F) "E|->F"
+                  '(|-> (|-> :E :F) :G) "E|->F|->G"
                   '(dom :r) "dom(r)"
                   '(ran :r) "ran(r)"
                   '(identity :S) "id(S)"
@@ -233,11 +233,7 @@
                   '(closure :r) "closure(r)"
                   '(iterate :r :n) "iterate(r,n)"
                   '(fnc :r) "fnc(r)"
-                  '(rel :r) "rel(r)")
-    (testing "translation to vector"
-      (is (vector? (b-expression->lisb "E|->F")))
-      (is (vector? (b-expression->lisb "E|->F|->G")))
-      (is (vector? (first (b-expression->lisb "E|->F|->G")))))))
+                  '(rel :r) "rel(r)")))
 
 
 (deftest number-test

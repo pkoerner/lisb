@@ -23,8 +23,8 @@ OPERATIONS
   PRE nn : PERSON & nn : male \/ female
   THEN 
     IF nn : male
-    THEN male := male - {nn}
-    ELSE female := female - {nn}
+    THEN male := male \ {nn}
+    ELSE female := female \ {nn}
     END
   END
 

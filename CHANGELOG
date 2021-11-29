@@ -4,7 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.2] - Snapshot
+## [0.0.3] - Snapshot
+  ### Added
+  - Added specs to ir2ast
+  ### Changed
+  - Changed ir tag :general-union to :unite-sets
+  - Changed ir tag :general-intersection to :intersect-sets
+  - Changed application of to-vector for comprehension-set ids from ir2ast to lisb2ir
+  - Changed lisb2ir function bmul-or-cart to bcart-or-mult
+  - Changed ir tag :mul-or-cart to :cartesian-product-or-multiplication
+  - Changed key :clauses of case to :cases
+  - Changed ir op to always contain key :returns
+  - Changed ir tag :pre to :precondition
+  - Changed key :clauses of machines to :machine-clauses
+  - Changed lisb representation of couple from vector to (|-> left right)/(maplet left right)
+  - Changed ir of couple from vector to {:tag :maplet, :left left, :right right}
+
+## [0.0.2]
   ### Added
   - Added work in progress lisb api doc
   - Added machine-headers refinement, implementation, model and system.
@@ -88,7 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       b|> -> brange-restriction,
       b<<| -> bdomain-subtraction,
       b<| -> bdomain-restriction,
-      bcouple -< bmaplet,
+      bcouple -> bmaplet,
       b<-> -> brelation,
       bapply -> bfn-call,
       b>->> -> btotal-bijection,
@@ -130,9 +146,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       :relational-image -> :image,
       :inverse-relation -> :inverse,
       :identity-relation -> :id,
-      :range -> range,
-      :domain -> domain,
-      :couple -> maplet,
+      :range -> :ran,
+      :domain -> :dom,
+      :couple -> :maplet,
       :apply -> :fn-call,
       :restrict-tail -> :drop,
       :restrict-front -> :take,
@@ -142,7 +158,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       :rec -> :record,
       :op-subs -> :op-sub,
       :assign -> :assignment,
-      :pre -> :precondition,
       :sequence-substitution -> sequential-sub,
       :parallel-substitution -> parallel-sub,
       :operation-call -> op-call

@@ -15,7 +15,7 @@
                                              (assign (fn-call :curDeadlines :timer) :deadline)))
                              (:TimeoutDeadline [:timer :deadline]
                                         (pre (and (contains? :TIMERS :timer) (contains? natural-set :deadline))
-                                             (assign :curDeadlines (set- :curDeadlines #{[:timer :deadline]}))))
+                                             (assign :curDeadlines (set- :curDeadlines #{(|-> :timer :deadline)}))))
                              (:IncreaseTime [:delta]
                                         (select (and (contains? natural-set :delta) (=> (not= :curDeadlines #{}) (<= :delta (min (ran :curDeadlines)))))
                                                 (assign :curDeadlines (lambda [:x] (contains? (dom :curDeadlines) :x) (- (fn-call :curDeadlines :x) :delta)))))

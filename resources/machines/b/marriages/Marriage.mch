@@ -17,7 +17,7 @@ OPERATIONS
 
   part(mm,ff) =
   PRE mm : male & ff : female & (mm,ff) : marriage
-  THEN marriage := marriage - {(mm,ff)}
+  THEN marriage := marriage \ {(mm,ff)}
   END;
 
 pp <-- partner(nn) =
