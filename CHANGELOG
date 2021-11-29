@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Changed ir tag :mul-or-cart to :cartesian-product-or-multiplication
   - Changed key :clauses of case to :cases
   - Changed ir op to always contain key :returns
+  - Changed ir op-call to always contain key :returns
   - Changed ir tag :pre to :precondition
   - Changed key :clauses of machines to :machine-clauses
   - Changed lisb representation of couple from vector to (|-> left right)/(maplet left right)

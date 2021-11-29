@@ -175,18 +175,14 @@
    :ids ids
    :pred pred})
 
-(defn bop-call
-  [op & args]
-  {:tag     :op-call
-   :op      op
-   :args    args})
-
-(defn bop-call-with-returns
-  [returns op & args]
+(defn bop-call-with-returns [returns op & args]
   {:tag     :op-call
    :returns returns
    :op      op
    :args    args})
+
+(defn bop-call [op & args]
+  (apply (partial bop-call-with-returns [] op) args))
 
 (defn bparallel-sub [& subs]
   (if (= 1 (count subs))

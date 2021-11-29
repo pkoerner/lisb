@@ -559,7 +559,7 @@
         name (list (TIdentifierLiteral. (name (:op ir-node))))
         args (ir-node-args->ast ir-node)]
     (if (empty? returns)
-      (AOpSubstitution. name args )
+      (AOpSubstitution. (AIdentifierExpression. name) args)
       (AOperationCallSubstitution. returns name args))))
 (defmethod ir-node->ast-node :parallel-sub [ir-node]
   (s/assert (s/keys :req-un [::subs]) ir-node)

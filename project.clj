@@ -13,5 +13,5 @@
                  [potemkin "0.4.5"]
                  [de.hhu.stups/de.prob2.kernel,"3.14.0"]
                  [de.hhu.stups/value-translator "0.1.2"]
-                 [de.hhu.stups/bparser "2.9.28"]
+                 [de.hhu.stups/bparser "2.9.30"]
                  [clj-wallhack "1.0.1"]])
