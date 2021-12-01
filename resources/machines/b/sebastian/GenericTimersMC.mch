@@ -20,7 +20,7 @@ OPERATIONS
   END;
 
   TimeoutDeadline(timer, deadline) = PRE timer:TIMERS & deadline:NATURAL THEN
-     curDeadlines := curDeadlines \ {timer |-> deadline}
+     curDeadlines := curDeadlines \ {(timer,deadline)}
   END;
 
   IncreaseTime(delta) = SELECT delta:NATURAL & 

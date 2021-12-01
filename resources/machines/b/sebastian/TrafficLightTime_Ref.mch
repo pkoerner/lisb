@@ -23,7 +23,7 @@ OPERATIONS
        tl_cars = red & tl_peds = red
      THEN 
        tl_cars := redyellow ||
-       ANY delta WHERE delta ∈ 0‥500 THEN 
+       ANY delta WHERE delta : 0..500 THEN
          IncreaseTimeUntilDeadline(cmd_cars_redyellow,delta)
        END
      END;
@@ -33,7 +33,7 @@ OPERATIONS
        tl_cars = green 
      THEN 
       tl_cars := yellow ||
-       ANY delta WHERE delta ∈ 0‥500 THEN 
+       ANY delta WHERE delta : 0..500 THEN
          IncreaseTimeUntilDeadline(cmd_cars_yellow,delta)
        END
      END;
@@ -43,7 +43,7 @@ OPERATIONS
        tl_cars = redyellow
      THEN 
        tl_cars := green ||
-       ANY delta WHERE delta ∈ 0‥500 THEN 
+       ANY delta WHERE delta : 0..500 THEN
          IncreaseTimeUntilDeadline(cmd_cars_green,delta)
        END
      END; 
@@ -53,7 +53,7 @@ OPERATIONS
        tl_cars = yellow
      THEN 
        tl_cars := red ||
-       ANY delta WHERE delta ∈ 0‥500 THEN 
+       ANY delta WHERE delta : 0..500 THEN
          IncreaseTimeUntilDeadline(cmd_cars_red,delta)
        END
      END;
@@ -63,7 +63,7 @@ OPERATIONS
        tl_peds = green
      THEN 
        tl_peds := red ||
-       ANY delta WHERE delta ∈ 0‥500 THEN 
+       ANY delta WHERE delta : 0..500 THEN
          IncreaseTimeUntilDeadline(cmd_peds_red,delta)
        END
      END;
@@ -73,7 +73,7 @@ OPERATIONS
         tl_cars = red & tl_peds = red
       THEN 
         tl_peds := green ||
-       ANY delta WHERE delta ∈ 0‥500 THEN 
+       ANY delta WHERE delta : 0..500 THEN
          IncreaseTimeUntilDeadline(cmd_peds_green,delta)
        END
       END;

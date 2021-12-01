@@ -333,20 +333,24 @@
 
 (s/def ::id keyword?)
 (s/def ::name keyword?)
-(s/def ::ref-machine keyword?)
+(s/def ::abstract-machine-name keyword?)
 (s/def ::op keyword?)
 
 (s/def ::machine-clause (s/and (s/keys :req-un [::tag])
                                #(contains? machine-clause-tags (:tag %))))
 (s/def ::sub (s/and (s/keys :req-un [::tag])
                     #(contains? sub-tags (:tag %))))
+(s/def ::misc (s/and (s/keys :req-un [::tag])
+                     #(contains? #{:record-get :fn-call :first :last :let :if-expr} (:tag %))))
 (s/def ::rec (s/or
                :keyword keyword?
+               :misc ::misc
                :ir-rec (s/and (s/keys :req-un [::tag])
                               #(= :record (:tag %)))))
 (s/def ::set (s/or
                :set-literal set?
                :keyword keyword?
+               :misc ::misc
                :ir (s/and (s/keys :req-un [::tag])
                           (s/or
                             :set #(contains? set-tags (:tag %))
@@ -361,20 +365,24 @@
 (s/def ::num (s/or
                :literal number?
                :keyword keyword?
+               ::misc ::misc
                :ir-num (s/and (s/keys :req-un [::tag])
                               #(contains? num-tags (:tag %)))))
 (s/def ::bool (s/or
                 :true true?
                 :false false?
+                :misc ::misc
                 :pred->bool  (s/and (s/keys :req-un [::tag])
                                     #(= :pred->bool (:tag %)))))
 (s/def ::expr (s/or
                 :keyword keyword?
+                :misc ::misc
                 :bool ::bool
                 :num ::num
                 :seq ::seq
-                :explicit (s/and (s/keys :req-un [::tag])
-                                 #(contains? #{:struct :record :record-get :fn-call :first :last :let :if-expr} (:tag %)))))
+                :struct (s/and (s/keys :req-un [::tag])
+                               #(= :struct (:tag %)))
+                :record ::rec))
 (s/def ::pred (s/and (s/keys :req-un [::tag]) #(contains? pred-tags (:tag %))))
 
 (s/def ::elem ::expr)
@@ -424,7 +432,7 @@
   (s/assert (s/keys :req-un [::name ::machine-clauses ::args]) ir-node)
   (AAbstractMachineParseUnit.
     variant
-    (AMachineHeader. (.getIdentifier (ir->ast-node (:name ir-node))) (map ir->ast-node (::args ir-node)))
+    (AMachineHeader. (.getIdentifier (ir->ast-node (:name ir-node))) (map ir->ast-node (:args ir-node)))
     (map ir->ast-node (:machine-clauses ir-node))))
 
 (defmethod ir-node->ast-node :machine [ir-node]
@@ -437,18 +445,18 @@
   (abstract-machine-parse-unit ir-node (ASystemMachineVariant.)))
 
 (defmethod ir-node->ast-node :refinement [ir-node]
-  (s/assert (s/keys :req-un [::name ::args ::ref-machine ::machine-clauses]) ir-node)
+  (s/assert (s/keys :req-un [::name ::args ::abstract-machine-name ::machine-clauses]) ir-node)
   (ARefinementMachineParseUnit.
     (AMachineHeader. (.getIdentifier (ir->ast-node (:name ir-node))) (map ir->ast-node (:args ir-node)))
-    (TIdentifierLiteral. (name (:ref-machine ir-node)))
-    (map ir->ast-node (::machine-clauses ir-node))))
+    (TIdentifierLiteral. (name (:abstract-machine-name ir-node)))
+    (map ir->ast-node (:machine-clauses ir-node))))
 
 (defmethod ir-node->ast-node :implementation [ir-node]
-  (s/assert (s/keys :req-un [::name ::args ::ref-machine ::machine-clauses]) ir-node)
+  (s/assert (s/keys :req-un [::name ::args ::abstract-machine-name ::machine-clauses]) ir-node)
   (AImplementationMachineParseUnit.
     (AMachineHeader. (.getIdentifier (ir->ast-node (:name ir-node))) (map ir->ast-node (:args ir-node)))
-    (TIdentifierLiteral. (name (:ref-machine ir-node)))
-    (map ir->ast-node (::machine-clauses ir-node))))
+    (TIdentifierLiteral. (name (:abstract-machine-name ir-node)))
+    (map ir->ast-node (:machine-clauses ir-node))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
