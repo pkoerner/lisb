@@ -20,9 +20,9 @@
 (deftest examples-sebastian-test
   (testing "examples-sebastian"
     (are [b lisb] (= (normalize-string (slurp (clojure.java.io/resource (str "machines/b/sebastian/" b)))) (normalize-string (ast->b (ir->ast lisb))))
-                  ;"GenericTimersMC.mch" sebastian/generic-timer-mc
+                  "GenericTimersMC.mch" sebastian/generic-timer-mc
                   "TrafficLight2.mch" sebastian/traffic-light2
-                  ;"TrafficLightTime_Ref.mch" sebastian/traffic-light-time-ref
+                  "TrafficLightTime_Ref.mch" sebastian/traffic-light-time-ref
                   )))
 
 (deftest examples-marriages-test
