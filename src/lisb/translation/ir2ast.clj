@@ -1,5 +1,6 @@
 (ns lisb.translation.ir2ast
-  (:require [lisb.translation.lisb2ir :refer [b= bnot= band bmember? bimplication]])
+  (:require [lisb.translation.lisb2ir :refer [b= bnot= band bmember? bimplication machine-clause-tags sub-tags seq-tags
+                                              fn-tags rel-tags num-tags set-tags boolean-tags expr-tags pred-tags]])
   (:require [clojure.spec.alpha :as s])
   (:import (de.be4.classicalb.core.parser.node Start
                                                EOF
@@ -276,60 +277,6 @@
     [(map f (partition 2 (drop-last clauses))) (last clauses)]))
 
 ;;; specs
-
-(def machine-clause-tags #{:uses :includes :sees :extends :promotes :constraints :sets :constants :properties
-                           :definitions :variables :invariants :assertions :init :operations})
-(def sub-tags #{:skip :block :assignment :becomes-element-of :becomes-such :op-call :parallel-sub :sequential-sub :any
-                :let-sub :var :precondition :assert :choice :if-sub :cond :select :case})
-(def seq-tags #{:empty-sequence :sequence :seq :seq1 :iseq :iseq1 :perm :concat :prepend :append :reverse :front
-                :drop-last :conc :take :drop})
-(def fn-tags #{:partial-fn :total-fn :partial-surjection :total-surjection :partial-injection :total-injection
-               :partial-bijection :total-bijection :lambda
-               ; relations fns
-               :fnc
-               })
-(def rel-tags #{:relation :total-relation :surjective-realtion :total-surjective-relation :maplet :id
-                :domain-restriction :domain-subtraction :range-restriction :range-subtraction :inverse :image :override
-                :direct-product :composition :parallel-product :prj1 :prj2 :closure :closure1 :rel})
-(def num-tags #{; numbers
-                :min-int :max-int :max :min :add :sub :cartesian-product-or-multiplication :mul :div :pow :mod :product
-                :sum :successor :predecessor
-                ; set numbers
-                :cardinality
-                ; seq numbers
-                :size
-                })                                          ; numbers
-(def set-tags #{:comprehension-set :power-set :power1-set :fin :fin1 :cartesian-product
-                :cartesian-product-or-multiplication :union :intersection :difference :unite-sets :intersect-sets
-                :union-pe :intersection-pe
-                ; boolean-sets
-                :bool-set
-                ; number-sets
-                :integer-set :natural-set :int-set :nat-set :nat1-set :interval
-                ; string-sets
-                :string-set
-                ; rel-sets
-                :dom :ran
-                }) ; #{}
-(def boolean-tags #{:pred->bool})                           ; true false
-(def expr-tags (clojure.set/union seq-tags fn-tags rel-tags set-tags num-tags boolean-tags
-                                  #{:let :if-expr
-                                    ; records
-                                    :struct :record :record-get
-                                    ; seqs
-                                    :first :last
-                                    ; fns
-                                    :fn-call
-                                    }))
-(def pred-tags #{; logical predicates
-                 :and :or :implication :equivalence :not :for-all :exists
-                 ; equality
-                 :equals :not-equals
-                 ; set predicates
-                 :member :subset :strict-subset
-                 ; number predicates
-                 :greater :less :greater-equals :less-equals
-                 })
 
 (s/def ::id keyword?)
 (s/def ::name keyword?)
