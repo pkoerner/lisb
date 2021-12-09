@@ -14,6 +14,9 @@ See src/lisb/examples
 
 ### To Do
 
+Definitions für Präferenzen/Parameter und External Functions
+Präferenzen/Paramter als Map
+
 - [ ] support trees
 - [ ] support reals  
 - [ ] painless conversion of Clojure data structures into B data

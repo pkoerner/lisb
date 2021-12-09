@@ -1,6 +1,7 @@
 (ns lisb.translation.ir2ast
-  (:require [lisb.translation.lisb2ir :refer [b= bnot= band bmember? bimplication machine-clause-tags sub-tags seq-tags
-                                              fn-tags rel-tags num-tags set-tags boolean-tags expr-tags pred-tags]])
+  (:require [lisb.translation.lisb2ir :refer [b= bnot= band bmember? bimplication machine-clause-tags substitution-tags
+                                              seq-tags fn-tags rel-tags num-tags set-tags boolean-tags expr-tags
+                                              pred-tags]])
   (:require [clojure.spec.alpha :as s])
   (:import (de.be4.classicalb.core.parser.node Start
                                                EOF
@@ -180,7 +181,7 @@
                                                AParseUnitDefinitionParseUnit
                                                PMachineClause
                                                PSubstitution
-                                               PDefinition AExtendsMachineClause AIncludesMachineClause AMachineReference AUsesMachineClause APromotesMachineClause AOpSubstitution ASystemMachineVariant AModelMachineVariant ARefinementMachineParseUnit AImplementationMachineParseUnit ASeesMachineClause ACaseOrSubstitution ACaseSubstitution)))
+                                               PDefinition AExtendsMachineClause AIncludesMachineClause AMachineReference AUsesMachineClause APromotesMachineClause AOpSubstitution ASystemMachineVariant AModelMachineVariant ARefinementMachineParseUnit AImplementationMachineParseUnit ASeesMachineClause ACaseOrSubstitution ACaseSubstitution AExpressionDefinitionDefinition APredicateDefinitionDefinition ASubstitutionDefinitionDefinition TDefLiteralSubstitution TDefLiteralPredicate AFileDefinitionDefinition)))
 
 
 (declare ir->ast-node)
@@ -286,7 +287,7 @@
 (s/def ::machine-clause (s/and (s/keys :req-un [::tag])
                                #(contains? machine-clause-tags (:tag %))))
 (s/def ::sub (s/and (s/keys :req-un [::tag])
-                    #(contains? sub-tags (:tag %))))
+                    #(contains? substitution-tags (:tag %))))
 (s/def ::misc (s/and (s/keys :req-un [::tag])
                      #(contains? #{:record-get :fn-call :first :last :let :if-expr} (:tag %))))
 (s/def ::rec (s/or
@@ -460,8 +461,14 @@
 (defmethod ir-node->ast-node :definitions [ir-node]
   (s/assert (s/keys :req-un [::values]) ir-node)
   (ADefinitionsMachineClause. (ir-node-values->ast ir-node)))
-;TODO:
-;(defmethod ir-node->ast-node :definition)
+(defmethod ir-node->ast-node :expression-definition [ir-node]
+  (AExpressionDefinitionDefinition. (TIdentifierLiteral. (name (:name ir-node))) (ir-node-args->ast ir-node) (ir-node-expr->ast ir-node)))
+(defmethod ir-node->ast-node :predicate-definition [ir-node]
+  (APredicateDefinitionDefinition. (TDefLiteralPredicate. (name (:name ir-node))) (ir-node-args->ast ir-node) (ir-node-pred->ast ir-node)))
+(defmethod ir-node->ast-node :substitution-definition [ir-node]
+  (ASubstitutionDefinitionDefinition. (TDefLiteralSubstitution. (name (:name ir-node))) (ir-node-args->ast ir-node) (ir-node-sub->ast ir-node)))
+(defmethod ir-node->ast-node :file-definition [ir-node]
+  (AFileDefinitionDefinition. (ir-node->ast-node (:name ir-node))))
 
 (defmethod ir-node->ast-node :variables [ir-node]
   (s/assert (s/keys :req-un [::values]) ir-node)

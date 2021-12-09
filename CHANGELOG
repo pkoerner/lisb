@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.3] - Snapshot
   ### Added
+  - Added definitions
   - Added specs to ir2ast
   ### Changed
   - Changed ir tag :general-union to :unite-sets

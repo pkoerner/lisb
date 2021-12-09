@@ -21,6 +21,15 @@
               (b (init (assign :x 0 :y 0)))
               (b (operations (:inc [] (assign :x (+ :x 1))) (:dec [] (assign :x (- :x 1))))))))
 
+(deftest definition-test
+  (testing "definitions"
+    (are [ir] (= ir (ast->ir (ir->ast ir)))
+              (b (definitions (expression-definition :SET_PREF_MAX_OPERATIONS [] 10)))
+              (b (definitions (expression-definition :CHOOSE [:X] "a member of X") (expression-definition :EXTERNAL_FUNCTION_CHOOSE [:T] (--> (pow :T) :T))))
+              (b (definitions (predicate-definition :PRED [] (< :x :y))))
+              (b (definitions (substitution-definition :SUBST [] skip)))
+              (b (definitions (predicate-definition :BTRUE [] (= 1 1)) (predicate-definition :BFALSE [] (not= 1 1)) (expression-definition :EXPR [] (+ 1 1)) (substitution-definition :SUBST [] (assign :a_mch #{})))))))
+
 (deftest substitutions-test
   (testing "substitutions"
     (are [ir] (= ir (ast->ir (ir->ast ir)))

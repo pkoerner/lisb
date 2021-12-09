@@ -7,7 +7,7 @@
 
 (def machine-clause-tags #{:uses :includes :sees :extends :promotes :constraints :sets :constants :properties
                            :definitions :variables :invariants :assertions :init :operations})
-(def sub-tags #{:skip :block :assignment :becomes-element-of :becomes-such :op-call :parallel-sub :sequential-sub :any
+(def substitution-tags #{:skip :block :assignment :becomes-element-of :becomes-such :op-call :parallel-sub :sequential-sub :any
                 :let-sub :var :precondition :assert :choice :if-sub :cond :select :case})
 (def seq-tags #{:empty-sequence :sequence :seq :seq1 :iseq :iseq1 :perm :concat :prepend :append :reverse :front
                 :drop-last :conc :take :drop})
@@ -254,6 +254,40 @@
         :args (s/cat :defs ::defs)
         :ret (s/and (s/keys :req-un (::tag) :req (::values))
                     #(= :definitions (:tag %))))
+(defn bexpression-definition [name args expr]
+  {:tag :expression-definition
+   :name name
+   :args args
+   :expr expr})
+(s/fdef bexpression-definition
+        :args (s/cat :name ::name :args ::args :expr ::expr)
+        :ret (s/and (s/keys :req-un (::tag) :req (::name ::args ::expr))
+                    #(= :expression-definition (:tag %))))
+(defn bpredicate-definition [name args pred]
+  {:tag :predicate-definition
+   :name name
+   :args args
+   :pred pred})
+(s/fdef bpredicate-definition
+        :args (s/cat :name ::name :args ::args :pred ::pred)
+        :ret (s/and (s/keys :req-un (::tag) :req (::name ::args ::pred))
+                    #(= :predicate-definition (:tag %))))
+(defn bsubstitution-definition [name args sub]
+  {:tag :substitution-definition
+   :name name
+   :args args
+   :sub sub})
+(s/fdef bsubstitution-definition
+        :args (s/cat :name ::name :args ::args :sub ::sub)
+        :ret (s/and (s/keys :req-un (::tag) :req (::name ::args ::sub))
+                    #(= :substitution-definition (:tag %))))
+(defn bfile-definition [file]
+  {:tag :file-definition
+   :file file})
+(s/fdef bfile-definition
+        :args (s/cat :file ::file)
+        :ret (s/and (s/keys :req-un (::tag) :req (::file))
+                    #(= :file-definition (:tag %))))
 
 (defn bvariables [& ids]
   {:tag :variables
@@ -1596,6 +1630,10 @@
            ~'constants bconstants
            ~'properties bproperties
            ~'definitions bdefinitions
+           ~'expression-definition bexpression-definition
+           ~'predicate-definition bpredicate-definition
+           ~'substitution-definition bsubstitution-definition
+           ~'file-definition bfile-definition
            ~'variables bvariables
            ~'invariants binvariants
            ~'assertions bassertions
