@@ -50,6 +50,15 @@
            (ast->b (ir->ast
                      (b (machine :Empty))))))))
 
+(deftest definition-test
+  (testing "definitions"
+    (are [b ir] (= b (ir->b ir))
+                "DEFINITIONS\nSET_PREF_MAX_OPERATIONS == 10;\n" (b (definitions (expression-definition :SET_PREF_MAX_OPERATIONS [] 10)))
+                "DEFINITIONS\nCHOOSE(X) == \"a member of X\";\nEXTERNAL_FUNCTION_CHOOSE(T) == POW(T)-->T;\n" (b (definitions (expression-definition :CHOOSE [:X] "a member of X") (expression-definition :EXTERNAL_FUNCTION_CHOOSE [:T] (--> (pow :T) :T))))
+                "DEFINITIONS\nPRED == x<y;\n" (b (definitions (predicate-definition :PRED [] (< :x :y))))
+                "DEFINITIONS\nSUBST == skip;\n" (b (definitions (substitution-definition :SUBST [] skip)))
+                "DEFINITIONS\nBTRUE == 1=1;\nBFALSE == 1/=1;\nEXPR == 1+1;\nSUBST == a_mch := {};\n" (b (definitions (predicate-definition :BTRUE [] (= 1 1)) (predicate-definition :BFALSE [] (not= 1 1)) (expression-definition :EXPR [] (+ 1 1)) (substitution-definition :SUBST [] (assign :a_mch #{})))))))
+
 (deftest machine-clauses-test
   (testing "machine-clauses"
     (testing "machine-inclusions"

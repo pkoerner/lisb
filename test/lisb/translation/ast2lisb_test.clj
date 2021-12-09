@@ -45,6 +45,16 @@
                   '(refinement :Empty2 :Empty) "REFINEMENT Empty2 REFINES Empty\nEND"
                   '(implementation :Empty2 :Empty) "IMPLEMENTATION Empty2 REFINES Empty\nEND")))
 
+(deftest definition-test
+  (testing "definitions"
+    (are [lisb b] (= lisb (b->lisb b))
+                  '(definition-file (definitions (expression-definition :SET_PREF_MAX_OPERATIONS [] 10))) "DEFINITIONS SET_PREF_MAX_OPERATIONS == 10"
+                  '(definition-file (definitions (expression-definition :CHOOSE [:X] "a member of X") (expression-definition :EXTERNAL_FUNCTION_CHOOSE [:T] (--> (pow :T) :T)))) "DEFINITIONS  CHOOSE(X) == \"a member of X\"; EXTERNAL_FUNCTION_CHOOSE(T) == (POW(T)-->T)"
+                  '(definition-file (definitions (predicate-definition :PRED [] (< :x :y)))) "DEFINITIONS PRED == x<y"
+                  '(definition-file (definitions (substitution-definition :SUBST [] skip))) "DEFINITIONS SUBST == skip"
+                  '(definition-file (definitions (predicate-definition :BTRUE [] (= 1 1)) (predicate-definition :BFALSE [] (not= 1 1)) (expression-definition :EXPR [] (+ 1 1)) (substitution-definition :SUBST [] (assign :a_mch #{})))) "DEFINITIONS BTRUE==(1=1) ; BFALSE==(1/=1) ; EXPR == (1+1); SUBST == BEGIN a_mch := {} END"
+                  ;'(definitions (file-definition "LibraryMeta.def")) "MACHINE DEFINITIONS \"LibraryMeta.def\" END"
+                  )))
 
 (deftest machine-clauses-test
   (testing "machine-clauses"

@@ -265,7 +265,6 @@
 | `CONSTANTS id1,id2,...`            | `(constants & ids)`      | `{:tag :constants, :values ids}`      | constants                            |
 | `CONCRETE_CONSTANTS cx,cy,..`      |                          |                                       | synonym for constants                |
 | `PROPERTIES pred1 & pred2 & ...`   | `(properties preds)`     | `{:tag :properties, :values preds}`   | properties                           |
-| `DEFINITIONS m(x,...) == BODY;...` |                          |                                       | definitions                          | <!-- TODO -->
 | `VARIABLES id1,id2,...`            | `(variables & ids)`      | `{:tag :variables, :values ids}`      | variables                            |
 | `CONCRETE_VARIABLES cv,cw,...`     |                          |                                       | synonym for variables                |
 | `INVARIANT pred1 & pred2 & ...`    | `(invariants & preds)`   | `{:tag :invariants, :values preds}`   | invariant                            |
@@ -286,6 +285,22 @@
 | `name(arg1,arg2,...) = body`                         | `(name args body)`               | `{:tag :op, :returns [], :name name, :args args, :body body}`          | operation with parameters             | 
 | `return1,return2,... <-- name = body`                | `(<-- returns (name [] body))`   | `{:tag :op, :returns return-vals, :name name, :args [], :body body}`   | operation with returns                |
 | `return1,return2,... <-- name(arg1,arg2,...) = body` | `(<-- returns (name args body))` | `{:tag :op, :returns return-vals, :name name, :args args, :body body}` | operation with parameters and returns |
+###Definitions
+| B                          | Lisb                   | IR                                 | Description |
+|----------------------------|------------------------|------------------------------------|-------------|
+| `DEFINITIONS def1;def2...` | `(definitions & defs)` | `{:tag :definitions :values defs}` |             |
+####Definition definitions
+| B                             | Lisb                                      | IR                                                               | Description |
+|-------------------------------|-------------------------------------------|------------------------------------------------------------------|-------------|
+| `name == expr`                | `(expression-definition name [] expr)`    | `{:tag :expression-definition :name name :args [] :expr expr}`   |             |
+| `name(arg1,arg2,...) == expr` | `(expression-definition name args expr)`  | `{:tag :expression-definition :name name :args args :expr expr}` |             |
+| `name == pred`                | `(predicate-definition name [] pred)`     | `{:tag :predicate-definition :name name :args [] :pred pred}`    |             |
+| `name(arg1,arg2,...) == pred` | `(predicate-definition name args pred)`   | `{:tag :predicate-definition :name name :args args :pred pred}`  |             |
+| `name == sub`                 | `(substitution-definition name [] sub)`   | `{:tag :substitution-definition :name name :args [] :sub sub}`   |             |
+| `name(arg1,arg2,...) == sub`  | `(substitution-definition name args sub)` | `{:tag :substitution-definition :name name :args args :sub sub}` |             |
+| `name == sub`                 | `(substitution-definition name [] sub)`   | `{:tag :substitution-definition :name name :args [] :sub sub}`   |             |
+| `name(arg1,arg2,...) == sub`  | `(substitution-definition name args sub)` | `{:tag :substitution-definition :name name :args args :sub sub}` |             |
+| `"FILE.def"`                  | `(file-definition "FILE.def")`            | `{:tag :file-definition :file "FILE.def"}`                       |             |
 
 
 ##Machine

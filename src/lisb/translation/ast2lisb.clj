@@ -176,7 +176,7 @@
              ASelectSubstitution
              ASelectWhenSubstitution
              AOperation
-             AMachineClauseParseUnit AUsesMachineClause AExtendsMachineClause AMachineReference AIncludesMachineClause APromotesMachineClause AOpSubstitution ARefinementMachineParseUnit AImplementationMachineParseUnit AModelMachineVariant ASystemMachineVariant ASeesMachineClause ACaseSubstitution ACaseOrSubstitution)
+             AMachineClauseParseUnit AUsesMachineClause AExtendsMachineClause AMachineReference AIncludesMachineClause APromotesMachineClause AOpSubstitution ARefinementMachineParseUnit AImplementationMachineParseUnit AModelMachineVariant ASystemMachineVariant ASeesMachineClause ACaseSubstitution ACaseOrSubstitution ASubstitutionDefinitionDefinition PDefinition TDefLiteralPredicate TDefLiteralSubstitution)
            (java.util LinkedList)))
 
 (declare ast->lisb read-bmachine)
@@ -260,6 +260,9 @@
       name
       (cons name parameters))))
 
+(defmethod ast->lisb ADefinitionFileParseUnit [node]
+  (lisbify 'definition-file (.getDefinitionsClauses node)))
+
 (defmethod ast->lisb AMachineClauseParseUnit [node]
   (ast->lisb (.getMachineClause node)))
 
@@ -315,15 +318,24 @@
 
 (defmethod ast->lisb ADefinitionsMachineClause [node]
   (concat-last 'definitions (.getDefinitions node)))
-; TODO
-#_(defmethod ast->lisb AExpressionDefinitionDefinition [node])
-#_(defmethod ast->lisb APredicateDefinitionDefinition [node])
+(defmethod ast->lisb APredicateDefinitionDefinition [node]
+  (lisbify 'predicate-definition (.getName node) (.getParameters node) (.getRhs node)))
+(defmethod ast->lisb TDefLiteralPredicate [node]
+  (keyword (.getText node)))
+(defmethod ast->lisb ASubstitutionDefinitionDefinition [node]
+  (lisbify 'substitution-definition (.getName node) (.getParameters node) (.getRhs node)))
+(defmethod ast->lisb TDefLiteralSubstitution [node]
+  (keyword (.getText node)))
+(defmethod ast->lisb AExpressionDefinitionDefinition [node]
+  (lisbify 'expression-definition (.getName node) (.getParameters node) (.getRhs node)))
+(defmethod ast->lisb AFileDefinitionDefinition [node]
+  (lisbify 'file-definition (.getFilename node)))
+(defmethod ast->lisb TStringLiteral [node]
+  (.getText node))
 
+; same for concrete variables
 (defmethod ast->lisb AVariablesMachineClause [node]
   (concat-last 'variables (.getIdentifiers node)))
-
-; TODO: concrete variables
-
 
 (defmethod ast->lisb AInvariantMachineClause [node]
   (splice-and 'invariants (.getPredicates node)))
