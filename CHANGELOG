@@ -4,23 +4,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.3] - Snapshot
-  ### Added
+## [0.0.4]
+  ### Added:
   - Added definitions
   - Added specs to ir2ast
   ### Changed
+  - update ProB 2 dependency
   - Changed ir tag :general-union to :unite-sets
   - Changed ir tag :general-intersection to :intersect-sets
-  - Changed application of to-vector for comprehension-set ids from ir2ast to lisb2ir
-  - Changed lisb2ir function bmul-or-cart to bcart-or-mult
+  - Changed ir tag :pre to :precondition
   - Changed ir tag :mul-or-cart to :cartesian-product-or-multiplication
+  - Changed lisb2ir function bmul-or-cart to bcart-or-mult
+  - Changed key :clauses of machines to :machine-clauses
   - Changed key :clauses of case to :cases
   - Changed ir op to always contain key :returns
-  - Changed ir op-call to always contain key :returns
-  - Changed ir tag :pre to :precondition
-  - Changed key :clauses of machines to :machine-clauses
   - Changed lisb representation of couple from vector to (|-> left right)/(maplet left right)
   - Changed ir of couple from vector to {:tag :maplet, :left left, :right right}
+  - Changed application of to-vector for comprehension-set ids from ir2ast to lisb2ir
+  - Changed ir op-call to always contain key :returns
+
+## [0.0.3]
+  ### we somehow messed up versions numbers; sorry.
+  ### compiling a list of changes are left as an exercise to the reader
 
 ## [0.0.2]
   ### Added
