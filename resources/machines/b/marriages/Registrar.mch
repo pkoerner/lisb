@@ -15,7 +15,7 @@ OPERATIONS
     IF nn : dom(marriage)
     THEN part(nn,marriage(nn))
     ELSIF nn : ran(marriage)
-    THEN part(marriage~(nn),nn)
+    THEN part((marriage~)(nn),nn)
     END
   END
 

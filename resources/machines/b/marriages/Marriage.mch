@@ -25,7 +25,7 @@ pp <-- partner(nn) =
   THEN 
     IF nn : dom(marriage)
     THEN pp := marriage(nn)
-    ELSE pp := marriage~(nn)
+    ELSE pp := (marriage~)(nn)
     END
   END
 

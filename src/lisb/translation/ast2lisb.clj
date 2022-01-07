@@ -668,7 +668,7 @@
 (defmethod ast->lisb AMinusOrSetSubtractExpression [node]
   (multi-arity '- node))
 (defmethod ast->lisb AMultOrCartExpression [node]
-  (multi-arity '* node))
+  (multi-arity 'cart-or-mult node))
 (defmethod ast->lisb ADivExpression [node]
   (multi-arity '/ node))
 (defmethod ast->lisb APowerOfExpression [node]
