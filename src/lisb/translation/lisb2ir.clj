@@ -5,12 +5,14 @@
   (:require [clojure.spec.alpha :as s]))
 
 
+;; TODO: check where iterate needs to be listed as well
+
 (def machine-clause-tags #{:uses :includes :sees :extends :promotes :constraints :sets :constants :properties
                            :definitions :variables :invariants :assertions :init :operations})
 (def substitution-tags #{:skip :block :assignment :becomes-element-of :becomes-such :op-call :parallel-sub :sequential-sub :any
                 :let-sub :var :precondition :assert :choice :if-sub :cond :select :case})
 (def seq-tags #{:empty-sequence :sequence :seq :seq1 :iseq :iseq1 :perm :concat :prepend :append :reverse :front
-                :drop-last :conc :take :drop})
+                :drop-last :conc :take :drop :tail})
 (def fn-tags #{:partial-fn :total-fn :partial-surjection :total-surjection :partial-injection :total-injection
                :partial-bijection :total-bijection :lambda
                ; relations fns
@@ -26,24 +28,27 @@
                 :cardinality
                 ; seq numbers
                 :size
+                :sigma :pi
                 })                                          ; numbers
 (def set-tags #{:comprehension-set :power-set :power1-set :fin :fin1 :cartesian-product
                 :cartesian-product-or-multiplication :union :intersection :difference :unite-sets :intersect-sets
                 :union-pe :intersection-pe
+                :iterate
                 ; boolean-sets
                 :bool-set
                 ; number-sets
-                :integer-set :natural-set :int-set :nat-set :nat1-set :interval
+                :integer-set :natural-set :natural1-set :int-set :nat-set :nat1-set :interval
                 ; string-sets
                 :string-set
                 ; rel-sets
                 :dom :ran
-                }) ; #{}
+                ; structs
+                :struct }) ; #{}
 (def boolean-tags #{:pred->bool})                           ; true false
 (def expr-tags (clojure.set/union seq-tags fn-tags rel-tags set-tags num-tags boolean-tags
                                   #{:let :if-expr
                                     ; records
-                                    :struct :record :record-get
+                                    :record :record-get
                                     ; seqs
                                     :first :last
                                     ; fns

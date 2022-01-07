@@ -72,12 +72,12 @@
 
     (is (eval-ir-formula (b= 2 (bcard #{1 2}))))
 
-    (is (eval-ir-formula (b= #{} (b* #{} #{}))))
+    (is (eval-ir-formula (b= #{} (bcartesian-product #{} #{}))))
 
     ;; FIXME: without the additional set the translator breaks
-    (is (eval-ir-formula (b= :x #{(b* #{1 2} #{2 3})})))
+    (is (eval-ir-formula (b= :x #{(bcartesian-product #{1 2} #{2 3})})))
 
-    (is (eval-ir-formula (b= :x #{(b* #{1 2} #{2 3} #{3 4})})))
+    (is (eval-ir-formula (b= :x #{(bcartesian-product #{1 2} #{2 3} #{3 4})})))
 
     (is (eval-ir-formula (b= #{1 2 3} (bunion #{1 2} #{2 3}))))
     (is (eval-ir-formula (b= #{1 2 3 4} (bunion #{1 2} #{2 3} #{3 4}))))

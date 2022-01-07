@@ -206,6 +206,8 @@
   (ir->ast-node (:num ir-node)))
 (defn ir-node-nums->ast [ir-node]
   (map ir->ast-node (:nums ir-node)))
+(defn ir-node-nums-or-sets->ast [ir-node]
+  (map ir->ast-node (:nums-or-sets ir-node)))
 (defn ir-node-rel->ast [ir-node]
   (ir->ast-node (:rel ir-node)))
 (defn ir-node-rels->ast [ir-node]
@@ -363,7 +365,8 @@
                 :seq (s/* ::seq)))
 (s/def ::rels (s/* ::rel))
 (s/def ::nums (s/* ::num))
-(s/def ::nums-or-sets (s/or ::nums ::sets))
+(s/def ::nums-or-sets (s/or :nums ::nums
+                            :sets ::sets))
 (s/def ::preds (s/+ ::pred))
 
 (s/def ::args (s/* ::expr))
@@ -932,7 +935,7 @@
 
 (defmethod ir-node->ast-node :cartesian-product-or-multiplication [ir-node]
   (s/assert (s/keys :req-un [::nums-or-sets]) ir-node)
-  (left-associative #(AMultOrCartExpression. %1 %2) (ir-node-nums->ast ir-node)))
+  (left-associative #(AMultOrCartExpression. %1 %2) (ir-node-nums-or-sets->ast ir-node)))
 
 (defmethod ir-node->ast-node :mul [ir-node]
   (s/assert (s/keys :req-un [::nums]) ir-node)
