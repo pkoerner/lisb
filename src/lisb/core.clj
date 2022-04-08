@@ -8,11 +8,11 @@
 
 ; if you modify this default state space and complain afterwards, you stink
 ; execute only commmands on this state-space which not implement IStateSpaceModifier!
-(defonce ^:private secret-state-space (ir-state-space! bempty-machine))
+(defonce ^:private secret-state-space (delay (ir-state-space! bempty-machine)))
 
 (defn eval-ir-formula
   ([state-space ir-formula] (eval-formula state-space (ir->ast ir-formula)))
-  ([ir-formula] (eval-ir-formula secret-state-space ir-formula)))
+  ([ir-formula] (eval-ir-formula @secret-state-space ir-formula)))
 
 
 (defn choose-rest [c]
