@@ -5,7 +5,7 @@
     (de.be4.classicalb.core.parser BParser)
     (de.be4.classicalb.core.parser.util PrettyPrinter)))
 
-(import-vars [lisb.translation.ast2lisb ast->lisb ast->lisb+])
+(import-vars [lisb.translation.ast2lisb ast->lisb])
 (import-vars [lisb.translation.ir2ast ir->ast])
 (import-vars [lisb.translation.data-conversion ensure-list convert])
 (import-vars [lisb.translation.lisb2ir lisb->ir b
@@ -62,7 +62,7 @@
     (.getPrettyPrint pprinter)))
 
 (defn ast->ir [ast]
-  (lisb->ir (ast->lisb+ ast)))
+  (lisb->ir (ast->lisb ast)))
 
 (defn b->ast [b] (.parse (BParser.) b false))
 (defn b-formula->ast [b-formula] (.parseFormula (BParser.) b-formula))
@@ -72,13 +72,13 @@
 (defn b-operation->ast [b-operation] (.parseTransition (BParser.) b-operation))
 (defn b-machine-clause->ast [b-machine-clause] (b->ast (str "#MACHINECLAUSE" b-machine-clause)))
 
-(defn b->lisb [b] (ast->lisb+ (b->ast b)))
-(defn b-predicate->lisb [b-predicate] (ast->lisb+ (b-predicate->ast b-predicate)))
-(defn b-expression->lisb [b-expression] (ast->lisb+ (b-expression->ast b-expression)))
-(defn b-formula->lisb [b-formula] (ast->lisb+ (b-formula->ast b-formula)))
-(defn b-substitution->lisb [b-substitution] (ast->lisb+ (b-substitution->ast b-substitution)))
-(defn b-operation->lisb [b-operation] (ast->lisb+ (b-operation->ast b-operation)))
-(defn b-machine-clause->lisb [b-machine-clause] (ast->lisb+ (b-machine-clause->ast b-machine-clause)))
+(defn b->lisb [b] (ast->lisb (b->ast b)))
+(defn b-predicate->lisb [b-predicate] (ast->lisb (b-predicate->ast b-predicate)))
+(defn b-expression->lisb [b-expression] (ast->lisb (b-expression->ast b-expression)))
+(defn b-formula->lisb [b-formula] (ast->lisb (b-formula->ast b-formula)))
+(defn b-substitution->lisb [b-substitution] (ast->lisb (b-substitution->ast b-substitution)))
+(defn b-operation->lisb [b-operation] (ast->lisb (b-operation->ast b-operation)))
+(defn b-machine-clause->lisb [b-machine-clause] (ast->lisb (b-machine-clause->ast b-machine-clause)))
 
 (defn b->ir [b] (lisb->ir (b->lisb b)))
 (defn b-predicate->ir [b-predicate] (lisb->ir (b-predicate->lisb b-predicate)))
@@ -94,10 +94,3 @@
 
 (defn ir->b [ir]
   (ast->b (ir->ast ir)))
-
-
-; not available in current parser version, but, e.g., in [de.hhu.stups/bparser "2.9.20"]
-;(defn print-ast [ast]
-;  (let [printer (ASTPrinter.)]
-;    (.apply ast printer)))
-
