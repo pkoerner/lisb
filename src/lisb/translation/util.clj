@@ -1,5 +1,6 @@
 (ns lisb.translation.util
   (:require [potemkin :refer [import-vars]]
+            [lisb.prob.animator :refer [state-space!]]
             [lisb.translation ast2lisb ir2ast lisb2ir data-conversion])
   (:import
     (de.be4.classicalb.core.parser BParser)
@@ -60,6 +61,16 @@
   (let [pprinter (PrettyPrinter.)]
     (.apply ast pprinter)
     (.getPrettyPrint pprinter)))
+
+(defn bfile->b
+  "Use this instead of slurping a machine file.
+  Will load an .mch file with ProB and obtain an internal representation.
+  Mainly used to circumvent definitions."
+  [filename]
+  (let [animator (state-space! filename)
+        cmd (de.prob.animator.command.GetInternalRepresentationPrettyPrintCommand.)]
+    (.execute animator cmd)
+    (.getPrettyPrint cmd)))
 
 (defn ast->ir [ast]
   (lisb->ir (ast->lisb ast)))
