@@ -1,6 +1,5 @@
 (ns lisb.translation.ast2lisb
-  (:require [lisb.translation.lisb2ir :refer :all]
-            [clojure.walk :refer [postwalk]])
+  (:require [lisb.translation.lisb2ir :refer :all])
   (:import (de.be4.classicalb.core.parser.node
              Start
              AAbstractMachineParseUnit
@@ -275,6 +274,7 @@
 
 (defmethod ast->lisb ASubstitutionParseUnit [node]
   (ast->lisb (.getSubstitution node)))
+
 
 ;;; machine clauses
 
@@ -808,17 +808,6 @@
   (keyword (.getText node)))
 
 
-
-(defmethod ast->lisb ADefinitionExpression [node]
-  {:tag :definition
-   :name (ast->lisb (.getDefLiteral node))
-   :params (map ast->lisb (.getParameters node))})
-
-(defmethod ast->lisb ADefinitionPredicate [node]
-  {:tag :definition
-   :name (ast->lisb (.getDefLiteral node))
-   :params (map ast->lisb (.getParameters node))})
-
 ;;; misc
 
 (defmethod ast->lisb nil [_] nil)
@@ -826,29 +815,3 @@
 ; for the most part i want a vector
 (defmethod ast->lisb LinkedList [node]
   (mapv ast->lisb node))
-
-
-
-;; deal with definitions
-
-(defn prepare-definitions [definitions]
-  ; (expression-definition :Indice [:bb1 :mm1] (fn-call (inverse (fn-call :reservation :bb1)) :mm1))
-  (let [[_ id params code] definitions]
-    [id {:params params
-         :code code}]))
-
-(defn inject-definition [form {:keys [params code]}]
-  ;; TODO: fix scoping of identifiers
-  (postwalk (fn [x] (get (zipmap params (:params form)) x x))
-            code))
-
-;; TODO: cyclic definitions? definitions using other definitions?
-(defn replace-definitions [mch]
-  (let [defs (rest (first (filter #(and (seq? %) (= 'definitions (first %))) mch)))
-        defm (into {} (map prepare-definitions defs))]
-    (postwalk (fn [x] (if (and (map? x) (= :definition (:tag x)))
-                        (inject-definition x (get defm (:name x)))
-                        x)) 
-              (remove #(and (seq? %) (= 'definitions (first %))) mch))))
-
-(def ast->lisb+ (comp replace-definitions ast->lisb))
