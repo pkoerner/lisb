@@ -1,6 +1,6 @@
 # Work in progress lisb api doc
 
-##Logical predicates
+## Logical predicates
 | B                                                    | Lisb                               | IR                                                                         | Description                |
 |------------------------------------------------------|------------------------------------|----------------------------------------------------------------------------|----------------------------|
 | `pred1 & pred2 & ...`                                | `(and & preds)`                    | `{:tag :and, :preds preds}`                                                | conjunction                |
@@ -14,14 +14,14 @@
 |                                                      | `(for-all ids premise conclusion)` | `{:tag :for-all, :ids ids, :implication (implication premise conclusion)}` | sugar                      |
 | `#(id1,id2,...).(pred)`                              | `(exists ids pred)`                | `{:tag :exists, :ids ids, :pred pred}`                                     | existential quantification |
 
-##Equality
+## Equality
 | B                                                         | Lisb                  | IR                                                 | Description |
 |-----------------------------------------------------------|-----------------------|----------------------------------------------------|-------------|
 | `left = right`                                            | `(= left right)`      | `{:tag :equals, :left left, :right right}`         | equality    |
 | `left /= right`                                           | `(not= left right)`   | `{:tag :not-equals, :left left, :right right}`     | disequality |
 | `elem1/=elem2 & elem1/=elem3 & ... & elem2/=elem3 & ... ` | `(distinct? & elems)` | `(band (not= elem1 elem2) (not= elem1 elem3) ...)` | distinct    |
 
-##Booleans
+## Booleans
 | B            | Lisb                | IR                               | Description                          |
 |--------------|---------------------|----------------------------------|--------------------------------------|
 | `TRUE`       | `true`              | `true`                           | true                                 |
@@ -29,7 +29,7 @@
 | `BOOL`       | `bool-set`          | `{:tag :bool-set}`               | set of boolean values ({TRUE,FALSE}) |
 | `bool(pred)` | `(pred->bool pred)` | `{:tag :pred->bool, :pred pred}` | convert predicate into BOOL value    |
 
-##Sets
+## Sets
 | B                             | Lisb                                       | IR                                                                 | Description                                |
 |-------------------------------|--------------------------------------------|--------------------------------------------------------------------|--------------------------------------------|
 | `{elem1,elem2,...}`           | `#{elem1 elem2 ...}`                       | `#{elem1 elem2 ...}`                                               | set enumeration                            |
@@ -61,7 +61,7 @@
 | `UNION(ids).(pred&#124;expr)` | `(union-pe ids pred expr)`                 | `{:tag :union-pe, :ids ids, :pred pred, :expr expr}`               | generalised union with predicate           |
 | `INTER(ids).(pred&#124;expr)` | `(intersection-pe ids pred expr)`          | `{:tag :intersection-pe, :ids ids, :pred pred, :expr expr}`        | generalised intersection with predicate    |
 
-##Numbers
+## Numbers
 | B                       | Lisb                   | IR                                                  | Description                                                          |
 |-------------------------|------------------------|-----------------------------------------------------|----------------------------------------------------------------------|
 | `INTEGER`               | `integer-set`          | `{:tag :integer-set}`                               | set of integers                                                      |
@@ -102,7 +102,7 @@
 | `-2`                    | `-2`                   | `-2`                                                | integer literal                                                      |
 | `0xF`                   | `15`                   | `15`                                                | hexadecimal literal (cannot be retranslated)                         |
 
-##Relations
+## Relations
 | B                                                    | Lisb                                | IR                                               | Description                                                      |
 |------------------------------------------------------|-------------------------------------|--------------------------------------------------|------------------------------------------------------------------|
 | `set1<->set2<->...`                                  | `(<-> & sets)`                      | `{:tag :relation, :sets sets}`                   | relation                                                         |
@@ -139,7 +139,7 @@
 | `fnc(rel)`                                           | `(fnc rel)`                         | `{:tag :fnc, :rel rel}`                          | translate relation A<->B into function A+->POW(B)                |
 | `rel(rel)`                                           | `(rel rel)`                         | `{:tag :rel, :rel rel}`                          | translate relation A<->POW(B) into relation A<->B                |
 
-##Functions
+## Functions
 | B                                | Lisb                          | IR                                                 | Description          |
 |----------------------------------|-------------------------------|----------------------------------------------------|----------------------|
 | `set1+->set2+->...`              | `(+-> & sets)`                | `{:tag :partial-fn, :sets sets}`                   | partial function     |
@@ -163,7 +163,7 @@
 
 <!-- | `%id1,id2,... .(id1:type1&id2:type2&... &#124;expr)`        | `(fn [id-types] expr)`   | `{:tag :fn, :id-types id-types, :expr expr}`       | sugar                | -->
 
-##Sequences
+## Sequences
 | B                        | Lisb                  | IR                                       | Description                               |
 |--------------------------|-----------------------|------------------------------------------|-------------------------------------------|
 | `<> or []`               | `(sequence)`          | `{:tag :empty-sequence}`                 | empty sequence                            | <!-- [] in lisb and ir? -->
@@ -190,31 +190,31 @@
 | `seq/&#124;\num`         | `(take num seq)`      | `{:tag :take, :num num, :seq seq}`       | take first n elements of sequence         |
 | `seq\&#124;/num`         | `(drop num seq)`      | `{:tag :drop, :num num, :seq seq}`       | drop first n elements from sequence       |
 
-##Records
+## Records
 | B                                 | Lisb                  | IR                                     | Description                                          |
 |-----------------------------------|-----------------------|----------------------------------------|------------------------------------------------------|
 | `struct(id1:type1,id2:type2,...)` | `(struct & id-types)` | `{:tag :struct, :id-types id-types}`   | set of records with given fields and field types     |
 | `rec(id1:val1,id2:val2,...)`      | `(record & id-vals)`  | `{:tag :record, :id-vals id-vals}`     | construct a record with given field names and values |
 | `rec'id`                          | `(record-get rec id)` | `{:tag :record-get, :rec rec, :id id}` | get value of field with name ID                      |
 
-##Strings
+## Strings
 | B               | Lisb           | IR                   | Description                                                           |
 |-----------------|----------------|----------------------|-----------------------------------------------------------------------|
 | `"astring"`     | `"astring"`    | `"astring"`          | a specific (single-line) string value                                 |
 | `'''astring'''` |                |                      | an alternate way of writing (multi-line) strings, no need to escape " |
 | `STRING`        | `string-set`   | `{:tag :string-set}` | the set of all strings                                                |
 
-##Reals
+## Reals
 
-##Trees
+## Trees
 
-##Let and If-Then-Else
+## Let and If-Then-Else
 | B                                                                | Lisb                            | IR                                                              | Description                                 |
 |------------------------------------------------------------------|---------------------------------|-----------------------------------------------------------------|---------------------------------------------|
 | `IF cond THEN then ELSE else END`                                | `(ite cond then else)`          | `{:tag :if-then-else, :cond cond, :then then, :else else}`      | conditional for expressions and predicates  | <!-- detect and rewrite to if -->
 | `LET id1,id2,... BE id1=val1 & id2=val2 ... IN expr-or-pred END` | `(let-in id-vals expr-or-pred)` | `{:tag :let-in, :id-vals id-vals, :expr-or-pred :expr-or-pred}` | let for expression and predicates           |
 
-##Substitutions
+## Substitutions
 | B                                                                                  | Lisb                                          | IR                                                      | Description                            |
 |------------------------------------------------------------------------------------|-----------------------------------------------|---------------------------------------------------------|----------------------------------------|
 | `skip`                                                                             | `skip`                                        | `{:tag :skip}`                                          | no operation                           |
@@ -243,8 +243,8 @@
 | `CASE expr OF EITHER cond1 THEN sub1 OR cond2 THEN sub2 ... END END`               | `(case expr & cases)`                         |                                                         |                                        |
 | `CASE expr OF EITHER cond1 THEN sub1 OR cond2 THEN sub2 ... ELSE sub-else END END` | `(case expr & case)`                          |                                                         |                                        |
 
-##Machine clauses
-###Machine inclusion
+## Machine clauses
+### Machine inclusion
 | B                                | Lisb                              | IR                                            | Description                          |
 |----------------------------------|-----------------------------------|-----------------------------------------------|--------------------------------------|
 | `USES mch-name1,mch-name2,...`   | `(uses & machine-names)`          | `{:tag :uses :values machine-names}`          |                                      |
@@ -252,12 +252,12 @@
 | `SEES mch-name1,mch-name2,...`   | `(sees & machine-names)`          | `{:tag :sees :values machine-names}`          |                                      |
 | `EXTENDS mch-ref1,mch-ref2,...`  | `(extends & machine-references)`  | `{:tag :extends :values machine-references}`  |                                      |
 | `PROMOTES op1,op2,...`           | `(promotes & ops)`                | `{:tag :promotes :values ops}`                |                                      |
-####Machine reference
+### Machine reference
 | B                     | Lisb            | IR                                                  | Description                  |
 |-----------------------|-----------------|-----------------------------------------------------|------------------------------|
 | `name`                | `name`          | `{:tag :machine-reference, :name name}`             | machine name                 |
 | `name(arg1,arg2,...)` | `[name & args]` | `{:tag :machine-reference, :name name, :args args}` | machine name with parameters |
-###Machine section
+### Machine section
 | B                                  | Lisb                     | IR                                    | Description                          |
 |------------------------------------|--------------------------|---------------------------------------|--------------------------------------|
 | `CONSTRAINTS pred1 & pred2 & ...`  | `(constraints & preds)`  | `{:tag :constraints, :values preds}`  | contraints                           |
@@ -271,25 +271,25 @@
 | `ASSERTIONS pred1;pred2;...`       | `(assertions & preds)`   | `{:tag :assertions, :values preds}`   | assertions                           |
 | `INITIALISATION subs1;subs2;...`   | `(init & subs)`          | `{:tag :init, :values subs}`          | initialisation                       |
 | `OPERATIONS op-def1;op-def2;...`   | `(operations & op-defs)` | `{:tag :operations, :values op-defs}` | operations                           |
-####Set definitions
+#### Set definitions
 | B                      | Lisb                          | IR                                             | Description    |
 |------------------------|-------------------------------|------------------------------------------------|----------------|
 | `id`                   | `id`                          | `{:tag :deferred-set, :id id}`                 | deferred set   |
 |                        | `(deferred-set id)`           | `{:tag :deferred-set, :id id}`                 | deferred set   | 
 | `id={elem1,elem2,...}` | `id #{elem1 elem2 ...}`       | `{:tag :enumerated-set, :id id, :elems elems}` | enumerated set |
 |                        | `(enumerated-set id & elems)` | `{:tag :enumerated-set, :id id, :elems elems}` | enumerated set | 
-####Operation definitions
+#### Operation definitions
 | B                                                    | Lisb                             | IR                                                                     | Description                           |
 |------------------------------------------------------|----------------------------------|------------------------------------------------------------------------|---------------------------------------|
 | `name = body`                                        | `(name [] body)`                 | `{:tag :op, :returns [], :name name, :args [], :body body}`            | operation                             | 
 | `name(arg1,arg2,...) = body`                         | `(name args body)`               | `{:tag :op, :returns [], :name name, :args args, :body body}`          | operation with parameters             | 
 | `return1,return2,... <-- name = body`                | `(<-- returns (name [] body))`   | `{:tag :op, :returns return-vals, :name name, :args [], :body body}`   | operation with returns                |
 | `return1,return2,... <-- name(arg1,arg2,...) = body` | `(<-- returns (name args body))` | `{:tag :op, :returns return-vals, :name name, :args args, :body body}` | operation with parameters and returns |
-###Definitions
+### Definitions
 | B                          | Lisb                   | IR                                 | Description |
 |----------------------------|------------------------|------------------------------------|-------------|
 | `DEFINITIONS def1;def2...` | `(definitions & defs)` | `{:tag :definitions :values defs}` |             |
-####Definition definitions
+#### Definition definitions
 | B                             | Lisb                                      | IR                                                               | Description |
 |-------------------------------|-------------------------------------------|------------------------------------------------------------------|-------------|
 | `name == expr`                | `(expression-definition name [] expr)`    | `{:tag :expression-definition :name name :args [] :expr expr}`   |             |
@@ -303,7 +303,7 @@
 | `"FILE.def"`                  | `(file-definition "FILE.def")`            | `{:tag :file-definition :file "FILE.def"}`                       |             |
 
 
-##Machine
+## Machine
 | B                                                                       | Lisb                                                                    | IR                                                                                                                            | Description         |
 |-------------------------------------------------------------------------|-------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|---------------------|
 | `MACHINE machine-name clauses END`                                      | `(machine machine-name & machine-clauses)`                              | `(merge {:tag :machine, :machine-clauses machine-clauses} machine-name)`                                                      | machine             |
@@ -311,7 +311,7 @@
 | `SYSTEM machine-name clauses END`                                       | `(system machine-name & machine-clauses)`                               | `(merge {:tag :system, :machine-clauses machine-clauses} machine-name)`                                                       | synonym for machine |
 | `REFINEMENT machine-name REFINES abstract-machine-name clauses END`     | `(refinement machine-name abstract-machine-name & machine-clauses)`     | `(merge {:tag :refinement, :abstract-machine-name abstract-machine-name, :machine-clauses machine-clauses} machine-name)`     | refinement          |
 | `IMPLEMENTATION machine-name REFINES abstract-machine-name clauses END` | `(implementation machine-name abstract-machine-name & machine-clauses)` | `(merge {:tag :implementation, :abstract-machine-name abstract-machine-name, :machine-clauses machine-clauses} machine-name)` | implementation      |
-###Machine name
+### Machine name
 | B                         | Lisb              | IR                             | Description                  |
 |---------------------------|-------------------|--------------------------------|------------------------------|
 | `name`                    | `name`            | `{:name name}`                 | machine name                 |
