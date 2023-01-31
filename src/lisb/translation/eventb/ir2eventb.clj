@@ -175,24 +175,26 @@
 (defn has-tag [tag] (fn [ir] (= tag (:tag ir))))
 
 ;; TODO: If more then 1 id is present non of them can be a :fn-call.
-(defn extract-actions-code
-  [ir]
-  (case (:tag ir)
-    :assignment
-    (let [ids (id-vals->ids (:id-vals ir))
-          vals (id-vals->vals (:id-vals ir))
-          code (str (str/join "," ids) " := " (str/join "," vals))]
-      [code])
+(defmulti ir-sub->actions-codes :tag)
 
-    :parallel-sub
-    (mapcat extract-actions-code (:subs ir))
+(defmethod ir-sub->actions-codes :assignment [ir]
+  (let [ids (id-vals->ids (:id-vals ir))
+        vals (id-vals->vals (:id-vals ir))
+        code (str (str/join "," ids) " := " (str/join "," vals))]
+    [code]))
 
-    :precondition
-    (extract-actions-code (first (:subs ir)))))
+(defmethod ir-sub->actions-codes :parallel-sub [ir]
+  (mapcat ir-sub->actions-codes (:subs ir)))
+
+(defmethod ir-sub->actions-codes :precondition [ir]
+  (ir-sub->actions-codes (first (:subs ir))))
+
+(defmethod ir-sub->actions-codes :select [ir]
+  (ir-sub->actions-codes (second (:clauses ir))))
 
 (defn extract-actions [ir]
   (map-indexed (fn [i code] (action (str "act" i) code))
-               (extract-actions-code ir)))
+               (ir-sub->actions-codes ir)))
 
 (defn extract-guards [ir]
   (case (:tag ir)
@@ -216,7 +218,7 @@
 (defn extract-init [clauses]
   (->> clauses
        (find-first :init)
-       (mapcat extract-actions-code)
+       (mapcat ir-sub->actions-codes)
        (map-indexed (fn [i code] (action (str "init" i) code)))
        (event "INITIALISATION")))
 
@@ -227,7 +229,6 @@
 
 (defn extract-variables [clauses]
   (map (comp variable name) (find-first :variables clauses)))
-
 
 (defn set-invariants [m invs]
   (.set m Invariant (ModelElementList. invs)))

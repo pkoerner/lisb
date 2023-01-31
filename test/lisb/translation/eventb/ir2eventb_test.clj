@@ -24,7 +24,7 @@
       )))
 
 (deftest action-test
-  (are [actions ir] (= actions (extract-actions-code ir))
+  (are [actions ir] (= actions (ir-sub->actions-codes ir))
     ["x := 1"] (b (assign :x 1))
     ["f(x) := 1"] (b (assign (fn-call :f :x) 1))
     ["x,y := 1,x"] (b (assign :x 1 :y :x))
