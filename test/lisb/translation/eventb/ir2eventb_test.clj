@@ -60,7 +60,7 @@
                        (operations
                         (:inc [] (pre (< :x 10) (assign :x (+ :x 1))))
                         (:hello [] (assign :hello false)))))
-        machine (ir->eventb-machine ir)
+        machine (ir->prob-machine ir)
         events (.getEvents machine)
         invariants (.getInvariants machine)]
     (is (= ["x" "y" "hello"] (map (fn [x] (.getName x)) (.getVariables machine))))

@@ -1,5 +1,5 @@
 (ns lisb.translation.eventb.util
-  (:require [lisb.translation.eventb.ir2eventb :refer [ir->eventb-machine]]
+  (:require [lisb.translation.eventb.ir2eventb :refer [ir->prob-machine]]
             [lisb.prob.animator :refer [injector]]
             [lisb.translation.util :refer [b]])
   (:import
@@ -30,7 +30,7 @@
                         (:hello [] (assign :hello true))))))
 
   (-> machine
-      ir->eventb-machine
+      ir->prob-machine
       prob-model
       (prob-model->rodin "hello" "./resources/eventb"))
 
