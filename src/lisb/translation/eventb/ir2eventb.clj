@@ -1,18 +1,14 @@
 (ns lisb.translation.eventb.ir2eventb
   (:require [clojure.string :as str]
             [clojure.spec.alpha :as s]
-            [lisb.prob.animator :refer [injector]]
             [lisb.translation.util :as util])
   (:import
-   de.prob.animator.domainobjects.EventB
-   de.prob.model.eventb.translate.ModelToXML
    (de.prob.model.eventb
     EventBMachine
     EventBInvariant
     EventBAction
     EventBGuard
     EventBVariable
-    EventBModel
     Event
     Event$EventType
     Context)
@@ -230,7 +226,6 @@
 (defn extract-variables [clauses]
   (map (comp variable name) (find-first :variables clauses)))
 
-(def modelCreator (.getProvider injector EventBModel))
 
 (defn set-invariants [m invs]
   (.set m Invariant (ModelElementList. invs)))
@@ -251,12 +246,6 @@
         (set-invariants (extract-invariants clauses))
         (set-events (conj (extract-events clauses) (extract-init clauses)))
         (set-variables (extract-variables clauses)))))
-
-(defn machine->model [m]
-  (-> modelCreator .get (.addMachine m)))
-
-(defn prob->rodin [model model-name path]
-  (.writeToRodin (ModelToXML.) model model-name path))
 
 (comment
   (ir-pred->str (util/b (strict-subset? #{1} #{1,2} #{1,2,3})))
@@ -292,22 +281,5 @@
                     (pre (and (< :x 10) (> :y 0)) (||
                                                    (assign :x (+ :x 1))
                                                    (assign :y (- :y 1))))))))
-
-  (def machine (util/b (machine :hello-world
-                       (variables :x :hello)
-                       (invariants
-                        (in :hello bool-set)
-                                 (<= :x 10))
-                       (init
-                           (assign :x 0)
-                           (assign :hello true))
-                       (operations
-                        (:inc [] (pre (< :x 10) (assign :x (+ :x 1))))
-                        (:hello [] (assign :hello true))))))
-
-  (-> machine
-      ir->eventb-machine
-      machine->model
-      (prob->rodin "hello" "./resources/eventb"))
 
   )
