@@ -21,15 +21,18 @@
    de.prob.model.representation.ModelElementList))
 
 (defmulti ir-expr->str (fn [ir] (or (:tag ir) (class ir))))
-(defmulti ir-pred->str (fn [ir] (or (:tag ir) (class ir))))
+(defmulti ir-pred->str :tag)
 
-(defn chain-expr [op ir]
-  (str "(" (str/join op (map ir-expr->str ir)) ")"))
+(defn chain-expr [op irs]
+  (str/join op (map (fn [ir]
+                      (if (:tag ir)
+                        (str "(" (ir-expr->str ir) ")")
+                        (ir-expr->str ir))) irs)))
 
 (defn chain-pred [op ir]
-  (str "(" (str/join op (map ir-pred->str ir)) ")"))
+   (str/join op (map ir-pred->str ir)))
 
-;; To Strings
+;; Primitives
 
 (defmethod ir-expr->str clojure.lang.Keyword [ir] (name ir))
 (defmethod ir-expr->str java.lang.Long [ir] (str ir))
@@ -43,11 +46,11 @@
 
 ;; Numbers
 
-(defmethod ir-expr->str :add [ir] (chain-expr " + " (:nums ir)))
-(defmethod ir-expr->str :sub [ir] (chain-expr " - " (:nums ir)))
-(defmethod ir-expr->str :cart-or-mul [ir] (chain-expr "*" (:nums-or-sets ir)))
-(defmethod ir-expr->str :div [ir] (chain-expr " / " (:nums ir)))
-(defmethod ir-expr->str :mod [ir] (chain-expr " mod " (:nums ir)))
+(defmethod ir-expr->str :add [ir] (chain-expr "+" (:nums ir)))
+(defmethod ir-expr->str :sub [ir] (chain-expr "-" (:nums ir)))
+(defmethod ir-expr->str :mul [ir] (chain-expr "*" (:nums ir)))
+(defmethod ir-expr->str :div [ir] (chain-expr "/" (:nums ir)))
+(defmethod ir-expr->str :mod [ir] (chain-expr "mod" (:nums ir)))
 ;;(defmethod ir-expr->str :pow [ir-expr] (chain-expr " ** " (:nums ir-expr)))
 
 (defmethod ir-expr->str :integer-set [_] "INT")
@@ -69,15 +72,15 @@
 
 ;; Logical predicates
 
-(defmethod ir-pred->str :less [ir] (chain-expr " < " (:nums ir)))
-(defmethod ir-pred->str :less-equals [ir] (chain-expr " <= " (:nums ir)))
-(defmethod ir-pred->str :greater [ir] (chain-expr " > " (:nums ir)))
-(defmethod ir-pred->str :greater-equals [ir] (chain-expr " >= " (:nums ir)))
+(defmethod ir-pred->str :less [ir] (chain-expr "<" (:nums ir)))
+(defmethod ir-pred->str :less-equals [ir] (chain-expr "<=" (:nums ir)))
+(defmethod ir-pred->str :greater [ir] (chain-expr ">" (:nums ir)))
+(defmethod ir-pred->str :greater-equals [ir] (chain-expr ">=" (:nums ir)))
 
-(defmethod ir-pred->str :and [ir] (chain-pred " & " (:preds ir)))
+(defmethod ir-pred->str :and [ir] (chain-pred "&" (:preds ir)))
 (defmethod ir-pred->str :or [ir] (chain-pred " or " (:preds ir)))
-(defmethod ir-pred->str :implication [ir] (chain-pred " => " (:preds ir)))
-(defmethod ir-pred->str :equivalence [ir] (chain-pred " <=> " (:preds ir)))
+(defmethod ir-pred->str :implication [ir] (chain-pred "=>" (:preds ir)))
+(defmethod ir-pred->str :equivalence [ir] (chain-pred "<=>" (:preds ir)))
 (defmethod ir-pred->str :not [ir]
   (str "not(" (ir-pred->str (:pred ir) ")")))
 (defmethod ir-pred->str :for-all [ir]
@@ -118,8 +121,8 @@
 (defmethod ir-expr->str :unite-sets [ir]
   (str "inter(" (ir-expr->str (:set ir)) ")"))
 
-(defmethod ir-expr->str :cart-or-mul [ir]
-  (chain-expr "*" (:nums-or-sets ir)))
+(defmethod ir-expr->str :cartesian-product [ir]
+  (chain-expr "**" (:sets ir)))
 
 (defmethod ir-expr->str :union [ir]
   (chain-expr "\\/" (:sets ir)))
@@ -131,9 +134,8 @@
   (str (ir-expr->str (:elem ir)) ":" (ir-expr->str (:set ir))))
 
 (defn chain-expr-explicit [op elems]
-  (str/join " & "
-            (map (fn [a b] (str (ir-expr->str a) op (ir-expr->str b)))
-                 (butlast elems) (rest elems))))
+  (str/join "&" (map (fn [a b] (str (ir-expr->str a) op (ir-expr->str b)))
+                     (butlast elems) (rest elems))))
 
 (defmethod ir-pred->str :subset [ir]
   (chain-expr-explicit "<:" (:sets ir)))
@@ -247,39 +249,3 @@
         (set-events (conj (extract-events clauses) (extract-init clauses)))
         (set-variables (extract-variables clauses)))))
 
-(comment
-  (ir-pred->str (util/b (strict-subset? #{1} #{1,2} #{1,2,3})))
-  (ir-pred->str (util/b (and (< :x 10) (> :y 0))))
-
-  (extract-actions (util/b (assign :x (+ :E 1) :y :W)))
-  (extract-actions (util/b (assign (fn-call :f :x) (+ :E 1) :y :W)))
-
-  (extract-actions (util/b (assign :x (+ :E 1) :y :W)))
-  (extract-actions (util/b (||
-                            (assign :y :W)
-                            (assign :x (+ :E 1) :y :W))))
-
-  ;; concat all parallel assignments
-  (extract-actions-code (util/b (||
-                            (assign :y :W)
-                            (||
-                             (assign :z :Z)
-                             (assign :w (+ :E 13)))
-                            (assign :x (+ :E 1) :y :W))))
-
-  (extract-guards (util/b (pre (and (< :x 10) (> :y 0)) (assign :x :y))))
-
-  (op->event (util/b
-              (op :inc_dec []
-                  (||
-                   (assign :x (+ :x 1))
-                   (assign :y (- :y 1))))))
-
-  (.getGuards (op->event
-               (util/b
-                (op :inc_dec []
-                    (pre (and (< :x 10) (> :y 0)) (||
-                                                   (assign :x (+ :x 1))
-                                                   (assign :y (- :y 1))))))))
-
-  )
