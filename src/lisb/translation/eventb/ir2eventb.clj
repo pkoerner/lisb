@@ -240,7 +240,7 @@
 (defn set-variables [m vars]
   (.set m Variable (ModelElementList. vars)))
 
-(defn ir->eventb-machine [ir]
+(defn ir->prob-machine [ir]
   (assert (= :machine (:tag ir)))
   (let [m-name (-> ir :name name (str/replace #"-" "_")) ;; rodin does not allow "-" in machine names
         clauses (:machine-clauses ir)]

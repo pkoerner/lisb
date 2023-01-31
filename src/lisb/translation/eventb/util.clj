@@ -9,10 +9,10 @@
 
 (def modelCreator (.getProvider injector EventBModel))
 
-(defn model [& machines]
+(defn prob-model [& machines]
   (reduce (fn [model machine] (.addMachine model machine )) (.get modelCreator) machines))
 
-(defn prob->rodin [model model-name path]
+(defn prob-model->rodin [model model-name path]
   (.writeToRodin (ModelToXML.) model model-name path))
 
 (comment
@@ -31,8 +31,8 @@
 
   (-> machine
       ir->eventb-machine
-      model
-      (prob->rodin "hello" "./resources/eventb"))
+      prob-model
+      (prob-model->rodin "hello" "./resources/eventb"))
 
   )
 
