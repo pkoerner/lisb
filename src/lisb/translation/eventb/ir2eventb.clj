@@ -186,15 +186,15 @@
 (defmethod ir-sub->actions-codes :parallel-sub [ir]
   (mapcat ir-sub->actions-codes (:subs ir)))
 
-(defmethod ir-sub->actions-codes :precondition [ir]
-  (ir-sub->actions-codes (first (:subs ir))))
-
-(defmethod ir-sub->actions-codes :select [ir]
-  (ir-sub->actions-codes (second (:clauses ir))))
-
 (defn extract-actions [ir]
-  (map-indexed (fn [i code] (action (str "act" i) code))
-               (ir-sub->actions-codes ir)))
+  (let [actions (if (contains? (methods ir-sub->actions-codes) (:tag ir))
+                  (ir-sub->actions-codes ir)
+                  (case (:tag ir)
+                    :precondition (ir-sub->actions-codes (first (:subs ir)))
+                    :select (ir-sub->actions-codes (second (:clauses ir)))
+                    ))]
+    (map-indexed (fn [i code] (action (str "act" i) code)) actions)))
+
 
 (defn extract-guards [ir]
   (case (:tag ir)

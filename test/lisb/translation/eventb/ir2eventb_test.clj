@@ -23,28 +23,39 @@
       "1=x or 1=1" (b (or (= 1 :x) (= 1 1)))
       )))
 
+
+(defn action-code [a] (-> a .getCode .getCode))
+(defn guard-code [g] (-> g .getPredicate .getCode))
+
+(comment
+  "don't allow nested selects"
+  (extract-actions (b (select (< :i 10)
+                              (|| (assign :i (+ :i 1))
+                                  (select (< :x 10) (assign :x 10)))))))
 (deftest action-test
-  (are [actions ir] (= actions (ir-sub->actions-codes ir))
+  (are [actions ir] (= actions (map action-code (extract-actions ir)))
     ["x := 1"] (b (assign :x 1))
     ["f(x) := 1"] (b (assign (fn-call :f :x) 1))
     ["x,y := 1,x"] (b (assign :x 1 :y :x))
     ["x := 1" "y := TRUE"] (b (|| (assign :x 1) (assign :y true)))
     ["z := 3" "w := x" "x := 1" "y := 2"] (b (|| (|| (assign :z 3) (assign :w :x)) (assign :x 1) (assign :y 2)))
-    ))
+    ["hello := 0"] (b (select (> :x 2) (assign :hello 0))))
+    )
 
-(defn get-actions [event-name events]
-  (->> events
+(defn find-first-by-name [event-name events]
+ (->> events
        (filter (fn [x] (= event-name (.getName x))))
-       first
+       first))
+
+(defn get-actions [event]
+  (->> event
        .getActions
-       (map (fn [x] (.getCode (.getCode x))))))
+       (map action-code)))
 
-(defn get-guards [event-name events]
-  (->> events
-       (filter (fn [x] (= event-name (.getName x))))
-       first
+(defn get-guards [event]
+  (->> event
        .getGuards
-       (map (fn [x] (.getCode (.getPredicate x))))
+       (map guard-code)
        ))
 
 (deftest prob-machine-test
@@ -66,10 +77,13 @@
     (is (= ["x" "y" "hello"] (map (fn [x] (.getName x)) (.getVariables machine))))
     (is (= ["hello:BOOL" "x<=10" "y:NAT"] (map (fn [x] (.getCode (.getPredicate x))) invariants)))
     (is (= ["INITIALISATION" "inc" "hello"] (map (fn [x] (.getName x)) events)))
-    (is (= ["x,y := 0,50" "hello := TRUE"] (get-actions "INITIALISATION" events)))
-    (is (= ["x<10"] (get-guards "inc" events)))
-    (is (= ["x := x+1"] (get-actions "inc" events)))
-    (is (= [] (get-guards "hello" events)))
-    (is (= ["hello := FALSE"] (get-actions "hello" events)))
+    (is (= ["x,y := 0,50" "hello := TRUE"] (get-actions (find-first-by-name "INITIALISATION" events))))
+    (is (= ["x<10"] (get-guards (find-first-by-name "inc" events))))
+    (is (= ["x := x+1"] (get-actions (find-first-by-name "inc" events))))
+    (is (= [] (get-guards (find-first-by-name "hello" events))))
+    (is (= ["hello := FALSE"] (get-actions (find-first-by-name "hello" events))))
     ))
 
+(comment (ir-sub->actions-codes (b (select (> :x 2) (assign :hello 0)))) )
+(comment
+ ( (b (select (> :x 2) (assign :hello 0)))) )
