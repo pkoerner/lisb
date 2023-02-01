@@ -186,6 +186,7 @@
 (defmethod ir-sub->actions-codes :parallel-sub [ir]
   (mapcat ir-sub->actions-codes (:subs ir)))
 
+
 (defn extract-actions [ir]
   (let [actions (if (contains? (methods ir-sub->actions-codes) (:tag ir))
                   (ir-sub->actions-codes ir)
@@ -206,18 +207,18 @@
         guards (extract-guards (:body op))]
      (event (name (:name op)) guards actions)))
 
-(defn find-first [tag clauses]
+(defn find-first-values-by-tag [tag clauses]
   (->> clauses
        (filter #(= tag (:tag %)))
        first
        :values))
 
 (defn extract-events [clauses]
-  (map op->event (find-first :operations clauses)))
+  (map op->event (find-first-values-by-tag :operations clauses)))
 
 (defn extract-init [clauses]
   (->> clauses
-       (find-first :init)
+       (find-first-values-by-tag :init)
        (mapcat ir-sub->actions-codes)
        (map-indexed (fn [i code] (action (str "init" i) code)))
        (event "INITIALISATION")))
@@ -225,10 +226,10 @@
 (defn extract-invariants [clauses]
   (map-indexed
    (fn [i pred] (invariant (str "inv" i) (ir-pred->str pred)))
-   (find-first :invariants clauses)))
+   (find-first-values-by-tag :invariants clauses)))
 
 (defn extract-variables [clauses]
-  (map (comp variable name) (find-first :variables clauses)))
+  (map (comp variable name) (find-first-values-by-tag :variables clauses)))
 
 (defn set-invariants [m invs]
   (.set m Invariant (ModelElementList. invs)))
