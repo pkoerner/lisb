@@ -223,13 +223,22 @@
        (map-indexed (fn [i code] (action (str "init" i) code)))
        (event "INITIALISATION")))
 
+(defn all-returns [clauses]
+  (->> clauses
+       (find-first-values-by-tag :operations)
+       (mapcat :returns)))
+
+(defn extract-variables [clauses]
+  (map (comp variable name)
+       (concat
+        (find-first-values-by-tag :variables clauses)
+        (all-returns clauses)
+        )))
+
 (defn extract-invariants [clauses]
   (map-indexed
    (fn [i pred] (invariant (str "inv" i) (ir-pred->str pred)))
    (find-first-values-by-tag :invariants clauses)))
-
-(defn extract-variables [clauses]
-  (map (comp variable name) (find-first-values-by-tag :variables clauses)))
 
 (defn set-invariants [m invs]
   (.set m Invariant (ModelElementList. invs)))

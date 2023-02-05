@@ -30,21 +30,29 @@
                    model (prob-model machine)]
                (.load model machine {})))))
 
+(defn ir->prob-model [ir] (-> ir ir->prob-machine prob-model))
+
 (comment
   (def machine (b (machine :hello-world
-                       (variables :x :y :hello)
-                       (invariants
-                                 (in :hello bool-set)
-                                 (<= :x 10)
-                                 (in :y nat-set))
-                       (init
-                           (assign :x 0 :y 50)
-                           (assign :hello true))
+                       (variables :x :y :hello :s :t)
+                           (invariants
+                            (subset? :s (cartesian-product nat-set bool-set))
+                            (subset? :t nat-set)
+                            (in :hello bool-set)
+                            (<= :x 10)
+                            (in :y nat-set))
+                           (init
+                            (assign :s #{})
+                            (assign :t #{1, 2})
+                            (assign :x 0 :y 50)
+                            (assign :hello true))
                        (operations
                         (:inc [] (pre (< :x 10) (assign :x (+ :x 1))))
                         (:hello [] (assign :hello true))))))
 
-  (get-type (get-statespace machine) (b (= true :hello)))
+  (ir->prob-machine machine)
+
+  (get-type (get-statespace machine) (b (cartesian-product :s :t)))
 
   (-> machine
       ir->prob-machine
