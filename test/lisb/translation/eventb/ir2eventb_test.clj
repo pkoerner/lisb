@@ -84,7 +84,6 @@
     (is (= ["hello := FALSE"] (get-actions (find-first-by-name "hello" events))))
     ))
 
-
 (deftest prob-return-as-variable-test
   (let [ir (b (machine :hello-world
                        (variables :i)
@@ -104,3 +103,17 @@
     (is (= ["i := i+1"] (get-actions (find-first-by-name "inc" events))))
     (is (= ["result := i"] (get-actions (find-first-by-name "res" events))))
     ))
+
+(deftest prob-context-test
+  (let [ir (b (machine :test-ctx
+                       (constants :h :g)
+                       (variables :x :y)
+                       (invariants)))
+        context (ir->prob-context ir)]
+    (is (= ["h" "g"] (map (fn [x] (.getName x)) (.getConstants context))))))
+
+(comment
+  (.getConstants (ir->prob-context (b (machine :test-ctx
+                                (sets :plain)
+                                (constants :h :g)))))
+  )

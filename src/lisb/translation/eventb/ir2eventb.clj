@@ -11,13 +11,18 @@
     EventBVariable
     Event
     Event$EventType
-    Context)
+    Context
+    EventBConstant
+    )
    (de.prob.model.representation
     Variable
     Action
     Guard
     BEvent
-    Invariant)
+    Invariant
+    Axiom
+    Constant
+    )
    de.prob.model.representation.ModelElementList))
 
 (defmulti ir-expr->str (fn [ir] (or (:tag ir) (class ir))))
@@ -174,7 +179,7 @@
 
 (defn has-tag [tag] (fn [ir] (= tag (:tag ir))))
 
-;; TODO: If more then 1 id is present non of them can be a :fn-call.
+;; TODO: If more then 1 id is present no val can be a :fn-call.
 (defmulti ir-sub->actions-codes :tag)
 
 (defmethod ir-sub->actions-codes :assignment [ir]
@@ -185,7 +190,6 @@
 
 (defmethod ir-sub->actions-codes :parallel-sub [ir]
   (mapcat ir-sub->actions-codes (:subs ir)))
-
 
 (defn extract-actions [ir]
   (let [actions (if (contains? (methods ir-sub->actions-codes) (:tag ir))
@@ -259,4 +263,20 @@
         (set-invariants (extract-invariants clauses))
         (set-events (conj (extract-events clauses) (extract-init clauses)))
         (set-variables (extract-variables clauses)))))
+
+(defn extract-sets [clauses]
+  (map (fn [x] (de.prob.model.representation.Set )) ()))
+
+(defn extract-constants [clauses]
+  (map (fn [x] (EventBConstant. (name x) false "")) (find-first-values-by-tag :constants clauses)))
+
+(defn extract-axioms [clauses] [])
+
+(defn ir->prob-context [ir]
+  (let [m-name (-> ir :name name (str/replace #"-" "_") (str "_ctx")) ;; rodin does not allow "-" in machine names
+        clauses (:machine-clauses ir)]
+    (-> (Context. m-name)
+        (.set de.prob.model.representation.Set (ModelElementList. (extract-sets clauses)))
+        (.set Constant (ModelElementList. (extract-constants clauses)))
+        (.set Axiom (ModelElementList. (extract-axioms clauses))))))
 

@@ -1,5 +1,5 @@
 (ns lisb.translation.eventb.util
-  (:require [lisb.translation.eventb.ir2eventb :refer [ir-expr->str ir->prob-machine]]
+  (:require [lisb.translation.eventb.ir2eventb :refer [ir-expr->str ir->prob-machine ir->prob-context]]
             [lisb.prob.animator :refer [injector]]
             [lisb.translation.util :refer [b]])
   (:import
@@ -34,7 +34,8 @@
 
 (comment
   (def machine (b (machine :hello-world
-                       (variables :x :y :hello :s :t)
+                           (constants :z)
+                           (variables :x :y :hello :s :t)
                            (invariants
                             (subset? :s (cartesian-product nat-set bool-set))
                             (subset? :t nat-set)
