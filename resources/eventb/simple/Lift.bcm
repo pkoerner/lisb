@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.scMachineFile org.eventb.core.accurate="true" org.eventb.core.configuration="org.eventb.core.fwd">
+    <org.eventb.core.scInvariant name="'" org.eventb.core.label="inv0" org.eventb.core.predicate="etage∈0 ‥ 99" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.invariant#n1" org.eventb.core.theorem="false"/>
+    <org.eventb.core.scVariable name="etage" org.eventb.core.abstract="false" org.eventb.core.concrete="true" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.variable#n0" org.eventb.core.type="ℤ"/>
+    <org.eventb.core.scEvent name="etagf" org.eventb.core.accurate="true" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="INITIALISATION" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.event#n2">
+        <org.eventb.core.scAction name="'" org.eventb.core.assignment="etage ≔ 4" org.eventb.core.label="init0" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.event#n2|org.eventb.core.action#n3"/>
+    </org.eventb.core.scEvent>
+    <org.eventb.core.scEvent name="etagg" org.eventb.core.accurate="true" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="inc" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.event#n4">
+        <org.eventb.core.scGuard name="'" org.eventb.core.label="grd0" org.eventb.core.predicate="etage&lt;99" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.event#n4|org.eventb.core.guard#n5" org.eventb.core.theorem="false"/>
+        <org.eventb.core.scAction name="(" org.eventb.core.assignment="etage ≔ etage+1" org.eventb.core.label="act0" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.event#n4|org.eventb.core.action#n6"/>
+    </org.eventb.core.scEvent>
+    <org.eventb.core.scEvent name="etagh" org.eventb.core.accurate="true" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="dec" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.event#n7">
+        <org.eventb.core.scGuard name="'" org.eventb.core.label="grd0" org.eventb.core.predicate="etage&gt;0" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.event#n7|org.eventb.core.guard#n8" org.eventb.core.theorem="false"/>
+        <org.eventb.core.scAction name="(" org.eventb.core.assignment="etage ≔ etage − 1" org.eventb.core.label="act0" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.event#n7|org.eventb.core.action#n9"/>
+    </org.eventb.core.scEvent>
+</org.eventb.core.scMachineFile>
