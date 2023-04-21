@@ -1,7 +1,8 @@
 (ns lisb.translation.eventb.util
   (:require [lisb.translation.eventb.ir2eventb :refer [ir-expr->str ir->prob-machine ir->prob-context]]
             [lisb.prob.animator :refer [injector]]
-            [lisb.translation.util :refer [b]])
+            [lisb.translation.util :refer [b]]
+            [lisb.translation.lisb2ir :refer [boperations]])
   (:import
    de.prob.model.eventb.translate.ModelToXML
    de.prob.model.eventb.EventBModel
@@ -32,24 +33,28 @@
 
 (defn ir->prob-model [ir] (-> ir ir->prob-machine prob-model))
 
+(defmacro eventb [lisb]
+  `(let [~'events boperations]
+       (b ~lisb)))
+
 (comment
-  (def machine (b (machine :hello-world
-                           (constants :z)
-                           (variables :x :y :hello :s :t)
-                           (invariants
-                            (subset? :s (cartesian-product nat-set bool-set))
-                            (subset? :t nat-set)
-                            (in :hello bool-set)
-                            (<= :x 10)
-                            (in :y nat-set))
-                           (init
-                            (assign :s #{})
-                            (assign :t #{1, 2})
-                            (assign :x 0 :y 50)
-                            (assign :hello true))
-                       (operations
-                        (:inc [] (pre (< :x 10) (assign :x (+ :x 1))))
-                        (:hello [] (assign :hello true))))))
+  (def machine (eventb (machine :hello-world
+                                (constants :z)
+                                (variables :x :y :hello :s :t)
+                                (invariants
+                                 (subset? :s (cartesian-product nat-set bool-set))
+                                 (subset? :t nat-set)
+                                 (in :hello bool-set)
+                                 (<= :x 10)
+                                 (in :y nat-set))
+                                (init
+                                 (assign :s #{})
+                                 (assign :t #{1, 2})
+                                 (assign :x 0 :y 50)
+                                 (assign :hello true))
+                                (events
+                                 (:inc [] (pre (< :x 10) (assign :x (+ :x 1))))
+                                 (:hello [] (assign :hello true))))))
 
   (ir->prob-machine machine)
 
