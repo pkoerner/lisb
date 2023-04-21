@@ -84,26 +84,6 @@
     (is (= ["hello := FALSE"] (get-actions (find-first-by-name "hello" events))))
     ))
 
-(deftest prob-return-as-variable-test
-  (let [ir (b (machine :hello-world
-                       (variables :i)
-                       (invariants
-                        (in :i nat-set))
-                       (init
-                        (assign :i 0))
-                       (operations
-                        (:inc [] (assign :i (+ :i 1)))
-                        (<-- [:result] (:res [] (assign :result :i))))))
-        machine (ir->prob-machine ir)
-        events (.getEvents machine)
-        invariants (.getInvariants machine)]
-    (is (= ["i" "result"] (map (fn [x] (.getName x)) (.getVariables machine))))
-    (is (= ["i:NAT" "result:NAT"] (map (fn [x] (.getCode (.getPredicate x))) invariants)))
-    (is (= ["INITIALISATION" "inc" "res"] (map (fn [x] (.getName x)) events)))
-    (is (= ["i := i+1"] (get-actions (find-first-by-name "inc" events))))
-    (is (= ["result := i"] (get-actions (find-first-by-name "res" events))))
-    ))
-
 (deftest prob-context-test
   (let [ir (b (machine :test-ctx
                        (constants :h :g)

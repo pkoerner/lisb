@@ -23,6 +23,7 @@
     Axiom
     Constant
     )
+   de.prob.animator.domainobjects.EventB
    de.prob.model.representation.ModelElementList))
 
 (defmulti ir-expr->str (fn [ir] (or (:tag ir) (class ir))))
@@ -217,15 +218,16 @@
        first
        :values))
 
-(defn extract-events [clauses]
-  (map op->event (find-first-values-by-tag :operations clauses)))
-
-(defn extract-init [clauses]
-  (->> clauses
-       (find-first-values-by-tag :init)
+(defn init-event [actions]
+  (->> actions
        (mapcat ir-sub->actions-codes)
        (map-indexed (fn [i code] (action (str "init" i) code)))
        (event "INITIALISATION")))
+
+(defn extract-events [clauses]
+  (let [events (map op->event (find-first-values-by-tag :operations clauses))
+        init (init-event (find-first-values-by-tag :init clauses))]
+    (cons init events)))
 
 (defn all-returns [clauses]
   (->> clauses
@@ -244,15 +246,16 @@
    (fn [i pred] (invariant (str "inv" i) (ir-pred->str pred)))
    (find-first-values-by-tag :invariants clauses)))
 
-(defn set-invariants [m invs]
+
+(defn with-invariants [m invs]
   (.set m Invariant (ModelElementList. invs)))
 
-(defn set-events [m events]
+(defn with-events [m events]
   (-> m
       (.set Event (ModelElementList. events))
       (.set BEvent (ModelElementList. events))))
 
-(defn set-variables [m vars]
+(defn with-variables [m vars]
   (.set m Variable (ModelElementList. vars)))
 
 (defn ir->prob-machine [ir]
@@ -260,15 +263,18 @@
   (let [m-name (-> ir :name name (str/replace #"-" "_")) ;; rodin does not allow "-" in machine names
         clauses (:machine-clauses ir)]
     (-> (EventBMachine. m-name)
-        (set-invariants (extract-invariants clauses))
-        (set-events (conj (extract-events clauses) (extract-init clauses)))
-        (set-variables (extract-variables clauses)))))
+        (with-invariants (extract-invariants clauses))
+        (with-events (extract-events clauses))
+        (with-variables (extract-variables clauses)))))
 
 (defn extract-sets [clauses]
-  (map (fn [x] (de.prob.model.representation.Set )) ()))
+  (map (fn [x] (de.prob.model.representation.Set. (EventB. x)))
+       (find-first-values-by-tag :sets clauses)))
 
 (defn extract-constants [clauses]
-  (map (fn [x] (EventBConstant. (name x) false "")) (find-first-values-by-tag :constants clauses)))
+  (map
+   (fn [x] (EventBConstant. (name x) false ""))
+   (find-first-values-by-tag :constants clauses)))
 
 (defn extract-axioms [clauses] [])
 
@@ -279,4 +285,6 @@
         (.set de.prob.model.representation.Set (ModelElementList. (extract-sets clauses)))
         (.set Constant (ModelElementList. (extract-constants clauses)))
         (.set Axiom (ModelElementList. (extract-axioms clauses))))))
+
+
 
