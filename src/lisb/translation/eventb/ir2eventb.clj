@@ -26,6 +26,9 @@
    de.prob.animator.domainobjects.EventB
    de.prob.model.representation.ModelElementList))
 
+(defn rodin-name [kw]
+  (str/replace (name kw) #"-" "_"))
+
 (defmulti ir-expr->str (fn [ir] (or (:tag ir) (class ir))))
 (defmulti ir-pred->str :tag)
 
@@ -40,7 +43,7 @@
 
 ;; Primitives
 
-(defmethod ir-expr->str clojure.lang.Keyword [ir] (name ir))
+(defmethod ir-expr->str clojure.lang.Keyword [ir] (rodin-name ir))
 (defmethod ir-expr->str java.lang.Long [ir] (str ir))
 
 ;; Boolean
@@ -90,9 +93,9 @@
 (defmethod ir-pred->str :not [ir]
   (str "not(" (ir-pred->str (:pred ir) ")")))
 (defmethod ir-pred->str :for-all [ir]
-  (str "!" (str/join "," (map name (:ids ir))) "." (ir-pred->str (:implementation ir))))
+  (str "!" (str/join "," (map rodin-name (:ids ir))) "." (ir-pred->str (:implementation ir))))
 (defmethod ir-pred->str :exists [ir]
-  (str "#" (str/join "," (map name (:ids ir)) (ir-pred->str (:pred ir)))))
+  (str "#" (str/join "," (map rodin-name (:ids ir)) (ir-pred->str (:pred ir)))))
 
 ;; Equality
 
@@ -109,7 +112,7 @@
 
 (defmethod ir-expr->str :comprehension-set [ir]
   (str "{"
-       (str/join "," (map name (:ids ir))) "|"
+       (str/join "," (map rodin-name (:ids ir))) "|"
        (ir-expr->str (:pred ir)) "}" ))
 
 (defmethod ir-expr->str :power-set [ir]
@@ -155,7 +158,7 @@
 
  ;; TODO: allow multiple args
 (defmethod ir-expr->str :fn-call [ir]
-  (str (name (:f ir)) "(" (name (first (:args ir))) ")"))
+  (str (rodin-name (:f ir)) "(" (rodin-name (first (:args ir))) ")"))
 
 ;; Construct ProB Model
 
@@ -210,7 +213,7 @@
 (defn op->event [op]
   (let [actions (extract-actions (:body op))
         guards (extract-guards (:body op))]
-     (event (name (:name op)) guards actions)))
+     (event (rodin-name (:name op)) guards actions)))
 
 (defn find-first-values-by-tag [tag clauses]
   (->> clauses
@@ -235,7 +238,7 @@
        (mapcat :returns)))
 
 (defn extract-variables [clauses]
-  (map (comp variable name)
+  (map (comp variable rodin-name)
        (concat
         (find-first-values-by-tag :variables clauses)
         (all-returns clauses)
@@ -260,7 +263,7 @@
 
 (defn ir->prob-machine [ir]
   (assert (= :machine (:tag ir)))
-  (let [m-name (-> ir :name name (str/replace #"-" "_")) ;; rodin does not allow "-" in machine names
+  (let [m-name (-> ir :name rodin-name)
         clauses (:machine-clauses ir)]
     (-> (EventBMachine. m-name)
         (with-invariants (extract-invariants clauses))
@@ -269,18 +272,21 @@
 
 (defn extract-sets [clauses]
   (map (fn [{:keys [id]}]
-         (de.prob.model.representation.Set.(EventB. (name id))))
+         (de.prob.model.representation.Set.(EventB. (rodin-name id))))
        (find-first-values-by-tag :sets clauses)))
 
 (defn extract-constants [clauses]
   (map
-   (fn [x] (EventBConstant. (name x) false ""))
+   (fn [x] (EventBConstant. (rodin-name x) false ""))
    (find-first-values-by-tag :constants clauses)))
 
-(defn extract-axioms [clauses] [])
+(defn extract-axioms [clauses]
+  (map-indexed
+   (fn [i ir] (EventBAxiom. (str "axm" i) (ir-pred->str ir) false #{}))
+   (find-first-values-by-tag :properties clauses)))
 
 (defn ir->prob-context [ir]
-  (let [m-name (-> ir :name name (str/replace #"-" "_") (str "_ctx")) ;; rodin does not allow "-" in machine names
+  (let [m-name (-> ir :name rodin-name (str "_ctx"))
         clauses (:machine-clauses ir)]
     (-> (Context. m-name)
         (.set de.prob.model.representation.Set (ModelElementList. (extract-sets clauses)))
