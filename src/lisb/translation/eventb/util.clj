@@ -2,7 +2,8 @@
   (:require [lisb.translation.eventb.ir2eventb :refer [ir-expr->str ir->prob-machine ir->prob-context]]
             [lisb.prob.animator :refer [injector]]
             [lisb.translation.util :refer [b]]
-            [lisb.translation.lisb2ir :refer [boperations]])
+            [lisb.translation.lisb2ir :refer [boperations]]
+            [clojure.walk :refer [walk]])
   (:import
    de.prob.model.eventb.translate.ModelToXML
    de.prob.model.eventb.EventBModel
@@ -33,9 +34,15 @@
 
 (defn ir->prob-model [ir] (-> ir ir->prob-machine prob-model))
 
+(defn pre-process-lisb [lisb]
+  (cond
+    (and (seq? lisb) (= 'events (first lisb))) (list* 'operations (rest events-clause))
+    (seqable? lisb) (walk pre-process-lisb identity lisb)
+    :else lisb))
+
+
 (defmacro eventb [lisb]
-  `(let [~'events boperations]
-       (b ~lisb)))
+  `(b ~(pre-process-lisb lisb)))
 
 (comment
   (def machine (eventb (machine :hello-world
@@ -55,6 +62,7 @@
                                 (events
                                  (:inc [] (pre (< :x 10) (assign :x (+ :x 1))))
                                  (:hello [] (assign :hello true))))))
+
 
   (ir->prob-machine machine)
 
