@@ -1,12 +1,12 @@
 (ns lisb.translation.eventb.ir2eventb
   (:require [clojure.string :as str]
-            [clojure.spec.alpha :as s]
-            [lisb.translation.util :as util])
+            [clojure.spec.alpha :as s])
   (:import
    (de.prob.model.eventb
     EventBMachine
     EventBInvariant
     EventBAction
+    EventBAxiom
     EventBGuard
     EventBVariable
     Event
@@ -193,18 +193,18 @@
   (mapcat ir-sub->actions-codes (:subs ir)))
 
 (defn extract-actions [ir]
-  (let [actions (if (contains? (methods ir-sub->actions-codes) (:tag ir))
+  (let [actions (case (:tag ir)
+                  :precondition (ir-sub->actions-codes (first (:subs ir)))
+                  :select (ir-sub->actions-codes (second (:clauses ir)))
                   (ir-sub->actions-codes ir)
-                  (case (:tag ir)
-                    :precondition (ir-sub->actions-codes (first (:subs ir)))
-                    :select (ir-sub->actions-codes (second (:clauses ir)))
-                    ))]
+                  )]
     (map-indexed (fn [i code] (action (str "act" i) code)) actions)))
 
 
 (defn extract-guards [ir]
   (case (:tag ir)
     :precondition [(guard "grd0" (ir-pred->str (:pred ir)))]
+    :select [(guard "grd0" (ir-pred->str (first (:clauses ir))))]
     []))
 
 (defn op->event [op]
@@ -268,7 +268,8 @@
         (with-variables (extract-variables clauses)))))
 
 (defn extract-sets [clauses]
-  (map (fn [x] (de.prob.model.representation.Set. (EventB. x)))
+  (map (fn [{:keys [id]}]
+         (de.prob.model.representation.Set.(EventB. (name id))))
        (find-first-values-by-tag :sets clauses)))
 
 (defn extract-constants [clauses]

@@ -14,8 +14,12 @@
 
 (def modelCreator (.getProvider injector EventBModel))
 
-(defn prob-model [& machines]
-  (reduce (fn [model machine] (.addMachine model machine )) (.get modelCreator) machines))
+(defn prob-model [& machines-or-contexts]
+  (reduce (fn [model value]
+            (condp = (type value)
+              de.prob.model.eventb.Context (.addContext model value)
+              de.prob.model.eventb.EventBMachine (.addMachine model value)))
+          (.get modelCreator) machines-or-contexts))
 
 (defn prob-model->rodin [model model-name path]
   (.writeToRodin (ModelToXML.) model model-name path))
@@ -36,17 +40,26 @@
 
 (defn pre-process-lisb [lisb]
   (cond
-    (and (seq? lisb) (= 'events (first lisb))) (list* 'operations (rest events-clause))
+    (and (seq? lisb) (= 'events (first lisb))) (list* 'operations (rest lisb))
     (seqable? lisb) (walk pre-process-lisb identity lisb)
     :else lisb))
 
+(defn eventb-where [preds body]
+  {:tag :select
+   :clauses [preds body]})
 
+;; let inside b macro to override existing symbols
 (defmacro eventb [lisb]
-  `(b ~(pre-process-lisb lisb)))
+  `(b (let [~'where eventb-where
+            ~'axioms ~'properties]
+        ~(pre-process-lisb lisb))))
 
 (comment
-  (def machine (eventb (machine :hello-world
+  (def ir (eventb (machine :hello-world
                                 (constants :z)
+                                (sets :tracks)
+                                (axioms (in :z nat-set)
+                                            (< :z 100))
                                 (variables :x :y :hello :s :t)
                                 (invariants
                                  (subset? :s (cartesian-product nat-set bool-set))
@@ -60,18 +73,15 @@
                                  (assign :x 0 :y 50)
                                  (assign :hello true))
                                 (events
-                                 (:inc [] (pre (< :x 10) (assign :x (+ :x 1))))
-                                 (:hello [] (assign :hello true))))))
+                                 (:inc [] (where (< :x 10) (assign :x (+ :x 1))))
+                                 (:say-hallo [] (assign :hello true))))))
 
+  (clojure.pprint/pprint ir)
 
-  (ir->prob-machine machine)
+  (get-type (get-statespace ir) (b (cartesian-product :s :t)))
 
-  (get-type (get-statespace machine) (b (cartesian-product :s :t)))
+  (def model (prob-model (ir->prob-machine ir) (ir->prob-context ir)))
 
-  (-> machine
-      ir->prob-machine
-      prob-model
-      (prob-model->rodin "hello" "./resources/eventb"))
-
+  (prob-model->rodin model "hello" "./resources/eventb")
   )
 
