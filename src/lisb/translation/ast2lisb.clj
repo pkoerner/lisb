@@ -16,6 +16,8 @@
              AAddExpression
              AMinusExpression
              AMultOrCartExpression
+             AMultiplicationExpression
+             ACartesianProductExpression
              AMinusOrSetSubtractExpression
              ADivExpression
              AUnaryMinusExpression
@@ -176,6 +178,8 @@
              ASelectSubstitution
              ASelectWhenSubstitution
              AOperation
+             ATypeofExpression
+             ATruthPredicate
              AMachineClauseParseUnit AUsesMachineClause AExtendsMachineClause AMachineReference AIncludesMachineClause APromotesMachineClause AOpSubstitution ARefinementMachineParseUnit AImplementationMachineParseUnit AModelMachineVariant ASystemMachineVariant ASeesMachineClause ACaseSubstitution ACaseOrSubstitution ASubstitutionDefinitionDefinition PDefinition TDefLiteralPredicate TDefLiteralSubstitution)
            (java.util LinkedList)))
 
@@ -807,6 +811,18 @@
 (defmethod ast->lisb TIdentifierLiteral [node]
   (keyword (.getText node)))
 
+;;; Event-B specific
+
+(defmethod ast->lisb AMinusExpression [node]
+  (multi-arity '- node))
+(defmethod ast->lisb AMultiplicationExpression [node]
+  (multi-arity '* node))
+(defmethod ast->lisb ACartesianProductExpression [node]
+  (multi-arity 'cartesian-product node))
+(defmethod ast->lisb ATypeofExpression [node]
+  (ast->lisb (.getExpression node))) ; ignore type for now
+(defmethod ast->lisb ATruthPredicate [node]
+  true)
 
 ;;; misc
 
