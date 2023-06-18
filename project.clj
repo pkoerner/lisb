@@ -11,7 +11,7 @@
   :dependencies [[org.clojure/clojure "1.10.3"]
                  [org.clojure/math.combinatorics "0.1.3"]
                  [potemkin "0.4.5"]
-                 [de.hhu.stups/de.prob2.kernel,"3.15.0"]
+                 [de.hhu.stups/de.prob2.kernel,"4.12.1"]
                  [de.hhu.stups/value-translator "0.1.2"]
                #_[de.hhu.stups/bparser "2.9.31-SNAPSHOT"]
                  [clj-wallhack "1.0.1"]])
