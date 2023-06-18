@@ -16,6 +16,7 @@
     )
    (de.prob.model.representation
     Variable
+    Machine
     Action
     Guard
     BEvent
@@ -261,14 +262,24 @@
 (defn with-variables [m vars]
   (.set m Variable (ModelElementList. vars)))
 
-(defn ir->prob-machine [ir]
-  (assert (= :machine (:tag ir)))
-  (let [m-name (-> ir :name rodin-name)
-        clauses (:machine-clauses ir)]
-    (-> (EventBMachine. m-name)
-        (with-invariants (extract-invariants clauses))
-        (with-events (extract-events clauses))
-        (with-variables (extract-variables clauses)))))
+(defn with-refines [m refines-name]
+  (if refines-name
+    ;; this works for creating Rodin files, but the model will probably not load correctly in ProB
+    (.set m Machine (ModelElementList. [(EventBMachine. (rodin-name refines-name))]))
+    m))
+
+(defn with-sees [m sees-names]
+  (if (seq sees-names)
+    (.set m Context (ModelElementList. (map (fn [x] (Context. (rodin-name x))) sees-names)))
+    m))
+
+(defn ir->prob-machine [{tag :tag name :name clauses :machine-clauses refines :abstract-machine-name}]
+  (-> (EventBMachine. (rodin-name name))
+      (with-sees (find-first-values-by-tag :sees clauses))
+      (with-refines refines)
+      (with-invariants (extract-invariants clauses))
+      (with-events (extract-events clauses))
+      (with-variables (extract-variables clauses))))
 
 (defn extract-sets [clauses]
   (map (fn [{:keys [id]}]
