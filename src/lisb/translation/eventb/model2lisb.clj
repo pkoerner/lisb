@@ -83,7 +83,7 @@
 (defmethod ast->lisb Event [node]
   (concat (with-optional (name-as-keyword node)
             (optional 'any (ast->lisb (.getParameters node)))
-            (optional 'where (ast->lisb (.getGuards node)))
+            (optional 'when (ast->lisb (.getGuards node)))
             (optional 'with (ast->lisb (.getWitnesses node))))
           (ast->lisb (.getActions node))))
 
@@ -141,16 +141,12 @@
 (defn model2rodin! [model model-name path]
   (.writeToRodin (ModelToXML.) model model-name path))
 
-(defn eventb->state-space! [filename]
-  (.eventb_load api filename))
+(defn rodin->lisb [filename]
+  (-> (.eventb_load api filename)
+      .getModel
+      ast->lisb))
 
 (comment
-  (require '[clojure.pprint :refer [pprint]])
-
-  (-> "/home/julius/Uni/BA_Info/bachelor-rodin/hello_world/hello_world.bcm"
-      eventb->state-space!
-      .getModel
-      ast->lisb
-      pprint
-      )
+  (def bev (rodin->lisb "/home/julius/Uni/BA_Info/bachelor-rodin/BeverageVendingMachine/BeverageVendingMachine.bum"))
+  (clojure.pprint/pprint bev)
   )
