@@ -44,11 +44,16 @@
          :status :ordinary} 
         clauses))
 
+(defn eventb-variant [expr]
+  {:tag :variant 
+   :expr expr})
+
 (defmacro eventb [lisb]
     `(b (let [~'axioms ~'properties
               ~'theorems ~'assertions
               ~'context eventb-context
               ~'machine eventb-machine
+              ~'variant eventb-variant
               ~'events eventb-events
               ~'event eventb-event
               ~'when eventb-when
@@ -63,6 +68,7 @@
 (comment 
   (eventb (machine :machine-foo
                    (variables :x :y :z)
+                   (variant (+ :x :y :z))
                    (events 
                     (event :foo1 
                            (any :t)
