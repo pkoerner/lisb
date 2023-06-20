@@ -18,13 +18,17 @@
    :values events})
 
 (defn eventb-then [& actions]
-  [:body (bparallel-sub actions)])
+  [:body (apply bparallel-sub actions)])
 
-(defn eventb-with [& witnesses]
-  [:witness (band witnesses)])
+(defn eventb-with [& clauses]
+  [:witnesses (map (fn [[name pred]] 
+                     {:tag  :witness
+                      :name name
+                      :pred pred}) 
+                   (partition 2 clauses))])
 
 (defn eventb-when [& gurads]
-  [:guard (band gurads)])
+  [:guards gurads])
 
 (defn eventb-status [status]
   [:status status])
@@ -37,9 +41,7 @@
 
 (defn eventb-event [name & clauses] 
   (into {:name name
-         :status :ordinary
-         :gurad true
-         :witness true} 
+         :status :ordinary} 
         clauses))
 
 (defmacro eventb [lisb]
@@ -77,7 +79,7 @@
                     (event :foo3
                            (refines :foo1)
                            (when (< 0 :x 10))
-                           (with (in :t :nat))
+                           (with :t (in :t :nat))
                            (then
                             (assign :x :y)
                             (becomes-such :y (> :y 10))
