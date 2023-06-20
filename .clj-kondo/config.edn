@@ -1,0 +1,7 @@
+{:linters
+ {:unresolved-symbol {:exclude [(lisb.translation.eventb.dsl/eventb)
+                                (lisb.translation.lisb2ir/b)
+                                (lisb.translation.util/defpred)
+                                (lisb.adl.adl2lisb/adl)]}
+  :invalid-arity  {:skip-args [(clojure.spec.alpha/fdef)
+                                (lisb.adl.adl2lisb/adl)]}}}

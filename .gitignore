@@ -15,3 +15,4 @@ prob_log.txt
 .*.swp
 /lisb.iml
 /.idea/
+.clj-kondo/.cache
