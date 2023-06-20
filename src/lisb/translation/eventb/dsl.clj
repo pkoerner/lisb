@@ -18,7 +18,7 @@
    :values events})
 
 (defn eventb-then [& actions]
-  [:body (apply bparallel-sub actions)])
+  [:body actions])
 
 (defn eventb-with [& clauses]
   [:witnesses (map (fn [[name pred]] 
@@ -40,7 +40,8 @@
   [:refines event])
 
 (defn eventb-event [name & clauses] 
-  (into {:name name
+  (into {:tag :event
+         :name name
          :status :ordinary} 
         clauses))
 
@@ -64,6 +65,9 @@
               ~'status eventb-status
               ] 
          ~lisb)))
+
+(defn eventb->ir [lisb]
+  (eval `(eventb ~lisb)))
 
 (comment 
   (eventb (machine :machine-foo
