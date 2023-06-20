@@ -1,6 +1,5 @@
 (ns lisb.translation.eventb.model2lisb
   (:require [lisb.translation.ast2lisb]
-            [lisb.translation.util :refer [bfile->b b->ast ir->b b->lisb b-predicate->ir]]
             [lisb.prob.animator :refer [api injector]]
             [lisb.translation.lisb2ir :refer [b bop]])
   (:import com.google.inject.Guice
@@ -37,103 +36,95 @@
 (defn optional [sym lisb]
     (when (seq lisb) (conj lisb sym)))
 
-(defmulti ast->lisb (fn [node] (class node)))
+(defmulti prob->lisb (fn [node] (class node)))
 
-(defmethod ast->lisb EventBModel [node]
-  (mapv ast->lisb (concat (.getContexts node) (.getMachines node))))
+(defmethod prob->lisb EventBModel [node]
+  (mapv prob->lisb (concat (.getContexts node) (.getMachines node))))
 
 ;; Machine
 
-(comment
-  (-> "/home/julius/Uni/BA_Info/bachelor-rodin/hello_world/hello_world.bcm"
-      eventb->state-space!
-      .getModel
-      ast->lisb
-      pprint
-      ))
-
-(defmethod ast->lisb EventBMachine [node]
+(defmethod prob->lisb EventBMachine [node]
   (let [refines (.getRefinesMachine node)
         variant (.getVariant node)]
     (with-optional (if refines 'refinement 'machine)
       (name-as-keyword node)
       (when refines (name-as-keyword refines))
       (optional 'sees (map name-as-keyword (.getSees node)))
-      (optional 'variables (ast->lisb (.getVariables node)))
-      (optional 'invariants (ast->lisb (.getInvariants node)))
-      (when variant (list 'variant (ast->lisb variant)))
+      (optional 'variables (prob->lisb (.getVariables node)))
+      (optional 'invariants (prob->lisb (.getInvariants node)))
+      (when variant (list 'variant (prob->lisb variant)))
       (optional 'init
                 (-> node
                     (.getEvent "INITIALISATION")
                     .getActions
-                    ast->lisb))
+                    prob->lisb))
       (optional 'events
-                (map ast->lisb (remove #(= "INITIALISATION" (.getName %))
+                (map prob->lisb (remove #(= "INITIALISATION" (.getName %))
                                        (.getEvents node)))))))
 
-(defmethod ast->lisb EventBVariable [node]
-  (-> node .getExpression .getAst ast->lisb))
+(defmethod prob->lisb EventBVariable [node]
+  (-> node .getExpression .getAst prob->lisb))
 
-(defmethod ast->lisb EventBInvariant [node]
-  (-> node .getPredicate .getAst ast->lisb))
+(defmethod prob->lisb EventBInvariant [node]
+  (-> node .getPredicate .getAst prob->lisb))
 
-(defmethod ast->lisb Variant [node]
-  (-> node .getExpression .getAst ast->lisb))
+(defmethod prob->lisb Variant [node]
+  (-> node .getExpression .getAst prob->lisb))
 
-(defmethod ast->lisb Event [node]
+(defmethod prob->lisb Event [node]
   (concat (with-optional (name-as-keyword node)
-            (optional 'any (ast->lisb (.getParameters node)))
-            (optional 'when (ast->lisb (.getGuards node)))
-            (optional 'with (ast->lisb (.getWitnesses node))))
-          (ast->lisb (.getActions node))))
+            (optional 'any (prob->lisb (.getParameters node)))
+            (optional 'when (prob->lisb (.getGuards node)))
+            (optional 'with (prob->lisb (.getWitnesses node))))
+          (prob->lisb (.getActions node))))
 
-(defmethod ast->lisb EventParameter [node]
-  (-> node .getExpression .getAst ast->lisb))
+(defmethod prob->lisb EventParameter [node]
+  (-> node .getExpression .getAst prob->lisb))
 
-(defmethod ast->lisb EventBGuard [node]
-  (-> node .getPredicate .getAst ast->lisb))
+(defmethod prob->lisb EventBGuard [node]
+  (-> node .getPredicate .getAst prob->lisb))
 
-(defmethod ast->lisb Witness [node]
-  (-> node .getPredicate .getAst ast->lisb))
+(defmethod prob->lisb Witness [node]
+  (-> node .getPredicate .getAst prob->lisb))
 
-(defmethod ast->lisb EventBAction [node]
-  (-> node .getCode .getAst ast->lisb))
+(defmethod prob->lisb EventBAction [node]
+  (-> node .getCode .getAst prob->lisb))
 
-(defmethod ast->lisb EventB [node]
-  (-> node .getAst ast->lisb ))
+(defmethod prob->lisb EventB [node]
+  (-> node .getAst prob->lisb ))
 
 ;; Context
 
-(defmethod ast->lisb Context [node]
+(defmethod prob->lisb Context [node]
   (with-optional 'context (name-as-keyword node)
-    (optional 'extends (ast->lisb (.getExtends node)))
-    (optional 'sets (ast->lisb (.getSets node)))
-    (optional 'constants (ast->lisb (.getConstants node)))
-    (optional 'axioms (ast->lisb (.getAxioms node)))))
+    (optional 'extends (prob->lisb (.getExtends node)))
+    (optional 'sets (prob->lisb (.getSets node)))
+    (optional 'constants (prob->lisb (.getConstants node)))
+    (optional 'axioms (prob->lisb (.getAxioms node)))))
 
-(defmethod ast->lisb de.prob.model.representation.Set [node]
+(defmethod prob->lisb de.prob.model.representation.Set [node]
   (name-as-keyword node))
 
-(defmethod ast->lisb EventBConstant [node]
+(defmethod prob->lisb EventBConstant [node]
   (name-as-keyword node))
 
-(defmethod ast->lisb EventBAxiom [node]
-  (-> node .getPredicate .getAst ast->lisb))
+(defmethod prob->lisb EventBAxiom [node]
+  (-> node .getPredicate .getAst prob->lisb))
 
 ;; Predicates & Expression
 
-(defmethod ast->lisb ATypeofExpression [node]
-  (ast->lisb (.getExpression node)))
+(defmethod prob->lisb ATypeofExpression [node]
+  (prob->lisb (.getExpression node)))
 
-(defmethod ast->lisb :default [node]
+(defmethod prob->lisb :default [node]
   (lisb.translation.ast2lisb/ast->lisb node))
 
 ;; Misc
 
-(defmethod ast->lisb ModelElementList [node]
-  (map ast->lisb node))
+(defmethod prob->lisb ModelElementList [node]
+  (map prob->lisb node))
 
-(defmethod ast->lisb nil [node]
+(defmethod prob->lisb nil [node]
   nil)
 
 ;; Util
@@ -144,9 +135,9 @@
 (defn rodin->lisb [filename]
   (-> (.eventb_load api filename)
       .getModel
-      ast->lisb))
+      prob->lisb))
 
 (comment
-  (def bev (rodin->lisb "/home/julius/Uni/BA_Info/bachelor-rodin/BeverageVendingMachine/BeverageVendingMachine.bum"))
-  (clojure.pprint/pprint bev)
+  (def bev (rodin->lisb "/workspaces/lisb/resources/eventb/ausleihsystem/Ausleihsystem.bum"))
+  (clojure.pprint/pprint bev) 
   )
