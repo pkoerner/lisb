@@ -3,6 +3,7 @@
             [clojure.spec.alpha :as s])
   (:import
    (de.prob.model.eventb
+    EventParameter
     EventBMachine
     EventBInvariant
     EventBAction
@@ -169,140 +170,89 @@
 (defn id-vals->vals [id-vals]
   (map (comp ir-expr->str second) (partition 2 id-vals)))
 
-(defn action [name code] (EventBAction. name code #{}))
-
-(defn event
-  ([name] (Event. name Event$EventType/ORDINARY false))
-  ([name actions] (.set (event name) Action (ModelElementList. actions)))
-  ([name guards actions] (.set (event name actions) Guard (ModelElementList. guards))))
-
-(defn guard [name code] (EventBGuard. name code false #{}))
-
-(defn invariant [name code] (EventBInvariant. name code false #{}))
-
-(defn variable [name] (EventBVariable. name nil))
-
-(defn has-tag [tag] (fn [ir] (= tag (:tag ir))))
-
 ;; TODO: If more then 1 id is present no val can be a :fn-call.
-(defmulti ir-sub->actions-codes :tag)
 
-(defmethod ir-sub->actions-codes :assignment [ir]
+(defmulti ir-sub->strs :tag)
+
+(defmethod ir-sub->strs :assignment [ir]
   (let [ids (id-vals->ids (:id-vals ir))
         vals (id-vals->vals (:id-vals ir))
         code (str (str/join "," ids) " := " (str/join "," vals))]
     [code]))
 
-(defmethod ir-sub->actions-codes :parallel-sub [ir]
-  (mapcat ir-sub->actions-codes (:subs ir)))
+(defmethod ir-sub->strs :parallel-sub [ir]
+  (mapcat ir-sub->strs (:subs ir)))
 
-(defn extract-actions [ir]
-  (let [actions (case (:tag ir)
-                  :precondition (ir-sub->actions-codes (first (:subs ir)))
-                  :select (ir-sub->actions-codes (second (:clauses ir)))
-                  (ir-sub->actions-codes ir)
-                  )]
-    (map-indexed (fn [i code] (action (str "act" i) code)) actions)))
-
-
-(defn extract-guards [ir]
-  (case (:tag ir)
-    :precondition [(guard "grd0" (ir-pred->str (:pred ir)))]
-    :select [(guard "grd0" (ir-pred->str (first (:clauses ir))))]
-    []))
-
-(defn op->event [op]
-  (let [actions (extract-actions (:body op))
-        guards (extract-guards (:body op))]
-     (event (rodin-name (:name op)) guards actions)))
-
-(defn find-first-values-by-tag [tag clauses]
+(defn find-clause [tag clauses]
   (->> clauses
        (filter #(= tag (:tag %)))
-       first
-       :values))
+       first))
+
+(defn extract-invariants [clauses]
+  (let [invariant (map-indexed
+                   (fn [i pred] (EventBInvariant. (str "inv" i) (ir-pred->str pred) false #{}))
+                   (:values (find-clause :invariants clauses)))
+        theorems  (map-indexed
+                   (fn [i pred] (EventBInvariant. (str "thm" i) (ir-pred->str pred) false #{}))
+                   (:values (find-clause :assertions clauses)))]
+    (ModelElementList. (concat invariant theorems))))
+
+(defn extract-axioms [clauses]
+  (let [axioms   (map-indexed
+                  (fn [i pred] (EventBAxiom. (str "axm" i) (ir-pred->str pred) false #{}))
+                  (:values (find-clause :axioms clauses)))
+        theorems (map-indexed
+                  (fn [i pred] (EventBAxiom. (str "thm" i) (ir-pred->str pred) false #{}))
+                  (:values (find-clause :assertions clauses)))]
+    (ModelElementList. (concat axioms theorems))))
+
+(defn event [name status] 
+  (let [eventType (case status
+                    :ordinary Event$EventType/ORDINARY
+                    :convergent Event$EventType/CONVERGENT
+                    :anticipated Event$EventType/ANTICIPATED)]
+    (Event. name eventType false)))
 
 (defn init-event [actions]
   (->> actions
-       (mapcat ir-sub->actions-codes)
-       (map-indexed (fn [i code] (action (str "init" i) code)))
-       (event "INITIALISATION")))
+       (mapcat ir-sub->strs)
+       (map-indexed (fn [i code] (EventBAction. (str "init" i) code #{})))
+       (.withActions (event "INITIALISATION" :ordinary))))
+
+(defmulti ir->prob :tag)
 
 (defn extract-events [clauses]
-  (let [events (map op->event (find-first-values-by-tag :operations clauses))
-        init (init-event (find-first-values-by-tag :init clauses))]
-    (cons init events)))
+  (let [events (map ir->prob (:values (find-clause :events clauses)))
+        init (init-event (find-clause :init clauses))]
+    (ModelElementList. (cons init events))))
 
-(defn all-returns [clauses]
-  (->> clauses
-       (find-first-values-by-tag :operations)
-       (mapcat :returns)))
+(defmethod ir->prob :event [{:keys [name args status guards witnesses body]}]
+  (-> (event name status)
+      (.withParameters (ModelElementList. (map (fn [x] (EventParameter. (name x))) args)))
+      (.withGuards (ModelElementList. (map-indexed (fn [i x] (EventBGuard. (str "grd" i) (ir-pred->str x) false #{})) guards)))
+      (.withWitnesses (ModelElementList. (map ir->prob witnesses)))
+      (.withActions (ModelElementList. (map-indexed (fn [i code] (EventBAction. (str "act" i) code #{})) (mapcat ir-sub->strs body))))
+      ))
 
-(defn extract-variables [clauses]
-  (map (comp variable rodin-name)
-       (concat
-        (find-first-values-by-tag :variables clauses)
-        (all-returns clauses)
-        )))
+(defmethod ir->prob :sets [{:keys [values]}]
+  (ModelElementList. 
+   (map (fn [{:keys [id]}]
+          (de.prob.model.representation.Set. (EventB. (rodin-name id)))) 
+        values)))
 
-(defn extract-invariants [clauses]
-  (map-indexed
-   (fn [i pred] (invariant (str "inv" i) (ir-pred->str pred)))
-   (find-first-values-by-tag :invariants clauses)))
+(defmethod ir->prob :constants [{:keys [values]}]
+  (map (fn [x] (EventBConstant. (rodin-name x) false "")) values))
 
-
-(defn with-invariants [m invs]
-  (.set m Invariant (ModelElementList. invs)))
-
-(defn with-events [m events]
-  (-> m
-      (.set Event (ModelElementList. events))
-      (.set BEvent (ModelElementList. events))))
-
-(defn with-variables [m vars]
-  (.set m Variable (ModelElementList. vars)))
-
-(defn with-refines [m refines-name]
-  (if refines-name
-    ;; this works for creating Rodin files, but the model will probably not load correctly in ProB
-    (.set m Machine (ModelElementList. [(EventBMachine. (rodin-name refines-name))]))
-    m))
-
-(defn with-sees [m sees-names]
-  (if (seq sees-names)
-    (.set m Context (ModelElementList. (map (fn [x] (Context. (rodin-name x))) sees-names)))
-    m))
-
-(defn ir->prob-machine [{tag :tag name :name clauses :machine-clauses refines :abstract-machine-name}]
+(defmethod ir->prob :machine [{name :name clauses :machine-clauses}]
   (-> (EventBMachine. (rodin-name name))
-      (with-sees (find-first-values-by-tag :sees clauses))
-      (with-refines refines)
-      (with-invariants (extract-invariants clauses))
-      (with-events (extract-events clauses))
-      (with-variables (extract-variables clauses))))
+      (.withSees (ModelElementList. (map (fn [x] (Context. (rodin-name x))) (find-clause :sees clauses)))) ;;TODO: get real context
+      (.withInvariants (extract-invariants clauses))
+      (.withVariant (ir->prob (find-clause :variant clauses)))
+      (.withEvents (extract-events clauses))
+      (.withVariables (ir->prob (find-clause :variables clauses)))))
 
-(defn extract-sets [clauses]
-  (map (fn [{:keys [id]}]
-         (de.prob.model.representation.Set.(EventB. (rodin-name id))))
-       (find-first-values-by-tag :sets clauses)))
-
-(defn extract-constants [clauses]
-  (map
-   (fn [x] (EventBConstant. (rodin-name x) false ""))
-   (find-first-values-by-tag :constants clauses)))
-
-(defn extract-axioms [clauses]
-  (map-indexed
-   (fn [i ir] (EventBAxiom. (str "axm" i) (ir-pred->str ir) false #{}))
-   (find-first-values-by-tag :properties clauses)))
-
-(defn ir->prob-context [ir]
-  (let [m-name (-> ir :name rodin-name (str "_ctx"))
-        clauses (:machine-clauses ir)]
-    (-> (Context. m-name)
-        (.set de.prob.model.representation.Set (ModelElementList. (extract-sets clauses)))
-        (.set Constant (ModelElementList. (extract-constants clauses)))
-        (.set Axiom (ModelElementList. (extract-axioms clauses))))))
-
-
-
+(defmethod ir->prob :context [{name :name clauses :machine-clauses}]
+  (-> (Context. (rodin-name name))
+      (.withSets (ir->prob (find-clause :sets clauses))) 
+      (.withConstants (ir->prob (find-clause :constants clauses)))
+      (.withAxiom (extract-axioms clauses))))
