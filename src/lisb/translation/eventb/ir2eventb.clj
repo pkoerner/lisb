@@ -213,26 +213,26 @@
                     :anticipated Event$EventType/ANTICIPATED)]
     (Event. name eventType false)))
 
-(defn init-event [actions]
-  (->> actions
-       (mapcat ir-sub->strs)
-       (map-indexed (fn [i code] (EventBAction. (str "init" i) code #{})))
-       (.withActions (event "INITIALISATION" :ordinary))))
-
 (defmulti ir->prob :tag)
 
 (defn extract-events [clauses]
   (let [events (map ir->prob (:values (find-clause :events clauses)))
-        init (init-event (find-clause :init clauses))]
+        init (ir->prob (find-clause :init clauses))]
     (ModelElementList. (cons init events))))
 
-(defmethod ir->prob :event [{:keys [name args status guards witnesses body]}]
-  (-> (event name status)
-      (.withParameters (ModelElementList. (map (fn [x] (EventParameter. (name x))) args)))
-      (.withGuards (ModelElementList. (map-indexed (fn [i x] (EventBGuard. (str "grd" i) (ir-pred->str x) false #{})) guards)))
-      (.withWitnesses (ModelElementList. (map ir->prob witnesses)))
-      (.withActions (ModelElementList. (map-indexed (fn [i code] (EventBAction. (str "act" i) code #{})) (mapcat ir-sub->strs body))))
-      ))
+(defmethod ir->prob :init [{:keys [values]}]
+ (->> values
+      (mapcat ir-sub->strs)
+      (map-indexed (fn [i code] (EventBAction. (str "init" i) code #{})))
+      ModelElementList.
+      (.withActions (event "INITIALISATION" :ordinary))))
+
+(defmethod ir->prob :event [{:keys [name args status guards witnesses body]}] 
+  (-> (event (clojure.core/name name) status)
+        (.withParameters (ModelElementList. (map (fn [x] (EventParameter. (name x))) args)))
+        (.withGuards (ModelElementList. (map-indexed (fn [i x] (EventBGuard. (str "grd" i) (ir-pred->str x) false #{})) guards)))
+        (.withWitnesses (ModelElementList. (map ir->prob witnesses)))
+        (.withActions (ModelElementList. (map-indexed (fn [i code] (EventBAction. (str "act" i) code #{})) (mapcat ir-sub->strs body))))))
 
 (defmethod ir->prob :sets [{:keys [values]}]
   (ModelElementList. 
@@ -241,7 +241,10 @@
         values)))
 
 (defmethod ir->prob :constants [{:keys [values]}]
-  (map (fn [x] (EventBConstant. (rodin-name x) false "")) values))
+  (ModelElementList. (map (fn [x] (EventBConstant. (rodin-name x) false "")) values)))
+
+(defmethod ir->prob :variables [{:keys [values]}]
+  (ModelElementList. (map (fn [x] (EventBVariable. (rodin-name x) "")) values)))
 
 (defmethod ir->prob :machine [{name :name clauses :machine-clauses}]
   (-> (EventBMachine. (rodin-name name))
@@ -256,3 +259,5 @@
       (.withSets (ir->prob (find-clause :sets clauses))) 
       (.withConstants (ir->prob (find-clause :constants clauses)))
       (.withAxiom (extract-axioms clauses))))
+
+(defmethod ir->prob nil [_] nil)
