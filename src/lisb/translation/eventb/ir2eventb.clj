@@ -217,8 +217,10 @@
 
 (defn extract-events [clauses]
   (let [events (map ir->prob (:values (find-clause :events clauses)))
-        init (ir->prob (find-clause :init clauses))]
-    (ModelElementList. (cons init events))))
+        init   (find-clause :init clauses)]
+    (ModelElementList. (if init 
+                         (cons (ir->prob init) events)
+                         events))))
 
 (defmethod ir->prob :init [{:keys [values]}]
  (->> values
@@ -229,7 +231,7 @@
 
 (defmethod ir->prob :event [{:keys [name args status guards witnesses body]}] 
   (-> (event (clojure.core/name name) status)
-        (.withParameters (ModelElementList. (map (fn [x] (EventParameter. (name x))) args)))
+        (.withParameters (ModelElementList. (map (fn [x] (EventParameter. (clojure.core/name x))) args)))
         (.withGuards (ModelElementList. (map-indexed (fn [i x] (EventBGuard. (str "grd" i) (ir-pred->str x) false #{})) guards)))
         (.withWitnesses (ModelElementList. (map ir->prob witnesses)))
         (.withActions (ModelElementList. (map-indexed (fn [i code] (EventBAction. (str "act" i) code #{})) (mapcat ir-sub->strs body))))))
@@ -258,6 +260,6 @@
   (-> (Context. (rodin-name name))
       (.withSets (ir->prob (find-clause :sets clauses))) 
       (.withConstants (ir->prob (find-clause :constants clauses)))
-      (.withAxiom (extract-axioms clauses))))
+      (.withAxioms (extract-axioms clauses))))
 
 (defmethod ir->prob nil [_] nil)
