@@ -66,7 +66,7 @@
               ] 
          ~lisb)))
 
-(defn eventb->ir [lisb]
+(defn lisb->ir [lisb]
   (eval `(eventb ~lisb)))
 
 (comment 
