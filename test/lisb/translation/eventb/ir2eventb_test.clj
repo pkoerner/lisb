@@ -52,6 +52,10 @@
        (map guard-code)
        ))
 
+(deftest empty-machine-test
+  (let [machine (ir->prob (eventb (machine :empty)))]
+    (is (= () (.getEvents machine)))))
+
 (deftest prob-machine-test
   (let [ir (eventb (machine :hello-world
                        (variables :x :y :hello)
