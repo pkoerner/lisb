@@ -154,6 +154,10 @@
 (defmethod ir-pred->str :strict-subset [ir]
   (chain-expr-explicit "<<:" (:sets ir)))
 
+(defmethod ir-pred->str :partition [ir]
+  (str "partition(" (ir-expr->str (:set ir)) ","
+       (str/join "," (map ir-expr->str (:partitions ir))) ")"))
+
 ;; Relations
 
 ;; Functions

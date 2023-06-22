@@ -69,12 +69,20 @@
    :name name
    :event-clauses clauses}))
 
+;; Other
+
+(defn eventb-partition [set & partitions]
+  {:tag :partition
+   :set set
+   :partitions partitions})
+
 (defmacro eventb [lisb]
   `(b (let [~'axioms ~'properties
             ~'theorems ~'assertions
             ~'context eventb-context
             ~'machine eventb-machine
             ~'variant eventb-variant
+            ~'partition eventb-partition
             ~'events eventb-events
             ~'event eventb-event
             ~'when event-when
