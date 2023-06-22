@@ -174,6 +174,12 @@
 
 (defmulti ir-sub->strs :tag)
 
+(defmethod ir-sub->strs :becomes-element-of [{:keys [ids set]}]
+ [(str (str/join "," (map ir-expr->str ids)) " :: " (ir-expr->str set))])
+
+(defmethod ir-sub->strs :becomes-such [{:keys [ids pred]}]
+  [(str (str/join "," (map ir-expr->str ids)) " :| " (ir-pred->str pred))])
+
 (defmethod ir-sub->strs :assignment [ir]
   (let [ids (id-vals->ids (:id-vals ir))
         vals (id-vals->vals (:id-vals ir))
