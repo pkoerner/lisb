@@ -4,9 +4,13 @@
             [clojure.spec.alpha :as s]))
 
 (defn eventb-context [name & clauses]
-  {:tag :context 
-   :name name 
+  {:tag :context
+   :name name
    :machine-clauses clauses})
+(s/fdef eventb-context
+  :args (s/cat :machine-clauses ::machine-clauses)
+  :ret (s/and (s/keys :req-un (::tag) :req (::machine-clauses))
+              #(= :machine (:tag %))))             ; TODO: concretize spec
 
 (defn eventb-machine [name & clauses]
   {:tag :machine
@@ -21,10 +25,10 @@
   [:body actions])
 
 (defn eventb-with [& clauses]
-  [:witnesses (map (fn [[name pred]] 
+  [:witnesses (map (fn [[name pred]]
                      {:tag  :witness
                       :name name
-                      :pred pred}) 
+                      :pred pred})
                    (partition 2 clauses))])
 
 (defn eventb-when [& gurads]
@@ -39,14 +43,14 @@
 (defn eventb-refines [event]
   [:refines event])
 
-(defn eventb-event [name & clauses] 
+(defn eventb-event [name & clauses]
   (into {:tag :event
          :name name
-         :status :ordinary} 
+         :status :ordinary}
         clauses))
 
 (defn eventb-variant [expr]
-  {:tag :variant 
+  {:tag :variant
    :expr expr})
 
 (defmacro eventb [lisb]
@@ -63,28 +67,28 @@
               ~'refines eventb-refines
               ~'with eventb-with
               ~'status eventb-status
-              ] 
+              ]
          ~lisb)))
 
 (defn lisb->ir [lisb]
   (eval `(eventb ~lisb)))
 
-(comment 
+(comment
   (eventb (machine :machine-foo
                    (variables :x :y :z)
                    (variant (+ :x :y :z))
-                   (events 
-                    (event :foo1 
+                   (events
+                    (event :foo1
                            (any :t)
-                           (then 
+                           (then
                             (assign :x :t)
                             (becomes-such :y (> :y :t))
                             (becomes-element-of :z :nat)))
-                    (event :foo2 
+                    (event :foo2
                            (when (< 0 :x 10))
                            (then
-                            (assign :x :y) 
-                            (becomes-such :y (> :y 10)) 
+                            (assign :x :y)
+                            (becomes-such :y (> :y 10))
                             (becomes-element-of :z :nat)))
                     (event :foo3
                            (refines :foo1)
@@ -96,5 +100,3 @@
                             (becomes-element-of :z :nat)))))
     )
   )
-
-
