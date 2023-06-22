@@ -36,7 +36,7 @@
     ["z := 3" "w := x" "x := 1" "y := 2"] (eventb (|| (|| (assign :z 3) (assign :w :x)) (assign :x 1) (assign :y 2)))
     ["x :: NAT"] (eventb (becomes-element-of [:x] nat-set))
     ["x,y :| x'>2&y'>x'"] (eventb (becomes-such [:x :y] (and (> :x' 2) (> :y' :x'))))
-    )
+    ))
 
 (defn find-first-by-name [event-name events]
  (->> events
@@ -87,7 +87,7 @@
 
 (comment
   (ns-unmap *ns* 'm)
-  (def m (eventb (machine :hello-world 
+  (def m (eventb (machine :hello-world
                           (variables :x :y :hello)
                           (invariants
                            (in :hello bool-set)
@@ -99,8 +99,8 @@
                           (events
                            (event :inc (when (< :x 10)) (then (assign :x (+ :x 1))))
                            (event :hello (then (assign :hello false)))))))
-  
+
   (->> m
        ir->prob
-       .getEvents) 
+       .getEvents)
   )

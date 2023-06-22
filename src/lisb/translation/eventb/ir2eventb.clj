@@ -212,19 +212,21 @@
                   (:values (find-clause :assertions clauses)))]
     (ModelElementList. (concat axioms theorems))))
 
-(defn event [name status] 
+(defn event [name status]
   (let [eventType (case status
-                    :ordinary Event$EventType/ORDINARY
                     :convergent Event$EventType/CONVERGENT
-                    :anticipated Event$EventType/ANTICIPATED)]
+                    :anticipated Event$EventType/ANTICIPATED
+                    Event$EventType/ORDINARY)]
     (Event. name eventType false)))
 
 (defmulti ir->prob :tag)
 
+(defn clause->prob [tag clauses] (ir->prob (find-clause tag clauses)))
+
 (defn extract-events [clauses]
-  (let [events (map ir->prob (:values (find-clause :events clauses)))
+  (let [events (or (clause->prob :events clauses) ())
         init   (find-clause :init clauses)]
-    (ModelElementList. (if init 
+    (ModelElementList. (if init
                          (cons (ir->prob init) events)
                          events))))
 
@@ -235,17 +237,33 @@
       ModelElementList.
       (.withActions (event "INITIALISATION" :ordinary))))
 
-(defmethod ir->prob :event [{:keys [name args status guards witnesses body]}] 
-  (-> (event (clojure.core/name name) status)
-        (.withParameters (ModelElementList. (map (fn [x] (EventParameter. (clojure.core/name x))) args)))
-        (.withGuards (ModelElementList. (map-indexed (fn [i x] (EventBGuard. (str "grd" i) (ir-pred->str x) false #{})) guards)))
-        (.withWitnesses (ModelElementList. (map ir->prob witnesses)))
-        (.withActions (ModelElementList. (map-indexed (fn [i code] (EventBAction. (str "act" i) code #{})) (mapcat ir-sub->strs body))))))
+(defmethod ir->prob :events [{:keys [values]}]
+  (ModelElementList. (map ir->prob values)))
+
+(defmethod ir->prob :args [{:keys [values]}]
+  (ModelElementList. (map (fn [x] (EventParameter. (clojure.core/name x))) values)))
+
+(defmethod ir->prob :guards [{:keys [values]}]
+ (ModelElementList. (map-indexed (fn [i x] (EventBGuard. (str "grd" i) (ir-pred->str x) false #{})) values)))
+
+(defmethod ir->prob :witnesses [{:keys [values]}]
+  (ModelElementList. (map ir->prob values)))
+
+(defmethod ir->prob :actions [{:keys [values]}]
+  (ModelElementList. (map-indexed (fn [i code] (EventBAction. (str "act" i) code #{})) (mapcat ir-sub->strs values))))
+
+(defmethod ir->prob :event [{:keys [name event-clauses]}]
+  (-> (event (clojure.core/name name)
+             (:value (find-clause :status event-clauses)))
+        (.withParameters (clause->prob :args event-clauses))
+        (.withGuards (clause->prob :guards event-clauses))
+        (.withWitnesses (clause->prob :witnesses event-clauses))
+        (.withActions (clause->prob :actions event-clauses))))
 
 (defmethod ir->prob :sets [{:keys [values]}]
-  (ModelElementList. 
+  (ModelElementList.
    (map (fn [{:keys [id]}]
-          (de.prob.model.representation.Set. (EventB. (rodin-name id)))) 
+          (de.prob.model.representation.Set. (EventB. (rodin-name id))))
         values)))
 
 (defmethod ir->prob :constants [{:keys [values]}]
@@ -258,14 +276,14 @@
   (-> (EventBMachine. (rodin-name name))
       (.withSees (ModelElementList. (map (fn [x] (Context. (rodin-name x))) (find-clause :sees clauses)))) ;;TODO: get real context
       (.withInvariants (extract-invariants clauses))
-      (.withVariant (ir->prob (find-clause :variant clauses)))
+      (.withVariant (clause->prob :variant clauses))
       (.withEvents (extract-events clauses))
-      (.withVariables (ir->prob (find-clause :variables clauses)))))
+      (.withVariables (clause->prob :variables clauses))))
 
 (defmethod ir->prob :context [{name :name clauses :machine-clauses}]
   (-> (Context. (rodin-name name))
-      (.withSets (ir->prob (find-clause :sets clauses))) 
-      (.withConstants (ir->prob (find-clause :constants clauses)))
+      (.withSets (clause->prob :sets clauses))
+      (.withConstants (clause->prob :constants clauses))
       (.withAxioms (extract-axioms clauses))))
 
 (defmethod ir->prob nil [_] nil)

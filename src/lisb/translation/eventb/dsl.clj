@@ -17,58 +17,74 @@
    :name name
    :machine-clauses clauses})
 
-(defn eventb-events [& events]
-  {:tag :events
-   :values events})
-
-(defn eventb-then [& actions]
-  [:body actions])
-
-(defn eventb-with [& clauses]
-  [:witnesses (map (fn [[name pred]]
-                     {:tag  :witness
-                      :name name
-                      :pred pred})
-                   (partition 2 clauses))])
-
-(defn eventb-when [& gurads]
-  [:guards gurads])
-
-(defn eventb-status [status]
-  [:status status])
-
-(defn eventb-any [& args]
-  [:args args])
-
-(defn eventb-refines [event]
-  [:refines event])
-
-(defn eventb-event [name & clauses]
-  (into {:tag :event
-         :name name
-         :status :ordinary}
-        clauses))
+;; Machine Clauses
 
 (defn eventb-variant [expr]
   {:tag :variant
    :expr expr})
 
+(defn eventb-events [& events]
+  {:tag :events
+   :values events})
+
+;; Event Clauses
+
+(defn event-then [& actions]
+  {:tag :actions
+   :values actions})
+
+(defn event-with [& clauses]
+  {:tag :witnesses
+   :values (map (fn [[name pred]]
+                     {:tag  :witness
+                      :name name
+                      :pred pred})
+                   (partition 2 clauses))})
+
+(defn event-when [& gurads]
+  {:tag :guards
+   :values gurads})
+
+(defn event-status [status]
+  {:tag :status
+   :value status})
+
+(defn event-any [& args]
+  {:tag :args
+   :values args})
+
+(defn event-refines [event-name]
+  {:tag :event-reference
+   :type :refines
+   :value event-name})
+
+(defn event-extends [event-name]
+  {:tag :event-reference
+   :type :extends
+   :value event-name})
+
+(defn eventb-event
+  ([name & clauses]
+  {:tag :event
+   :name name
+   :event-clauses clauses}))
+
 (defmacro eventb [lisb]
-    `(b (let [~'axioms ~'properties
-              ~'theorems ~'assertions
-              ~'context eventb-context
-              ~'machine eventb-machine
-              ~'variant eventb-variant
-              ~'events eventb-events
-              ~'event eventb-event
-              ~'when eventb-when
-              ~'any eventb-any
-              ~'then eventb-then
-              ~'refines eventb-refines
-              ~'with eventb-with
-              ~'status eventb-status
-              ]
-         ~lisb)))
+  `(b (let [~'axioms ~'properties
+            ~'theorems ~'assertions
+            ~'context eventb-context
+            ~'machine eventb-machine
+            ~'variant eventb-variant
+            ~'events eventb-events
+            ~'event eventb-event
+            ~'when event-when
+            ~'any event-any
+            ~'then event-then
+            ~'event-refines event-refines
+            ~'event-extends event-extends
+            ~'status event-status
+            ~'with event-with]
+        ~lisb)))
 
 (defn lisb->ir [lisb]
   (eval `(eventb ~lisb)))
