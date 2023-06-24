@@ -211,7 +211,7 @@
 (defn extract-axioms [clauses]
   (let [axioms   (map-indexed
                   (fn [i pred] (EventBAxiom. (str "axm" i) (ir-pred->str pred) false #{}))
-                  (:values (find-clause :axioms clauses)))
+                  (:values (find-clause :properties clauses)))
         theorems (map-indexed
                   (fn [i pred] (EventBAxiom. (str "thm" i) (ir-pred->str pred) false #{}))
                   (:values (find-clause :assertions clauses)))]
