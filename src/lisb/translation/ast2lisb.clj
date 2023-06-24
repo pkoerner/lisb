@@ -179,6 +179,8 @@
              ASelectWhenSubstitution
              AOperation
              ATypeofExpression
+             AEventBComprehensionSetExpression
+             APartitionPredicate
              ATruthPredicate
              AMachineClauseParseUnit AUsesMachineClause AExtendsMachineClause AMachineReference AIncludesMachineClause APromotesMachineClause AOpSubstitution ARefinementMachineParseUnit AImplementationMachineParseUnit AModelMachineVariant ASystemMachineVariant ASeesMachineClause ACaseSubstitution ACaseOrSubstitution ASubstitutionDefinitionDefinition PDefinition TDefLiteralPredicate TDefLiteralSubstitution)
            (java.util LinkedList)))
@@ -823,6 +825,15 @@
   (ast->lisb (.getExpression node))) ; ignore type for now
 (defmethod ast->lisb ATruthPredicate [node]
   true)
+;;TODO: introduce typeof in ir
+(defmethod ast->lisb ATypeofExpression [node]
+  (ast->lisb (.getExpression node)))
+
+(defmethod ast->lisb APartitionPredicate [node]
+  (lisbify 'partition (.getSet node) (.getElements node)))
+
+(defmethod ast->lisb AEventBComprehensionSetExpression [node]
+  (lisbify 'comprehension-set (.getIdentifiers node) (.getPredicates node)))
 
 ;;; misc
 
