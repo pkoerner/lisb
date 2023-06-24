@@ -290,18 +290,27 @@
 (defmethod ir->prob :variables [{:keys [values]}]
   (ModelElementList. (map (fn [x] (EventBVariable. (rodin-name x) "")) values)))
 
-(defmethod ir->prob :machine [{name :name clauses :machine-clauses}]
-  (-> (EventBMachine. (rodin-name name))
-      (.withSees (ModelElementList. (map (fn [x] (Context. (rodin-name x))) (find-clause :sees clauses)))) ;;TODO: get real context
+(defmethod ir->prob :refinement [ir]
+  (-> (ir->prob (assoc ir :tag :machine))
+      ;;TODO: get real machine-clauses
+      (.withRefinesMachine (EventBMachine. (rodin-name (:abstract-machine-name ir))))))
+
+(defmethod ir->prob :machine [{m-name :name clauses :machine-clauses}]
+ (-> (EventBMachine. (rodin-name m-name))
+      ;;TODO: get real context
+      (.withSees (ModelElementList. (map (fn [x] (Context. (rodin-name x)))
+                                         (:values (find-clause :sees clauses)))))
       (.withInvariants (extract-invariants clauses))
       (.withVariant (clause->prob :variant clauses))
       (.withEvents (extract-events clauses))
       (.withVariables (clause->prob :variables clauses))))
 
-(defmethod ir->prob :context [{name :name clauses :machine-clauses}]
-  (-> (Context. (rodin-name name))
+(defmethod ir->prob :context [{c-name :name clauses :machine-clauses}]
+  (-> (Context. (rodin-name c-name))
       (.withSets (clause->prob :sets clauses))
       (.withConstants (clause->prob :constants clauses))
       (.withAxioms (extract-axioms clauses))))
 
 (defmethod ir->prob nil [_] nil)
+
+
