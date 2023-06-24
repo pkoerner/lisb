@@ -21,6 +21,7 @@
       "x<10&y>0" (eventb (and (< :x 10) (> :y 0)))
       "a<<:b&b<<:c" (eventb (strict-subset? :a :b :c))
       "1=x or 1=1" (eventb (or (= 1 :x) (= 1 1)))
+      "partition(X,{x},{y})" (eventb (partition :X #{:x} #{:y}))
       )))
 
 
