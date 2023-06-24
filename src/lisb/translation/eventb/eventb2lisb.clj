@@ -50,8 +50,7 @@
         invariants (.getInvariants node)
         variant (.getVariant node)
         init (.getEvent node "INITIALISATION")
-        events (remove #(= "INITIALISATION" (.getName %)) (.getEvents node))] 
-    (prn (.getEvents node))
+        events (remove #(= "INITIALISATION" (.getName %)) (.getEvents node))]
     (with-optional (if refines 'refinement 'machine)
       (name-as-keyword node)
       (when (seq refines) (name-as-keyword refines))

@@ -12,6 +12,7 @@
     EventBVariable
     Event
     Event$EventType
+    Event$Inheritance
     Context
     EventBConstant
     )
@@ -216,12 +217,17 @@
                   (:values (find-clause :assertions clauses)))]
     (ModelElementList. (concat axioms theorems))))
 
-(defn event [name status]
-  (let [eventType (case status
+(defn new-event [name status inheritance]
+  (let [inheritance (case inheritance
+                      :refines Event$Inheritance/REFINES
+                      :extends Event$Inheritance/EXTENDS
+                      Event$Inheritance/NONE)
+        status (case status
                     :convergent Event$EventType/CONVERGENT
                     :anticipated Event$EventType/ANTICIPATED
                     Event$EventType/ORDINARY)]
-    (Event. name eventType false)))
+    (Event. name status inheritance)))
+
 
 (defmulti ir->prob :tag)
 
@@ -239,7 +245,7 @@
       (mapcat ir-sub->strs)
       (map-indexed (fn [i code] (EventBAction. (str "init" i) code #{})))
       ModelElementList.
-      (.withActions (event "INITIALISATION" :ordinary))))
+      (.withActions (new-event "INITIALISATION" :ordinary :none))))
 
 (defmethod ir->prob :events [{:keys [values]}]
   (ModelElementList. (map ir->prob values)))
@@ -254,15 +260,23 @@
   (ModelElementList. (map ir->prob values)))
 
 (defmethod ir->prob :actions [{:keys [values]}]
-  (ModelElementList. (map-indexed (fn [i code] (EventBAction. (str "act" i) code #{})) (mapcat ir-sub->strs values))))
+  (ModelElementList. (map-indexed
+                       (fn [i code] (EventBAction. (str "act" i) code #{}))
+                       (mapcat ir-sub->strs values))))
 
 (defmethod ir->prob :event [{:keys [name event-clauses]}]
-  (-> (event (clojure.core/name name)
-             (:value (find-clause :status event-clauses)))
-        (.withParameters (clause->prob :args event-clauses))
-        (.withGuards (clause->prob :guards event-clauses))
-        (.withWitnesses (clause->prob :witnesses event-clauses))
-        (.withActions (clause->prob :actions event-clauses))))
+  (let [parent-event (find-clause :event-reference event-clauses)
+        e (-> (new-event (rodin-name name)
+                     (:value (find-clause :status event-clauses))
+                     (:type parent-event))
+              (.withParameters (clause->prob :args event-clauses))
+              (.withGuards (clause->prob :guards event-clauses))
+              (.withWitnesses (clause->prob :witnesses event-clauses))
+              (.withActions (clause->prob :actions event-clauses)))]
+    (if (:value parent-event)
+      ;;TODO: get actual event
+      (.withParentEvent e (new-event (rodin-name (:value parent-event)) :ordinary :none))
+      e)))
 
 (defmethod ir->prob :sets [{:keys [values]}]
   (ModelElementList.
