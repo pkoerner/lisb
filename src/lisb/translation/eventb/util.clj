@@ -1,7 +1,7 @@
 (ns lisb.translation.eventb.util
-  (:require [lisb.translation.eventb.ir2eventb :refer [ir-expr->str ir->prob-machine ir->prob-context]]
+  (:require [lisb.translation.eventb.ir2eventb :refer [ir-expr->str ir->prob]]
             [lisb.prob.animator :refer [injector]]
-            [lisb.translation.util :refer [b]]
+            [lisb.translation.eventb.dsl :refer [eventb]]
             [lisb.translation.lisb2ir :refer [boperations]]
             [clojure.walk :refer [walk]])
   (:import
@@ -21,6 +21,8 @@
               de.prob.model.eventb.EventBMachine (.addMachine model value)))
           (.get modelCreator) machines-or-contexts))
 
+(defn ir->prob-model [& ir] (->> ir (map ir->prob) (apply prob-model)))
+
 (defn prob-model->rodin [model model-name path]
   (.writeToRodin (ModelToXML.) model model-name path))
 
@@ -32,56 +34,21 @@
 
 (def get-statespace
   (memoize (fn [ir]
-             (let [machine (ir->prob-machine ir)
+             (let [machine (ir->prob ir)
                    model (prob-model machine)]
                (.load model machine {})))))
 
-(defn ir->prob-model [ir] (-> ir ir->prob-machine prob-model))
-
-(defn pre-process-lisb [lisb]
-  (cond
-    (and (seq? lisb) (= 'events (first lisb))) (list* 'operations (rest lisb))
-    (seqable? lisb) (walk pre-process-lisb identity lisb)
-    :else lisb))
-
-(defn eventb-where [preds body]
-  {:tag :select
-   :clauses [preds body]})
-
-;; let inside b macro to override existing symbols
-(defmacro eventb [lisb]
-  `(b (let [~'where eventb-where
-            ~'axioms ~'properties]
-        ~(pre-process-lisb lisb))))
-
 (comment
-  (def ir (eventb (machine :hello-world
-                                (constants :z)
-                                (sets :tracks)
-                                (axioms (in :z nat-set)
-                                            (< :z 100))
-                                (variables :x :y :hello :s :t)
-                                (invariants
-                                 (subset? :s (cartesian-product nat-set bool-set))
-                                 (subset? :t nat-set)
-                                 (in :hello bool-set)
-                                 (<= :x 10)
-                                 (in :y nat-set))
-                                (init
-                                 (assign :s #{})
-                                 (assign :t #{1, 2})
-                                 (assign :x 0 :y 50)
-                                 (assign :hello true))
-                                (events
-                                 (:inc [] (where (< :x 10) (assign :x (+ :x 1))))
-                                 (:say-hallo [] (assign :hello true))))))
+  (def ir (eventb (machine :foo
+                           (variables :s :t)
+                           (invariants
+                            (subset? :s (cartesian-product nat-set bool-set))
+                            (subset? :t nat-set))
+                           (init
+                            (assign
+                             :s #{}
+                             :t #{1, 2})))))
 
-  (clojure.pprint/pprint ir)
-
-  (get-type (get-statespace ir) (b (cartesian-product :s :t)))
-
-  (def model (prob-model (ir->prob-machine ir) (ir->prob-context ir)))
-
-  (prob-model->rodin model "hello" "./resources/eventb")
+  (get-type (get-statespace ir) (eventb (cartesian-product :s :t)))
   )
 
