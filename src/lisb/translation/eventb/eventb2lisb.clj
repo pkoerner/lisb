@@ -1,12 +1,9 @@
 (ns lisb.translation.eventb.eventb2lisb
   (:require [lisb.translation.ast2lisb]
-            [lisb.prob.animator :refer [api injector]]
-            [lisb.translation.lisb2ir :refer [b bop]])
-  (:import com.google.inject.Guice
-           com.google.inject.Stage
-           de.prob.MainModule
+            [lisb.translation.lisb2ir :refer [b bop]]
+            [clojure.string :as str])
+  (:import de.prob.MainModule
            de.prob.scripting.EventBFactory
-           de.prob.model.eventb.translate.ModelToXML
            (de.prob.animator.domainobjects EventB)
            (de.prob.model.representation ModelElementList)
            (de.prob.model.eventb
@@ -22,10 +19,7 @@
             Event
             Witness
             Variant
-            Context)
-           (de.be4.classicalb.core.parser.node
-            ATypeofExpression
-            )))
+            Context)))
 
 
 (defn name-as-keyword [node] (-> node .getName keyword))
@@ -112,9 +106,6 @@
 
 ;; Predicates & Expression
 
-(defmethod prob->lisb ATypeofExpression [node]
-  (prob->lisb (.getExpression node)))
-
 (defmethod prob->lisb :default [node]
   (lisb.translation.ast2lisb/ast->lisb node))
 
@@ -125,18 +116,3 @@
 
 (defmethod prob->lisb nil [node]
   nil)
-
-;; Util
-
-(defn model2rodin! [model model-name path]
-  (.writeToRodin (ModelToXML.) model model-name path))
-
-(defn rodin->lisb [filename]
-  (-> (.eventb_load api filename)
-      .getModel
-      prob->lisb))
-
-(comment
-  (def bev (rodin->lisb "/workspaces/lisb/resources/eventb/ausleihsystem/Ausleihsystem.bum"))
-  (clojure.pprint/pprint bev) 
-  )

@@ -295,11 +295,13 @@
       ;;TODO: get real machine-clauses
       (.withRefinesMachine (EventBMachine. (rodin-name (:abstract-machine-name ir))))))
 
+(defmethod ir->prob :sees [{:keys [values]}]
+  ;;TODO: get real context
+  (ModelElementList. (map (fn [x] (Context. (rodin-name x))))))
+
 (defmethod ir->prob :machine [{m-name :name clauses :machine-clauses}]
  (-> (EventBMachine. (rodin-name m-name))
-      ;;TODO: get real context
-      (.withSees (ModelElementList. (map (fn [x] (Context. (rodin-name x)))
-                                         (:values (find-clause :sees clauses)))))
+      (.withSees (clause->prob :sees clauses))
       (.withInvariants (extract-invariants clauses))
       (.withVariant (clause->prob :variant clauses))
       (.withEvents (extract-events clauses))

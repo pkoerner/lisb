@@ -94,33 +94,3 @@
             ~'with event-with]
         ~lisb)))
 
-(defn lisb->ir [lisb]
-  (eval `(eventb ~lisb)))
-
-(comment
-  (eventb (machine :machine-foo
-                   (variables :x :y :z)
-                   (variant (+ :x :y :z))
-                   (events
-                    (event :foo1
-                           (any :t)
-                           (then
-                            (assign :x :t)
-                            (becomes-such :y (> :y :t))
-                            (becomes-element-of :z :nat)))
-                    (event :foo2
-                           (when (< 0 :x 10))
-                           (then
-                            (assign :x :y)
-                            (becomes-such :y (> :y 10))
-                            (becomes-element-of :z :nat)))
-                    (event :foo3
-                           (refines :foo1)
-                           (when (< 0 :x 10))
-                           (with :t (in :t :nat))
-                           (then
-                            (assign :x :y)
-                            (becomes-such :y (> :y 10))
-                            (becomes-element-of :z :nat)))))
-    )
-  )

@@ -1,8 +1,7 @@
 (ns lisb.translation.eventb.util
-  (:require [lisb.translation.eventb.ir2eventb :refer [ir-expr->str ir->prob]]
-            [lisb.prob.animator :refer [injector]]
-            [lisb.translation.eventb.dsl :refer [eventb]]
-            [lisb.translation.lisb2ir :refer [boperations]]
+  (:require [potemkin :refer [import-vars]]
+            [lisb.prob.animator :refer [api injector]]
+            [lisb.translation.eventb dsl ir2eventb eventb2lisb]
             [clojure.walk :refer [walk]])
   (:import
    de.prob.model.eventb.translate.ModelToXML
@@ -12,7 +11,14 @@
     EventB)
    ))
 
+(import-vars [lisb.translation.eventb.dsl eventb])
+(import-vars [lisb.translation.eventb.ir2eventb ir->prob ir-expr->str])
+(import-vars [lisb.translation.eventb.eventb2lisb prob->lisb])
+
 (def modelCreator (.getProvider injector EventBModel))
+
+(defn lisb->ir [lisb]
+  (eval `(eventb ~lisb)))
 
 (defn prob-model [& machines-or-contexts]
   (reduce (fn [model value]
@@ -23,8 +29,16 @@
 
 (defn ir->prob-model [& ir] (->> ir (map ir->prob) (apply prob-model)))
 
+
 (defn prob-model->rodin [model model-name path]
   (.writeToRodin (ModelToXML.) model model-name path))
+
+(defn rodin->prob-model [filename]
+  (-> (.eventb_load api filename)
+      .getModel))
+
+
+(defn rodin->lisb [filename] (-> filename rodin->prob-model prob->lisb))
 
 (defn get-type
    [ss ir-formula]
