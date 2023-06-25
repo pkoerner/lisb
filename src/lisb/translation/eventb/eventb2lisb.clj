@@ -17,6 +17,8 @@
             EventBGuard
             EventBAction
             Event
+            Event$EventType
+            Event$Inheritance
             Witness
             Variant
             Context)))
@@ -45,9 +47,9 @@
         variant (.getVariant node)
         init (.getEvent node "INITIALISATION")
         events (remove #(= "INITIALISATION" (.getName %)) (.getEvents node))]
-    (with-optional (if refines 'refinement 'machine)
+    (with-optional (if (nil? refines) 'machine 'refinement)
       (name-as-keyword node)
-      (when (seq refines) (name-as-keyword refines))
+      (when refines (name-as-keyword refines))
       (when (seq sees) (list* 'sees (map name-as-keyword sees)))
       (when (seq variables) (list* 'variables (prob->lisb variables)))
       (when (seq invariants) (list* 'invariants (prob->lisb invariants)))
@@ -64,12 +66,24 @@
 (defmethod prob->lisb Variant [node]
   (-> node .getExpression .getAst prob->lisb))
 
+(defmethod prob->lisb Event$EventType [node]
+  (keyword (str/lower-case (str node))))
+
+(defn extract-inheritance [node]
+  (let [inheritance (.getInheritance node)]
+    (when (not= inheritance Event$Inheritance/NONE)
+      ;; We use event-refines and event-extends, because extends is already used for contexts
+      (list (symbol (str/lower-case (str "event-" inheritance))) (keyword (.getName (.getParentEvent node)))))))
+
 (defmethod prob->lisb Event [node]
-  (with-optional 'event (name-as-keyword node)
-    (optional 'any (prob->lisb (.getParameters node)))
-    (optional 'when (prob->lisb (.getGuards node)))
-    (optional 'with (prob->lisb (.getWitnesses node)))
-    (optional 'then (prob->lisb (.getActions node)))))
+    (let [status (prob->lisb (.getType node))]
+      (with-optional 'event (name-as-keyword node)
+      (extract-inheritance node)
+      (when (not= status :ordinary) (list 'status status))
+      (optional 'any (prob->lisb (.getParameters node)))
+      (optional 'when (prob->lisb (.getGuards node)))
+      (optional 'with (prob->lisb (.getWitnesses node)))
+      (optional 'then (prob->lisb (.getActions node))))))
 
 (defmethod prob->lisb EventParameter [node]
   (-> node .getExpression .getAst prob->lisb))
@@ -89,11 +103,12 @@
 ;; Context
 
 (defmethod prob->lisb Context [node]
-  (with-optional 'context (name-as-keyword node)
-    (optional 'extends (prob->lisb (.getExtends node)))
+  (let [extends (map name-as-keyword (.getExtends node))]
+    (with-optional 'context (name-as-keyword node)
+    (when (seq extends) (list* 'extends extends))
     (optional 'sets (prob->lisb (.getSets node)))
     (optional 'constants (prob->lisb (.getConstants node)))
-    (optional 'axioms (prob->lisb (.getAxioms node)))))
+    (optional 'axioms (prob->lisb (.getAxioms node))))))
 
 (defmethod prob->lisb de.prob.model.representation.Set [node]
   (name-as-keyword node))
