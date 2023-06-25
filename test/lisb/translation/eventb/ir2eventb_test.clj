@@ -13,6 +13,7 @@
       "{}" (eventb #{})
       "{1}" (eventb #{1})
       "{1,x}" (eventb #{:x 1}) ;;enumerated sets are not orderd!
+      "%(x|->y)|->z.x:0..5&y:0..5&z:0..5|x+y+z" (eventb (lambda [:x :y :z] (contains? (interval 0 5) :x :y :z) (+ :x :y :z)))
       )))
 
 (deftest pred-test

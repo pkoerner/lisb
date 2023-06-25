@@ -133,6 +133,9 @@
 (defmethod ir-expr->str :unite-sets [ir]
   (str "inter(" (ir-expr->str (:set ir)) ")"))
 
+(defmethod ir-expr->str :cardinality [ir]
+  (str "card(" (ir-expr->str (:set ir)) ")"))
+
 (defmethod ir-expr->str :cartesian-product [ir]
   (chain-expr "**" (:sets ir)))
 
@@ -161,7 +164,42 @@
 
 ;; Relations
 
+(defmethod ir-expr->str :maplet [{:keys [left right]}]
+  (chain-expr "|->" [left right]))
+
 ;; Functions
+
+(defmethod ir-expr->str :partial-fn [ir]
+  (chain-expr "+->" {:sets ir}))
+
+(defmethod ir-expr->str :total-fn [ir]
+  (chain-expr "-->" {:sets ir}))
+
+(defmethod ir-expr->str :partial-surjection [ir]
+  (chain-expr "+->>" {:sets ir}))
+
+(defmethod ir-expr->str :total-surjection [ir]
+  (chain-expr "-->>" {:sets ir}))
+
+(defmethod ir-expr->str :partial-injection [ir]
+  (chain-expr ">+>" {:sets ir}))
+
+(defmethod ir-expr->str :total-injection [ir]
+  (chain-expr ">->" {:sets ir}))
+
+(defmethod ir-expr->str :partial-bijection [ir]
+  (chain-expr ">+>>" {:sets ir}))
+
+(defmethod ir-expr->str :total-bijection [ir]
+  (chain-expr ">->>" {:sets ir}))
+
+(defn tuple->maplet [tuple]
+  (reduce (fn [acc cur] {:tag :maplet :left acc :right cur})
+           tuple))
+
+(defmethod ir-expr->str :lambda [{:keys [ids pred expr]}]
+  ;;TODO: In Event-B ids can be arbitrarily nested.
+  (str "%" (ir-expr->str (tuple->maplet ids)) "." (ir-pred->str pred) "|" (ir-expr->str expr)))
 
  ;; TODO: allow multiple args
 (defmethod ir-expr->str :fn-call [ir]
