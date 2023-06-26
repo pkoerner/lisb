@@ -12,7 +12,7 @@
    ))
 
 (import-vars [lisb.translation.eventb.dsl eventb])
-(import-vars [lisb.translation.eventb.ir2eventb ir->prob ir-expr->str])
+(import-vars [lisb.translation.eventb.ir2eventb ir->prob ir-pred->str ir-expr->str])
 (import-vars [lisb.translation.eventb.eventb2lisb prob->lisb])
 
 (def modelCreator (.getProvider injector EventBModel))
