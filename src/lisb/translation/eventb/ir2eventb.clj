@@ -54,7 +54,7 @@
 (defmethod ir-expr->str java.lang.Boolean [ir] (str/upper-case (str ir)))
 (defmethod ir-expr->str :bool-set [_] "BOOL")
 (defmethod ir-expr->str :pred->bool [ir]
-  (str "bool(" (ir-expr->str (:pred ir)) ")"))
+  (str "bool(" (ir-pred->str (:pred ir)) ")"))
 
 ;; Numbers
 
