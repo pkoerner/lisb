@@ -94,9 +94,9 @@
 (defmethod ir-pred->str :implication [ir] (chain-pred "=>" (:preds ir)))
 (defmethod ir-pred->str :equivalence [ir] (chain-pred "<=>" (:preds ir)))
 (defmethod ir-pred->str :not [ir]
-  (str "not(" (ir-pred->str (:pred ir) ")")))
+  (str "not(" (ir-pred->str (:pred ir)) ")"))
 (defmethod ir-pred->str :for-all [ir]
-  (str "!" (str/join "," (map rodin-name (:ids ir))) "." (ir-pred->str (:implementation ir))))
+  (str "!" (str/join "," (map rodin-name (:ids ir))) "." (ir-pred->str (:implication ir))))
 (defmethod ir-pred->str :exists [ir]
   (str "#" (str/join "," (map rodin-name (:ids ir)) (ir-pred->str (:pred ir)))))
 
@@ -116,7 +116,7 @@
 (defmethod ir-expr->str :comprehension-set [ir]
   (str "{"
        (str/join "," (map rodin-name (:ids ir))) "|"
-       (ir-expr->str (:pred ir)) "}" ))
+       (ir-pred->str (:pred ir)) "}" ))
 
 (defmethod ir-expr->str :power-set [ir]
   (str "POW(" (ir-expr->str (:set ir)) ")"))
@@ -203,7 +203,7 @@
 
  ;; TODO: allow multiple args
 (defmethod ir-expr->str :fn-call [ir]
-  (str (rodin-name (:f ir)) "(" (rodin-name (first (:args ir))) ")"))
+  (str (ir-expr->str (:f ir)) "(" (ir-expr->str (first (:args ir))) ")"))
 
 ;; Construct ProB Model
 
@@ -335,7 +335,7 @@
 
 (defmethod ir->prob :sees [{:keys [values]}]
   ;;TODO: get real context
-  (ModelElementList. (map (fn [x] (Context. (rodin-name x))))))
+  (ModelElementList. (map (fn [x] (Context. (rodin-name x))) values)))
 
 (defmethod ir->prob :machine [{m-name :name clauses :machine-clauses}]
  (-> (EventBMachine. (rodin-name m-name))
