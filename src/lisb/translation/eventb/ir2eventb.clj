@@ -170,28 +170,28 @@
 ;; Functions
 
 (defmethod ir-expr->str :partial-fn [ir]
-  (chain-expr "+->" {:sets ir}))
+  (chain-expr "+->" (:sets ir)))
 
 (defmethod ir-expr->str :total-fn [ir]
-  (chain-expr "-->" {:sets ir}))
+  (chain-expr "-->" (:sets ir)))
 
 (defmethod ir-expr->str :partial-surjection [ir]
-  (chain-expr "+->>" {:sets ir}))
+  (chain-expr "+->>" (:sets ir)))
 
 (defmethod ir-expr->str :total-surjection [ir]
-  (chain-expr "-->>" {:sets ir}))
+  (chain-expr "-->>" (:sets ir)))
 
 (defmethod ir-expr->str :partial-injection [ir]
-  (chain-expr ">+>" {:sets ir}))
+  (chain-expr ">+>" (:sets ir)))
 
 (defmethod ir-expr->str :total-injection [ir]
-  (chain-expr ">->" {:sets ir}))
+  (chain-expr ">->" (:sets ir)))
 
 (defmethod ir-expr->str :partial-bijection [ir]
-  (chain-expr ">+>>" {:sets ir}))
+  (chain-expr ">+>>" (:sets ir)))
 
 (defmethod ir-expr->str :total-bijection [ir]
-  (chain-expr ">->>" {:sets ir}))
+  (chain-expr ">->>" (:sets ir)))
 
 (defn tuple->maplet [tuple]
   (reduce (fn [acc cur] {:tag :maplet :left acc :right cur})
