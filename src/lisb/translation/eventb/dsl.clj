@@ -71,7 +71,7 @@
 
 ;; Other
 
-(defn eventb-partition [set & partitions]
+(defn eventb-partition [set partitions]
   {:tag :partition
    :set set
    :partitions partitions})
