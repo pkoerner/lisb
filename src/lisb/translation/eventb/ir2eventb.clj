@@ -345,8 +345,12 @@
       (.withEvents (extract-events clauses))
       (.withVariables (clause->prob :variables clauses))))
 
+(defmethod ir->prob :extends [{:keys [values]}]
+  (ModelElementList. (map (fn [c-ref] (Context. (rodin-name (:name c-ref)))) values)))
+
 (defmethod ir->prob :context [{c-name :name clauses :machine-clauses}]
   (-> (Context. (rodin-name c-name))
+      (.withExtends (clause->prob :extends clauses))
       (.withSets (clause->prob :sets clauses))
       (.withConstants (clause->prob :constants clauses))
       (.withAxioms (extract-axioms clauses))))

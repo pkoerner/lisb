@@ -36,33 +36,7 @@
   (eventb
    (context
      :c1
-     (extends
-      (context
-        :c0
-        (sets :DIRECTIONS)
-        (constants
-         :neutral_blink
-         :left_blink
-         :BLINK_DIRECTION
-         :LAMP_STATUS
-         :continuousBlink
-         :cycleMaxLampStatus
-         :lamp_off
-         :right_blink
-         :lamp_on
-         :BLINK_CYCLE_COUNTER)
-        (axioms
-         (= :DIRECTIONS #{:neutral_blink :left_blink :right_blink})
-         (= (card :DIRECTIONS) 3)
-         (= :BLINK_DIRECTION #{:left_blink :right_blink})
-         (= :LAMP_STATUS #{0 100})
-         (and (= :lamp_off 0) (= :lamp_on 100))
-         (= :BLINK_CYCLE_COUNTER (interval -1 3))
-         (= :continuousBlink -1)
-         (=
-          :cycleMaxLampStatus
-          #{(|-> true :lamp_on) (|-> false :lamp_off)})
-         (member? :cycleMaxLampStatus (--> bool-set :LAMP_STATUS)))))
+     (extends :c0)
      (sets :PITMAN_POSITION :SWITCH_STATUS :KEY_STATE)
      (constants
       :KeyInserted
