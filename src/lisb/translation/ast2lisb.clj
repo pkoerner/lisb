@@ -182,6 +182,8 @@
              AEventBComprehensionSetExpression
              APartitionPredicate
              ATruthPredicate
+             ADescriptionExpression ADescriptionPredicate ALabelPredicate
+             AOperationReference
              AMachineClauseParseUnit AUsesMachineClause AExtendsMachineClause AMachineReference AIncludesMachineClause APromotesMachineClause AOpSubstitution ARefinementMachineParseUnit AImplementationMachineParseUnit AModelMachineVariant ASystemMachineVariant ASeesMachineClause ACaseSubstitution ACaseOrSubstitution ASubstitutionDefinitionDefinition PDefinition TDefLiteralPredicate TDefLiteralSubstitution)
            (java.util LinkedList)))
 
@@ -462,6 +464,9 @@
         op (first (.getOperation node))                     ; there should be exact one identifier in .getOperation
         params (.getParameters node)]
     (list '<-- returns (concat-last 'op-call op params))))
+
+(defmethod ast->lisb AOperationReference [node]
+  (list 'op-call (.getOperationName node)))
 
 ;;; if-then-else
 
@@ -812,6 +817,18 @@
 
 (defmethod ast->lisb TIdentifierLiteral [node]
   (keyword (.getText node)))
+
+;;; Label and Descriptions
+;;TODO: implement real behavior
+
+(defmethod ast->lisb ADescriptionExpression [node]
+  (ast->lisb (.getExpression node)))
+
+(defmethod ast->lisb ADescriptionPredicate [node]
+  (ast->lisb (.getPredicate node)))
+
+(defmethod ast->lisb ALabelPredicate [node]
+  (ast->lisb (.getPredicate node)))
 
 ;;; Event-B specific
 
