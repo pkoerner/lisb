@@ -11,6 +11,7 @@
   :dependencies [[org.clojure/clojure "1.10.3"]
                  [org.clojure/math.combinatorics "0.1.3"]
                  [potemkin "0.4.5"]
+                 [com.rpl/specter "1.1.4"]
                  [de.hhu.stups/de.prob2.kernel,"4.12.1"]
                  [de.hhu.stups/value-translator "0.1.2"]
                  [de.hhu.stups/unicode "2.12.4"]
