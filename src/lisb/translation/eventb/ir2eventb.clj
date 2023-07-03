@@ -16,16 +16,6 @@
     Context
     EventBConstant
     )
-   (de.prob.model.representation
-    Variable
-    Machine
-    Action
-    Guard
-    BEvent
-    Invariant
-    Axiom
-    Constant
-    )
    de.prob.animator.domainobjects.EventB
    de.prob.model.representation.ModelElementList))
 
@@ -356,5 +346,3 @@
       (.withAxioms (extract-axioms clauses))))
 
 (defmethod ir->prob nil [_] nil)
-
-
