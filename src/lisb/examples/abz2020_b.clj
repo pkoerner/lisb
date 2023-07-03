@@ -513,11 +513,8 @@
 (comment
   (clojure.pprint/pp)
   (->> BlinkLamps
-       (s/select [(CLAUSE :operations) :values s/ALL
-                  (NAME :SET_BlinkersOn)
-                  ])
-       first
-       op->events
+       (s/select [(CLAUSE :operations) :values s/ALL])
+       (mapcat op->events)
        )
   (clojure.pprint/pprint BlinkLamps)
   (-> "../../models/abz2020-models-master/LightModel/BlinkLamps_v3.mch"
