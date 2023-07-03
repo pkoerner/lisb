@@ -99,7 +99,9 @@
 
 (defn op->events [ir]
   (sub->events
-    (eventb-event (:name ir) (apply dsl/event-any (:args ir)))
+   (if (empty (:args ir))
+     (eventb-event (:name ir))
+     (eventb-event (:name ir) (apply dsl/event-any (:args ir))))
     (:body ir)))
 
 (comment
