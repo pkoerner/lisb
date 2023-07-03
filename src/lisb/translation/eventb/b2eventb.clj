@@ -57,7 +57,8 @@
         (append-name "-then")
         (with-guards (:cond ir))
         (recur-until-action (:then ir)))
-    (-> base-event (append-name "-else")
+    (when (:else ir)
+      (-> base-event (append-name "-else")
         (with-guards (bnot (:cond ir)))
         (recur-until-action (:else ir)))))
 
