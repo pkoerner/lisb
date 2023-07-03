@@ -1,7 +1,8 @@
 (ns lisb.examples.abz2020-b
   (:require [lisb.translation.util :as util]
             [com.rpl.specter :as s]
-            [lisb.translation.eventb.b2eventb :refer []]))
+            [lisb.translation.eventb.dsl :as dsl]
+            [lisb.translation.eventb.b2eventb :refer [op->events sub->events]]))
 
 (def Sensors (util/b
               (machine
@@ -503,7 +504,6 @@
                     (op-call :SET_Hazard_blinking :newSwitchPos))))))))
 
 
-(comment
   (defn TAG [t] (s/path #(= (:tag %) t)))
   (defn NAME [n] (s/path #(= (:name %) n)))
   (def CLAUSES (s/if-path (s/must :ir)
@@ -511,19 +511,18 @@
                           [:machine-clauses]))
   (defn CLAUSE [name] (s/path [CLAUSES s/ALL (TAG name)]))
 
+(comment
+  (clojure.pprint/pp)
   (->> BlinkLamps
        (s/select [(CLAUSE :operations) :values s/ALL
                   (NAME :SET_BlinkersOn)
-                  :body
-                  :subs s/ALL
-                  :subs s/ALL
-                  (TAG :if-sub)
                   ])
+       first
+       op->events
        )
   (clojure.pprint/pprint BlinkLamps)
   (-> "../../models/abz2020-models-master/LightModel/BlinkLamps_v3.mch"
       util/bfile->b
       util/b->lisb)
 
-  (clojure.pprint/pp)
   )
