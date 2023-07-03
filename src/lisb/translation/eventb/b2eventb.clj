@@ -79,6 +79,24 @@
              (last clauses))))
   )
 
+(defn literal-name [literal]
+  (cond
+    (keyword? literal) (name literal)
+    :default (str literal)))
+
+(defmethod sub->events :case [base-event {:keys [expr cases]}]
+  (mapcat
+   (fn [[case-literal sub]]
+     (-> base-event
+         (append-name "-" (literal-name case-literal))
+         (with-guards (butil/b= case-literal expr))
+         (recur-until-action sub)))
+   (partition 2 cases))
+  )
+
+(defmethod sub->events nil [base-event ir]
+  (throw (ex-info "Not Implemented for" {:ir ir})))
+
 (defn op->events [ir]
   (sub->events
     (eventb-event (:name ir) (apply dsl/event-any (:args ir)))
@@ -86,6 +104,14 @@
 
 (comment
   (clojure.pprint/pp)
+
+  (sub->events (eventb-event :foo)
+               (b (case :x
+                    1 (assign :y 2)
+                    2 (assign :y 3)
+                    :eof (assign :y 4)
+                    4 (assign :y 5)
+                    )))
 
   (sub->events (eventb-event :foo)
                (b (|| (assign :a 1)

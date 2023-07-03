@@ -145,12 +145,11 @@
               (parallel-sub
                (assign :active_blinkers #{:direction})
                (assign :remaining_blinks :rem)
-               (if-sub
-                (= :direction :right_blink)
-                (parallel-sub
+               (case :direction
+                 :right_blink (parallel-sub
                  (assign :blinkLeft :lamp_off)
                  (assign :blinkRight (fn-call :cycleMaxLampStatus :onCycle)))
-                (parallel-sub
+                :left_blink (parallel-sub
                  (assign :blinkLeft (fn-call :cycleMaxLampStatus :onCycle))
                  (assign :blinkRight :lamp_off))))))
             (:SET_RemainingBlinks
