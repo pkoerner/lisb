@@ -28,11 +28,11 @@
 
 (declare sub->events)
 
-(defn recur-until-action 
+(defn recur-until-action
   "resolve all possible substitutions and adds the guard"
-  [event sub] 
+  [event sub]
   (if (is-action? sub)
-    [(with-actions event sub)] 
+    [(with-actions event sub)]
     (sub->events event sub)))
 
 (defmulti sub->events
@@ -60,11 +60,11 @@
     (when (:else ir)
       (-> base-event (append-name "-else")
         (with-guards (bnot (:cond ir)))
-        (recur-until-action (:else ir)))))
+        (recur-until-action (:else ir))))))
 
 (defmethod sub->events :select [base-event {:keys [clauses]}]
   (concat (apply concat
-                 (map-indexed 
+                 (map-indexed
                   (fn [i [guard sub]]
                      (-> base-event
                          (append-name  "-select" i)
