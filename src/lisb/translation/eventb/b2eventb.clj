@@ -1,6 +1,6 @@
 (ns lisb.translation.eventb.b2eventb
   (:require [lisb.translation.eventb.util :refer [eventb]]
-            [lisb.translation.util :refer [b]]
+            [lisb.translation.util :refer [b] :as butil]
             [lisb.translation.lisb2ir :refer [bnot]]
             [lisb.translation.eventb.dsl :refer [eventb-event] :as dsl]))
 
@@ -39,36 +39,63 @@
   "Expects the substitutions and a base-event and returns a translated as a list of events based on the base-event"
   (fn [base-event ir & args] (:tag ir)))
 
+(defmethod sub->events :parallel-sub [base-event ir]
+    (let [event (apply with-actions base-event (filter is-action? (:subs ir)))]
+      (reduce (fn [events sub] (mapcat #(sub->events % sub) events))
+              [event] (remove is-action? (:subs ir)))))
+
+(defmethod sub->events :precondition [base-event ir]
+    (-> (apply with-guards base-event
+             (if (= (-> ir :pred :tag) :and)
+                     (-> ir :pred :preds)
+                     [(:pred ir)]))
+      (recur-until-action (first (:subs ir))))) ;; there should be only one sub
+
 (defmethod sub->events :if-sub [base-event ir]
-  (concat 
-   (recur-until-action 
-    (-> base-event (append-name "-then") (with-guards (:cond ir))) 
-    (:then ir))
-   (recur-until-action 
-    (-> base-event (append-name "-else") (with-guards (bnot (:cond ir)))) 
-    (:else ir))))
+  (concat
+    (-> base-event
+        (append-name "-then")
+        (with-guards (:cond ir))
+        (recur-until-action (:then ir)))
+    (-> base-event (append-name "-else")
+        (with-guards (bnot (:cond ir)))
+        (recur-until-action (:else ir)))))
 
 (defmethod sub->events :select [base-event {:keys [clauses]}]
   (concat (apply concat
                  (map-indexed 
                   (fn [i [guard sub]]
-                    (recur-until-action
                      (-> base-event
                          (append-name  "-select" i)
-                         (with-guards guard))
-                     sub))
+                         (with-guards guard)
+                         (recur-until-action sub)))
                   (partition 2 clauses)))
           (when (odd? (count clauses))
-            (recur-until-action 
-             (apply with-guards 
+            (recur-until-action
+             (apply with-guards
                     (append-name base-event "-selectelse")
                     (map bnot (take-nth 2 (butlast clauses))))
              (last clauses))))
   )
 
+(defn op->events [ir]
+  (sub->events
+    (eventb-event (:name ir) (apply dsl/event-any (:args ir)))
+    (:body ir)))
+
 (comment
   (clojure.pprint/pp)
-  
+
+  (sub->events (eventb-event :foo)
+               (b (|| (assign :a 1)
+                      (assign :b 2)
+                      (if-sub :p
+                              (assign :c 3)
+                              (assign :d 4))
+                      (if-sub :q
+                              (assign :e 3)
+                              (assign :f 4)))))
+
   (sub->events (eventb-event :foo)
                (eventb (if-sub :test (assign :then 1)
                                (assign :else 1))))
