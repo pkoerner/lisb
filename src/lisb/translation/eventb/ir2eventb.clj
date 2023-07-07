@@ -1,6 +1,8 @@
 (ns lisb.translation.eventb.ir2eventb
   (:require [clojure.string :as str]
-            [clojure.spec.alpha :as s])
+            [clojure.spec.alpha :as spec]
+            [com.rpl.specter :as s]
+            [lisb.translation.eventb.specter-util :refer :all])
   (:import
    (de.prob.model.eventb
     EventParameter
@@ -236,14 +238,7 @@
                    (:values (find-clause :assertions clauses)))]
     (ModelElementList. (concat invariant theorems))))
 
-(defn extract-axioms [clauses]
-  (let [axioms   (map-indexed
-                  (fn [i pred] (EventBAxiom. (str "axm" i) (ir-pred->str pred) false #{}))
-                  (:values (find-clause :properties clauses)))
-        theorems (map-indexed
-                  (fn [i pred] (EventBAxiom. (str "thm" i) (ir-pred->str pred) false #{}))
-                  (:values (find-clause :assertions clauses)))]
-    (ModelElementList. (concat axioms theorems))))
+
 
 (defn new-event [name status inheritance]
   (let [inheritance (case inheritance
@@ -306,14 +301,6 @@
       (.withParentEvent e (new-event (rodin-name (:value parent-event)) :ordinary :none))
       e)))
 
-(defmethod ir->prob :sets [{:keys [values]}]
-  (ModelElementList.
-   (map (fn [{:keys [id]}]
-          (de.prob.model.representation.Set. (EventB. (rodin-name id))))
-        values)))
-
-(defmethod ir->prob :constants [{:keys [values]}]
-  (ModelElementList. (map (fn [x] (EventBConstant. (rodin-name x) false "")) values)))
 
 (defmethod ir->prob :variables [{:keys [values]}]
   (ModelElementList. (map (fn [x] (EventBVariable. (rodin-name x) "")) values)))
@@ -335,14 +322,53 @@
       (.withEvents (extract-events clauses))
       (.withVariables (clause->prob :variables clauses))))
 
-(defmethod ir->prob :extends [{:keys [values]}]
-  (ModelElementList. (map (fn [c-ref] (Context. (rodin-name (:name c-ref)))) values)))
+(defn extract-sets
+  "Gets all sets in the the sets clause"
+  [ir]
+  (ModelElementList.
+   (map (fn [id]
+          (de.prob.model.representation.Set. (EventB. (rodin-name id))))
+        (s/select [(CLAUSE :sets) :values s/ALL :id] ir))))
 
-(defmethod ir->prob :context [{c-name :name clauses :machine-clauses}]
-  (-> (Context. (rodin-name c-name))
+(defn extract-constants
+  "Gets constants from constants clause and enumerated sets"
+  [ir]
+  (ModelElementList. (map (fn [c] (Context. (rodin-name c)))
+       (distinct (s/select (s/multi-path
+                             [(CLAUSE :constants) :values s/ALL]
+                             [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set) :elems s/ALL]) ir)))))
+(defn extract-axioms [ir]
+  (ModelElementList. (map-indexed
+                       (fn [i pred] (EventBAxiom. (str "axm" i) (ir-pred->str pred) false #{}))
+                       (s/select [(CLAUSE :properties) :values s/ALL] ir))))
+
+(defn extract-theorems [ir]
+  (ModelElementList. (map-indexed
+                  (fn [i pred] (EventBAxiom. (str "thm" i) (ir-pred->str pred) false #{}))
+                  (s/select [(CLAUSE :theorems) :values s/ALL] ir))))
+
+(defn enumerated-set->partition [ir]
+  {:tag :partition
+   :set (:id ir)
+   :partitions (map #(set [%]) (:elems ir))})
+
+(defn extract-partitions [ir]
+(ModelElementList. (map-indexed
+                  (fn [i s] (EventBAxiom. (str "thm" i) (ir-pred->str (enumerated-set->partition s)) false #{}))
+                  (s/select [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set)] ir))))
+
+(defmethod ir->prob :context [ir]
+  (let [partitions (map enumerated-set->partition
+                        (s/select [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set)] ir))
+        clauses (:machine-clauses ir)]
+    (-> (Context. (rodin-name (:name ir)))
       (.withExtends (clause->prob :extends clauses))
-      (.withSets (clause->prob :sets clauses))
-      (.withConstants (clause->prob :constants clauses))
-      (.withAxioms (extract-axioms clauses))))
+      (.withSets (extract-sets ir))
+      (.withConstants (extract-constants ir))
+      (.withAxioms (ModelElementList.
+                     (concat (extract-axioms ir)
+                             (extract-theorems ir)
+                             (extract-partitions ir)))))))
 
 (defmethod ir->prob nil [_] nil)
+
