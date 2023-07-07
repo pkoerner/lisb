@@ -466,7 +466,7 @@
     (list '<-- returns (concat-last 'op-call op params))))
 
 (defmethod ast->lisb AOperationReference [node]
-  (list 'op-call (.getOperationName node)))
+  (list 'op-call (ast->lisb (last (.getOperationName node)))))
 
 ;;; if-then-else
 
