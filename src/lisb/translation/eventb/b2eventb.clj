@@ -30,46 +30,49 @@
 
 (declare sub->events)
 
-(defn recur-until-action
-  "resolve all possible substitutions and adds the guard"
-  [event sub]
-  (if (is-action? sub)
-    [(with-actions event sub)]
-    (sub->events event sub)))
-
 (defmulti sub->events
   "Expects the substitutions and a base-event and returns a translated as a list of events based on the base-event"
   (fn [base-event ir & args] (:tag ir)))
 
+(defmethod sub->events :assignment [base-event ir]
+  [(with-actions base-event ir)])
+
+(defmethod sub->events :becomes-element-of [base-event ir]
+  [(with-actions base-event ir)])
+
+(defmethod sub->events :becomes-such [base-event ir]
+  [(with-actions base-event ir)])
+
 (defmethod sub->events :parallel-sub [base-event ir]
-    (let [event (apply with-actions base-event (filter is-action? (:subs ir)))]
-      (reduce (fn [events sub] (mapcat #(sub->events % sub) events))
-              [event] (remove is-action? (:subs ir)))))
+  (reduce (fn [events sub] (mapcat #(sub->events % sub) events))
+          [base-event]  (:subs ir)))
 
 (defmethod sub->events :precondition [base-event ir]
     (-> (apply with-guards base-event
              (if (= (-> ir :pred :tag) :and)
                      (-> ir :pred :preds)
                      [(:pred ir)]))
-      (recur-until-action (first (:subs ir))))) ;; there should be only one sub
+      (sub->events (first (:subs ir))))) ;; there should be only one sub
 
-(defmethod sub->events :op-call->extends [base-event {:keys [op-name arg-names arg-vals]}]
+(defmethod sub->events :op-call->extends [base-event {:keys [event-names arg-names arg-vals]}]
   (assert (not (s/selected-any? [:event-clauses s/ALL (TAG :event-reference)] base-event))
           "An event can only refine one event")
-  [(-> base-event
-       (with-guards (map butil/b= arg-names arg-vals))
-       (update :event-clauses conj (dsl/event-extends op-name)))])
+  (map-indexed (fn [i event-name]
+         (-> (apply with-guards base-event (map butil/b= arg-names arg-vals))
+             (append-name "-" i)
+            (update :event-clauses conj (dsl/event-extends event-name))))
+       event-names))
 
 (defmethod sub->events :if-sub [base-event ir]
   (concat
-    (-> base-event
-        (append-name "-then")
-        (with-guards (:cond ir))
-        (recur-until-action (:then ir)))
+   (-> base-event
+       (append-name "-then")
+       (with-guards (:cond ir))
+       (sub->events (:then ir)))
     (when (:else ir)
       (-> base-event (append-name "-else")
         (with-guards (bnot (:cond ir)))
-        (recur-until-action (:else ir))))))
+        (sub->events (:else ir))))))
 
 (defmethod sub->events :cond [base-event {:keys [clauses]}]
   (let [guards  (reduce (fn [acc cur]
@@ -83,30 +86,34 @@
                   (fn [i [guards sub]]
                       (-> (apply with-guards base-event guards)
                          (append-name "-cond" i)
-                         (recur-until-action sub)))
+                         (sub->events sub)))
                   pairs))
           (when (odd? (count clauses))
-            (recur-until-action
+            (sub->events
              (apply with-guards
                     (append-name base-event "-condelse")
                     (map bnot (take-nth 2 (butlast clauses))))
              (last clauses))))))
 
 (defmethod sub->events :select [base-event {:keys [clauses]}]
-  (concat (apply concat
-                 (map-indexed
-                  (fn [i [guard sub]]
-                     (-> base-event
-                         (append-name  "-select" i)
-                         (with-guards guard)
-                         (recur-until-action sub)))
-                  (partition 2 clauses)))
-          (when (odd? (count clauses))
-            (recur-until-action
-             (apply with-guards
-                    (append-name base-event "-selectelse")
-                    (map bnot (take-nth 2 (butlast clauses))))
-             (last clauses))))
+  (if (= (count clauses) 2)
+    (-> base-event
+        (with-guards (first clauses))
+        (sub->events (second clauses)))
+    (concat (apply concat
+                   (map-indexed
+                    (fn [i [guard sub]]
+                      (-> base-event
+                          (append-name  "-select" i)
+                          (with-guards guard)
+                          (sub->events sub)))
+                    (partition 2 clauses)))
+            (when (odd? (count clauses))
+              (sub->events
+               (apply with-guards
+                      (append-name base-event "-selectelse")
+                      (map bnot (take-nth 2 (butlast clauses))))
+               (last clauses)))))
   )
 
 (defn literal-name [literal]
@@ -119,18 +126,15 @@
      (-> base-event
          (append-name "-" (literal-name case-literal))
          (with-guards (butil/b= case-literal expr))
-         (recur-until-action sub)))
+         (sub->events sub)))
    (partition 2 cases))
   )
 
-#_(defmethod sub->events nil [base-event ir]
-  (throw (ex-info "Not Implemented for" {:ir ir})))
-
 (defn op->events [ir]
   (sub->events
-   (if (empty (:args ir))
-     (eventb-event (:name ir))
-     (eventb-event (:name ir) (apply dsl/event-any (:args ir))))
+   (if (seq (:args ir))
+     (eventb-event (:name ir) (apply dsl/event-any (:args ir)))
+     (eventb-event (:name ir)))
     (:body ir)))
 
 (def MAP-NODES
@@ -141,7 +145,7 @@
 (defn replace-args-in-body [op values]
   "Replaces all ouccurences of arguments with the values"
   (let [replacement (into {} (map vector (:args op) values))]
-    (s/transform [:body (s/walker replacement)] replacement op))) ;;FIXME: keys and tag value can also be replaced
+    (:body (s/transform [:body (s/walker replacement)] replacement op)))) ;;FIXME: keys and tag value can also be replaced
 
 (defn extend-op-call
   "Generates an extend reference for an op-call"
@@ -172,54 +176,94 @@
                (merge-clause included-machine :invariants)
                (merge-clause included-machine :constants)
                (merge-clause included-machine :properties)
+               (merge-clause included-machine :init)
                )
-           ;;TODO: copy sets, constants, variables, invariants, properties
            (s/setval [(INCLUDES (:name included-machine))] s/NONE)
-           (s/transform (s/walker (TAG :op-call))
+           (s/transform (s/walker (and (TAG :op-call) #(operations (:op %))))
                         (fn [call]
-                          (if (operations (:op call))
-                            (:body (replace-args-in-body
-                                    (operations (:op call))
-                                    (:args call)))
-                            call))))
+                          (replace-args-in-body
+                           (operations (:op call))
+                           (:args call))
+                          )))
       base-machine)))
+
+(defn OP [n] (s/path [(CLAUSE :operations) :values s/ALL (NAME n)]))
+
+(defn op-call->extends [included-machine {:keys [op args] :as call}]
+  (let [operation (s/select-any (OP op) included-machine)]
+    (if (= operation s/NONE)
+      call
+      {:tag :op-call->extends ;;this a special tag which is resolved when running op->events
+       :arg-vals args
+       :arg-names (:args operation)
+       :event-names (map :name (op->events operation))})))
+
 
 (defn includes->refinement
   "If the machine only includes one other convert the inclusion into a refinement.
   All operation calls are converted into extends"
   [base-machine included-machine]
   (assert (= 1 (count (s/select INCLUDES base-machine))))
-  (let [operations (into {} (map (fn [op] [(:name op) op]))
-                         (s/select [(CLAUSE :operations) :values s/ALL] included-machine))]
     (if (s/selected-any? [(INCLUDES (:name included-machine))] base-machine)
       (->> (-> base-machine
                (assoc :tag :refinement :abstract-machine-name (:name included-machine))
                (merge-clause included-machine :variables))
            ;;TODO: copy variables
            (s/setval [(INCLUDES (:name included-machine))] s/NONE)
-           (s/transform (s/walker (TAG :op-call))
-                        (fn [{:keys [op args] :as call}]
-                          (if (operations op)
-                            {:tag :op-call->extends
-                             :arg-vals args
-                             :arg-names (:args (operations op))
-                             :op-name op}
-                            call))))
-      base-machine)))
+           (s/transform (s/walker (TAG :op-call)) (partial op-call->extends included-machine)))
+      base-machine))
+
+(defn enumerated-set->partition [ir]
+  (dsl/eventb-partition (:id ir) (map #(set [%]) (:elems ir))))
+
+(defn update-enumerated-set->partitions [ir]
+  "Changes all enumerated set definition into deffered sets, and adds the definition in the properties as partition"
+  (let [partitions (map (fn [s] (dsl/eventb-partition (:id s) (map (fn [x] #{x}) (:elems s))))
+                        (s/select [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set)] ir))
+        constants (s/select [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set) :elems s/ALL] ir)]
+    (->> ir
+         (s/transform [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set)]
+                      (fn [s] (butil/bdeferred-set (:id s))))
+         (s/transform [(CLAUSE :properties) :values ] #(concat partitions %))
+         (s/transform [(CLAUSE :constants) :values ] #(distinct (concat constants %))))))
+
+(defn context-name [machine-name] (keyword (str (name machine-name) "-ctx")))
 
 (defn extract-context [ir]
-    (apply dsl/eventb-context (:name ir)
-           (s/select [(s/multi-path (CLAUSE :sets)
-                                    (CLAUSE :constants)
-                                    (CLAUSE :properties))] ir)))
+  "Extracts an Event-B context from an classical B machine"
+    (->> ir
+       update-enumerated-set->partitions
+       (s/select [(s/multi-path (CLAUSE :sets)
+                                (CLAUSE :constants)
+                                (CLAUSE :properties))])
+         (apply dsl/eventb-context (context-name (:name ir)))))
+
+(defn extract-machine [ir]
+  "Extracts an Event-B machine from an classical B machine. Operations are converted to Events"
+  (let [events (apply dsl/eventb-events
+                      (mapcat op->events (s/select [(CLAUSE :operations) :values s/ALL] ir)))
+        sees (butil/bsees (context-name (:name ir)))]
+    (->> (update ir :machine-clauses concat [events sees])
+         (s/setval [(s/multi-path (CLAUSE :sets)
+                                  (CLAUSE :constants)
+                                  (CLAUSE :properties)
+                                  (CLAUSE :operations))] s/NONE))))
 
 (comment
   (require '[lisb.examples.sebastian :as seb])
 
   (def m0 (b (machine :m0
+                      (sees :c0)
                       (variables :b)
                       (operations
-                        (:foo [:a] (assign :b :a))))))
+                        (:foo [:a] (if-sub :cond (assign :b :c) (assign :b :a)))
+                        (:SET_EngineOn
+                          []
+                          (select
+                            (and (= :engineOn false) (= :keyState :KeyInsertedOnPosition))
+                            (assign
+                              :engineOn true)))
+                        ))))
 
   (def m1 (b (machine :m1
                       (sets :A :SET #{:a :d :b :c})
@@ -228,18 +272,22 @@
                       (includes :m0)
                       (operations
                        (:bar [] (|| (op-call :foo 3)
-                                    (assign :c 123)))))))
+                                    (assign :c 123)))
+                       (:ENV_Turn_EngineOn []
+                        (parallel-sub
+                         (op-call :SET_EngineOn)
+                         (if-sub
+                          (and
+                           (member? :pitmanArmUpDown :PITMAN_DIRECTION_BLINKING)
+                           (= :hazardWarningSwitchOn :switch_off))
+                          (assign :SET_BlinkersOn :extends)
+                          )))))))
 
-  (s/select [(CLAUSE :sets) :values s/ALL :id] m1)
+  (clojure.pprint/pprint (extract-machine (includes->inline m1 m0)))
+  (clojure.pprint/pprint (extract-context (includes->inline m1 m0)))
 
-  (ModelElementList. (map (fn [c] (Context. (rodin-name c)))
-                          (distinct (s/select (s/multi-path
-                                                [(CLAUSE :constants) :values s/ALL]
-                                                [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set) :elems s/ALL]) m1))))
-
-
-  (s/transform [(CLAUSE :operations) :values s/ALL] op->events (includes->inline m1 m0))
-  (s/transform [(CLAUSE :operations) :values s/ALL] op->events (includes->refinement m1 m0))
+  (extract-machine (includes->refinement m1 m0))
+  (extract-context (includes->refinement m1 m0))
 
   (clojure.pprint/pp)
 
@@ -262,7 +310,8 @@
                     )))
 
   (sub->events (eventb-event :foo)
-               (eventb (if-sub :test (assign :then 1)
+               (eventb (if-sub :test
+                               (assign :then 1)
                                (assign :else 1))))
 
   (sub->events (eventb-event :foo)

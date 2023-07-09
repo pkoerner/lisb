@@ -1,5 +1,6 @@
 (ns lisb.examples.eventb.abz2020
-  (:require [lisb.translation.eventb.util :refer [eventb]]))
+  (:require [lisb.translation.eventb.util :refer [eventb] :as util]
+            [lisb.translation.eventb.ir2eventb :refer [rodin-name]]))
 
 (def
   c0
@@ -939,5 +940,21 @@
 
 
 (comment
-  (clojure.pprint/pprint PitmanController))
 
+  (def BlinkLamps (->> "../../models/abz2020-models-master/LightModel_Rodin/ABZ2020_v4/BlinkLamps.bum"
+                       util/rodin->lisb
+                       util/lisb->ir))
+
+  (def PitmanController (->> "../../models/abz2020-models-master/LightModel_Rodin/ABZ2020_v4/PitmanController.bum"
+                       util/rodin->lisb
+                       util/lisb->ir))
+
+  (clojure.pprint/pprint PitmanController)
+
+       (map (fn [x]
+          (with-open [out (clojure.java.io/writer (str "./resources/eventb/abz2020_v4/"
+                                                       (rodin-name (:name x))
+                                                       ".edn"))]
+            (clojure.pprint/pprint x out))) PitmanController)
+
+  (clojure.pprint/pprint PitmanController))

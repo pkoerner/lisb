@@ -333,42 +333,30 @@
 (defn extract-constants
   "Gets constants from constants clause and enumerated sets"
   [ir]
-  (ModelElementList. (map (fn [c] (Context. (rodin-name c)))
+  (ModelElementList. (map (fn [c] (EventBConstant. (rodin-name c) false ""))
        (distinct (s/select (s/multi-path
                              [(CLAUSE :constants) :values s/ALL]
                              [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set) :elems s/ALL]) ir)))))
 (defn extract-axioms [ir]
+  (prn)
   (ModelElementList. (map-indexed
                        (fn [i pred] (EventBAxiom. (str "axm" i) (ir-pred->str pred) false #{}))
                        (s/select [(CLAUSE :properties) :values s/ALL] ir))))
 
 (defn extract-theorems [ir]
   (ModelElementList. (map-indexed
-                  (fn [i pred] (EventBAxiom. (str "thm" i) (ir-pred->str pred) false #{}))
+                  (fn [i pred] (EventBAxiom. (str "thm" i) (ir-pred->str pred) true #{}))
                   (s/select [(CLAUSE :theorems) :values s/ALL] ir))))
 
-(defn enumerated-set->partition [ir]
-  {:tag :partition
-   :set (:id ir)
-   :partitions (map #(set [%]) (:elems ir))})
-
-(defn extract-partitions [ir]
-(ModelElementList. (map-indexed
-                  (fn [i s] (EventBAxiom. (str "thm" i) (ir-pred->str (enumerated-set->partition s)) false #{}))
-                  (s/select [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set)] ir))))
-
 (defmethod ir->prob :context [ir]
-  (let [partitions (map enumerated-set->partition
-                        (s/select [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set)] ir))
-        clauses (:machine-clauses ir)]
+  (let [clauses (:machine-clauses ir)]
     (-> (Context. (rodin-name (:name ir)))
       (.withExtends (clause->prob :extends clauses))
       (.withSets (extract-sets ir))
       (.withConstants (extract-constants ir))
       (.withAxioms (ModelElementList.
                      (concat (extract-axioms ir)
-                             (extract-theorems ir)
-                             (extract-partitions ir)))))))
+                             (extract-theorems ir)))))))
 
 (defmethod ir->prob nil [_] nil)
 
