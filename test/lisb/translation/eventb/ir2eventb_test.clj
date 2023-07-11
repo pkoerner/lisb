@@ -88,22 +88,3 @@
     ))
 
 
-(comment
-  (ns-unmap *ns* 'm)
-  (def m (eventb (machine :hello-world
-                          (variables :x :y :hello)
-                          (invariants
-                           (in :hello bool-set)
-                           (<= :x 10)
-                           (in :y nat-set))
-                          (init
-                           (assign :x 0 :y 50)
-                           (assign :hello true))
-                          (events
-                           (event :inc (when (< :x 10)) (then (assign :x (+ :x 1))))
-                           (event :hello (then (assign :hello false)))))))
-
-  (->> m
-       ir->prob
-       .getEvents)
-  )
