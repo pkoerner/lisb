@@ -119,13 +119,18 @@
                (last clauses)))))
   )
 
+
+(defn literal? [x] (or (keyword? x) (number? x)))
+
 (defn literal-name [literal]
   (cond
     (keyword? literal) (name literal)
     :default (str literal)))
 
-(defmethod sub->events :case [base-event {:keys [expr cases]}] (mapcat
+(defmethod sub->events :case [base-event {:keys [expr cases]}]
+  (mapcat
    (fn [[case-literal sub]]
+     (assert (literal? case-literal))
      (-> base-event
          (append-name "-" (literal-name case-literal))
          (with-guards (butil/b= case-literal expr))
