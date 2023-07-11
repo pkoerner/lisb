@@ -217,11 +217,11 @@
       base-machine))
 
 (defn enumerated-set->partition [ir]
-  (dsl/eventb-partition (:id ir) (map #(set [%]) (:elems ir))))
+  (apply dsl/eventb-partition (:id ir) (map (fn [x] #{x}) (:elems ir))))
 
 (defn update-enumerated-set->partitions [ir]
   "Changes all enumerated set definition into deffered sets, and adds the definition in the properties as partition"
-  (let [partitions (map (fn [s] (dsl/eventb-partition (:id s) (map (fn [x] #{x}) (:elems s))))
+  (let [partitions (map enumerated-set->partition
                         (s/select [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set)] ir))
         constants (s/select [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set) :elems s/ALL] ir)]
     (->> ir
