@@ -32,7 +32,9 @@
 (defn optional [sym lisb]
     (when (seq lisb) (conj lisb sym)))
 
-(defmulti prob->lisb (fn [node] (class node)))
+(defmulti prob->lisb
+  "converts ProB model nodes into lisb"
+  (fn [node] (class node)))
 
 (defmethod prob->lisb EventBModel [node]
   (mapv prob->lisb (concat (.getContexts node) (.getMachines node))))
@@ -72,7 +74,7 @@
 (defn extract-inheritance [node]
   (let [inheritance (.getInheritance node)]
     (when (not= inheritance Event$Inheritance/NONE)
-      ;; We use event-refines and event-extends, because extends is already used for contexts
+      ;; using event-refines and event-extends, because extends is already used for contexts
       (list (symbol (str/lower-case (str "event-" inheritance))) (keyword (.getName (.getParentEvent node)))))))
 
 (defmethod prob->lisb Event [node]

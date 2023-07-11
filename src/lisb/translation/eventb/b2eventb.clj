@@ -8,22 +8,25 @@
   (:import [de.prob.model.eventb Event]))
 
 
-(defn- is-action? [ir]
-  (#{:assignment :becomes-element-of :becomes-such} (:tag ir)))
-
-(defn- with-guards [event & guards]
+(defn- with-guards
+  "Adds *guards* to *event*"
+  [event & guards]
   (let [old (s/select [:event-clauses s/ALL (TAG :guards) :values s/ALL] event)
         updated (apply dsl/event-when (concat guards old))
         other (s/setval [s/ALL (TAG :guards)] s/NONE (:event-clauses event))]
     (assoc event :event-clauses (conj other updated))))
 
-(defn- with-actions [event & actions]
+(defn- with-actions
+  "Adds *actions* to *event*"
+  [event & actions]
   (let [old (s/select [:event-clauses s/ALL (TAG :actions) :values s/ALL] event)
         updated (apply dsl/event-then (concat actions old))
         other (s/setval [s/ALL (TAG :actions)] s/NONE (:event-clauses event))]
     (assoc event :event-clauses (conj other updated))))
 
-(defn- append-name [event & postfixes]
+(defn- append-name
+  "Append *event* name with all *postfixes*"
+  [event & postfixes]
   (update event :name (fn [n] (keyword (apply str (name n) postfixes)))))
 
 ;; Substitutions
@@ -152,7 +155,7 @@
   [base-machine included-machine])
 
 (defn merge-clause
-  ""
+  "Merges the *clause* of *m2* into *m1*"
   [m1 m2 clause]
   (let [this (s/select [(CLAUSE clause) :values s/ALL] m1)
         other (s/select [(CLAUSE clause) :values s/ALL] m2)

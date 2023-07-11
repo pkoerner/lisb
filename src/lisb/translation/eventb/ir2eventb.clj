@@ -24,8 +24,12 @@
 (defn rodin-name [kw]
   (str/replace (name kw) #"-" "_"))
 
-(defmulti ir-expr->str (fn [ir] (or (:tag ir) (class ir))))
-(defmulti ir-pred->str :tag)
+(defmulti ir-expr->str
+  "converts expression into string"
+  (fn [ir] (or (:tag ir) (class ir))))
+(defmulti ir-pred->str
+  "converts predicate into string"
+  :tag)
 
 (defn chain-expr [op irs]
   (str/join op (map (fn [ir]
@@ -207,7 +211,9 @@
 
 ;; TODO: If more then 1 id is present no val can be a :fn-call.
 
-(defmulti ir-sub->strs :tag)
+(defmulti ir-sub->strs
+  "converts the action into string"
+  :tag)
 
 (defmethod ir-sub->strs :becomes-element-of [{:keys [ids set]}]
  [(str (str/join "," (map ir-expr->str ids)) " :: " (ir-expr->str set))])
@@ -230,11 +236,12 @@
        first))
 
 (defn extract-invariants [clauses]
+  "converts all the invariants and assertions to EventBInvariant objects, where assertions are marked as theorems"
   (let [invariant (map-indexed
                    (fn [i pred] (EventBInvariant. (str "inv" i) (ir-pred->str pred) false #{}))
                    (:values (find-clause :invariants clauses)))
         theorems  (map-indexed
-                   (fn [i pred] (EventBInvariant. (str "thm" i) (ir-pred->str pred) false #{}))
+                   (fn [i pred] (EventBInvariant. (str "thm" i) (ir-pred->str pred) true #{}))
                    (:values (find-clause :assertions clauses)))]
     (ModelElementList. (concat invariant theorems))))
 
@@ -252,11 +259,14 @@
     (Event. name status inheritance)))
 
 
-(defmulti ir->prob :tag)
+(defmulti ir->prob
+  "converts IR into nodes of the ProB Model"
+  :tag)
 
 (defn clause->prob [tag clauses] (ir->prob (find-clause tag clauses)))
 
 (defn extract-events [clauses]
+  "converts all events and the initialisation to ProB Event objects"
   (let [events (or (clause->prob :events clauses) ())
         init   (find-clause :init clauses)]
     (ModelElementList. (if init
