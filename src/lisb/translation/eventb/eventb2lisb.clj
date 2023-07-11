@@ -1,5 +1,5 @@
 (ns lisb.translation.eventb.eventb2lisb
-  (:require [lisb.translation.ast2lisb]
+  (:require [lisb.translation.ast2lisb :refer [ast->lisb]]
             [lisb.translation.lisb2ir :refer [b bop]]
             [clojure.string :as str])
   (:import de.prob.MainModule
@@ -60,13 +60,13 @@
       (when (seq events) (list* 'events (map prob->lisb events))))))
 
 (defmethod prob->lisb EventBVariable [node]
-  (-> node .getExpression .getAst prob->lisb))
+  (-> node .getExpression .getAst ast->lisb))
 
 (defmethod prob->lisb EventBInvariant [node]
-  (-> node .getPredicate .getAst prob->lisb))
+  (-> node .getPredicate .getAst ast->lisb))
 
 (defmethod prob->lisb Variant [node]
-  (-> node .getExpression .getAst prob->lisb))
+  (-> node .getExpression .getAst ast->lisb))
 
 (defmethod prob->lisb Event$EventType [node]
   (keyword (str/lower-case (str node))))
@@ -88,19 +88,19 @@
       (optional 'then (prob->lisb (.getActions node))))))
 
 (defmethod prob->lisb EventParameter [node]
-  (-> node .getExpression .getAst prob->lisb))
+  (-> node .getExpression .getAst ast->lisb))
 
 (defmethod prob->lisb EventBGuard [node]
-  (-> node .getPredicate .getAst prob->lisb))
+  (-> node .getPredicate .getAst ast->lisb))
 
 (defmethod prob->lisb Witness [node]
-  (-> node .getPredicate .getAst prob->lisb))
+  (-> node .getPredicate .getAst ast->lisb))
 
 (defmethod prob->lisb EventBAction [node]
-  (-> node .getCode .getAst prob->lisb))
+  (-> node .getCode .getAst ast->lisb))
 
 (defmethod prob->lisb EventB [node]
-  (-> node .getAst prob->lisb ))
+  (-> node .getAst ast->lisb))
 
 ;; Context
 
@@ -119,12 +119,7 @@
   (name-as-keyword node))
 
 (defmethod prob->lisb EventBAxiom [node]
-  (-> node .getPredicate .getAst prob->lisb))
-
-;; Predicates & Expression
-
-(defmethod prob->lisb :default [node]
-  (lisb.translation.ast2lisb/ast->lisb node))
+  (-> node .getPredicate .getAst ast->lisb))
 
 ;; Misc
 
