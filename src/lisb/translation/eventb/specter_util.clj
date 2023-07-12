@@ -3,8 +3,8 @@
 
 (defn TAG [t]  #(= (:tag %) t))
 (defn NAME [n]  #(= (:name %) n))
-(def CLAUSES (if-path (must :ir)
-                        [:ir :clauses]
+(def CLAUSES (if-path (must :clauses)
+                        [:clauses]
                         [:machine-clauses]))
 (defn CLAUSE [name] (path [CLAUSES ALL (TAG name)]))
 

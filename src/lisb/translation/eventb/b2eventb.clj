@@ -8,19 +8,19 @@
   (:import [de.prob.model.eventb Event]))
 
 
-(defn- with-guards
+(defn- add-guards
   "Adds *guards* to *event*"
   [event & guards]
   (let [old (s/select [:clauses s/ALL (TAG :guards) :values s/ALL] event)
-        updated (apply dsl/event-when (concat guards old))
+        updated (apply dsl/event-when (concat old guards))
         other (s/setval [s/ALL (TAG :guards)] s/NONE (:clauses event))]
     (assoc event :clauses (conj other updated))))
 
-(defn- with-actions
+(defn- add-actions
   "Adds *actions* to *event*"
   [event & actions]
   (let [old (s/select [:clauses s/ALL (TAG :actions) :values s/ALL] event)
-        updated (apply dsl/event-then (concat actions old))
+        updated (apply dsl/event-then (concat old actions))
         other (s/setval [s/ALL (TAG :actions)] s/NONE (:clauses event))]
     (assoc event :clauses (conj other updated))))
 
@@ -38,20 +38,20 @@
   (fn [base-event ir & args] (:tag ir)))
 
 (defmethod sub->events :assignment [base-event ir]
-  [(with-actions base-event ir)])
+  [(add-actions base-event ir)])
 
 (defmethod sub->events :becomes-element-of [base-event ir]
-  [(with-actions base-event ir)])
+  [(add-actions base-event ir)])
 
 (defmethod sub->events :becomes-such [base-event ir]
-  [(with-actions base-event ir)])
+  [(add-actions base-event ir)])
 
 (defmethod sub->events :parallel-sub [base-event ir]
   (reduce (fn [events sub] (mapcat #(sub->events % sub) events))
           [base-event]  (:subs ir)))
 
 (defmethod sub->events :precondition [base-event ir]
-    (-> (apply with-guards base-event
+    (-> (apply add-guards base-event
              (if (= (-> ir :pred :tag) :and)
                      (-> ir :pred :preds)
                      [(:pred ir)]))
@@ -61,7 +61,7 @@
   (assert (not (s/selected-any? [:clauses s/ALL (TAG :event-reference)] base-event))
           "An event can only refine one event")
   (map-indexed (fn [i event-name]
-         (-> (apply with-guards base-event (map butil/b= arg-names arg-vals))
+         (-> (apply add-guards base-event (map butil/b= arg-names arg-vals))
              (append-name "-" i)
             (update :clauses conj (dsl/event-extends event-name))))
        event-names))
@@ -70,11 +70,11 @@
   (concat
    (-> base-event
        (append-name "-then")
-       (with-guards (:cond ir))
+       (add-guards (:cond ir))
        (sub->events (:then ir)))
     (when (:else ir)
       (-> base-event (append-name "-else")
-        (with-guards (bnot (:cond ir)))
+        (add-guards (bnot (:cond ir)))
         (sub->events (:else ir))))))
 
 (defmethod sub->events :cond [base-event {:keys [clauses]}]
@@ -87,13 +87,13 @@
     (concat (apply concat
                  (map-indexed
                   (fn [i [guards sub]]
-                      (-> (apply with-guards base-event guards)
+                      (-> (apply add-guards base-event guards)
                          (append-name "-cond" i)
                          (sub->events sub)))
                   pairs))
           (when (odd? (count clauses))
             (sub->events
-             (apply with-guards
+             (apply add-guards
                     (append-name base-event "-condelse")
                     (map bnot (take-nth 2 (butlast clauses))))
              (last clauses))))))
@@ -101,19 +101,19 @@
 (defmethod sub->events :select [base-event {:keys [clauses]}]
   (if (= (count clauses) 2)
     (-> base-event
-        (with-guards (first clauses))
+        (add-guards (first clauses))
         (sub->events (second clauses)))
     (concat (apply concat
                    (map-indexed
                     (fn [i [guard sub]]
                       (-> base-event
                           (append-name  "-select" i)
-                          (with-guards guard)
+                          (add-guards guard)
                           (sub->events sub)))
                     (partition 2 clauses)))
             (when (odd? (count clauses))
               (sub->events
-               (apply with-guards
+               (apply add-guards
                       (append-name base-event "-selectelse")
                       (map bnot (take-nth 2 (butlast clauses))))
                (last clauses)))))
@@ -128,15 +128,22 @@
     :default (str literal)))
 
 (defmethod sub->events :case [base-event {:keys [expr cases]}]
-  (mapcat
-   (fn [[case-literal sub]]
-     (assert (literal? case-literal))
+  (concat
+   (mapcat
+    (fn [[case-literal sub]]
+      (assert (literal? case-literal))
+      (-> base-event
+          (append-name "-" (literal-name case-literal))
+          (add-guards (butil/b= case-literal expr))
+          (sub->events sub)))
+    (partition 2 cases))
+   (when (odd? (count cases))
      (-> base-event
-         (append-name "-" (literal-name case-literal))
-         (with-guards (butil/b= case-literal expr))
-         (sub->events sub)))
-   (partition 2 cases))
+         (append-name "-caseelse")
+         (add-guards (butil/bnot (butil/bmember? expr (set (take-nth 2 (butlast cases))))))
+         (sub->events (last cases)))))
   )
+
 
 (defn op->events [ir]
   (sub->events
