@@ -297,15 +297,15 @@
                        (fn [i code] (EventBAction. (str "act" i) code #{}))
                        (mapcat ir-sub->strs values))))
 
-(defmethod ir->prob :event [{:keys [name event-clauses]}]
-  (let [parent-event (find-clause :event-reference event-clauses)
+(defmethod ir->prob :event [{:keys [name clauses]}]
+  (let [parent-event (find-clause :event-reference clauses)
         e (-> (new-event (rodin-name name)
-                     (:value (find-clause :status event-clauses))
+                     (:value (find-clause :status clauses))
                      (:type parent-event))
-              (.withParameters (clause->prob :args event-clauses))
-              (.withGuards (clause->prob :guards event-clauses))
-              (.withWitnesses (clause->prob :witnesses event-clauses))
-              (.withActions (clause->prob :actions event-clauses)))]
+              (.withParameters (clause->prob :args clauses))
+              (.withGuards (clause->prob :guards clauses))
+              (.withWitnesses (clause->prob :witnesses clauses))
+              (.withActions (clause->prob :actions clauses)))]
     (if (:value parent-event)
       ;;TODO: get actual event
       (.withParentEvent e (new-event (rodin-name (:value parent-event)) :ordinary :none))

@@ -11,18 +11,18 @@
 (defn- with-guards
   "Adds *guards* to *event*"
   [event & guards]
-  (let [old (s/select [:event-clauses s/ALL (TAG :guards) :values s/ALL] event)
+  (let [old (s/select [:clauses s/ALL (TAG :guards) :values s/ALL] event)
         updated (apply dsl/event-when (concat guards old))
-        other (s/setval [s/ALL (TAG :guards)] s/NONE (:event-clauses event))]
-    (assoc event :event-clauses (conj other updated))))
+        other (s/setval [s/ALL (TAG :guards)] s/NONE (:clauses event))]
+    (assoc event :clauses (conj other updated))))
 
 (defn- with-actions
   "Adds *actions* to *event*"
   [event & actions]
-  (let [old (s/select [:event-clauses s/ALL (TAG :actions) :values s/ALL] event)
+  (let [old (s/select [:clauses s/ALL (TAG :actions) :values s/ALL] event)
         updated (apply dsl/event-then (concat actions old))
-        other (s/setval [s/ALL (TAG :actions)] s/NONE (:event-clauses event))]
-    (assoc event :event-clauses (conj other updated))))
+        other (s/setval [s/ALL (TAG :actions)] s/NONE (:clauses event))]
+    (assoc event :clauses (conj other updated))))
 
 (defn- append-name
   "Append *event* name with all *postfixes*"
@@ -58,12 +58,12 @@
       (sub->events (first (:subs ir))))) ;; there should be only one sub
 
 (defmethod sub->events :op-call->extends [base-event {:keys [event-names arg-names arg-vals]}]
-  (assert (not (s/selected-any? [:event-clauses s/ALL (TAG :event-reference)] base-event))
+  (assert (not (s/selected-any? [:clauses s/ALL (TAG :event-reference)] base-event))
           "An event can only refine one event")
   (map-indexed (fn [i event-name]
          (-> (apply with-guards base-event (map butil/b= arg-names arg-vals))
              (append-name "-" i)
-            (update :event-clauses conj (dsl/event-extends event-name))))
+            (update :clauses conj (dsl/event-extends event-name))))
        event-names))
 
 (defmethod sub->events :if-sub [base-event ir]

@@ -67,7 +67,7 @@
   ([name & clauses]
   {:tag :event
    :name name
-   :event-clauses clauses}))
+   :clauses clauses}))
 
 ;; Other
 
