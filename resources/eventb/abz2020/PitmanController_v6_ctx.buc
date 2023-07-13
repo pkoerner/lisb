@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<org.eventb.core.contextFile org.eventb.core.configuration='org.eventb.core.fwd' version='3' org.eventb.core.comment=''>
+  <org.eventb.core.extendsContext name='n226' org.eventb.core.target='BlinkLamps_v3_ctx' />
+  <org.eventb.core.carrierSet name='n227' org.eventb.core.identifier='PITMAN_POSITION' org.eventb.core.comment='' />
+  <org.eventb.core.carrierSet name='n228' org.eventb.core.identifier='SWITCH_STATUS' org.eventb.core.comment='' />
+  <org.eventb.core.carrierSet name='n229' org.eventb.core.identifier='KEY_STATE' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n230' org.eventb.core.identifier='pitman_direction' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n231' org.eventb.core.identifier='continuousBlink' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n232' org.eventb.core.identifier='PITMAN_DIRECTION_BLINKING' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n233' org.eventb.core.identifier='PITMAN_TIP_BLINKING' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n234' org.eventb.core.identifier='Neutral' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n235' org.eventb.core.identifier='Downward5' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n236' org.eventb.core.identifier='Downward7' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n237' org.eventb.core.identifier='Upward5' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n238' org.eventb.core.identifier='Upward7' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n239' org.eventb.core.identifier='switch_on' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n240' org.eventb.core.identifier='switch_off' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n241' org.eventb.core.identifier='NoKeyInserted' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n242' org.eventb.core.identifier='KeyInserted' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n243' org.eventb.core.identifier='KeyInsertedOnPosition' org.eventb.core.comment='' />
+  <org.eventb.core.axiom name='n244' org.eventb.core.label='axm0' org.eventb.core.predicate='partition(PITMAN_POSITION,{Neutral},{Downward5},{Downward7},{Upward5},{Upward7})' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+  <org.eventb.core.axiom name='n245' org.eventb.core.label='axm1' org.eventb.core.predicate='partition(SWITCH_STATUS,{switch_on},{switch_off})' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+  <org.eventb.core.axiom name='n246' org.eventb.core.label='axm2' org.eventb.core.predicate='partition(KEY_STATE,{NoKeyInserted},{KeyInserted},{KeyInsertedOnPosition})' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+  <org.eventb.core.axiom name='n247' org.eventb.core.label='axm3' org.eventb.core.predicate='pitman_direction={Upward7↦right_blink,Downward7↦left_blink,Downward5↦left_blink,Upward5↦right_blink,Neutral↦neutral_blink}' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+  <org.eventb.core.axiom name='n248' org.eventb.core.label='axm4' org.eventb.core.predicate='PITMAN_TIP_BLINKING={Downward5,Upward5}' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+  <org.eventb.core.axiom name='n249' org.eventb.core.label='axm5' org.eventb.core.predicate='PITMAN_DIRECTION_BLINKING={Upward7,Downward7}' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+  <org.eventb.core.axiom name='n250' org.eventb.core.label='axm6' org.eventb.core.predicate='continuousBlink=−1' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+</org.eventb.core.contextFile>

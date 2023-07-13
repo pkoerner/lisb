@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.poFile org.eventb.core.poStamp="0">
+    <org.eventb.core.poPredicateSet name="ABSHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="DIRECTIONS" org.eventb.core.type="ℙ(DIRECTIONS)"/>
+        <org.eventb.core.poIdentifier name="neutral_blink" org.eventb.core.type="DIRECTIONS"/>
+        <org.eventb.core.poIdentifier name="left_blink" org.eventb.core.type="DIRECTIONS"/>
+        <org.eventb.core.poIdentifier name="BLINK_DIRECTION" org.eventb.core.type="ℙ(DIRECTIONS)"/>
+        <org.eventb.core.poIdentifier name="LAMP_STATUS" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poIdentifier name="continuousBlink" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="cycleMaxLampStatus" org.eventb.core.type="ℙ(BOOL×ℤ)"/>
+        <org.eventb.core.poIdentifier name="lamp_off" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="right_blink" org.eventb.core.type="DIRECTIONS"/>
+        <org.eventb.core.poIdentifier name="lamp_on" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="BLINK_CYCLE_COUNTER" org.eventb.core.type="ℙ(ℤ)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="ALLHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3_ctx.bpo|org.eventb.core.poFile#BlinkLamps_v3_ctx|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="partition(DIRECTIONS,{left_blink},{right_blink},{neutral_blink})" org.eventb.core.source="/abz2020/BlinkLamps_v3_ctx.buc|org.eventb.core.contextFile#BlinkLamps_v3_ctx|org.eventb.core.axiom#n217"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="BLINK_DIRECTION={left_blink,right_blink}" org.eventb.core.source="/abz2020/BlinkLamps_v3_ctx.buc|org.eventb.core.contextFile#BlinkLamps_v3_ctx|org.eventb.core.axiom#n218"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="LAMP_STATUS={0,100}" org.eventb.core.source="/abz2020/BlinkLamps_v3_ctx.buc|org.eventb.core.contextFile#BlinkLamps_v3_ctx|org.eventb.core.axiom#n219"/>
+        <org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="continuousBlink=−1" org.eventb.core.source="/abz2020/BlinkLamps_v3_ctx.buc|org.eventb.core.contextFile#BlinkLamps_v3_ctx|org.eventb.core.axiom#n220"/>
+        <org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="lamp_off=0" org.eventb.core.source="/abz2020/BlinkLamps_v3_ctx.buc|org.eventb.core.contextFile#BlinkLamps_v3_ctx|org.eventb.core.axiom#n221"/>
+        <org.eventb.core.poPredicate name="PRD5" org.eventb.core.predicate="lamp_on=100" org.eventb.core.source="/abz2020/BlinkLamps_v3_ctx.buc|org.eventb.core.contextFile#BlinkLamps_v3_ctx|org.eventb.core.axiom#n222"/>
+        <org.eventb.core.poPredicate name="PRD6" org.eventb.core.predicate="BLINK_CYCLE_COUNTER=−1 ‥ 3" org.eventb.core.source="/abz2020/BlinkLamps_v3_ctx.buc|org.eventb.core.contextFile#BlinkLamps_v3_ctx|org.eventb.core.axiom#n223"/>
+        <org.eventb.core.poPredicate name="PRD7" org.eventb.core.predicate="cycleMaxLampStatus∈BOOL → LAMP_STATUS" org.eventb.core.source="/abz2020/BlinkLamps_v3_ctx.buc|org.eventb.core.contextFile#BlinkLamps_v3_ctx|org.eventb.core.axiom#n224"/>
+        <org.eventb.core.poPredicate name="PRD8" org.eventb.core.predicate="cycleMaxLampStatus={FALSE ↦ lamp_off,TRUE ↦ lamp_on}" org.eventb.core.source="/abz2020/BlinkLamps_v3_ctx.buc|org.eventb.core.contextFile#BlinkLamps_v3_ctx|org.eventb.core.axiom#n225"/>
+    </org.eventb.core.poPredicateSet>
+</org.eventb.core.poFile>
