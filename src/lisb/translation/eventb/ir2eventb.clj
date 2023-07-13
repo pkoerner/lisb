@@ -348,7 +348,6 @@
                              [(CLAUSE :constants) :values s/ALL]
                              [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set) :elems s/ALL]) ir)))))
 (defn extract-axioms [ir]
-  (prn)
   (ModelElementList. (map-indexed
                        (fn [i pred] (EventBAxiom. (str "axm" i) (ir-pred->str pred) false #{}))
                        (s/select [(CLAUSE :properties) :values s/ALL] ir))))
@@ -357,6 +356,10 @@
   (ModelElementList. (map-indexed
                   (fn [i pred] (EventBAxiom. (str "thm" i) (ir-pred->str pred) true #{}))
                   (s/select [(CLAUSE :theorems) :values s/ALL] ir))))
+
+(defmethod ir->prob :extends [ir]
+  ;;TODO: get real context
+  (ModelElementList. (list (Context. (rodin-name (:name (first (:values ir))))))))  ;;there should be only one
 
 (defmethod ir->prob :context [ir]
   (let [clauses (:machine-clauses ir)]

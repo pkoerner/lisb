@@ -162,9 +162,12 @@
   (let [replacement (into {} (map vector (:args op) values))]
     (:body (s/transform [:body (s/walker replacement)] replacement op)))) ;;FIXME: keys and tag value can also be replaced
 
-(defn extend-op-call
-  "Generates an extend reference for an op-call"
-  [base-machine included-machine])
+(defn update-clause-values [ir clause f & args]
+  (update
+   (s/setval [(CLAUSE clause)] s/NONE ir)
+   :machine-clauses
+   conj
+   {:tag clause :values (apply f (s/select [(CLAUSE clause) :values s/ALL] ir) args)}))
 
 (defn merge-clause
   "Merges the *clause* of *m2* into *m1*"
@@ -177,32 +180,37 @@
       (update m1 :machine-clauses conj {:tag clause :values values})
       m1)))
 
+(defn remove-empty-clauses [ir] (s/setval [CLAUSES s/ALL #(empty? (:values %))] s/NONE ir))
+
 (defn includes->inline
   "Inline all op-calls to included-machine in the base-machine only.
   Remove included-machine from the machine references"
   [base-machine included-machine]
   (let [operations (into {} (map (fn [op] [(:name op) op]))
-                         (s/select [(CLAUSE :operations) :values s/ALL] included-machine))]
+                         (s/select [(CLAUSE :operations) :values s/ALL] included-machine))
+        promoted (set (s/select [(CLAUSE :promotes) :values s/ALL operations] base-machine))]
     (if
      (s/selected-any? [(INCLUDES (:name included-machine))] base-machine)
-      (->> (-> base-machine
-               (merge-clause included-machine :variables)
-               (merge-clause included-machine :sets)
-               (merge-clause included-machine :invariants)
-               (merge-clause included-machine :constants)
-               (merge-clause included-machine :properties)
-               (merge-clause included-machine :init)
-               )
-           (s/setval [(INCLUDES (:name included-machine))] s/NONE)
-           (s/transform (s/walker (and (TAG :op-call) #(operations (:op %))))
-                        (fn [call]
-                          (replace-args-in-body
-                           (operations (:op call))
-                           (:args call))
-                          )))
+      (-> (->> base-machine
+               (s/setval [(INCLUDES (:name included-machine))] s/NONE)
+               (s/setval [(CLAUSE :promotes) :values s/ALL promoted] s/NONE)
+               (s/transform (s/walker (and (TAG :op-call) #(operations (:op %))))
+                            (fn [call]
+                              (replace-args-in-body
+                               (operations (:op call))
+                               (:args call)))))
+          (merge-clause included-machine :variables)
+          (merge-clause included-machine :sets)
+          (merge-clause included-machine :invariants)
+          (merge-clause included-machine :constants)
+          (merge-clause included-machine :properties)
+          (merge-clause included-machine :init)
+          (update-clause-values :operations concat (map operations promoted))
+          remove-empty-clauses)
       base-machine)))
 
 (defn OP [n] (s/path [(CLAUSE :operations) :values s/ALL (NAME n)]))
+
 
 (defn op-call->extends [included-machine {:keys [op args] :as call}]
   (let [operation (s/select-any (OP op) included-machine)]
@@ -212,7 +220,6 @@
        :arg-vals args
        :arg-names (:args operation)
        :event-names (map :name (op->events operation))})))
-
 
 (defn includes->refinement
   "If the machine only includes one other convert the inclusion into a refinement.
@@ -228,121 +235,38 @@
            (s/transform (s/walker (TAG :op-call)) (partial op-call->extends included-machine)))
       base-machine))
 
-(defn enumerated-set->partition [ir]
-  (apply dsl/eventb-partition (:id ir) (map (fn [x] #{x}) (:elems ir))))
-
-(defn update-enumerated-set->partitions [ir]
-  "Changes all enumerated set definition into deffered sets, and adds the definition in the properties as partition"
-  (let [partitions (map enumerated-set->partition
-                        (s/select [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set)] ir))
-        constants (s/select [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set) :elems s/ALL] ir)]
-    (->> ir
-         (s/transform [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set)]
-                      (fn [s] (butil/bdeferred-set (:id s))))
-         (s/transform [(CLAUSE :properties) :values ] #(concat partitions %))
-         (s/transform [(CLAUSE :constants) :values ] #(distinct (concat constants %))))))
-
 (defn context-name [machine-name] (keyword (str (name machine-name) "-ctx")))
 
 (defn extract-context [ir]
   "Extracts an Event-B context from an classical B machine"
-    (->> ir
-       update-enumerated-set->partitions
-       (s/select [(s/multi-path (CLAUSE :sets)
-                                (CLAUSE :constants)
-                                (CLAUSE :properties))])
-         (apply dsl/eventb-context (context-name (:name ir)))))
+  (let [partitions (map (fn [ir]
+                          (apply dsl/eventb-partition (:id ir) (map (fn [x] #{x}) (:elems ir))))
+                        (s/select [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set)] ir))
+        properties (s/select [(CLAUSE :properties) :values s/ALL] ir)
+        constants (s/select [(s/multi-path
+                             [(CLAUSE :constants) :values]
+                             [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set) :elems]) s/ALL]
+                            ir)]
+    (->> (dsl/eventb-context (context-name (:name ir))
+                             (if (= :refinement (:tag ir))
+                               (butil/bextends (context-name (:abstract-machine-name ir)))
+                               {:tag :extends :values nil})
+                             (apply butil/bsets (map butil/bdeferred-set (s/select [(CLAUSE :sets) :values s/ALL :id] ir)))
+                             (apply butil/bconstants constants)
+                             (apply butil/bproperties (concat partitions properties)))
+         remove-empty-clauses)))
+
 
 (defn extract-machine [ir]
   "Extracts an Event-B machine from an classical B machine. Operations are converted to Events"
   (let [events (apply dsl/eventb-events
                       (mapcat op->events (s/select [(CLAUSE :operations) :values s/ALL] ir)))
         sees (butil/bsees (context-name (:name ir)))]
-    (->> (update ir :machine-clauses concat [events sees])
-         (s/setval [(s/multi-path (CLAUSE :sets)
-                                  (CLAUSE :constants)
-                                  (CLAUSE :properties)
-                                  (CLAUSE :operations))] s/NONE))))
-
-(comment
-  (require '[lisb.examples.sebastian :as seb])
-
-  (def m0 (b (machine :m0
-                      (sees :c0)
-                      (variables :b)
-                      (operations
-                        (:foo [:a] (if-sub :cond (assign :b :c) (assign :b :a)))
-                        (:SET_EngineOn
-                          []
-                          (select
-                            (and (= :engineOn false) (= :keyState :KeyInsertedOnPosition))
-                            (assign
-                              :engineOn true)))
-                        ))))
-
-  (def m1 (b (machine :m1
-                      (sets :A :SET #{:a :d :b :c})
-                      (constants :d)
-                      (properties (= :a 3))
-                      (includes :m0)
-                      (operations
-                       (:bar [] (|| (op-call :foo 3)
-                                    (assign :c 123)))
-                       (:ENV_Turn_EngineOn []
-                        (parallel-sub
-                         (op-call :SET_EngineOn)
-                         (if-sub
-                          (and
-                           (member? :pitmanArmUpDown :PITMAN_DIRECTION_BLINKING)
-                           (= :hazardWarningSwitchOn :switch_off))
-                          (assign :SET_BlinkersOn :extends)
-                          )))))))
-
-  (clojure.pprint/pprint (extract-machine (includes->inline m1 m0)))
-  (clojure.pprint/pprint (extract-context (includes->inline m1 m0)))
-
-  (extract-machine (includes->refinement m1 m0))
-  (extract-context (includes->refinement m1 m0))
-
-  (clojure.pprint/pp)
-
-  (sub->events (eventb-event :foo)
-               (b (|| (assign :a 1)
-                      (assign :b 2)
-                      (if-sub :cond1
-                              (assign :c 1)
-                              (assign :d 1))
-                      (if-sub :cond2
-                              (assign :e 1)
-                              (assign :f 1)))))
-
-  (sub->events (eventb-event :foo)
-               (b (case :x
-                    1 (assign :y 2)
-                    2 (assign :y 3)
-                    :eof (assign :y 4)
-                    4 (assign :y 5)
-                    )))
-
-  (sub->events (eventb-event :foo)
-               (eventb (if-sub :test
-                               (assign :then 1)
-                               (assign :else 1))))
-
-  (sub->events (eventb-event :foo)
-               (eventb (select :cond1 (assign :a 1)
-                               :cond2 (assign :a 1)
-                               (assign :else 42))))
-
-  (sub->events (eventb-event :foo)
-               (eventb (select :cond1 (assign :a 1)
-                               :cond2 (assign :a 1)
-                               :cond3 (assign :a 1)
-                               :cond4 (if-sub :cond
-                                              (assign :then 1)
-                                              (if-sub :cond-2
-                                                      (assign :else 1)
-                                                      (assign :else 2))))))
-
-  )
+    (->> ir
+         (s/select [(s/multi-path
+                     (CLAUSE :invariants)
+                     (CLAUSE :variables)
+                     (CLAUSE :assertions))])
+         (apply dsl/eventb-machine (:name ir) sees events)
+         remove-empty-clauses)))
 
