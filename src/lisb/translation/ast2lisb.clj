@@ -184,7 +184,7 @@
              ATruthPredicate
              ADescriptionExpression ADescriptionPredicate ALabelPredicate
              AOperationReference
-             AMachineClauseParseUnit AUsesMachineClause AExtendsMachineClause AMachineReference AIncludesMachineClause APromotesMachineClause AOpSubstitution ARefinementMachineParseUnit AImplementationMachineParseUnit AModelMachineVariant ASystemMachineVariant ASeesMachineClause ACaseSubstitution ACaseOrSubstitution ASubstitutionDefinitionDefinition PDefinition TDefLiteralPredicate TDefLiteralSubstitution)
+             AMachineClauseParseUnit AUsesMachineClause AExtendsMachineClause AMachineReferenceNoParams AMachineReference AIncludesMachineClause APromotesMachineClause AOpSubstitution ARefinementMachineParseUnit AImplementationMachineParseUnit AModelMachineVariant ASystemMachineVariant ASeesMachineClause ACaseSubstitution ACaseOrSubstitution ASubstitutionDefinitionDefinition PDefinition TDefLiteralPredicate TDefLiteralSubstitution)
            (java.util LinkedList)))
 
 (declare ast->lisb read-bmachine)
@@ -291,6 +291,10 @@
 
 (defmethod ast->lisb AIncludesMachineClause [node]
   (concat-last 'includes (.getMachineReferences node)))
+
+(defmethod ast->lisb AMachineReferenceNoParams [node]
+  (ast->lisb (first (.getMachineName node))))
+
 (defmethod ast->lisb AMachineReference [node]
   (let [name (ast->lisb (first (.getMachineName node))) ; there should be exact one identifier as name!
         parameters (map ast->lisb (.getParameters node))]
@@ -466,7 +470,7 @@
     (list '<-- returns (concat-last 'op-call op params))))
 
 (defmethod ast->lisb AOperationReference [node]
-  (list 'op-call (ast->lisb (last (.getOperationName node)))))
+  (ast->lisb (last (.getOperationName node))))
 
 ;;; if-then-else
 

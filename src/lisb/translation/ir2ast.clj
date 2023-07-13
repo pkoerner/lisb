@@ -177,11 +177,12 @@
                                                PExpression
                                                PPredicate
                                                POperation
+                                               AOperationReference
                                                ADefinitionFileParseUnit
                                                AParseUnitDefinitionParseUnit
                                                PMachineClause
                                                PSubstitution
-                                               PDefinition AExtendsMachineClause AIncludesMachineClause AMachineReference AUsesMachineClause APromotesMachineClause AOpSubstitution ASystemMachineVariant AModelMachineVariant ARefinementMachineParseUnit AImplementationMachineParseUnit ASeesMachineClause ACaseOrSubstitution ACaseSubstitution AExpressionDefinitionDefinition APredicateDefinitionDefinition ASubstitutionDefinitionDefinition TDefLiteralSubstitution TDefLiteralPredicate AFileDefinitionDefinition)))
+                                               PDefinition AExtendsMachineClause AIncludesMachineClause AMachineReferenceNoParams AMachineReference AUsesMachineClause APromotesMachineClause AOpSubstitution ASystemMachineVariant AModelMachineVariant ARefinementMachineParseUnit AImplementationMachineParseUnit ASeesMachineClause ACaseOrSubstitution ACaseSubstitution AExpressionDefinitionDefinition APredicateDefinitionDefinition ASubstitutionDefinitionDefinition TDefLiteralSubstitution TDefLiteralPredicate AFileDefinitionDefinition)))
 
 
 (declare ir->ast-node)
@@ -416,18 +417,25 @@
 
 (defmethod ir-node->ast-node :uses [ir-node]
   (s/assert (s/keys :req-un [::values]) ir-node)
-  (AUsesMachineClause. (ir-node-values->ast ir-node)))
+  (AUsesMachineClause. (map (fn [x] (if (keyword? x)
+                                      (AMachineReferenceNoParams.
+                                       (list (TIdentifierLiteral. (name x))))
+                                      (ir-node->ast-node x))) (:values ir-node))))
 
 (defmethod ir-node->ast-node :includes [ir-node]
   (s/assert (s/keys :req-un [::values]) ir-node)
   (AIncludesMachineClause. (ir-node-values->ast ir-node)))
+
 (defmethod ir-node->ast-node :machine-reference [ir-node]
   (s/assert (s/keys :req-un [::name ::args]) ir-node)
   (AMachineReference. [(TIdentifierLiteral. (name (:name ir-node)))] (map ir->ast-node (:args ir-node))))
 
 (defmethod ir-node->ast-node :sees [ir-node]
   (s/assert (s/keys :req-un [::values]) ir-node)
-  (ASeesMachineClause. (ir-node-values->ast ir-node)))
+  (ASeesMachineClause. (map (fn [x] (if (keyword? x)
+                                      (AMachineReferenceNoParams.
+                                       (list (TIdentifierLiteral. (name x))))
+                                      (ir-node->ast-node x))) (:values ir-node))))
 
 (defmethod ir-node->ast-node :extends [ir-node]
   (s/assert (s/keys :req-un [::values]) ir-node)
@@ -435,7 +443,8 @@
 
 (defmethod ir-node->ast-node :promotes [ir-node]
   (s/assert (s/keys :req-un [::values]) ir-node)
-  (APromotesMachineClause. (ir-node-values->ast ir-node)))
+  (APromotesMachineClause. (map (fn [x] (AOperationReference.
+                                          (list (TIdentifierLiteral. (name x))))) (:values ir-node))))
 
 ;; machine sections
 
