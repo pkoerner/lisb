@@ -1,0 +1,61 @@
+(machine
+ (:GenericTimersMC :TIMERS)
+ (variables :curDeadlines)
+ (invariants (member? :curDeadlines (+-> :TIMERS natural-set)))
+ (init (assign :curDeadlines #{}))
+ (operations
+  (:AbsoluteSetDeadline
+   [:timer :deadline]
+   (pre
+    (and (member? :timer :TIMERS) (member? :deadline natural-set))
+    (assign (fn-call :curDeadlines :timer) :deadline)))
+  (:AddDeadline
+   [:timer :deadline]
+   (pre
+    (and (member? :timer :TIMERS) (member? :deadline natural-set))
+    (assign (fn-call :curDeadlines :timer) :deadline)))
+  (:IncreaseTime
+   [:delta]
+   (select
+    (and
+     (member? :delta natural-set)
+     (=>
+      (not= :curDeadlines #{})
+      (<= :delta (min (ran :curDeadlines)))))
+    (assign
+     :curDeadlines
+     (lambda
+      [:x]
+      (member? :x (dom :curDeadlines))
+      (- (fn-call :curDeadlines :x) :delta)))))
+  (:IncreaseTimeUntilDeadline
+   [:timer :delta]
+   (select
+    (and
+     (member? :delta natural-set)
+     (member? :timer (dom :curDeadlines))
+     (= :delta (min (ran :curDeadlines)))
+     (= :delta (fn-call :curDeadlines :timer)))
+    (assign
+     :curDeadlines
+     (lambda
+      [:x]
+      (member? :x (set- (dom :curDeadlines) #{:timer}))
+      (- (fn-call :curDeadlines :x) :delta)))))
+  (:IncreaseTimeUntilCyclicDeadline
+   [:timer :delta :newDelta]
+   (select
+    (and
+     (member? :delta natural-set)
+     (member? :timer (dom :curDeadlines))
+     (= :delta (fn-call :curDeadlines :timer))
+     (= :delta (min (ran :curDeadlines)))
+     (member? :newDelta natural-set))
+    (assign
+     :curDeadlines
+     (union
+      (lambda
+       [:x]
+       (member? :x (set- (dom :curDeadlines) #{:timer}))
+       (- (fn-call :curDeadlines :x) :delta))
+      #{(|-> :timer :newDelta)}))))))

@@ -1,0 +1,133 @@
+(machine
+ :BlinkLamps_v3
+ (sets
+  (enumerated-set :DIRECTIONS :left_blink :right_blink :neutral_blink))
+ (constants
+  :BLINK_DIRECTION
+  :LAMP_STATUS
+  :lamp_on
+  :lamp_off
+  :continuousBlink
+  :BLINK_CYCLE_COUNTER
+  :cycleMaxLampStatus)
+ (properties
+  (= :BLINK_DIRECTION #{:left_blink :right_blink})
+  (= :LAMP_STATUS #{0 100})
+  (= :continuousBlink -1)
+  (= :lamp_off 0)
+  (= :lamp_on 100)
+  (= :BLINK_CYCLE_COUNTER (interval -1 3))
+  (member? :cycleMaxLampStatus (--> bool-set :LAMP_STATUS))
+  (= :cycleMaxLampStatus #{(|-> true :lamp_on) (|-> false :lamp_off)}))
+ (variables
+  :active_blinkers
+  :remaining_blinks
+  :onCycle
+  :blinkLeft
+  :blinkRight)
+ (invariants
+  (subset? :active_blinkers :BLINK_DIRECTION)
+  (member? :remaining_blinks :BLINK_CYCLE_COUNTER)
+  (member? :blinkLeft :LAMP_STATUS)
+  (member? :blinkRight :LAMP_STATUS)
+  (member? :onCycle bool-set)
+  (<=>
+    (and
+      (= :remaining_blinks 0)
+      (= :blinkLeft :lamp_off)
+      (= :blinkRight :lamp_off))
+   (= :active_blinkers #{}))
+  (=>
+   (not= :blinkRight :lamp_off)
+   (member? :right_blink :active_blinkers))
+  (=>
+   (not= :blinkLeft :lamp_off)
+   (member? :left_blink :active_blinkers))
+  (=> (= :active_blinkers :BLINK_DIRECTION) (= :blinkLeft :blinkRight))
+  (=>
+   (= :onCycle false)
+   (and (= :blinkLeft :lamp_off) (= :blinkRight :lamp_off)))
+  (=>
+   (and (= :onCycle true) (not= :active_blinkers #{}))
+   (not (and (= :blinkLeft :lamp_off) (= :blinkRight :lamp_off)))))
+ (init
+  (parallel-sub
+   (assign :active_blinkers #{})
+   (assign :blinkLeft :lamp_off :blinkRight :lamp_off)
+   (assign :remaining_blinks 0)
+   (assign :onCycle false)))
+ (operations
+  (:SET_AllBlinkersOff
+   []
+   (parallel-sub
+    (assign :active_blinkers #{})
+    (assign :remaining_blinks 0)
+    (assign :blinkLeft :lamp_off :blinkRight :lamp_off)))
+  (:SET_AllBlinkersOn
+   []
+   (parallel-sub
+    (assign :active_blinkers :BLINK_DIRECTION)
+    (assign :remaining_blinks :continuousBlink)
+    (assign :blinkLeft (fn-call :cycleMaxLampStatus :onCycle))
+    (assign :blinkRight (fn-call :cycleMaxLampStatus :onCycle))))
+  (:SET_BlinkersOn
+   [:direction :rem]
+   (pre
+    (and
+     (member? :direction :BLINK_DIRECTION)
+     (member? :rem :BLINK_CYCLE_COUNTER)
+     (not= :rem 0))
+    (parallel-sub
+     (assign :active_blinkers #{:direction})
+     (assign :remaining_blinks :rem)
+     (if-sub
+      (= :direction :right_blink)
+      (parallel-sub
+       (assign :blinkLeft :lamp_off)
+       (assign :blinkRight (fn-call :cycleMaxLampStatus :onCycle)))
+      (parallel-sub
+       (assign :blinkLeft (fn-call :cycleMaxLampStatus :onCycle))
+       (assign :blinkRight :lamp_off))))))
+  (:SET_RemainingBlinks
+   [:rem]
+   (pre
+    (and
+     (member? :rem :BLINK_CYCLE_COUNTER)
+     (not= :rem 0)
+     (not= :remaining_blinks 0))
+    (assign :remaining_blinks :rem)))
+  (:TIME_BlinkerOn
+   []
+   (select
+    (and
+     (= :blinkLeft :lamp_off)
+     (= :blinkRight :lamp_off)
+     (not= :remaining_blinks 0))
+    (parallel-sub
+     (assign :onCycle true)
+     (if-sub
+      (member? :left_blink :active_blinkers)
+      (assign :blinkLeft :lamp_on))
+     (if-sub
+      (member? :right_blink :active_blinkers)
+      (assign :blinkRight :lamp_on))
+     (if-sub
+      (> :remaining_blinks 0)
+      (assign :remaining_blinks (- :remaining_blinks 1))))))
+  (:TIME_BlinkerOff
+   []
+   (select
+    (not (and (= :blinkLeft :lamp_off) (= :blinkRight :lamp_off)))
+    (parallel-sub
+     (assign :blinkLeft :lamp_off :blinkRight :lamp_off)
+     (assign :onCycle false)
+     (if-sub (= :remaining_blinks 0) (assign :active_blinkers #{})))))
+  (:TIME_Nothing
+   [:newOnCycle]
+   (select
+    (and
+     (= :blinkLeft :lamp_off)
+     (= :blinkRight :lamp_off)
+     (= :active_blinkers #{})
+     (= :newOnCycle false))
+    (assign :onCycle :newOnCycle)))))

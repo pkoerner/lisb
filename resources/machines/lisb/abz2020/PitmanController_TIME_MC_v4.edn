@@ -1,0 +1,99 @@
+(machine
+ :PitmanController_TIME_MC_v4
+ (sets (enumerated-set :PTIMERS :blink_deadline :tip_deadline))
+ (includes :PitmanController_v6 [:GenericTimersMC :PTIMERS])
+ (promotes
+  :ENV_Turn_EngineOn
+  :ENV_Turn_EngineOff
+  :ENV_Pitman_DirectionBlinking
+  :ENV_Pitman_Reset_to_Neutral
+  :ENV_Hazard_blinking)
+ (definitions
+  (expression-definition
+   :ASSERT_LTL1
+   []
+   "G not(deadlock(ENV_Turn_EngineOn,ENV_Turn_EngineOff))")
+  (expression-definition
+   :ASSERT_LTL2
+   []
+   "G not(deadlock(RTIME_BlinkerOn, RTIME_BlinkerOff, RTIME_Nothing,RTIME_Tip_blinking_Timeout))")
+  (expression-definition
+   :ASSERT_LTL3
+   []
+   "G controller(ENV_Turn_EngineOn, ENV_Turn_EngineOff)")
+  (expression-definition
+   :ASSERT_LTL4
+   []
+   "G deterministic(RTIME_BlinkerOn, RTIME_BlinkerOff, RTIME_Nothing)")
+  (expression-definition :ASSERT_LTL5 [] "G e(ENV_Hazard_blinking)")
+  (expression-definition
+   :ASSERT_LTL6
+   []
+   "G e(ENV_Pitman_Tip_blinking_start)")
+  (expression-definition
+   :ASSERT_LTL7
+   []
+   "G e(ENV_Pitman_DirectionBlinking)"))
+ (init (op-call :AbsoluteSetDeadline :blink_deadline 500))
+ (operations
+  (:ENV_Pitman_Tip_blinking_start
+   [:newPos]
+   (select
+    (and
+     (member? :newPos :PITMAN_TIP_BLINKING)
+     (not= :newPos :pitmanArmUpDown))
+    (parallel-sub
+     (op-call :ENV_Pitman_Tip_blinking_short :newPos)
+     (op-call :AddDeadline :tip_deadline 500))))
+  (:RTIME_Tip_blinking_Timeout
+   [:delta]
+   (select
+    (member? :delta (interval 0 500))
+    (parallel-sub
+     (if-sub
+      (and
+       (member? :pitmanArmUpDown :PITMAN_TIP_BLINKING)
+       (> :remaining_blinks 1)
+       (=
+        :active_blinkers
+        #{(fn-call :pitman_direction :pitmanArmUpDown)}))
+      (op-call :TIME_Tip_blinking_Timeout))
+     (op-call :IncreaseTimeUntilDeadline :tip_deadline :delta))))
+  (:RTIME_BlinkerOn
+   [:delta]
+   (select
+    (member? :delta (interval 0 500))
+    (parallel-sub
+     (op-call :TIME_BlinkerOn)
+     (op-call
+      :IncreaseTimeUntilCyclicDeadline
+      :blink_deadline
+      :delta
+      500))))
+  (:RTIME_BlinkerOff
+   [:delta]
+   (select
+    (member? :delta (interval 0 500))
+    (parallel-sub
+     (op-call :TIME_BlinkerOff)
+     (op-call
+      :IncreaseTimeUntilCyclicDeadline
+      :blink_deadline
+      :delta
+      500))))
+  (:RTIME_Nothing
+   [:delta :newOnCycle]
+   (select
+    (and
+     (member? :delta (interval 0 500))
+     (member? :newOnCycle bool-set))
+    (parallel-sub
+     (op-call :TIME_Nothing :newOnCycle)
+     (op-call
+      :IncreaseTimeUntilCyclicDeadline
+      :blink_deadline
+      :delta
+      100))))
+  (:RTIME_Passes
+   [:delta]
+   (select (member? :delta #{100}) (op-call :IncreaseTime :delta)))))
