@@ -2,7 +2,7 @@
  :PitmanController_v6
  (includes :BlinkLamps_v3 :Sensors)
  (promotes :TIME_BlinkerOn :TIME_BlinkerOff :TIME_Nothing)
- (constants :pitman_direction :continuousBlink)
+ (constants :pitman_direction)
  (properties
   (=
    :pitman_direction
