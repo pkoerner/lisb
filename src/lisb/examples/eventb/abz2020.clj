@@ -14,8 +14,9 @@
 
 (def PitmanController (load-edn "PitmanController_v6"))
 
-(comment
-  ;; Resolve all include and extract as Rodin Project
+(defn gen-rodin
+  "Resolve all include and extract as Rodin Project"
+  []
   (as-> PitmanController x
     (b2eventb/includes->inline x Sensors)
     (b2eventb/includes->refinement x BlinkLamps)
