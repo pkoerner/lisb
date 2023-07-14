@@ -261,12 +261,15 @@
   "Extracts an Event-B machine from an classical B machine. Operations are converted to Events"
   (let [events (apply dsl/eventb-events
                       (mapcat op->events (s/select [(CLAUSE :operations) :values s/ALL] ir)))
-        sees (butil/bsees (context-name (:name ir)))]
-    (->> ir
-         (s/select [(s/multi-path
-                     (CLAUSE :invariants)
-                     (CLAUSE :variables)
-                     (CLAUSE :assertions))])
-         (apply dsl/eventb-machine (:name ir) sees events)
-         remove-empty-clauses)))
+        sees (butil/bsees (context-name (:name ir)))
+        machine (->> ir
+                     (s/select [(s/multi-path
+                                  (CLAUSE :invariants)
+                                  (CLAUSE :variables)
+                                  (CLAUSE :assertions))])
+                     (apply dsl/eventb-machine (:name ir) sees events)
+                     remove-empty-clauses)]
+    (if (= :refinement (:tag ir))
+      (assoc machine :tag :refinement :abstract-machine-name (:abstract-machine-name ir))
+      machine)))
 
