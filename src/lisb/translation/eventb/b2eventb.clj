@@ -4,7 +4,7 @@
             [lisb.translation.util :refer [b] :as butil]
             [lisb.translation.lisb2ir :refer [bnot]]
             [lisb.translation.eventb.dsl :refer [eventb-event] :as dsl]
-            [lisb.translation.eventb.specter-util :refer [CLAUSE NAME TAG INCLUDES]])
+            [lisb.translation.eventb.specter-util :refer [CLAUSES CLAUSE NAME TAG INCLUDES]])
   (:import [de.prob.model.eventb Event]))
 
 
