@@ -349,7 +349,12 @@
   (concat-last 'assertions (.getPredicates node)))
 
 (defmethod ast->lisb AInitialisationMachineClause [node]
-  (splice-lisb-node 'init 'sequential-sub (.getSubstitutions node)))  ; AInitialisationMachineClause holds one PSubstitution
+  ;; HACK: Not sure what is going on here;
+  ;;       an empty initialisation (skip) does not seem to work with the splicing.
+  ;;       Add a special case for now.
+  (if (instance? ASkipSubstitution (.getSubstitutions node))
+    (list 'init 'skip)
+    (splice-lisb-node 'init 'sequential-sub (.getSubstitutions node))))  ; AInitialisationMachineClause holds one PSubstitution
 
 (defmethod ast->lisb AOperationsMachineClause [node]
   (concat-last 'operations (.getOperations node)))
