@@ -181,6 +181,8 @@
                                                AParseUnitDefinitionParseUnit
                                                PMachineClause
                                                PSubstitution
+                                               AOperationReference
+                                               AMachineReferenceNoParams
                                                PDefinition AExtendsMachineClause AIncludesMachineClause AMachineReference AUsesMachineClause APromotesMachineClause AOpSubstitution ASystemMachineVariant AModelMachineVariant ARefinementMachineParseUnit AImplementationMachineParseUnit ASeesMachineClause ACaseOrSubstitution ACaseSubstitution AExpressionDefinitionDefinition APredicateDefinitionDefinition ASubstitutionDefinitionDefinition TDefLiteralSubstitution TDefLiteralPredicate AFileDefinitionDefinition)))
 
 
@@ -416,7 +418,8 @@
 
 (defmethod ir-node->ast-node :uses [ir-node]
   (s/assert (s/keys :req-un [::values]) ir-node)
-  (AUsesMachineClause. (ir-node-values->ast ir-node)))
+  ;; TODO: handle machine references with parameters
+  (AUsesMachineClause. (map (fn [x] (AMachineReferenceNoParams. [(TIdentifierLiteral. (name x))])) (:values ir-node))))
 
 (defmethod ir-node->ast-node :includes [ir-node]
   (s/assert (s/keys :req-un [::values]) ir-node)
@@ -427,7 +430,8 @@
 
 (defmethod ir-node->ast-node :sees [ir-node]
   (s/assert (s/keys :req-un [::values]) ir-node)
-  (ASeesMachineClause. (ir-node-values->ast ir-node)))
+  ;; TODO: handle machine references with parameters
+  (ASeesMachineClause. (map (fn [x] (AMachineReferenceNoParams. [(TIdentifierLiteral. (name x))])) (:values ir-node))))
 
 (defmethod ir-node->ast-node :extends [ir-node]
   (s/assert (s/keys :req-un [::values]) ir-node)
@@ -435,7 +439,7 @@
 
 (defmethod ir-node->ast-node :promotes [ir-node]
   (s/assert (s/keys :req-un [::values]) ir-node)
-  (APromotesMachineClause. (ir-node-values->ast ir-node)))
+  (APromotesMachineClause. (map (fn [x] (AOperationReference. [(TIdentifierLiteral. (name x))])) (:values ir-node))))
 
 ;; machine sections
 

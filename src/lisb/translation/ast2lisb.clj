@@ -175,7 +175,9 @@
              AChoiceOrSubstitution
              ASelectSubstitution
              ASelectWhenSubstitution
+             AOperationReference
              AOperation
+             AMachineReferenceNoParams
              AMachineClauseParseUnit AUsesMachineClause AExtendsMachineClause AMachineReference AIncludesMachineClause APromotesMachineClause AOpSubstitution ARefinementMachineParseUnit AImplementationMachineParseUnit AModelMachineVariant ASystemMachineVariant ASeesMachineClause ACaseSubstitution ACaseOrSubstitution ASubstitutionDefinitionDefinition PDefinition TDefLiteralPredicate TDefLiteralSubstitution)
            (java.util LinkedList)))
 
@@ -278,6 +280,9 @@
 
 ;;; machine clauses
 
+(defmethod ast->lisb AMachineReferenceNoParams [node]
+  (ast->lisb (first (.getMachineName node))))
+
 (defmethod ast->lisb AUsesMachineClause [node]
   (concat-last 'uses (.getMachineNames node)))
 
@@ -358,6 +363,8 @@
       op
       (list '<-- returns op))))
 
+(defmethod ast->lisb AOperationReference [node]
+  (ast->lisb (first (.getOperationName node))))
 
 ;;; substitutions
 
