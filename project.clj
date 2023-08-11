@@ -14,4 +14,5 @@
                  [de.hhu.stups/de.prob2.kernel,"4.12.1"]
                  [de.hhu.stups/value-translator "0.1.2"]
                #_[de.hhu.stups/bparser "2.9.31-SNAPSHOT"]
+                 [com.rpl/specter "1.1.4"]
                  [clj-wallhack "1.0.1"]])
