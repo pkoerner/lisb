@@ -371,6 +371,18 @@
 (defmethod ast->lisb AOperationReference [node]
   (ast->lisb (first (.getOperationName node))))
 
+;;; definitions
+
+(defmethod ast->lisb ADefinitionExpression [node]
+  {:tag :definition-call
+   :name (ast->lisb (.getDefLiteral node))
+   :args (mapv ast->lisb (.getParameters node))})
+
+(defmethod ast->lisb ADefinitionPredicate [node]
+  {:tag :definition-call
+   :name (ast->lisb (.getDefLiteral node))
+   :args (mapv ast->lisb (.getParameters node))})
+
 ;;; substitutions
 
 (defmethod ast->lisb ASkipSubstitution [_]
