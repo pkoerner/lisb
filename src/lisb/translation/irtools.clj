@@ -37,28 +37,70 @@
                  (partial transform-single-definition-call defs)
                  ir)))
 
-; (defmacro cond-pathes 
-;   ([default] default)
-;   ([a b & r]
-;    `(s/if-path ~a ~b (cond-pathes ~@r))))
+ (defmacro cond-pathes 
+   ([a b] `(s/if-path ~a ~b))
+   ([a b & r]
+    `(s/if-path ~a ~b (cond-pathes ~@r))))
 
 ; (meta (with-meta [:foo] {:bar :baz}))
-; (def IDENTIFIERS
-;   (s/recursive-path [] node
-;                   (s/cond-path (fn [node] (#{:and :or :implication :equivalence} (:tag node))) [:preds s/ALL node]
-;                                (fn [node] (#{:pred->bool :not} (:tag node))) [:pred node]
-;                                (fn [node] (#{:power-set :power1-set :fin :fin1 :cardinality :max :min :id :seq :seq1 :iseq :iseq1 :perm} (:tag node))) [:set]
-;                                (fn [node] (#{:cartesian-product :union :intersection :difference :subset? :strict-subset? :relation :total-relation :surjective-relation :total-surjective-relation :partial-fn :total-fn :partial-surjection :total-surjection :partial-injection :partial-bijection :total-bijection} (:tag node))) [:sets]
-;                                (fn [node] (#{:assignment} (:tag node))) [:id-vals]
-;                                (fn [node] (#{:member} (:tag node))) [(s/multi-path :elem :set)]
-;                                (fn [node] (#{:nat-set :nat1-set :int-set :integer-set :natural-set :natural1-set} (:tag node))) [s/STOP]
-;                                s/STAY
-;                            )
-;                   )
-;   )
+ ;(def IDENTIFIERS
+ ;  (s/recursive-path [] node
+ ;                  (cond-pathes (fn [node] (#{:and :or :implication :equivalence} (:tag node))) [:preds s/ALL node]
+ ;                               (fn [node] (#{:pred->bool :not} (:tag node))) [:pred node]
+ ;                               (fn [node] (#{:power-set :power1-set :fin :fin1 :cardinality :max :min :id :seq :seq1 :iseq :iseq1 :perm} (:tag node))) [:set node]
+ ;                               (fn [node] (#{:cartesian-product :union :intersection :difference :subset? :strict-subset? :relation :total-relation :surjective-relation :total-surjective-relation :partial-fn :total-fn :partial-surjection :total-surjection :partial-injection :partial-bijection :total-bijection} (:tag node))) [:sets s/ALL node]
+ ;                               (fn [node] (#{:assignment} (:tag node))) [:id-vals s/ALL node]
+ ;                               (fn [node] (#{:greater :less :greater-equals :less-equals :add :sub :div :pow :mod} (:tag node))) [:nums s/ALL node]
+ ;                               (fn [node] (#{:member} (:tag node))) [(s/multi-path :elem :set) s/ALL node]
+ ;                               (fn [node] (#{:nat-set :nat1-set :int-set :integer-set :natural-set :natural1-set} (:tag node))) [s/STOP]
+ ;                               :otherwise s/STAY
+ ;                           )
+ ;                  )
+ ;  )
 ; 
+(def IDENTIFIERS
+  (s/recursive-path [] p
+                    (s/cond-path
+                      (fn [node] (#{:nat-set :nat1-set :int-set :integer-set :natural-set :natural1-set} (:tag node))) s/STOP
+                      (fn [node] (and (map? node) (contains? node :ids)))
+                      [(s/view #(remove (set (:ids %)) 
+                                       (s/select (s/multi-path
+                                             [(s/must :subs) s/ALL p]
+                                             [(s/must :pred) p]
+                                             [(s/must :expr) p]
+                                             [(s/must :set) p]
+                                             [(s/must :implication) p]) %))
+                              ) s/ALL]
+                      keyword? s/STAY
+                      number? s/STOP
+                      :otherwise (s/multi-path
+                                   [(s/must :preds) s/ALL p]
+                                   [(s/must :sets) s/ALL p]
+                                   [(s/must :id-vals) s/ALL p]
+                                   [(s/must :nums) s/ALL p]
+                                   [(s/must :pred) p]
+                                   [(s/must :set) p]
+                                   [(s/must :elem) p]
+                                   [(s/must :f) p]
+                                   [(s/must :left) p]
+                                   [(s/must :right) p]
+                                   [(s/must :args) s/ALL p]
+                                   ))
+                    )
+  )
+
+(comment
 ; (mapcat #(s/select IDENTIFIERS %) (s/select [(CLAUSE :operations) :values s/ALL :body (s/multi-path :pred :subs)] ir))
-; (s/select [s/ALL IDENTIFIERS] (s/select [(CLAUSE :operations) :values s/ALL :body (s/multi-path :pred :subs)] ir))
+(s/select [s/ALL IDENTIFIERS] (s/select [(CLAUSE :operations) :values s/ALL :body (s/multi-path :pred :subs)] ir))
+(s/select IDENTIFIERS (first (s/select [(CLAUSE :operations) :values s/ALL :body (s/multi-path :pred :subs)] ir)))
+(s/select [(s/multi-path :elem :set)] (first (:preds (first (s/select [(CLAUSE :operations) :values s/ALL :body (s/multi-path :pred :subs)] ir)))))
+(s/select IDENTIFIERS :foo)
+(s/select [s/STAY] :foo)
+(use 'lisb.translation.lisb2ir)
+(s/select IDENTIFIERS (bexists [:z] (bfor-all [:x :y] (band (b< :x :a :z) (b= :y :z) ))))
+(s/select IDENTIFIERS (band :z (bexists [:z] (bfor-all [:x :y] (band (b< :x :a :z) (b= :y :z) )))))
+(s/select (s/multi-path [(s/must :ids)] [(s/must :implication) IDENTIFIERS]) (bfor-all [:x] (b= 1 :x)))
+(s/select IDENTIFIERS (b= 1 :x)))
 
 (comment
   (def ir 
@@ -80,3 +122,5 @@
 
   (replace-all-definitions ir)
   )
+
+
