@@ -71,6 +71,7 @@
                                              [(s/must :set) p]
                                              [(s/must :implication) p]) %))
                               ) s/ALL]
+                      #(or (set? %) (sequential? %)) [s/ALL p]
                       keyword? s/STAY
                       number? s/STOP
                       :otherwise (s/multi-path
@@ -84,12 +85,20 @@
                                    [(s/must :f) p]
                                    [(s/must :left) p]
                                    [(s/must :right) p]
+                                   [(s/must :from) p]
+                                   [(s/must :to) p]
                                    [(s/must :args) s/ALL p]
                                    ))
                     )
   )
 
-(comment
+(defn find-identifiers [ir]
+  (set (s/select IDENTIFIERS ir)))
+
+ (comment
+(find-identifiers (binterval :x :y))
+(s/select [s/ALL s/STAY] (s/select (s/multi-path (s/must :from) (s/must :to)) (binterval :x :y)))
+
 ; (mapcat #(s/select IDENTIFIERS %) (s/select [(CLAUSE :operations) :values s/ALL :body (s/multi-path :pred :subs)] ir))
 (s/select [s/ALL IDENTIFIERS] (s/select [(CLAUSE :operations) :values s/ALL :body (s/multi-path :pred :subs)] ir))
 (s/select IDENTIFIERS (first (s/select [(CLAUSE :operations) :values s/ALL :body (s/multi-path :pred :subs)] ir)))
