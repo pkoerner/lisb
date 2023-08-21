@@ -37,11 +37,6 @@
                  (partial transform-single-definition-call defs)
                  ir)))
 
- (defmacro cond-pathes 
-   ([a b] `(s/if-path ~a ~b))
-   ([a b & r]
-    `(s/if-path ~a ~b (cond-pathes ~@r))))
-
 ; (meta (with-meta [:foo] {:bar :baz}))
  ;(def IDENTIFIERS
  ;  (s/recursive-path [] node
