@@ -7,6 +7,8 @@
 (defn CLAUSE [^clojure.lang.Keyword name] (s/path [CLAUSES s/ALL (TAG name)]))
 (def ALL-KEYWORDS (s/walker keyword?))
 (defn IR-NODE [x] (s/walker #(= (:tag %) x)))
+(defn OPERATION [opname]
+  [(CLAUSE :operations) :values s/ALL (s/path #(= (:name %) opname))])
 
 (defn get-definitions 
   "Selects all definitions from the DEFINITION clause.
@@ -36,6 +38,11 @@
     (s/transform (IR-NODE :definition-call)
                  (partial transform-single-definition-call defs)
                  ir)))
+
+(defn get-operation 
+  "Retrieves the operation named opname from the IR provided."
+  [ir opname]
+  (s/select-one (OPERATION (keyword opname)) ir))
 
 ; (meta (with-meta [:foo] {:bar :baz}))
  ;(def IDENTIFIERS
