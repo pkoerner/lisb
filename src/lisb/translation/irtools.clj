@@ -75,6 +75,7 @@
                               ) s/ALL]
                       #(or (set? %) (sequential? %)) [s/ALL p]
                       keyword? s/STAY
+                      boolean? s/STOP
                       number? s/STOP
                       :otherwise (s/multi-path
                                    [(s/must :preds) s/ALL p]
