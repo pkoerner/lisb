@@ -1,5 +1,6 @@
 (ns lisb.dsls.rules
-  (:require [lisb.translation.lisb2ir :refer :all]))
+  (:require [lisb.translation.lisb2ir :refer :all]
+            [lisb.translation.irtools :refer :all]))
 
 ;; https://prob.hhu.de/w/index.php?title=Rules-DSL
 
@@ -29,6 +30,11 @@
    :counterexample counterexample ; of type INTEGER <-> STRING ; STRING_FORMAT("errorMessage ~w", identifier from list)
    })
 
+(defmulti get-rule-body-ir-snippet :tag)
+(defmethod get-rule-body-ir-snippet :rule-forall [m]
+  (bfor-all (get m :identifiers) (get m :where) (get m :expect)))
+(defmethod get-rule-body-ir-snippet :rule-fail [m]
+  (bexists (get m :identifiers) (get m :when)))
 
 (defn computation [namey rule-dependencies computation-dependencies activation replaces body]
   {:name namey
@@ -78,19 +84,22 @@
                     :$RESULT "FAIL"
                     :$COUNTEREXAMPLES (keyword (str (name (:name rule)) "_Counterexamples"))))))
 
-(defn rule->machineparts [rule]
-  {:variables [(:name rule) ;; string "SUCCESS", "NOT_CHECKED", "FAIL"
-               (keyword (str (name (:name rule)) "_Counterexamples")) ;; {} ; mapping error code to string message?
-               ]
-   :operations (bop [:$RESULT :$COUNTEREXAMPLES] ; return values
-                    (:name rule)
-                    [] ; no params
-                    (bselect (apply band (concat [(:activation rule)]
-                                                 (map (partial b= "SUCCESS") (get-in rule [:dependencies :rules]))
-                                                 (map (partial b= "EXECUTED") (get-in rule [:dependencies :computation-dependencies]))))
-                             (bsequential-sub (apply bsequential-sub (mapcat body->substs (get rule :body)))
-                                              (bif-sub (bnot= (:name rule) "FAIL")
-                                                       (bassign (:name rule) "SUCCESS")))))})
+(defn rule->machineparts [ctx rule]
+  (let [identifiers (apply clojure.set/union (find-identifiers (get rule :activation))
+                                             (map find-identifiers (get rule :body)))
+        implicit-comp-dependencies (filter (get ctx :computation-names) identifiers)]
+    {:variables [(:name rule) ;; string "SUCCESS", "NOT_CHECKED", "FAIL"
+                 (keyword (str (name (:name rule)) "_Counterexamples")) ;; {} ; mapping error code to string message?
+                 ]
+     :operations (bop [:$RESULT :$COUNTEREXAMPLES] ; return values
+                      (:name rule)
+                      [] ; no params
+                      (bselect (apply band (concat [(:activation rule)]
+                                                   (map (partial b= "SUCCESS") (get-in rule [:dependencies :rules]))
+                                                   (map (partial b= "EXECUTED") (concat implicit-comp-dependencies (get-in rule [:dependencies :computation-dependencies])))))
+                               (bsequential-sub (apply bsequential-sub (mapcat body->substs (get rule :body)))
+                                                (bif-sub (bnot= (:name rule) "FAIL")
+                                                         (bassign (:name rule) "SUCCESS")))))}))
 
 (defn computation-body->mch-parts [comp-part]
   {:variables [(get comp-part :define)]
@@ -111,8 +120,11 @@
    (reduce (partial merge-keys-with merge-map) m1 (cons m2 (cons m3 ms)))))
 
 
-(defn computation->machineparts [computation]
-  (let [base (apply merge-keys-with 
+(defn computation->machineparts [ctx computation]
+  (let [identifiers (apply clojure.set/union (find-identifiers (get computation :activation))
+                                             (map (comp find-identifiers :value) (get computation :body)))
+        implicit-comp-dependencies (filter (set (get ctx :computation-names)) identifiers)
+        base (apply merge-keys-with 
                     {:variables concat
                      :properties band
                      :initialisation bparallel-sub
@@ -125,25 +137,25 @@
                                  (bselect (apply band (:activation computation)
                                                  (concat 
                                                    (map (partial b= "SUCCESS") (get computation :rule-dependencies))
-                                                   (map (partial b= "EXECUTED") (get computation :computation-dependencies))))
+                                                   (map (partial b= "EXECUTED") (concat implicit-comp-dependencies (get computation :computation-dependencies)))))
                                           (get base :assignments)))]))))
 
 
 
 (clojure.pprint/pprint
-  (computation->machineparts (computation :COMP_Numbers
+  (computation->machineparts {:computation-names [:Upperbound]} (computation :COMP_Numbers
              []
              []
              true
              []
-             [(computation-body :UpperBound
+             [#_(computation-body :UpperBound
                                binteger-set
                                -1
                                100)
               (computation-body :EvenNumbers
                                 (bpow binteger-set)
                                 {} ;; not in original machine
-                                (bcomprehension-set [:x] (band :x (binterval 0 :Upperbound)
+                                (bcomprehension-set [:x] (band :x (binterval 0 :Upperbound) ;; NOTE: typo (UpperBound vs. Upperbound) 
                                                                (b= (bmod :x 2) 0))))
               (computation-body :NumberOfEvenNumbers
                                 binteger-set
