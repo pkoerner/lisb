@@ -23,7 +23,8 @@
                 :direct-product :composition :parallel-product :prj1 :prj2 :closure :closure1 :rel})
 (def num-tags #{; numbers
                 :min-int :max-int :max :min :add :sub :cartesian-product-or-multiplication :mul :div :pow :mod :product
-                :sum :successor :predecessor :convert-to-real
+                :sum :successor :predecessor
+                :convert-to-real :floor :ceil
                 ; set numbers
                 :cardinality
                 ; seq numbers
@@ -546,6 +547,14 @@
 
 (defn bto-real [x]
   {:tag :convert-to-real
+   :expr x})
+
+(defn bfloor [x]
+  {:tag :floor
+   :expr x})
+
+(defn bceil [x]
+  {:tag :ceil
    :expr x})
 
 
@@ -1687,6 +1696,8 @@
            ; reals - (alpha - besser nicht verwenden)
            ~'real 'bto-real
            ~'real-set 'breal-set
+           ~'floor 'bfloor
+           ~'ceil 'bceil
 
            ; strings
            ~'string-set bstring-set

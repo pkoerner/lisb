@@ -27,6 +27,8 @@
                                                ABooleanFalseExpression
                                                AConvertBoolExpression
                                                AConvertRealExpression
+                                               AConvertIntCeilingExpression
+                                               AConvertIntFloorExpression
                                                AIdentifierExpression
                                                AEmptySetExpression
                                                ASetExtensionExpression
@@ -904,6 +906,12 @@
 
 (defmethod ir-node->ast-node :convert-to-real [ir-node]
   (AConvertRealExpression. (ir->ast-node (:expr ir-node))))
+
+(defmethod ir-node->ast-node :floor [ir-node]
+  (AConvertIntFloorExpression. (ir->ast-node (:expr ir-node))))
+
+(defmethod ir-node->ast-node :ceil [ir-node]
+  (AConvertIntCeilingExpression. (ir->ast-node (:expr ir-node))))
 
 (defmethod ir-node->ast-node :interval [ir-node]
   (s/assert (s/keys :req-un [::from ::to]) ir-node)
