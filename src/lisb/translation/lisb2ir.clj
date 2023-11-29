@@ -23,7 +23,7 @@
                 :direct-product :composition :parallel-product :prj1 :prj2 :closure :closure1 :rel})
 (def num-tags #{; numbers
                 :min-int :max-int :max :min :add :sub :cartesian-product-or-multiplication :mul :div :pow :mod :product
-                :sum :successor :predecessor
+                :sum :successor :predecessor :convert-to-real
                 ; set numbers
                 :cardinality
                 ; seq numbers
@@ -37,7 +37,7 @@
                 ; boolean-sets
                 :bool-set
                 ; number-sets
-                :integer-set :natural-set :natural1-set :int-set :nat-set :nat1-set :interval
+                :real-set :integer-set :natural-set :natural1-set :int-set :nat-set :nat1-set :interval
                 ; string-sets
                 :string-set
                 ; rel-sets
@@ -541,6 +541,12 @@
 
 
 ;;; reals - (alpha - besser nicht verwenden)
+
+(def breal-set {:tag :real-set})
+
+(defn bto-real [x]
+  {:tag :convert-to-real
+   :expr x})
 
 
 ;;; strings
@@ -1679,6 +1685,8 @@
            ; trees
 
            ; reals - (alpha - besser nicht verwenden)
+           ~'real 'bto-real
+           ~'real-set 'breal-set
 
            ; strings
            ~'string-set bstring-set

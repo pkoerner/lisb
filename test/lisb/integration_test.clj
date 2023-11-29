@@ -272,7 +272,13 @@
 
     ))
 
-
+(deftest integration-real-test
+  (testing "implementation of real numbers is working"
+    (is (eval-ir-formula (b= :x (b+ 3.14 3.15))))
+    (is (eval-ir-formula (b= 6.29 (b+ 3.14 3.15))))
+    (is (eval-ir-formula (b= :x (bto-real 3))))
+    (is (eval-ir-formula (b= (bto-real 3) (float 3))))
+    (is (eval-ir-formula (bmember? 3.14 breal-set)))))
 
 (deftest fancy-fns-test
   (testing "fancier functions"

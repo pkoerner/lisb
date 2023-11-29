@@ -26,6 +26,7 @@
                                                ABooleanTrueExpression
                                                ABooleanFalseExpression
                                                AConvertBoolExpression
+                                               AConvertRealExpression
                                                AIdentifierExpression
                                                AEmptySetExpression
                                                ASetExtensionExpression
@@ -45,6 +46,7 @@
                                                ANaturalSetExpression
                                                ANatural1SetExpression
                                                AIntegerSetExpression
+                                               ARealSetExpression
                                                AIntSetExpression
                                                ANatSetExpression
                                                ANat1SetExpression
@@ -882,6 +884,9 @@
 (defmethod ir-node->ast-node :integer-set [_]
   (AIntegerSetExpression.))
 
+(defmethod ir-node->ast-node :real-set [_]
+  (ARealSetExpression.))
+
 (defmethod ir-node->ast-node :natural-set [_]
   (ANaturalSetExpression.))
 
@@ -896,6 +901,9 @@
 
 (defmethod ir-node->ast-node :nat1-set [_]
   (ANat1SetExpression.))
+
+(defmethod ir-node->ast-node :convert-to-real [ir-node]
+  (AConvertRealExpression. (ir->ast-node (:expr ir-node))))
 
 (defmethod ir-node->ast-node :interval [ir-node]
   (s/assert (s/keys :req-un [::from ::to]) ir-node)

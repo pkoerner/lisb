@@ -1,7 +1,7 @@
 (ns lisb.prob.retranslate
   (:require [wall.hack :refer [method]])
   (:import
-    (de.hhu.stups.prob.translator BAtom BBoolean BNumber BRecord BSet BString BTuple)
+    (de.hhu.stups.prob.translator BAtom BBoolean BNumber BRecord BSet BString BTuple BReal)
     (de.hhu.stups.prob.translator.interpretations BFunction BRelation BSequence)))
 
 
@@ -12,6 +12,7 @@
     BBoolean (.booleanValue data)
     BNumber (.longValue data)
     BString (.stringValue data)
+    BReal (.floatValue data)
     ; interpreted collection types of set
     BSequence (mapv retranslate (.toList data))
     BFunction (reduce

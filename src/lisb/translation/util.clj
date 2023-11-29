@@ -27,6 +27,7 @@
               blet
               ;;; trees
               ;;; reals
+              bto-real breal-set
               ;;; string
               bstring-set
               ;;; records
