@@ -20,7 +20,9 @@
                                                ADivExpression
                                                AUnaryMinusExpression
                                                AIntegerExpression
+                                               ARealExpression
                                                TIntegerLiteral
+                                               TRealLiteral
                                                ABooleanTrueExpression
                                                ABooleanFalseExpression
                                                AConvertBoolExpression
@@ -1126,7 +1128,8 @@
     ;(vector? ir) (ACoupleExpression. (map ir->ast-node ir))
     (keyword? ir) (AIdentifierExpression. [(TIdentifierLiteral. (name ir))])
     (string? ir) (AStringExpression. (TStringLiteral. ir)) ;; hack-y thing to avoid renaming of rec-get parameters in preds
-    (number? ir) (AIntegerExpression. (TIntegerLiteral. (str ir)))
+    (integer? ir) (AIntegerExpression. (TIntegerLiteral. (str ir)))
+    (float? ir) (ARealExpression. (TRealLiteral. (str ir)))
     (true? ir) (ABooleanTrueExpression.)
     (false? ir) (ABooleanFalseExpression.)
     (nil? ir) nil
