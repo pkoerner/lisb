@@ -16,7 +16,7 @@
               ;; machine inclusions
               buses bincludes bsees bextends bpromotes
               ;; machine sections
-              bconstraints bsets bdeferred-set benumerated-set bconstants bproperties bdefinitions bvariables
+              bconstraints bsets bdeferred-set benumerated-set bconstants bproperties bdefinitions bfreetypes bfreetype bconstructor bvariables
               binvariants bassertions binit boperations bop
               ;;; substitutions
               bskip bblock bassign bbecomes-element-of bbecomes-such bop-call bparallel-sub bsequential-sub bany

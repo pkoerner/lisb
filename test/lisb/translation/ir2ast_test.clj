@@ -81,6 +81,7 @@
                   "PROPERTIES\n1=1\n" (b (properties (= 1 1)))
                   "PROPERTIES\n1=1 & 2=2 & 3=3\n" (b (properties (= 1 1) (= 2 2) (= 3 3)))
                   ; definitions
+                  "FREETYPES\nList = Nil, Cons(INTEGER*List);\nOption = Some(INTEGER), None\n" (b (freetypes (freetype :List [] (constructor :Nil) (constructor :Cons (cart-or-mult integer-set :List))) (freetype :Option [] (constructor :Some integer-set) (constructor :None))))
                   "VARIABLES x, y\n" (b (variables :x :y))
                   "INVARIANT 1=1\n" (b (invariants (= 1 1)))
                   "INVARIANT 1=1 & 2=2 & 3=3\n" (b (invariants (= 1 1) (= 2 2) (= 3 3)))

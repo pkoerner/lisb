@@ -43,6 +43,12 @@
             :values [{:tag :deferred-set, :id :E}
                      {:tag :enumerated-set, :id :F, :elems [:y :z :x]}]}
            (b (sets :E :F #{:x :y :z}))))
+    (is (= {:tag    :freetypes,
+            :values [{:tag :freetype, :id :List, :args [], :constructors [{:tag :ft-element, :id :Nil}
+                                                                          {:tag :ft-constructor, :id :Cons, :expr {:tag :cartesian-product-or-multiplication, :nums-or-sets [{:tag :integer-set} :List]}}]}
+                     {:tag :freetype, :id :Option, :args [], :constructors [{:tag :ft-constructor, :id :Some, :expr {:tag :integer-set}}
+                                                                            {:tag :ft-element, :id :None}]}]}
+           (b (freetypes (freetype :List [] (constructor :Nil) (constructor :Cons (cart-or-mult integer-set :List))) (freetype :Option [] (constructor :Some integer-set) (constructor :None))))))
     (is (= {:tag    :operations
             :values [{:tag  :op
                       :name :inc
