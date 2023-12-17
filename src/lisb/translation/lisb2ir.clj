@@ -8,7 +8,7 @@
 ;; TODO: check where iterate needs to be listed as well
 
 (def machine-clause-tags #{:uses :includes :sees :extends :promotes :constraints :sets :constants :properties
-                           :definitions :variables :invariants :assertions :init :operations})
+                           :definitions :freetypes :variables :invariants :assertions :init :operations})
 (def substitution-tags #{:skip :block :assignment :becomes-element-of :becomes-such :op-call :parallel-sub :sequential-sub :any
                 :let-sub :var :precondition :assert :choice :if-sub :cond :select :case})
 (def seq-tags #{:empty-sequence :sequence :seq :seq1 :iseq :iseq1 :perm :concat :prepend :append :reverse :front
@@ -294,6 +294,33 @@
         :args (s/cat :file ::file)
         :ret (s/and (s/keys :req-un (::tag) :req (::file))
                     #(= :file-definition (:tag %))))
+
+(defn bfreetypes [& ft-defs]
+  {:tag :freetypes
+   :values ft-defs})
+(s/fdef bfreetypes
+  :args (s/cat :ft-defs ::ft-defs)
+  :ret (s/and (s/keys :req-un (::tag) :req (::values))
+              #(= :freetypes (:tag %))))
+(defn bfreetype [id args & constructors]
+  {:tag :freetype
+   :id id
+   :args args
+   :constructors constructors})
+(s/fdef bfreetype
+  :args (s/cat :id ::id :args ::args :constructors ::constructors)
+  :ret (s/and (s/keys :req-un (::tag) :req (::id ::args ::values))
+              #(= :freetype (:tag %))))
+(defn bconstructor
+  ([id] {:tag :ft-element
+         :id id})
+  ([id argument] {:tag :ft-constructor
+                  :id id
+                  :expr argument}))
+(s/fdef bconstructor
+  :args (s/cat :id ::id :argument (s/nilable ::expr))
+  :ret (s/or :ft-element (s/and (s/keys :req-un (::tag) :req (::id)) #(= :ft-element (:tag %)))
+             :ft-constructor (s/and (s/keys :req-un (::tag) :req (::id ::expr)) #(= :ft-constructor (:tag %)))))
 
 (defn bvariables [& ids]
   {:tag :variables
@@ -1654,6 +1681,9 @@
            ~'predicate-definition bpredicate-definition
            ~'substitution-definition bsubstitution-definition
            ~'file-definition bfile-definition
+           ~'freetypes bfreetypes
+           ~'freetype bfreetype
+           ~'constructor bconstructor
            ~'variables bvariables
            ~'invariants binvariants
            ~'assertions bassertions

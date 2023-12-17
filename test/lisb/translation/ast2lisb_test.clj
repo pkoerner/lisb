@@ -71,6 +71,7 @@
       (are [lisb b] (= lisb (b-machine-clause->lisb b))
                     '(constraints (= 1 1) (= 2 2)) "CONSTRAINTS 1=1 & 2=2"
                     '(sets (deferred-set :S) (enumerated-set :T :e1 :e2)) "SETS S; T = {e1,e2}"
+                    '(freetypes (freetype :List [] (constructor :Nil) (constructor :Cons (cart-or-mult integer-set :List))) (freetype :Option [] (constructor :Some integer-set) (constructor :None))) "FREETYPES List=Nil,Cons(INTEGER*List);Option=Some(INTEGER),None"
                     '(constants :con) "CONSTANTS con"
                     '(properties (= 1 1) (= 2 2)) "PROPERTIES 1=1 & 2=2"
                     '(variables :var) "VARIABLES var"

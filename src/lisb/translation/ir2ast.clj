@@ -146,6 +146,10 @@
                                                ADeferredSetSet
                                                AEnumeratedSetSet
                                                ADefinitionsMachineClause
+                                               AFreetypesMachineClause
+                                               AFreetype
+                                               AElementFreetypeConstructor
+                                               AConstructorFreetypeConstructor
                                                AAssertionsMachineClause
                                                AOperationsMachineClause
                                                ASkipSubstitution
@@ -210,6 +214,8 @@
   (ir->ast-node (:set ir-node)))
 (defn ir-node-sets->ast [ir-node]
   (map ir->ast-node (:sets ir-node)))
+(defn ir-node-constructors->ast [ir-node]
+  (map ir->ast-node (:constructors ir-node)))
 (defn ir-node-num->ast [ir-node]
   (ir->ast-node (:num ir-node)))
 (defn ir-node-nums->ast [ir-node]
@@ -482,6 +488,18 @@
   (ASubstitutionDefinitionDefinition. (TDefLiteralSubstitution. (name (:name ir-node))) (ir-node-args->ast ir-node) (ir-node-sub->ast ir-node)))
 (defmethod ir-node->ast-node :file-definition [ir-node]
   (AFileDefinitionDefinition. (ir-node->ast-node (:name ir-node))))
+
+(defmethod ir-node->ast-node :freetypes [ir-node]
+  (s/assert (s/keys :req-un [::values]) ir-node)
+  (AFreetypesMachineClause. (ir-node-values->ast ir-node)))
+(defmethod ir-node->ast-node :freetype [ir-node]
+  ; not yet released feature: parameters for freetype definitions
+  #_(AFreetype. (TIdentifierLiteral. (name (:id ir-node))) (ir-node-args->ast ir-node) (ir-node-constructors->ast ir-node))
+  (AFreetype. (TIdentifierLiteral. (name (:id ir-node))) (ir-node-constructors->ast ir-node)))
+(defmethod ir-node->ast-node :ft-element [ir-node]
+  (AElementFreetypeConstructor. (TIdentifierLiteral. (name (:id ir-node)))))
+(defmethod ir-node->ast-node :ft-constructor [ir-node]
+  (AConstructorFreetypeConstructor. (TIdentifierLiteral. (name (:id ir-node))) (ir-node-expr->ast ir-node)))
 
 (defmethod ir-node->ast-node :variables [ir-node]
   (s/assert (s/keys :req-un [::values]) ir-node)

@@ -4,7 +4,7 @@
            com.google.inject.Stage
            de.prob.MainModule
            de.prob.scripting.Api
-           de.prob.animator.command.EvaluateFormulaCommand
+           de.prob.animator.command.EvaluateFormulasCommand
            de.prob.animator.domainobjects.ClassicalB
            de.prob.animator.domainobjects.FormulaExpand
            de.prob.animator.domainobjects.EvalResult
@@ -49,6 +49,6 @@
 (defn eval-formula
   ([state-space formula-ast]
    (let [eval-element (ClassicalB. formula-ast FormulaExpand/EXPAND "")
-         cmd (EvaluateFormulaCommand. eval-element "root")
+         cmd (EvaluateFormulasCommand. (list eval-element) "root")
          _ (.execute state-space cmd)]
-     (get-result (.getValue cmd)))))
+     (get-result (first (.getValues cmd))))))

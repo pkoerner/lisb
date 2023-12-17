@@ -15,6 +15,7 @@
               (b (constants :a :b :c))
               (b (properties (= true true)))
               (b (definitions))
+              (b (freetypes (freetype :List [] (constructor :Nil) (constructor :Cons (cart-or-mult integer-set :List))) (freetype :Option [] (constructor :Some integer-set) (constructor :None))))
               (b (variables :x :y))
               (b (invariants (= true true)))
               (b (assertions (= true true) (= false false)))
