@@ -136,7 +136,7 @@
 (deftest if-test
   (testing "if"
     (are [b ir] (= b (ast->b (ir->ast ir)))
-                  "IF 1=1 THEN 2 ELSE 3 END" (b (if-expr (= 1 1) 2 3)))
+                  "IF 1=1 THEN 2 ELSE 3 END" (b (if (= 1 1) 2 3)))
     (are [b ir] (= b (ast->b (ir->ast ir)))
                   "(1=1 => 2=2) & (not(1=1) => 3=3)" (b (and (=> (= 1 1) (= 2 2)) (=> (not (= 1 1)) (= 3 3)))))))
 

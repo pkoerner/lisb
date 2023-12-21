@@ -47,7 +47,7 @@
                 :struct }) ; #{}
 (def boolean-tags #{:pred->bool})                           ; true false
 (def expr-tags (clojure.set/union seq-tags fn-tags rel-tags set-tags num-tags boolean-tags
-                                  #{:let :if-expr
+                                  #{:let :if
                                     ; records
                                     :record :record-get
                                     ; seqs
@@ -55,7 +55,8 @@
                                     ; fns
                                     :fn-call
                                     }))
-(def pred-tags #{; logical predicates
+(def pred-tags #{:let :if
+                 ; logical predicates
                  :and :or :implication :equivalence :not :for-all :exists
                  ; equality
                  :equals :not-equals
@@ -74,19 +75,6 @@
   (if (vector? v)
     v
     [v]))
-
-(defn bif
-  ([node cond then] (assoc node :cond cond :then then))
-  ([node cond then else]
-   (if else
-     (assoc node :cond cond :then then :else else)
-     (bif node cond then))))
-
-#_(defn blet [node kvs]
-  (let [kv-pairs (partition 2 kvs)
-        identifiers (map first kv-pairs)
-        assignment (reduce band (map (partial apply b=) kv-pairs))]
-    (assoc node :identifiers identifiers :assignment assignment)))
 
 
 ;;; parse units
@@ -512,8 +500,15 @@
                     #(= :choice (:tag %))))
 
 (defn bif-sub
-  ([cond then] (bif {:tag :if-sub} cond then))
-  ([cond then else] (bif {:tag :if-sub} cond then else)))
+  ([cond then] {:tag :if-sub
+                :cond cond
+                :then then})
+  ([cond then else] (if else
+                      {:tag :if-sub
+                       :cond cond
+                       :then then
+                       :else else}
+                      (bif-sub cond then))))
 (s/fdef bif-sub
         :args (s/cat :cond ::cond :then ::then :else(s/? ::else))
         :ret (s/and (s/keys :req-un (::tag) :req (::cond ::then) :opt (::else))
@@ -546,15 +541,28 @@
 
 ;;; if
 
-(defn bif-expr
-  ([cond then else] (bif {:tag :if-expr} cond then else))) ; else is always present
-(s/fdef bif-expr
+#_(defn bif
+    ([node cond then] (assoc node :cond cond :then then))
+    ([node cond then else]
+     (if else
+       (assoc node :cond cond :then then :else else)
+       (bif node cond then))))
+
+(defn bif
+  ([cond then else] {:tag :if :cond cond :then then :else else})) ; else is always present
+(s/fdef bif
         :args (s/cat :cond ::cond :then ::then :else ::else)
         :ret (s/and (s/keys :req-un (::tag) :req (::cond ::then ::else))
-                    #(= :if-expr (:tag %))))
+                    #(= :if (:tag %))))
 
 
 ;;; let
+
+#_(defn blet [node kvs]
+    (let [kv-pairs (partition 2 kvs)
+          identifiers (map first kv-pairs)
+          assignment (reduce band (map (partial apply b=) kv-pairs))]
+      (assoc node :identifiers identifiers :assignment assignment)))
 
 (defn blet [id-vals expr-or-pred]
   {:tag :let
@@ -1648,6 +1656,7 @@
     (and (seq? lisb) (= 'sets (first lisb))) (process-set-definitions lisb)
     (and (seq? lisb) (= 'operations (first lisb))) (process-op-definitions lisb)
     (and (seq? lisb) (= '<-- (first lisb))) (process-assign-returns lisb)
+    (and (seq? lisb) (= 'if (first lisb))) (pre-process-lisb (list* bif (rest lisb)))
     (seqable? lisb) (walk pre-process-lisb identity lisb)
     :else lisb))
 
@@ -1716,7 +1725,7 @@
            ~'case bcase
 
            ; if
-           ~'if-expr bif-expr
+           ; ~'if bif ; this does not work because if is a special form
 
            ; let
            ~'let blet

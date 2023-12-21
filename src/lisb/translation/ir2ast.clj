@@ -127,6 +127,7 @@
                                                ASeq1Expression
                                                AGeneralConcatExpression
                                                AIfThenElseExpression
+                                               AIfPredicatePredicate
                                                AQuantifiedIntersectionExpression
                                                AQuantifiedUnionExpression
                                                ARecEntry
@@ -305,7 +306,7 @@
 (s/def ::sub (s/and (s/keys :req-un [::tag])
                     #(contains? substitution-tags (:tag %))))
 (s/def ::misc (s/and (s/keys :req-un [::tag])
-                     #(contains? #{:record-get :fn-call :first :last :let :if-expr} (:tag %))))
+                     #(contains? #{:record-get :fn-call :first :last :let :if} (:tag %))))
 (s/def ::rec (s/or
                :keyword keyword?
                :misc ::misc
@@ -629,23 +630,30 @@
 
 ;;; if
 
-(defmethod ir-node->ast-node :if-expr [ir-node]
+(defmethod ir-node->ast-node :if [ir-node]
   (s/assert (s/keys :req-un [::cond ::then ::else]) ir-node)
-  (AIfThenElseExpression. (ir-node-cond->ast ir-node) (ir-node-then->ast ir-node) '() (ir-node-else->ast ir-node)))
+  (let [condition (ir-node-cond->ast ir-node)
+         then (ir-node-then->ast ir-node)
+         else (ir-node-else->ast ir-node)]
+     (cond
+       (and (instance? PExpression then) (instance? PExpression else)) (AIfThenElseExpression. condition then '() else)
+       (and (instance? PPredicate then) (instance? PPredicate else)) (AIfPredicatePredicate. condition then else)
+       :else (throw (Exception. (str "Unsupported ast nodes for if-block" then else))))))
 
 
 ;;; let
 
 (defmethod ir-node->ast-node :let [ir-node]
   (s/assert (s/keys :req-un [::id-vals ::expr-or-pred]) ir-node)
-  (let [id-vals  (:id-vals ir-node)
+  (let [id-vals (:id-vals ir-node)
         ids (id-vals->ids id-vals)
         assignment (id-vals->assignment id-vals)
         expr-or-pred (ir->ast-node (:expr-or-pred ir-node))]
     (cond
       (instance? PExpression expr-or-pred) (ALetExpressionExpression. ids assignment expr-or-pred)
       (instance? PPredicate expr-or-pred) (ALetPredicatePredicate. ids assignment expr-or-pred)
-      :else (throw (str "Unsupported ast node for let-block" expr-or-pred)))))
+      :else (throw (Exception. (str "Unsupported ast node for let-block" expr-or-pred))))))
+
 
 ;;; strings
 
@@ -1182,7 +1190,7 @@
         (instance? PSubstitution top-ast-node) (ASubstitutionParseUnit. top-ast-node)
         (instance? PDefinition top-ast-node) (AParseUnitDefinitionParseUnit. top-ast-node)
         (instance? PMachineClause top-ast-node) (AMachineClauseParseUnit. top-ast-node)
-        :else (throw (str "Unsupported top level ast node" top-ast-node)))
+        :else (throw (Exception. (str "Unsupported top level ast node" top-ast-node))))
       (EOF.))))
 
 #_(s/check-asserts true)

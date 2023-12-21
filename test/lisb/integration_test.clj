@@ -285,8 +285,8 @@
 (deftest fancy-fns-test
   (testing "fancier functions"
     (is (eval-ir-formula (b= #{2 3 4} (bmap-set (pred [x] (+ 1 x)) #{1 2 3}))))
-    (is (eval-ir-formula (b= (bif-expr (b< 1 2) 3 4) 3)))
-    (is (eval-ir-formula (b= (bif-expr (b> 1 2) 3 4) 4)))
+    (is (eval-ir-formula (b= (bif (b< 1 2) 3 4) 3)))
+    (is (eval-ir-formula (b= (bif (b> 1 2) 3 4) 4)))
     (is (eval-ir-formula (b= (brange 1 5) #{1 2 3 4})))
     (is (eval-ir-formula (eval `(b ~(ast->lisb (b-predicate->ast "1<2"))))))
     (is (eval-ir-formula (b= 2 (eval `(b ~(ast->lisb (b-expression->ast "1+1")))))))

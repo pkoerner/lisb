@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.5] - SNAPSHOT
   ### Changed
   - Default state space (empty machine) is only loaded if needed (instead of on start-up).
+  - Add support for FREETYPES
+  - Make `if` more similar to `let`: `if-expr` was replaced by `if` which works with both expressions and predicates
 
 ## [0.0.4]
   ### Added:
