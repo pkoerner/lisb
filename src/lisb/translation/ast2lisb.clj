@@ -118,6 +118,7 @@
              ASeq1Expression
              AGeneralConcatExpression
              AIfThenElseExpression
+             AIfPredicatePredicate
              AQuantifiedIntersectionExpression
              AQuantifiedUnionExpression
              ARecEntry
@@ -500,7 +501,9 @@
 ;;; if-then-else
 
 (defmethod ast->lisb AIfThenElseExpression [node]
-  (lisbify 'if-expr (.getCondition node) (.getThen node) (.getElse node)))
+  (lisbify 'if (.getCondition node) (.getThen node) (.getElse node)))
+(defmethod ast->lisb AIfPredicatePredicate [node]
+  (lisbify 'if (.getCondition node) (.getThen node) (.getElse node)))
 
 
 ;;; let

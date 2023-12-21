@@ -65,7 +65,7 @@
 (deftest if-test
   (testing "if"
     (are [ir] (= ir (ast->ir (ir->ast ir)))
-              (b (if-expr (= 1 1) 2 3)))))
+              (b (if (= 1 1) 2 3)))))
 
 (deftest let-test
   (testing "let"

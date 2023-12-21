@@ -22,7 +22,7 @@
               bskip bblock bassign bbecomes-element-of bbecomes-such bop-call bparallel-sub bsequential-sub bany
               blet-sub bvar bprecondition bassert bchoice bif-sub bselect
               ;;; if
-              bif-expr
+              bif
               ;;; let
               blet
               ;;; trees

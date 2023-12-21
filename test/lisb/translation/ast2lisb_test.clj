@@ -130,7 +130,7 @@
 (deftest if-test
   (testing "if"
     (are [lisb b] (= lisb (b-expression->lisb b))
-                             '(if-expr (= 1 1) 2 3) "IF 1=1 THEN 2 ELSE 3 END")
+                             '(if (= 1 1) 2 3) "IF 1=1 THEN 2 ELSE 3 END")
     (are [lisb b] (= lisb (b-predicate->lisb b))
                   '(and (=> (= 1 1) (= 2 2)) (=> (not (= 1 1)) (= 3 3))) "IF 1=1 THEN 2=2 ELSE 3=3 END")))
 
