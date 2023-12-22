@@ -1637,7 +1637,7 @@
                                                         args (second operation)
                                                         body (pre-process-lisb (last operation))]
                                                     (conj acc (list 'op returns name args body)))
-                              (keyword? (first op)) (conj acc (cons 'op op))
+                              (keyword? (first op)) (conj acc (cons 'op (pre-process-lisb op)))
                               :else (throw (Exception. (str "Unsupported way of operation definitions: " op)))))
                       []
                       (rest operations-clause))))
@@ -1725,10 +1725,14 @@
            ~'case bcase
 
            ; if
-           ; ~'if bif ; this does not work because if is a special form
+           ~'if bif ; this does not work because "if" is a special form, handled in pre-process-lisb
+           ~'if-expr bif
+           ~'if-pred bif
 
            ; let
-           ~'let blet
+           ~'let blet ; this DOES work because "let*" is the special form, "let" is just a macro
+           ~'let-expr blet
+           ~'let-pred blet
 
            ; trees
 
