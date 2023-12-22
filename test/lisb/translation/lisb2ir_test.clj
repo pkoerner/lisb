@@ -67,7 +67,7 @@
                                     (operations
                                      (:test
                                       []
-                                      (pre (if-pred (not= 1 1) (= :state :Create) (= :state :Run))
+                                      (pre (if (not= 1 1) (= :state :Create) (= :state :Run))
                                            (assign :state :Run)))))"))))))
 
 (deftest machine-clauses-test
