@@ -62,7 +62,7 @@
 (defn ast->b [ast]
   (let [ext-translator (SyntaxExtensionTranslator.)
         pprinter (PrettyPrinter.)]
-    #_(.apply ast ext-translator) ; this is required for some if-pred, but breaks with strings
+    #_(.apply ast ext-translator) ; this is required for if-pred, but breaks with strings
     (.apply ast pprinter)
     (.getPrettyPrint pprinter)))
 
