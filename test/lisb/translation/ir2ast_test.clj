@@ -152,12 +152,12 @@
 (deftest strings-test
   (testing "strings"
     (are [b ir] (= b (ast->b (ir->ast ir)))
-                ; "\"astring\"" (b "astring")
-                ; "STRING" (b string-set)
-                ; "size(\"s\")" (b (size "s"))
-                ;  "rev(\"s\")" (b (reverse "s"))
-                ;"\"s\"^\"t\"" (b (concat "s" "t"))
-                  "conc([\"s\",\"t\"])" (b (conc (sequence "s" "t"))))))
+                "\"astring\"" (b "astring")
+                "STRING" (b string-set)
+                "size(\"s\")" (b (size "s"))
+                "rev(\"s\")" (b (reverse "s"))
+                "\"s\"^\"t\"" (b (concat "s" "t"))
+                "conc([\"s\",\"t\"])" (b (conc (sequence "s" "t"))))))
 
 
 (deftest struct-test

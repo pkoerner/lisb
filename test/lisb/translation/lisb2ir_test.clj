@@ -33,6 +33,43 @@
                 simple/bakery1 "Bakery1"
                 )))
 
+(deftest machine-with-if-test
+  (testing "machine-with-if"
+    (is (= {:tag :machine,
+            :machine-clauses
+            [{:tag :sets,
+              :values [{:tag :enumerated-set, :id :STATE, :elems [:Create :Run]}]}
+             {:tag :variables, :values [:state]}
+             {:tag :invariants,
+              :values [{:tag :member, :elem :state, :set :STATE}]}
+             {:tag :init, :values [{:tag :assignment, :id-vals [:state :Create]}]}
+             {:tag :operations,
+              :values
+              [{:tag :op,
+                :returns [],
+                :name :test,
+                :args [],
+                :body
+                {:tag :precondition,
+                 :pred {:tag :if,
+                        :cond {:tag :not-equals, :left 1, :right 1},
+                        :then {:tag :equals, :left :state, :right :Create},
+                        :else {:tag :equals, :left :state, :right :Run}},
+                 :subs [{:tag :assignment, :id-vals [:state :Run]}]}}]}],
+            :name :WithIf,
+            :args []}
+           (lisb->ir (read-string "(machine
+                                    :WithIf
+                                    (sets (enumerated-set :STATE :Create :Run))
+                                    (variables :state)
+                                    (invariants (member? :state :STATE))
+                                    (init (assign :state :Create))
+                                    (operations
+                                     (:test
+                                      []
+                                      (pre (if-pred (not= 1 1) (= :state :Create) (= :state :Run))
+                                           (assign :state :Run)))))"))))))
+
 (deftest machine-clauses-test
   (testing "machine-clauses"
     (is (= {:tag    :operations,

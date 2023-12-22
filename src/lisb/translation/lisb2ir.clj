@@ -1725,10 +1725,14 @@
            ~'case bcase
 
            ; if
-           ; ~'if bif ; this does not work because if is a special form
+           ~'if bif ; this does not work because "if" is a special form
+           ~'if-expr bif
+           ~'if-pred bif
 
            ; let
-           ~'let blet
+           ~'let blet ; this DOES work because "let*" is the special form, "let" is just a macro
+           ~'let-expr blet
+           ~'let-pred blet
 
            ; trees
 
