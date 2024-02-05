@@ -16,6 +16,8 @@
              AAddExpression
              AMinusExpression
              AMultOrCartExpression
+             AMultiplicationExpression
+             ACartesianProductExpression
              AMinusOrSetSubtractExpression
              ADivExpression
              AUnaryMinusExpression
@@ -184,7 +186,13 @@
              AOperationReference
              AOperation
              AMachineReferenceNoParams
-             AMachineClauseParseUnit AUsesMachineClause AExtendsMachineClause AMachineReference AIncludesMachineClause APromotesMachineClause AOpSubstitution ARefinementMachineParseUnit AImplementationMachineParseUnit AModelMachineVariant ASystemMachineVariant ASeesMachineClause ACaseSubstitution ACaseOrSubstitution ASubstitutionDefinitionDefinition PDefinition TDefLiteralPredicate TDefLiteralSubstitution)
+             AMachineClauseParseUnit AUsesMachineClause AExtendsMachineClause AMachineReference AIncludesMachineClause APromotesMachineClause AOpSubstitution ARefinementMachineParseUnit AImplementationMachineParseUnit AModelMachineVariant ASystemMachineVariant ASeesMachineClause ACaseSubstitution ACaseOrSubstitution ASubstitutionDefinitionDefinition PDefinition TDefLiteralPredicate TDefLiteralSubstitution
+             ATypeofExpression
+             AEventBComprehensionSetExpression
+             APartitionPredicate
+             ATruthPredicate
+             ADescriptionExpression ADescriptionPredicate ALabelPredicate
+           )
            (java.util LinkedList)))
 
 (declare ast->lisb read-bmachine)
@@ -497,6 +505,9 @@
         op (first (.getOperation node))                     ; there should be exact one identifier in .getOperation
         params (.getParameters node)]
     (list '<-- returns (concat-last 'op-call op params))))
+
+(defmethod ast->lisb AOperationReference [node]
+  (ast->lisb (last (.getOperationName node))))
 
 ;;; if-then-else
 
@@ -850,6 +861,39 @@
 (defmethod ast->lisb TIdentifierLiteral [node]
   (keyword (.getText node)))
 
+;;; Label and Descriptions
+;;TODO: implement real behavior
+
+(defmethod ast->lisb ADescriptionExpression [node]
+  (ast->lisb (.getExpression node)))
+
+(defmethod ast->lisb ADescriptionPredicate [node]
+  (ast->lisb (.getPredicate node)))
+
+(defmethod ast->lisb ALabelPredicate [node]
+  (ast->lisb (.getPredicate node)))
+
+;;; Event-B specific
+
+(defmethod ast->lisb AMinusExpression [node]
+  (multi-arity '- node))
+(defmethod ast->lisb AMultiplicationExpression [node]
+  (multi-arity '* node))
+(defmethod ast->lisb ACartesianProductExpression [node]
+  (multi-arity 'cartesian-product node))
+(defmethod ast->lisb ATypeofExpression [node]
+  (ast->lisb (.getExpression node))) ; ignore type for now
+(defmethod ast->lisb ATruthPredicate [node]
+  true)
+;;TODO: introduce typeof in ir
+(defmethod ast->lisb ATypeofExpression [node]
+  (ast->lisb (.getExpression node)))
+
+(defmethod ast->lisb APartitionPredicate [node]
+  (lisbify 'partition (.getSet node) (.getElements node)))
+
+(defmethod ast->lisb AEventBComprehensionSetExpression [node]
+  (lisbify 'comprehension-set (.getIdentifiers node) (.getPredicates node)))
 
 ;;; misc
 

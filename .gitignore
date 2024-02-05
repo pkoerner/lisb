@@ -8,6 +8,7 @@ pom.xml.asc
 *.class
 /.lein-*
 /.nrepl-port
+.calva
 .hgignore
 .hg/
 *.log
@@ -15,5 +16,5 @@ prob_log.txt
 .*.swp
 /lisb.iml
 /.idea/
-.clj-kondo/
+.clj-kondo/.cache
 .calva/

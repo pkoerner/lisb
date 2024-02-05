@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<org.eventb.core.machineFile org.eventb.core.configuration='org.eventb.core.fwd' version='5' org.eventb.core.comment=''>
+  <org.eventb.core.variable name='n0' org.eventb.core.identifier='etage' />
+  <org.eventb.core.invariant name='n1' org.eventb.core.label='inv0' org.eventb.core.predicate='etage∈0‥99' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+  <org.eventb.core.event name='n2' org.eventb.core.convergence='0' org.eventb.core.extended='false' org.eventb.core.label='INITIALISATION' org.eventb.core.comment=''>
+    <org.eventb.core.action name='n3' org.eventb.core.assignment='etage ≔ 4' org.eventb.core.label='init0' org.eventb.core.comment='' />
+  </org.eventb.core.event>
+  <org.eventb.core.event name='n4' org.eventb.core.convergence='0' org.eventb.core.extended='false' org.eventb.core.label='inc' org.eventb.core.comment=''>
+    <org.eventb.core.guard name='n5' org.eventb.core.label='grd0' org.eventb.core.predicate='etage&lt;99' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+    <org.eventb.core.action name='n6' org.eventb.core.assignment='etage ≔ etage+1' org.eventb.core.label='act0' org.eventb.core.comment='' />
+  </org.eventb.core.event>
+  <org.eventb.core.event name='n7' org.eventb.core.convergence='0' org.eventb.core.extended='false' org.eventb.core.label='dec' org.eventb.core.comment=''>
+    <org.eventb.core.guard name='n8' org.eventb.core.label='grd0' org.eventb.core.predicate='etage&gt;0' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+    <org.eventb.core.action name='n9' org.eventb.core.assignment='etage ≔ etage−1' org.eventb.core.label='act0' org.eventb.core.comment='' />
+  </org.eventb.core.event>
+</org.eventb.core.machineFile>

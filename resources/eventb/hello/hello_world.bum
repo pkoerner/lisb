@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<org.eventb.core.machineFile org.eventb.core.configuration='org.eventb.core.fwd' version='5' org.eventb.core.comment=''>
+  <org.eventb.core.variable name='n0' org.eventb.core.identifier='x' />
+  <org.eventb.core.variable name='n1' org.eventb.core.identifier='y' />
+  <org.eventb.core.variable name='n2' org.eventb.core.identifier='hello' />
+  <org.eventb.core.invariant name='n3' org.eventb.core.label='inv0' org.eventb.core.predicate='hello∈BOOL' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+  <org.eventb.core.invariant name='n4' org.eventb.core.label='inv1' org.eventb.core.predicate='x≤10' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+  <org.eventb.core.invariant name='n5' org.eventb.core.label='inv2' org.eventb.core.predicate='y∈ℕ' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+  <org.eventb.core.event name='n6' org.eventb.core.convergence='0' org.eventb.core.extended='false' org.eventb.core.label='INITIALISATION' org.eventb.core.comment=''>
+    <org.eventb.core.action name='n7' org.eventb.core.assignment='x,y ≔ 0,50' org.eventb.core.label='init0' org.eventb.core.comment='' />
+    <org.eventb.core.action name='n8' org.eventb.core.assignment='hello ≔ TRUE' org.eventb.core.label='init1' org.eventb.core.comment='' />
+  </org.eventb.core.event>
+  <org.eventb.core.event name='n9' org.eventb.core.convergence='0' org.eventb.core.extended='false' org.eventb.core.label='inc' org.eventb.core.comment=''>
+    <org.eventb.core.guard name='n10' org.eventb.core.label='grd0' org.eventb.core.predicate='x&lt;10' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+    <org.eventb.core.action name='n11' org.eventb.core.assignment='x ≔ x+1' org.eventb.core.label='act0' org.eventb.core.comment='' />
+  </org.eventb.core.event>
+  <org.eventb.core.event name='n12' org.eventb.core.convergence='0' org.eventb.core.extended='false' org.eventb.core.label='hello' org.eventb.core.comment=''>
+    <org.eventb.core.action name='n13' org.eventb.core.assignment='hello ≔ TRUE' org.eventb.core.label='act0' org.eventb.core.comment='' />
+  </org.eventb.core.event>
+</org.eventb.core.machineFile>

@@ -15,4 +15,5 @@
                  [de.hhu.stups/value-translator "0.1.3"]
                #_[de.hhu.stups/bparser "2.12.7"]
                  [com.rpl/specter "1.1.4"]
+               #_[de.hhu.stups/unicode "2.12.4"]
                  [clj-wallhack "1.0.1"]])

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.poFile org.eventb.core.poStamp="3">
+    <org.eventb.core.poPredicateSet name="CTXHYP" org.eventb.core.poStamp="0"/>
+    <org.eventb.core.poPredicateSet name="ABSHYP" org.eventb.core.parentSet="/hello/hello_world.bpo|org.eventb.core.poFile#hello_world|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="1">
+        <org.eventb.core.poIdentifier name="x" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="y" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="hello" org.eventb.core.type="BOOL"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poSequent name="INITIALISATION/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  establishment" org.eventb.core.poStamp="2">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/hello/hello_world.bpo|org.eventb.core.poFile#hello_world|org.eventb.core.poPredicateSet#EVTALLHYPhellp"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="0≤10" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.invariant#n4"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.event#n6"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.invariant#n4"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/hello/hello_world.bpo|org.eventb.core.poFile#hello_world|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poSelHintSnd="/hello/hello_world.bpo|org.eventb.core.poFile#hello_world|org.eventb.core.poSequent#INITIALISATION\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/hello/hello_world.bpo|org.eventb.core.poFile#hello_world|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD1"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="INITIALISATION/inv2/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  establishment" org.eventb.core.poStamp="3">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/hello/hello_world.bpo|org.eventb.core.poFile#hello_world|org.eventb.core.poPredicateSet#EVTALLHYPhellp"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="50∈ℕ" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.invariant#n5"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.event#n6"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.invariant#n5"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/hello/hello_world.bpo|org.eventb.core.poFile#hello_world|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poSelHintSnd="/hello/hello_world.bpo|org.eventb.core.poFile#hello_world|org.eventb.core.poSequent#INITIALISATION\/inv2\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/hello/hello_world.bpo|org.eventb.core.poFile#hello_world|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD2"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poPredicateSet name="EVTIDENThellp" org.eventb.core.parentSet="/hello/hello_world.bpo|org.eventb.core.poFile#hello_world|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="1">
+        <org.eventb.core.poIdentifier name="x'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="y'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="hello'" org.eventb.core.type="BOOL"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPhellp" org.eventb.core.parentSet="/hello/hello_world.bpo|org.eventb.core.poFile#hello_world|org.eventb.core.poPredicateSet#EVTIDENThellp" org.eventb.core.poStamp="1"/>
+    <org.eventb.core.poSequent name="inc/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="1">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/hello/hello_world.bpo|org.eventb.core.poFile#hello_world|org.eventb.core.poPredicateSet#EVTALLHYPhellq"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="x+1≤10" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.invariant#n4"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.event#n9"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.invariant#n4"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/hello/hello_world.bpo|org.eventb.core.poFile#hello_world|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/hello/hello_world.bpo|org.eventb.core.poFile#hello_world|org.eventb.core.poSequent#inc\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/hello/hello_world.bpo|org.eventb.core.poFile#hello_world|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD1"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poPredicateSet name="EVTIDENThellq" org.eventb.core.parentSet="/hello/hello_world.bpo|org.eventb.core.poFile#hello_world|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="1">
+        <org.eventb.core.poIdentifier name="x'" org.eventb.core.type="ℤ"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPhellq" org.eventb.core.parentSet="/hello/hello_world.bpo|org.eventb.core.poFile#hello_world|org.eventb.core.poPredicateSet#EVTIDENThellq" org.eventb.core.poStamp="1">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="x&lt;10" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.event#n9|org.eventb.core.guard#n10"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENThellr" org.eventb.core.parentSet="/hello/hello_world.bpo|org.eventb.core.poFile#hello_world|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="1">
+        <org.eventb.core.poIdentifier name="hello'" org.eventb.core.type="BOOL"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPhellr" org.eventb.core.parentSet="/hello/hello_world.bpo|org.eventb.core.poFile#hello_world|org.eventb.core.poPredicateSet#EVTIDENThellr" org.eventb.core.poStamp="1"/>
+    <org.eventb.core.poPredicateSet name="ALLHYP" org.eventb.core.parentSet="/hello/hello_world.bpo|org.eventb.core.poFile#hello_world|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poStamp="1">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="hello∈BOOL" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.invariant#n3"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="x≤10" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.invariant#n4"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="y∈ℕ" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.invariant#n5"/>
+    </org.eventb.core.poPredicateSet>
+</org.eventb.core.poFile>

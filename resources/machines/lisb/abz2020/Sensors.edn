@@ -1,0 +1,71 @@
+(machine
+ :Sensors
+ (sets
+  (enumerated-set :SWITCH_STATUS :switch_on :switch_off)
+  (enumerated-set
+   :PITMAN_POSITION
+   :Neutral
+   :Downward5
+   :Downward7
+   :Upward5
+   :Upward7)
+  (enumerated-set
+   :KEY_STATE
+   :NoKeyInserted
+   :KeyInserted
+   :KeyInsertedOnPosition))
+ (constants :PITMAN_DIRECTION_BLINKING :PITMAN_TIP_BLINKING)
+ (properties
+  (= :PITMAN_DIRECTION_BLINKING #{:Upward7 :Downward7})
+  (= :PITMAN_TIP_BLINKING #{:Downward5 :Upward5}))
+ (variables
+  :hazardWarningSwitchOn
+  :pitmanArmUpDown
+  :keyState
+  :engineOn)
+ (invariants
+  (member? :hazardWarningSwitchOn :SWITCH_STATUS)
+  (member? :pitmanArmUpDown :PITMAN_POSITION)
+  (member? :keyState :KEY_STATE)
+  (member? :engineOn bool-set))
+ (init
+  (parallel-sub
+   (assign :hazardWarningSwitchOn :switch_off)
+   (assign :pitmanArmUpDown :Neutral)
+   (assign :keyState :KeyInsertedOnPosition)
+   (assign :engineOn false)))
+ (operations
+  (:SET_EngineOn
+   []
+   (select
+    (and (= :engineOn false) (= :keyState :KeyInsertedOnPosition))
+    (assign :engineOn true)))
+  (:SET_EngineOff
+   []
+   (select (= :engineOn true) (assign :engineOn false)))
+  (:SET_Pitman_DirectionBlinking
+   [:newPos]
+   (select
+    (and
+     (member? :newPos :PITMAN_DIRECTION_BLINKING)
+     (not= :newPos :pitmanArmUpDown))
+    (assign :pitmanArmUpDown :newPos)))
+  (:SET_Pitman_Reset_to_Neutral
+   []
+   (select
+    (not= :pitmanArmUpDown :Neutral)
+    (assign :pitmanArmUpDown :Neutral)))
+  (:SET_Pitman_Tip_blinking_short
+   [:newPos]
+   (select
+    (and
+     (member? :newPos :PITMAN_TIP_BLINKING)
+     (not= :newPos :pitmanArmUpDown))
+    (assign :pitmanArmUpDown :newPos)))
+  (:SET_Hazard_blinking
+   [:newSwitchPos]
+   (select
+    (and
+     (member? :newSwitchPos :SWITCH_STATUS)
+     (not= :newSwitchPos :hazardWarningSwitchOn))
+    (assign :hazardWarningSwitchOn :newSwitchPos)))))

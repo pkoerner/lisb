@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.poFile org.eventb.core.poStamp="0">
+    <org.eventb.core.poPredicateSet name="CTXHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="DIRECTIONS" org.eventb.core.type="ℙ(DIRECTIONS)"/>
+        <org.eventb.core.poIdentifier name="neutral_blink" org.eventb.core.type="DIRECTIONS"/>
+        <org.eventb.core.poIdentifier name="left_blink" org.eventb.core.type="DIRECTIONS"/>
+        <org.eventb.core.poIdentifier name="BLINK_DIRECTION" org.eventb.core.type="ℙ(DIRECTIONS)"/>
+        <org.eventb.core.poIdentifier name="LAMP_STATUS" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poIdentifier name="continuousBlink" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="cycleMaxLampStatus" org.eventb.core.type="ℙ(BOOL×ℤ)"/>
+        <org.eventb.core.poIdentifier name="lamp_off" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="right_blink" org.eventb.core.type="DIRECTIONS"/>
+        <org.eventb.core.poIdentifier name="lamp_on" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="BLINK_CYCLE_COUNTER" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poPredicate name="BLINK_CYCLE_COUNTES" org.eventb.core.predicate="partition(DIRECTIONS,{left_blink},{right_blink},{neutral_blink})" org.eventb.core.source="/abz2020/BlinkLamps_v3_ctx.buc|org.eventb.core.contextFile#BlinkLamps_v3_ctx|org.eventb.core.axiom#n217"/>
+        <org.eventb.core.poPredicate name="BLINK_CYCLE_COUNTET" org.eventb.core.predicate="BLINK_DIRECTION={left_blink,right_blink}" org.eventb.core.source="/abz2020/BlinkLamps_v3_ctx.buc|org.eventb.core.contextFile#BlinkLamps_v3_ctx|org.eventb.core.axiom#n218"/>
+        <org.eventb.core.poPredicate name="BLINK_CYCLE_COUNTEU" org.eventb.core.predicate="LAMP_STATUS={0,100}" org.eventb.core.source="/abz2020/BlinkLamps_v3_ctx.buc|org.eventb.core.contextFile#BlinkLamps_v3_ctx|org.eventb.core.axiom#n219"/>
+        <org.eventb.core.poPredicate name="BLINK_CYCLE_COUNTEV" org.eventb.core.predicate="continuousBlink=−1" org.eventb.core.source="/abz2020/BlinkLamps_v3_ctx.buc|org.eventb.core.contextFile#BlinkLamps_v3_ctx|org.eventb.core.axiom#n220"/>
+        <org.eventb.core.poPredicate name="BLINK_CYCLE_COUNTEW" org.eventb.core.predicate="lamp_off=0" org.eventb.core.source="/abz2020/BlinkLamps_v3_ctx.buc|org.eventb.core.contextFile#BlinkLamps_v3_ctx|org.eventb.core.axiom#n221"/>
+        <org.eventb.core.poPredicate name="BLINK_CYCLE_COUNTEX" org.eventb.core.predicate="lamp_on=100" org.eventb.core.source="/abz2020/BlinkLamps_v3_ctx.buc|org.eventb.core.contextFile#BlinkLamps_v3_ctx|org.eventb.core.axiom#n222"/>
+        <org.eventb.core.poPredicate name="BLINK_CYCLE_COUNTEY" org.eventb.core.predicate="BLINK_CYCLE_COUNTER=−1 ‥ 3" org.eventb.core.source="/abz2020/BlinkLamps_v3_ctx.buc|org.eventb.core.contextFile#BlinkLamps_v3_ctx|org.eventb.core.axiom#n223"/>
+        <org.eventb.core.poPredicate name="BLINK_CYCLE_COUNTEZ" org.eventb.core.predicate="cycleMaxLampStatus∈BOOL → LAMP_STATUS" org.eventb.core.source="/abz2020/BlinkLamps_v3_ctx.buc|org.eventb.core.contextFile#BlinkLamps_v3_ctx|org.eventb.core.axiom#n224"/>
+        <org.eventb.core.poPredicate name="BLINK_CYCLE_COUNTE[" org.eventb.core.predicate="cycleMaxLampStatus={FALSE ↦ lamp_off,TRUE ↦ lamp_on}" org.eventb.core.source="/abz2020/BlinkLamps_v3_ctx.buc|org.eventb.core.contextFile#BlinkLamps_v3_ctx|org.eventb.core.axiom#n225"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="ABSHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="onCycle" org.eventb.core.type="BOOL"/>
+        <org.eventb.core.poIdentifier name="active_blinkers" org.eventb.core.type="ℙ(DIRECTIONS)"/>
+        <org.eventb.core.poIdentifier name="blinkLeft" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="remaining_blinks" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="blinkRight" org.eventb.core.type="ℤ"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOff/inv0/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu,"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="(∅ ⦂ ℙ(DIRECTIONS))⊆BLINK_DIRECTION" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n6"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n17"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n6"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_AllBlinkersOff\/inv0\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD0"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOff/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu,"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="0∈BLINK_CYCLE_COUNTER" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n7"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n17"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n7"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_AllBlinkersOff\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD1"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOff/inv2/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu,"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="lamp_off∈LAMP_STATUS" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n8"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n17"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n8"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_AllBlinkersOff\/inv2\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD2"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOff/inv3/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu,"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="lamp_off∈LAMP_STATUS" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n9"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n17"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n9"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_AllBlinkersOff\/inv3\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD3"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOff/inv5/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu,"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="0=0∧lamp_off=lamp_off∧lamp_off=lamp_off⇔(∅ ⦂ ℙ(DIRECTIONS))=(∅ ⦂ ℙ(DIRECTIONS))" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n11"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n17"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n11"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_AllBlinkersOff\/inv5\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD5"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOff/inv6/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu,"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="lamp_off≠lamp_off⇒right_blink∈(∅ ⦂ ℙ(DIRECTIONS))" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n12"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n17"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n12"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_AllBlinkersOff\/inv6\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD6"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOff/inv7/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu,"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="lamp_off≠lamp_off⇒left_blink∈(∅ ⦂ ℙ(DIRECTIONS))" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n13"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n17"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n13"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_AllBlinkersOff\/inv7\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD7"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOff/inv8/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu,"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="(∅ ⦂ ℙ(DIRECTIONS))=BLINK_DIRECTION⇒lamp_off=lamp_off" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n14"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n17"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n14"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_AllBlinkersOff\/inv8\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD8"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOff/inv9/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu,"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="onCycle=FALSE⇒lamp_off=lamp_off∧lamp_off=lamp_off" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n15"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n17"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n15"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_AllBlinkersOff\/inv9\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD9"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOff/inv10/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu,"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="onCycle=TRUE∧(∅ ⦂ ℙ(DIRECTIONS))≠(∅ ⦂ ℙ(DIRECTIONS))⇒¬(lamp_off=lamp_off∧lamp_off=lamp_off)" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n16"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n17"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n16"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_AllBlinkersOff\/inv10\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD10"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poPredicateSet name="EVTIDENTBlinkLamps_v3_cu," org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="remaining_blinks'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="blinkRight'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="blinkLeft'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="active_blinkers'" org.eventb.core.type="ℙ(DIRECTIONS)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPBlinkLamps_v3_cu," org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTIDENTBlinkLamps_v3_cu," org.eventb.core.poStamp="0"/>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOn/inv0/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu-"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="BLINK_DIRECTION⊆BLINK_DIRECTION" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n6"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n21"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n6"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_AllBlinkersOn\/inv0\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD0"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOn/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu-"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="continuousBlink∈BLINK_CYCLE_COUNTER" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n7"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n21"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n7"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_AllBlinkersOn\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD1"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOn/inv2/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu-"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="cycleMaxLampStatus(onCycle)∈LAMP_STATUS" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n8"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n21"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n8"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_AllBlinkersOn\/inv2\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD2"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOn/inv3/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu-"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="cycleMaxLampStatus(onCycle)∈LAMP_STATUS" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n9"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n21"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n9"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_AllBlinkersOn\/inv3\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD3"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOn/inv5/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu-"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="continuousBlink=0∧cycleMaxLampStatus(onCycle)=lamp_off∧cycleMaxLampStatus(onCycle)=lamp_off⇔BLINK_DIRECTION=(∅ ⦂ ℙ(DIRECTIONS))" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n11"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n21"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n11"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_AllBlinkersOn\/inv5\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD5"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOn/inv6/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu-"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="cycleMaxLampStatus(onCycle)≠lamp_off⇒right_blink∈BLINK_DIRECTION" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n12"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n21"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n12"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_AllBlinkersOn\/inv6\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD6"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOn/inv7/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu-"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="cycleMaxLampStatus(onCycle)≠lamp_off⇒left_blink∈BLINK_DIRECTION" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n13"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n21"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n13"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_AllBlinkersOn\/inv7\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD7"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOn/inv8/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu-"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="BLINK_DIRECTION=BLINK_DIRECTION⇒cycleMaxLampStatus(onCycle)=cycleMaxLampStatus(onCycle)" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n14"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n21"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n14"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_AllBlinkersOn\/inv8\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD8"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOn/inv9/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu-"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="onCycle=FALSE⇒cycleMaxLampStatus(onCycle)=lamp_off∧cycleMaxLampStatus(onCycle)=lamp_off" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n15"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n21"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n15"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_AllBlinkersOn\/inv9\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD9"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOn/inv10/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu-"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="onCycle=TRUE∧BLINK_DIRECTION≠(∅ ⦂ ℙ(DIRECTIONS))⇒¬(cycleMaxLampStatus(onCycle)=lamp_off∧cycleMaxLampStatus(onCycle)=lamp_off)" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n16"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n21"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n16"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_AllBlinkersOn\/inv10\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD10"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOn/act2/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of action" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu-"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="onCycle∈dom(cycleMaxLampStatus)∧cycleMaxLampStatus∈BOOL ⇸ ℤ" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n21|org.eventb.core.action#n24"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n21|org.eventb.core.action#n24"/>
+        <org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu-"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_AllBlinkersOn/act3/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of action" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu-"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="onCycle∈dom(cycleMaxLampStatus)∧cycleMaxLampStatus∈BOOL ⇸ ℤ" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n21|org.eventb.core.action#n25"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n21|org.eventb.core.action#n25"/>
+        <org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu-"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poPredicateSet name="EVTIDENTBlinkLamps_v3_cu-" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="remaining_blinks'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="blinkRight'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="blinkLeft'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="active_blinkers'" org.eventb.core.type="ℙ(DIRECTIONS)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPBlinkLamps_v3_cu-" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTIDENTBlinkLamps_v3_cu-" org.eventb.core.poStamp="0"/>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_then/inv0/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu."/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="{direction}⊆BLINK_DIRECTION" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n6"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n26"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n6"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_BlinkersOn_then\/inv0\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD0"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_then/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu."/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="rem∈BLINK_CYCLE_COUNTER" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n7"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n26"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n7"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_BlinkersOn_then\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD1"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_then/inv2/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu."/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="lamp_off∈LAMP_STATUS" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n8"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n26"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n8"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_BlinkersOn_then\/inv2\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD2"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_then/inv3/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu."/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="cycleMaxLampStatus(onCycle)∈LAMP_STATUS" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n9"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n26"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n9"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_BlinkersOn_then\/inv3\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD3"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_then/inv5/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu."/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="rem=0∧lamp_off=lamp_off∧cycleMaxLampStatus(onCycle)=lamp_off⇔{direction}=(∅ ⦂ ℙ(DIRECTIONS))" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n11"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n26"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n11"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_BlinkersOn_then\/inv5\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD5"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_then/inv6/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu."/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="cycleMaxLampStatus(onCycle)≠lamp_off⇒right_blink∈{direction}" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n12"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n26"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n12"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_BlinkersOn_then\/inv6\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD6"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_then/inv7/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu."/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="lamp_off≠lamp_off⇒left_blink∈{direction}" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n13"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n26"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n13"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_BlinkersOn_then\/inv7\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD7"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_then/inv8/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu."/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="{direction}=BLINK_DIRECTION⇒lamp_off=cycleMaxLampStatus(onCycle)" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n14"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n26"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n14"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_BlinkersOn_then\/inv8\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD8"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_then/inv9/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu."/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="onCycle=FALSE⇒lamp_off=lamp_off∧cycleMaxLampStatus(onCycle)=lamp_off" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n15"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n26"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n15"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_BlinkersOn_then\/inv9\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD9"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_then/inv10/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu."/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="onCycle=TRUE∧{direction}≠(∅ ⦂ ℙ(DIRECTIONS))⇒¬(lamp_off=lamp_off∧cycleMaxLampStatus(onCycle)=lamp_off)" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n16"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n26"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n16"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_BlinkersOn_then\/inv10\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD10"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_then/act3/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of action" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu."/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="onCycle∈dom(cycleMaxLampStatus)∧cycleMaxLampStatus∈BOOL ⇸ ℤ" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n26|org.eventb.core.action#n36"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n26|org.eventb.core.action#n36"/>
+        <org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu."/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poPredicateSet name="EVTIDENTBlinkLamps_v3_cu." org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="direction" org.eventb.core.type="DIRECTIONS"/>
+        <org.eventb.core.poIdentifier name="remaining_blinks'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="blinkRight'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="blinkLeft'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="active_blinkers'" org.eventb.core.type="ℙ(DIRECTIONS)"/>
+        <org.eventb.core.poIdentifier name="rem" org.eventb.core.type="ℤ"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPBlinkLamps_v3_cu." org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTIDENTBlinkLamps_v3_cu." org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="direction∈BLINK_DIRECTION" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n26|org.eventb.core.guard#n29"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="rem∈BLINK_CYCLE_COUNTER" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n26|org.eventb.core.guard#n30"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="rem≠0" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n26|org.eventb.core.guard#n31"/>
+        <org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="direction=right_blink" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n26|org.eventb.core.guard#n32"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_else/inv0/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu\/"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="{direction}⊆BLINK_DIRECTION" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n6"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n37"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n6"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_BlinkersOn_else\/inv0\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD0"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_else/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu\/"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="rem∈BLINK_CYCLE_COUNTER" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n7"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n37"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n7"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_BlinkersOn_else\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD1"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_else/inv2/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu\/"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="cycleMaxLampStatus(onCycle)∈LAMP_STATUS" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n8"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n37"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n8"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_BlinkersOn_else\/inv2\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD2"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_else/inv3/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu\/"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="lamp_off∈LAMP_STATUS" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n9"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n37"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n9"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_BlinkersOn_else\/inv3\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD3"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_else/inv5/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu\/"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="rem=0∧cycleMaxLampStatus(onCycle)=lamp_off∧lamp_off=lamp_off⇔{direction}=(∅ ⦂ ℙ(DIRECTIONS))" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n11"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n37"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n11"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_BlinkersOn_else\/inv5\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD5"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_else/inv6/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu\/"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="lamp_off≠lamp_off⇒right_blink∈{direction}" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n12"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n37"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n12"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_BlinkersOn_else\/inv6\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD6"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_else/inv7/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu\/"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="cycleMaxLampStatus(onCycle)≠lamp_off⇒left_blink∈{direction}" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n13"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n37"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n13"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_BlinkersOn_else\/inv7\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD7"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_else/inv8/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu\/"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="{direction}=BLINK_DIRECTION⇒cycleMaxLampStatus(onCycle)=lamp_off" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n14"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n37"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n14"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_BlinkersOn_else\/inv8\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD8"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_else/inv9/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu\/"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="onCycle=FALSE⇒cycleMaxLampStatus(onCycle)=lamp_off∧lamp_off=lamp_off" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n15"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n37"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n15"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_BlinkersOn_else\/inv9\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD9"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_else/inv10/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu\/"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="onCycle=TRUE∧{direction}≠(∅ ⦂ ℙ(DIRECTIONS))⇒¬(cycleMaxLampStatus(onCycle)=lamp_off∧lamp_off=lamp_off)" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n16"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n37"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n16"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_BlinkersOn_else\/inv10\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD10"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_BlinkersOn_else/act2/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of action" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu\/"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="onCycle∈dom(cycleMaxLampStatus)∧cycleMaxLampStatus∈BOOL ⇸ ℤ" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n37|org.eventb.core.action#n46"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n37|org.eventb.core.action#n46"/>
+        <org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu\/"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poPredicateSet name="EVTIDENTBlinkLamps_v3_cu/" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="direction" org.eventb.core.type="DIRECTIONS"/>
+        <org.eventb.core.poIdentifier name="remaining_blinks'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="blinkRight'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="blinkLeft'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="active_blinkers'" org.eventb.core.type="ℙ(DIRECTIONS)"/>
+        <org.eventb.core.poIdentifier name="rem" org.eventb.core.type="ℤ"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPBlinkLamps_v3_cu/" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTIDENTBlinkLamps_v3_cu\/" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="direction∈BLINK_DIRECTION" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n37|org.eventb.core.guard#n40"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="rem∈BLINK_CYCLE_COUNTER" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n37|org.eventb.core.guard#n41"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="rem≠0" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n37|org.eventb.core.guard#n42"/>
+        <org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="¬direction=right_blink" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n37|org.eventb.core.guard#n43"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poSequent name="SET_RemainingBlinks/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu0"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="rem∈BLINK_CYCLE_COUNTER" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n7"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n48"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n7"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_RemainingBlinks\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD1"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="SET_RemainingBlinks/inv5/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu0"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="rem=0∧blinkLeft=lamp_off∧blinkRight=lamp_off⇔active_blinkers=(∅ ⦂ ℙ(DIRECTIONS))" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n11"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n48"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n11"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#SET_RemainingBlinks\/inv5\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD5"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poPredicateSet name="EVTIDENTBlinkLamps_v3_cu0" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="remaining_blinks'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="rem" org.eventb.core.type="ℤ"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPBlinkLamps_v3_cu0" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTIDENTBlinkLamps_v3_cu0" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="rem∈BLINK_CYCLE_COUNTER" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n48|org.eventb.core.guard#n50"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="rem≠0" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n48|org.eventb.core.guard#n51"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="remaining_blinks≠0" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n48|org.eventb.core.guard#n52"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poSequent name="TIME_BlinkerOn_then_then_then/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu1"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="remaining_blinks − 1∈BLINK_CYCLE_COUNTER" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n7"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n54"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n7"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#TIME_BlinkerOn_then_then_then\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD1"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="TIME_BlinkerOn_then_then_then/inv2/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu1"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="lamp_on∈LAMP_STATUS" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n8"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n54"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n8"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#TIME_BlinkerOn_then_then_then\/inv2\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD2"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="TIME_BlinkerOn_then_then_then/inv3/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu1"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="lamp_on∈LAMP_STATUS" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n9"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n54"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n9"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#TIME_BlinkerOn_then_then_then\/inv3\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD3"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="TIME_BlinkerOn_then_then_then/inv5/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu1"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="remaining_blinks − 1=0∧lamp_on=lamp_off∧lamp_on=lamp_off⇔active_blinkers=(∅ ⦂ ℙ(DIRECTIONS))" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n11"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n54"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n11"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#TIME_BlinkerOn_then_then_then\/inv5\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD5"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="TIME_BlinkerOn_then_then_then/inv6/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu1"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="lamp_on≠lamp_off⇒right_blink∈active_blinkers" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n12"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n54"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n12"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#TIME_BlinkerOn_then_then_then\/inv6\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD6"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="TIME_BlinkerOn_then_then_then/inv7/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu1"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="lamp_on≠lamp_off⇒left_blink∈active_blinkers" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n13"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n54"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n13"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#TIME_BlinkerOn_then_then_then\/inv7\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD7"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="TIME_BlinkerOn_then_then_then/inv8/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu1"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="active_blinkers=BLINK_DIRECTION⇒lamp_on=lamp_on" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n14"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n54"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n14"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#TIME_BlinkerOn_then_then_then\/inv8\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD8"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="TIME_BlinkerOn_then_then_then/inv9/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu1"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="TRUE=FALSE⇒lamp_on=lamp_off∧lamp_on=lamp_off" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n15"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n54"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n15"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#TIME_BlinkerOn_then_then_then\/inv9\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD9"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="TIME_BlinkerOn_then_then_then/inv10/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu1"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="TRUE=TRUE∧active_blinkers≠(∅ ⦂ ℙ(DIRECTIONS))⇒¬(lamp_on=lamp_off∧lamp_on=lamp_off)" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n16"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n54"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n16"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#TIME_BlinkerOn_then_then_then\/inv10\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD10"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poPredicateSet name="EVTIDENTBlinkLamps_v3_cu1" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="onCycle'" org.eventb.core.type="BOOL"/>
+        <org.eventb.core.poIdentifier name="remaining_blinks'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="blinkRight'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="blinkLeft'" org.eventb.core.type="ℤ"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPBlinkLamps_v3_cu1" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTIDENTBlinkLamps_v3_cu1" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="blinkLeft=lamp_off∧blinkRight=lamp_off∧remaining_blinks≠0" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n54|org.eventb.core.guard#n55"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="left_blink∈active_blinkers" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n54|org.eventb.core.guard#n56"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="right_blink∈active_blinkers" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n54|org.eventb.core.guard#n57"/>
+        <org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="remaining_blinks&gt;0" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n54|org.eventb.core.guard#n58"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poSequent name="TIME_BlinkerOff_then/inv0/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu2"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="(∅ ⦂ ℙ(DIRECTIONS))⊆BLINK_DIRECTION" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n6"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n63"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n6"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#TIME_BlinkerOff_then\/inv0\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD0"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="TIME_BlinkerOff_then/inv2/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu2"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="lamp_off∈LAMP_STATUS" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n8"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n63"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n8"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#TIME_BlinkerOff_then\/inv2\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD2"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="TIME_BlinkerOff_then/inv3/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu2"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="lamp_off∈LAMP_STATUS" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n9"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n63"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n9"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#TIME_BlinkerOff_then\/inv3\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD3"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="TIME_BlinkerOff_then/inv5/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu2"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="remaining_blinks=0∧lamp_off=lamp_off∧lamp_off=lamp_off⇔(∅ ⦂ ℙ(DIRECTIONS))=(∅ ⦂ ℙ(DIRECTIONS))" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n11"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n63"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n11"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#TIME_BlinkerOff_then\/inv5\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD5"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="TIME_BlinkerOff_then/inv6/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu2"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="lamp_off≠lamp_off⇒right_blink∈(∅ ⦂ ℙ(DIRECTIONS))" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n12"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n63"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n12"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#TIME_BlinkerOff_then\/inv6\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD6"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="TIME_BlinkerOff_then/inv7/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu2"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="lamp_off≠lamp_off⇒left_blink∈(∅ ⦂ ℙ(DIRECTIONS))" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n13"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n63"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n13"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#TIME_BlinkerOff_then\/inv7\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD7"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="TIME_BlinkerOff_then/inv8/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu2"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="(∅ ⦂ ℙ(DIRECTIONS))=BLINK_DIRECTION⇒lamp_off=lamp_off" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n14"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n63"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n14"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#TIME_BlinkerOff_then\/inv8\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD8"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="TIME_BlinkerOff_then/inv9/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu2"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="FALSE=FALSE⇒lamp_off=lamp_off∧lamp_off=lamp_off" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n15"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n63"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n15"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#TIME_BlinkerOff_then\/inv9\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD9"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="TIME_BlinkerOff_then/inv10/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu2"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="FALSE=TRUE∧(∅ ⦂ ℙ(DIRECTIONS))≠(∅ ⦂ ℙ(DIRECTIONS))⇒¬(lamp_off=lamp_off∧lamp_off=lamp_off)" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n16"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n63"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n16"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#TIME_BlinkerOff_then\/inv10\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD10"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poPredicateSet name="EVTIDENTBlinkLamps_v3_cu2" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="onCycle'" org.eventb.core.type="BOOL"/>
+        <org.eventb.core.poIdentifier name="blinkRight'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="blinkLeft'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="active_blinkers'" org.eventb.core.type="ℙ(DIRECTIONS)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPBlinkLamps_v3_cu2" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTIDENTBlinkLamps_v3_cu2" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="¬(blinkLeft=lamp_off∧blinkRight=lamp_off)" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n63|org.eventb.core.guard#n64"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="remaining_blinks=0" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n63|org.eventb.core.guard#n65"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poSequent name="TIME_Nothing/inv9/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu3"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="newOnCycle=FALSE⇒blinkLeft=lamp_off∧blinkRight=lamp_off" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n15"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n69"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n15"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#TIME_Nothing\/inv9\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD9"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="TIME_Nothing/inv10/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTALLHYPBlinkLamps_v3_cu3"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="newOnCycle=TRUE∧active_blinkers≠(∅ ⦂ ℙ(DIRECTIONS))⇒¬(blinkLeft=lamp_off∧blinkRight=lamp_off)" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n16"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n69"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n16"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poSequent#TIME_Nothing\/inv10\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD10"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poPredicateSet name="EVTIDENTBlinkLamps_v3_cu3" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="onCycle'" org.eventb.core.type="BOOL"/>
+        <org.eventb.core.poIdentifier name="newOnCycle" org.eventb.core.type="BOOL"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPBlinkLamps_v3_cu3" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#EVTIDENTBlinkLamps_v3_cu3" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="blinkLeft=lamp_off∧blinkRight=lamp_off∧active_blinkers=(∅ ⦂ ℙ(DIRECTIONS))∧newOnCycle=FALSE" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.event#n69|org.eventb.core.guard#n71"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="ALLHYP" org.eventb.core.parentSet="/abz2020/BlinkLamps_v3.bpo|org.eventb.core.poFile#BlinkLamps_v3|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="active_blinkers⊆BLINK_DIRECTION" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n6"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="remaining_blinks∈BLINK_CYCLE_COUNTER" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n7"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="blinkLeft∈LAMP_STATUS" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n8"/>
+        <org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="blinkRight∈LAMP_STATUS" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n9"/>
+        <org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="onCycle∈BOOL" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n10"/>
+        <org.eventb.core.poPredicate name="PRD5" org.eventb.core.predicate="remaining_blinks=0∧blinkLeft=lamp_off∧blinkRight=lamp_off⇔active_blinkers=(∅ ⦂ ℙ(DIRECTIONS))" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n11"/>
+        <org.eventb.core.poPredicate name="PRD6" org.eventb.core.predicate="blinkRight≠lamp_off⇒right_blink∈active_blinkers" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n12"/>
+        <org.eventb.core.poPredicate name="PRD7" org.eventb.core.predicate="blinkLeft≠lamp_off⇒left_blink∈active_blinkers" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n13"/>
+        <org.eventb.core.poPredicate name="PRD8" org.eventb.core.predicate="active_blinkers=BLINK_DIRECTION⇒blinkLeft=blinkRight" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n14"/>
+        <org.eventb.core.poPredicate name="PRD9" org.eventb.core.predicate="onCycle=FALSE⇒blinkLeft=lamp_off∧blinkRight=lamp_off" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n15"/>
+        <org.eventb.core.poPredicate name="PRD10" org.eventb.core.predicate="onCycle=TRUE∧active_blinkers≠(∅ ⦂ ℙ(DIRECTIONS))⇒¬(blinkLeft=lamp_off∧blinkRight=lamp_off)" org.eventb.core.source="/abz2020/BlinkLamps_v3.bum|org.eventb.core.machineFile#BlinkLamps_v3|org.eventb.core.invariant#n16"/>
+    </org.eventb.core.poPredicateSet>
+</org.eventb.core.poFile>

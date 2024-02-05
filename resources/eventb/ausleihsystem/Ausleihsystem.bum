@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<org.eventb.core.machineFile org.eventb.core.configuration='org.eventb.core.fwd' version='5' org.eventb.core.comment=''>
+  <org.eventb.core.seesContext name='n0' org.eventb.core.target='ctx' />
+  <org.eventb.core.variable name='n1' org.eventb.core.identifier='aus' />
+  <org.eventb.core.invariant name='n2' org.eventb.core.label='typ1' org.eventb.core.predicate='aus∈B ⇸ P' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+  <org.eventb.core.event name='n3' org.eventb.core.convergence='0' org.eventb.core.extended='false' org.eventb.core.label='INITIALISATION' org.eventb.core.comment=''>
+    <org.eventb.core.action name='n4' org.eventb.core.assignment='aus ≔ ∅ ⦂ ℙ(B×P)' org.eventb.core.label='act' org.eventb.core.comment='' />
+  </org.eventb.core.event>
+  <org.eventb.core.event name='n5' org.eventb.core.convergence='0' org.eventb.core.extended='false' org.eventb.core.label='ausleihen' org.eventb.core.comment=''>
+    <org.eventb.core.parameter name='n6' org.eventb.core.identifier='person' org.eventb.core.comment='' />
+    <org.eventb.core.parameter name='n7' org.eventb.core.identifier='buch' org.eventb.core.comment='' />
+    <org.eventb.core.guard name='n8' org.eventb.core.label='grd1' org.eventb.core.predicate='person∈P' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+    <org.eventb.core.guard name='n9' org.eventb.core.label='grd2' org.eventb.core.predicate='buch∈B' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+    <org.eventb.core.guard name='n10' org.eventb.core.label='grd3' org.eventb.core.predicate='buch∉dom(aus)' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+    <org.eventb.core.action name='n11' org.eventb.core.assignment='aus ≔ aus{buch ↦ person}' org.eventb.core.label='act' org.eventb.core.comment='' />
+  </org.eventb.core.event>
+  <org.eventb.core.event name='n12' org.eventb.core.convergence='0' org.eventb.core.extended='false' org.eventb.core.label='zurueckgeben' org.eventb.core.comment=''>
+    <org.eventb.core.parameter name='n13' org.eventb.core.identifier='person' org.eventb.core.comment='' />
+    <org.eventb.core.parameter name='n14' org.eventb.core.identifier='buch' org.eventb.core.comment='' />
+    <org.eventb.core.guard name='n15' org.eventb.core.label='grd1' org.eventb.core.predicate='person∈P' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+    <org.eventb.core.guard name='n16' org.eventb.core.label='grd2' org.eventb.core.predicate='buch∈B' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+    <org.eventb.core.guard name='n17' org.eventb.core.label='grd3' org.eventb.core.predicate='buch ↦ person∈aus' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+    <org.eventb.core.action name='n18' org.eventb.core.assignment='aus ≔ {buch} ⩤ aus' org.eventb.core.label='act' org.eventb.core.comment='' />
+  </org.eventb.core.event>
+</org.eventb.core.machineFile>

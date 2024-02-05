@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<org.eventb.core.contextFile org.eventb.core.configuration='org.eventb.core.fwd' version='3' org.eventb.core.comment=''>
+  <org.eventb.core.carrierSet name='n19' org.eventb.core.identifier='A' org.eventb.core.comment='' />
+  <org.eventb.core.carrierSet name='n20' org.eventb.core.identifier='B' org.eventb.core.comment='' />
+  <org.eventb.core.carrierSet name='n21' org.eventb.core.identifier='P' org.eventb.core.comment='' />
+</org.eventb.core.contextFile>

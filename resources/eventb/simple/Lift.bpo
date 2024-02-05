@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.poFile org.eventb.core.poStamp="0">
+    <org.eventb.core.poPredicateSet name="CTXHYP" org.eventb.core.poStamp="0"/>
+    <org.eventb.core.poPredicateSet name="ABSHYP" org.eventb.core.parentSet="/simple/Lift.bpo|org.eventb.core.poFile#Lift|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="etage" org.eventb.core.type="ℤ"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poSequent name="INITIALISATION/inv0/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  establishment" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/simple/Lift.bpo|org.eventb.core.poFile#Lift|org.eventb.core.poPredicateSet#EVTALLHYPetagf"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="4∈0 ‥ 99" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.invariant#n1"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.event#n2"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.invariant#n1"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/simple/Lift.bpo|org.eventb.core.poFile#Lift|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poSelHintSnd="/simple/Lift.bpo|org.eventb.core.poFile#Lift|org.eventb.core.poSequent#INITIALISATION\/inv0\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/simple/Lift.bpo|org.eventb.core.poFile#Lift|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD0"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poPredicateSet name="EVTIDENTetagf" org.eventb.core.parentSet="/simple/Lift.bpo|org.eventb.core.poFile#Lift|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="etage'" org.eventb.core.type="ℤ"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPetagf" org.eventb.core.parentSet="/simple/Lift.bpo|org.eventb.core.poFile#Lift|org.eventb.core.poPredicateSet#EVTIDENTetagf" org.eventb.core.poStamp="0"/>
+    <org.eventb.core.poSequent name="inc/inv0/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/simple/Lift.bpo|org.eventb.core.poFile#Lift|org.eventb.core.poPredicateSet#EVTALLHYPetagg"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="etage+1∈0 ‥ 99" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.invariant#n1"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.event#n4"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.invariant#n1"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/simple/Lift.bpo|org.eventb.core.poFile#Lift|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/simple/Lift.bpo|org.eventb.core.poFile#Lift|org.eventb.core.poSequent#inc\/inv0\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/simple/Lift.bpo|org.eventb.core.poFile#Lift|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD0"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poPredicateSet name="EVTIDENTetagg" org.eventb.core.parentSet="/simple/Lift.bpo|org.eventb.core.poFile#Lift|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="etage'" org.eventb.core.type="ℤ"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPetagg" org.eventb.core.parentSet="/simple/Lift.bpo|org.eventb.core.poFile#Lift|org.eventb.core.poPredicateSet#EVTIDENTetagg" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="etage&lt;99" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.event#n4|org.eventb.core.guard#n5"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poSequent name="dec/inv0/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/simple/Lift.bpo|org.eventb.core.poFile#Lift|org.eventb.core.poPredicateSet#EVTALLHYPetagh"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="etage − 1∈0 ‥ 99" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.invariant#n1"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.event#n7"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.invariant#n1"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/simple/Lift.bpo|org.eventb.core.poFile#Lift|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/simple/Lift.bpo|org.eventb.core.poFile#Lift|org.eventb.core.poSequent#dec\/inv0\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/simple/Lift.bpo|org.eventb.core.poFile#Lift|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD0"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poPredicateSet name="EVTIDENTetagh" org.eventb.core.parentSet="/simple/Lift.bpo|org.eventb.core.poFile#Lift|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="etage'" org.eventb.core.type="ℤ"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPetagh" org.eventb.core.parentSet="/simple/Lift.bpo|org.eventb.core.poFile#Lift|org.eventb.core.poPredicateSet#EVTIDENTetagh" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="etage&gt;0" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.event#n7|org.eventb.core.guard#n8"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="ALLHYP" org.eventb.core.parentSet="/simple/Lift.bpo|org.eventb.core.poFile#Lift|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="etage∈0 ‥ 99" org.eventb.core.source="/simple/Lift.bum|org.eventb.core.machineFile#Lift|org.eventb.core.invariant#n1"/>
+    </org.eventb.core.poPredicateSet>
+</org.eventb.core.poFile>

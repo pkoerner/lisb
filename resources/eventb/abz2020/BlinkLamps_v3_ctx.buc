@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<org.eventb.core.contextFile org.eventb.core.configuration='org.eventb.core.fwd' version='3' org.eventb.core.comment=''>
+  <org.eventb.core.carrierSet name='n206' org.eventb.core.identifier='DIRECTIONS' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n207' org.eventb.core.identifier='BLINK_DIRECTION' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n208' org.eventb.core.identifier='LAMP_STATUS' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n209' org.eventb.core.identifier='lamp_on' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n210' org.eventb.core.identifier='lamp_off' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n211' org.eventb.core.identifier='continuousBlink' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n212' org.eventb.core.identifier='BLINK_CYCLE_COUNTER' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n213' org.eventb.core.identifier='cycleMaxLampStatus' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n214' org.eventb.core.identifier='left_blink' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n215' org.eventb.core.identifier='right_blink' org.eventb.core.comment='' />
+  <org.eventb.core.constant name='n216' org.eventb.core.identifier='neutral_blink' org.eventb.core.comment='' />
+  <org.eventb.core.axiom name='n217' org.eventb.core.label='axm0' org.eventb.core.predicate='partition(DIRECTIONS,{left_blink},{right_blink},{neutral_blink})' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+  <org.eventb.core.axiom name='n218' org.eventb.core.label='axm1' org.eventb.core.predicate='BLINK_DIRECTION={left_blink,right_blink}' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+  <org.eventb.core.axiom name='n219' org.eventb.core.label='axm2' org.eventb.core.predicate='LAMP_STATUS={0,100}' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+  <org.eventb.core.axiom name='n220' org.eventb.core.label='axm3' org.eventb.core.predicate='continuousBlink=−1' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+  <org.eventb.core.axiom name='n221' org.eventb.core.label='axm4' org.eventb.core.predicate='lamp_off=0' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+  <org.eventb.core.axiom name='n222' org.eventb.core.label='axm5' org.eventb.core.predicate='lamp_on=100' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+  <org.eventb.core.axiom name='n223' org.eventb.core.label='axm6' org.eventb.core.predicate='BLINK_CYCLE_COUNTER=−1‥3' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+  <org.eventb.core.axiom name='n224' org.eventb.core.label='axm7' org.eventb.core.predicate='cycleMaxLampStatus∈(BOOL)→LAMP_STATUS' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+  <org.eventb.core.axiom name='n225' org.eventb.core.label='axm8' org.eventb.core.predicate='cycleMaxLampStatus={FALSE↦lamp_off,TRUE↦lamp_on}' org.eventb.core.theorem='false' org.eventb.core.comment='' />
+</org.eventb.core.contextFile>

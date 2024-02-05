@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.scMachineFile org.eventb.core.accurate="true" org.eventb.core.configuration="org.eventb.core.fwd">
+    <org.eventb.core.scInvariant name="'" org.eventb.core.label="inv0" org.eventb.core.predicate="hello∈BOOL" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.invariant#n3" org.eventb.core.theorem="false"/>
+    <org.eventb.core.scInvariant name="(" org.eventb.core.label="inv1" org.eventb.core.predicate="x≤10" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.invariant#n4" org.eventb.core.theorem="false"/>
+    <org.eventb.core.scInvariant name=")" org.eventb.core.label="inv2" org.eventb.core.predicate="y∈ℕ" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.invariant#n5" org.eventb.core.theorem="false"/>
+    <org.eventb.core.scVariable name="x" org.eventb.core.abstract="false" org.eventb.core.concrete="true" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.variable#n0" org.eventb.core.type="ℤ"/>
+    <org.eventb.core.scVariable name="y" org.eventb.core.abstract="false" org.eventb.core.concrete="true" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.variable#n1" org.eventb.core.type="ℤ"/>
+    <org.eventb.core.scVariable name="hello" org.eventb.core.abstract="false" org.eventb.core.concrete="true" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.variable#n2" org.eventb.core.type="BOOL"/>
+    <org.eventb.core.scEvent name="hellp" org.eventb.core.accurate="true" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="INITIALISATION" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.event#n6">
+        <org.eventb.core.scAction name="'" org.eventb.core.assignment="x,y ≔ 0, 50" org.eventb.core.label="init0" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.event#n6|org.eventb.core.action#n7"/>
+        <org.eventb.core.scAction name="(" org.eventb.core.assignment="hello ≔ TRUE" org.eventb.core.label="init1" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.event#n6|org.eventb.core.action#n8"/>
+    </org.eventb.core.scEvent>
+    <org.eventb.core.scEvent name="hellq" org.eventb.core.accurate="true" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="inc" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.event#n9">
+        <org.eventb.core.scGuard name="'" org.eventb.core.label="grd0" org.eventb.core.predicate="x&lt;10" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.event#n9|org.eventb.core.guard#n10" org.eventb.core.theorem="false"/>
+        <org.eventb.core.scAction name="(" org.eventb.core.assignment="x ≔ x+1" org.eventb.core.label="act0" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.event#n9|org.eventb.core.action#n11"/>
+    </org.eventb.core.scEvent>
+    <org.eventb.core.scEvent name="hellr" org.eventb.core.accurate="true" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="hello" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.event#n12">
+        <org.eventb.core.scAction name="'" org.eventb.core.assignment="hello ≔ TRUE" org.eventb.core.label="act0" org.eventb.core.source="/hello/hello_world.bum|org.eventb.core.machineFile#hello_world|org.eventb.core.event#n12|org.eventb.core.action#n13"/>
+    </org.eventb.core.scEvent>
+</org.eventb.core.scMachineFile>

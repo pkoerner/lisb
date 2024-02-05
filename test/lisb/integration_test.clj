@@ -311,3 +311,4 @@
     (is (nil? (eval-ir-formula (b (= 1 2))))))
   (testing "timeouts / no found solution should throw an exception"
     (is (thrown? Exception (eval-ir-formula (b (< :x :y :x)))))))
+

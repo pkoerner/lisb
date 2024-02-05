@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.scMachineFile org.eventb.core.accurate="true" org.eventb.core.configuration="org.eventb.core.fwd">
+    <org.eventb.core.scInvariant name="'" org.eventb.core.label="inv0" org.eventb.core.predicate="ii∈0 ‥ 10" org.eventb.core.source="/simple/ACounter.bum|org.eventb.core.machineFile#ACounter|org.eventb.core.invariant#n13" org.eventb.core.theorem="false"/>
+    <org.eventb.core.scInvariant name="(" org.eventb.core.label="inv1" org.eventb.core.predicate="jj∈0 ‥ 10" org.eventb.core.source="/simple/ACounter.bum|org.eventb.core.machineFile#ACounter|org.eventb.core.invariant#n14" org.eventb.core.theorem="false"/>
+    <org.eventb.core.scInvariant name=")" org.eventb.core.label="inv2" org.eventb.core.predicate="ii&lt;11" org.eventb.core.source="/simple/ACounter.bum|org.eventb.core.machineFile#ACounter|org.eventb.core.invariant#n15" org.eventb.core.theorem="false"/>
+    <org.eventb.core.scInvariant name="*" org.eventb.core.label="inv3" org.eventb.core.predicate="jj≥0" org.eventb.core.source="/simple/ACounter.bum|org.eventb.core.machineFile#ACounter|org.eventb.core.invariant#n16" org.eventb.core.theorem="false"/>
+    <org.eventb.core.scVariable name="ii" org.eventb.core.abstract="false" org.eventb.core.concrete="true" org.eventb.core.source="/simple/ACounter.bum|org.eventb.core.machineFile#ACounter|org.eventb.core.variable#n10" org.eventb.core.type="ℤ"/>
+    <org.eventb.core.scVariable name="jj" org.eventb.core.abstract="false" org.eventb.core.concrete="true" org.eventb.core.source="/simple/ACounter.bum|org.eventb.core.machineFile#ACounter|org.eventb.core.variable#n11" org.eventb.core.type="ℤ"/>
+    <org.eventb.core.scEvent name="jk" org.eventb.core.accurate="true" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="INITIALISATION" org.eventb.core.source="/simple/ACounter.bum|org.eventb.core.machineFile#ACounter|org.eventb.core.event#n17">
+        <org.eventb.core.scAction name="'" org.eventb.core.assignment="ii,jj ≔ 2, 10" org.eventb.core.label="init0" org.eventb.core.source="/simple/ACounter.bum|org.eventb.core.machineFile#ACounter|org.eventb.core.event#n17|org.eventb.core.action#n18"/>
+    </org.eventb.core.scEvent>
+    <org.eventb.core.scEvent name="jl" org.eventb.core.accurate="true" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="inc" org.eventb.core.source="/simple/ACounter.bum|org.eventb.core.machineFile#ACounter|org.eventb.core.event#n19">
+        <org.eventb.core.scAction name="'" org.eventb.core.assignment="ii ≔ ii+1" org.eventb.core.label="act0" org.eventb.core.source="/simple/ACounter.bum|org.eventb.core.machineFile#ACounter|org.eventb.core.event#n19|org.eventb.core.action#n20"/>
+        <org.eventb.core.scAction name="(" org.eventb.core.assignment="jj ≔ jj − 1" org.eventb.core.label="act1" org.eventb.core.source="/simple/ACounter.bum|org.eventb.core.machineFile#ACounter|org.eventb.core.event#n19|org.eventb.core.action#n21"/>
+    </org.eventb.core.scEvent>
+    <org.eventb.core.scEvent name="jm" org.eventb.core.accurate="false" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="res" org.eventb.core.source="/simple/ACounter.bum|org.eventb.core.machineFile#ACounter|org.eventb.core.event#n22"/>
+</org.eventb.core.scMachineFile>
