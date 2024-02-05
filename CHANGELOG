@@ -5,9 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.0.5] - SNAPSHOT
+  ### Added
+  - Added Support for Event-B
+  - Added Support for Reals in Classical-B
+  - Added support for FREETYPES
   ### Changed
   - Default state space (empty machine) is only loaded if needed (instead of on start-up).
-  - Add support for FREETYPES
   - Make `if` more similar to `let`: `if-expr` was replaced by `if` which works with both expressions and predicates
 
 ## [0.0.4]
