@@ -143,6 +143,7 @@
               (b (<->> :S :T))
               (b (<<->> :S :T))
               (b (|-> :E :F))
+              (b (|-> :E :F :G))
               (b (dom :r))
               (b (ran :r))
               (b (identity :S))

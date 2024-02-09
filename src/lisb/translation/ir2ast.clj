@@ -819,8 +819,8 @@
   (left-associative #(ATotalSurjectionRelationExpression. %1 %2) (ir-node-sets->ast ir-node)))
 
 (defmethod ir-node->ast-node :maplet [ir-node]
-  (s/assert (s/keys :req-un [::left ::right]) ir-node)
-  (ACoupleExpression. [(ir-node-left->ast ir-node) (ir-node-right->ast ir-node)]))
+  (s/assert (s/keys :req-un [::elems]) ir-node)
+  (ACoupleExpression. (ir-node-elems->ast ir-node)))
 
 (defmethod ir-node->ast-node :dom [ir-node]
   (s/assert (s/keys :req-un [::rel]) ir-node)
@@ -1167,7 +1167,6 @@
   (cond
     (map? ir) (ir-node->ast-node ir)
     (set? ir) (set-expression (map ir->ast-node ir))
-    ;(vector? ir) (ACoupleExpression. (map ir->ast-node ir))
     (keyword? ir) (AIdentifierExpression. [(TIdentifierLiteral. (name ir))])
     (string? ir) (AStringExpression. (TStringLiteral. ir)) ;; hack-y thing to avoid renaming of rec-get parameters in preds
     (integer? ir) (AIntegerExpression. (TIntegerLiteral. (str ir)))

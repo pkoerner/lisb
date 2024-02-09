@@ -908,13 +908,12 @@
         :ret (s/and (s/keys :req-un (::tag) :req (::sets))
                     #(= :total-surjective-relation (:tag %))))
 
-(defn bmaplet [left right]
+(defn bmaplet [& elems]
   {:tag :maplet
-   :left left
-   :right right})
+   :elems elems})
 (s/fdef bmaplet
-        :args (s/cat :left ::left :right ::right)
-        :ret (s/and (s/keys :req-un (::tag) :req (::left ::right))
+        :args (s/cat :elems ::elems)
+        :ret (s/and (s/keys :req-un (::tag) :req (::elems))
                     #(= :maplet (:tag %))))
 
 (defn bdom [rel]
