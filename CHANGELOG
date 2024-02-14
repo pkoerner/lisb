@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ### Changed
   - Default state space (empty machine) is only loaded if needed (instead of on start-up).
   - Make `if` more similar to `let`: `if-expr` was replaced by `if` which works with both expressions and predicates
+  - add support for n-ary tuples in `maplet`
 
 ## [0.0.4]
   ### Added:

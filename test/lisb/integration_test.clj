@@ -129,6 +129,9 @@
     (is (eval-ir-formula (b= 2 (bsuccessor 1))))
 
     (is (eval-ir-formula (b= 0 (bpredecessor 1))))
+    
+    (is (eval-ir-formula (b= :x (bmaplet 1 2))))
+    (is (eval-ir-formula (b= :x (bmaplet 1 2 3))))
 
     (is (eval-ir-formula (b= :x #{(bmaplet 1 2)})))
 

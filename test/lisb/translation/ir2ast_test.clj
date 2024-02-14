@@ -242,6 +242,7 @@
                 "S<<->>T<<->>U" (b (<<->> :S :T :U))
                 "S<<->>T<<->>U<<->>V" (b (<<->> :S :T :U :V))
                 "(E,F)" (b (maplet :E :F))
+                "(E,F,G)" (b (maplet :E :F :G))
                 "dom(r)" (b (dom :r))
                 "ran(r)" (b (ran :r))
                 "id(S)" (b (id :S))

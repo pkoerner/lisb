@@ -110,8 +110,8 @@
 | `set1<<->set2<<->...`                                | `(<<-> & sets)`                     | `{:tag :total relation, :sets sets}`             | total relation                                                   |
 | `set1<->>set2<<->...`                                | `(<->> & sets)`                     | `{:tag :surjective relation , :sets sets}`       | surjective relation                                              |
 | `set1<<->>set2<<->...`                               | `(<<->> & sets)`                    | `{:tag :total surjective relation, :sets sets}`  | total surjective relation                                        |
-| <code>left&#124;->right</code>                       |  <code>(&#124;-> left right)</code> | `{:tag :maplet, :left left, :right right}`       | maplet                                                           |
-|                                                      | `(maplet left right)`               | `{:tag :maplet, :left left, :right right}`       | sugar                                                            | 
+| <code>left&#124;->right</code>                       |  <code>(&#124;-> & elems)</code> | `{:tag :maplet, :elems elems}`       | maplet                                                           |
+|                                                      | `(maplet & elems)`               | `{:tag :maplet, :elems elems}`       | sugar                                                            | 
 | `dom(rel)`                                           | `(dom rel)`                         | `{:tag :dom, :rel rel}`                          | domain of relation                                               |
 | `ran(rel)`                                           | `(ran rel)`                         | `{:tag :ran, :rel rel}`                          | range of relation                                                |
 | `id(set)`                                            | `(id set)`                          | `{:tag :id, :set set}`                           | identity relation                                                |
