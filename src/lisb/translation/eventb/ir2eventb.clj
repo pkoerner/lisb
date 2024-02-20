@@ -261,7 +261,7 @@
   (chain-expr ">->>" (:sets ir)))
 
 (defn tuple->maplet [tuple]
-  (reduce (fn [acc cur] {:tag :maplet :left acc :right cur})
+  (reduce (fn [acc cur] {:tag :maplet :elems [acc cur]})
            tuple))
 
 (defmethod ir-expr->str :lambda [{:keys [ids pred expr]}]
