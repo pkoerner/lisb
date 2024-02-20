@@ -126,7 +126,7 @@
 (defmethod ir-expr->str :unite-sets [ir]
   (str "union(" (ir-expr->str (:set ir)) ")"))
 
-(defmethod ir-expr->str :unite-sets [ir]
+(defmethod ir-expr->str :intersect-sets [ir]
   (str "inter(" (ir-expr->str (:set ir)) ")"))
 
 (defmethod ir-expr->str :cardinality [ir]
@@ -140,6 +140,9 @@
 
 (defmethod ir-expr->str :intersection [ir]
   (chain-expr "/\\" (:sets ir)))
+
+(defmethod ir-expr->str :difference [ir]
+  (chain-expr "\\" (:sets ir)))
 
 (defmethod ir-pred->str :member [ir]
   (str (ir-expr->str (:elem ir)) ":" (ir-expr->str (:set ir))))
@@ -158,10 +161,78 @@
   (str "partition(" (ir-expr->str (:set ir)) ","
        (str/join "," (map ir-expr->str (:partitions ir))) ")"))
 
+(defmethod ir-pred->str :finite [ir]
+  (str "finite(" (ir-expr->str (:set ir)) ")"))
+
 ;; Relations
 
-(defmethod ir-expr->str :maplet [{:keys [left right]}]
-  (chain-expr "|->" [left right]))
+(defmethod ir-expr->str :maplet [{:keys [elems]}]
+  (chain-expr "|->" elems))
+
+(defmethod ir-expr->str :relation [ir]
+  (chain-expr "<->" (:sets ir)))
+
+(defmethod ir-expr->str :dom [{:keys [rel]}]
+  (str "dom(" (ir-expr->str rel) ")"))
+
+(defmethod ir-expr->str :ran [{:keys [rel]}]
+  (str "ran(" (ir-expr->str rel) ")"))
+
+(defmethod ir-expr->str :total-relation [ir]
+  (chain-expr "<<->" (:sets ir)))
+
+(defmethod ir-expr->str :surjective-relation [ir]
+  (chain-expr "<->>" (:sets ir)))
+
+(defmethod ir-expr->str :total-surjective-relation [ir]
+  (chain-expr "<<->>" (:sets ir)))
+
+(defmethod ir-expr->str :composition [ir]
+  (chain-expr ";" (:rels ir)))
+
+;; TODO: backwards composition
+
+(defmethod ir-expr->str :id [{:keys [rel]}]
+  (str "id(" (ir-expr->str rel) ")"))
+
+(defmethod ir-expr->str :inverse [{:keys [rel]}]
+  (str (ir-expr->str rel) "~"))
+
+(defmethod ir-expr->str :image [{:keys [rel set]}]
+  (str (ir-expr->str rel) "[" (ir-expr->str set) "]")) 
+
+(defmethod ir-expr->str :domain-restriction [{:keys [rel set]}]
+  (str (ir-expr->str set) "<|" (ir-expr->str rel)))
+
+(defmethod ir-expr->str :domain-subtraction [{:keys [rel set]}]
+  (str (ir-expr->str set) "<<|" (ir-expr->str rel)))
+
+(defmethod ir-expr->str :range-restriction [{:keys [rel set]}]
+  (str (ir-expr->str rel) "|>" (ir-expr->str set)))
+
+(defmethod ir-expr->str :range-subtraction [{:keys [rel set]}]
+  (str (ir-expr->str rel) "|>>" (ir-expr->str set)))
+
+(defmethod ir-expr->str :override [{:keys [rels]}]
+  (chain-expr "<+" rels))
+
+(defmethod ir-expr->str :direct-product [{:keys [rels]}]
+  (chain-expr "><" rels))
+
+(defmethod ir-expr->str :parallel-product [{:keys [rels]}]
+  (chain-expr "||" rels))
+
+(defmethod ir-expr->str :prj1 [{:keys [set1 set2]}]
+  (str "prj1(" (ir-expr->str set1) "," (ir-expr->str set2) ")"))
+
+(defmethod ir-expr->str :prj2 [{:keys [set1 set2]}]
+  (str "prj2(" (ir-expr->str set1) "," (ir-expr->str set2) ")"))
+
+(defmethod ir-expr->str :iteration [{:keys [rel num]}]
+  (str (ir-expr->str rel) "^" (ir-expr->str num)))
+
+;; TODO: missing Closures
+
 
 ;; Functions
 

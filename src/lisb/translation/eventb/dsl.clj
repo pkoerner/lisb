@@ -76,6 +76,10 @@
    :set set
    :partitions partitions})
 
+(defn eventb-finite [set]
+  {:tag :finite
+   :set set})
+
 (defmacro eventb [lisb]
   `(b (let [~'axioms ~'properties
             ~'theorems ~'assertions
@@ -91,5 +95,6 @@
             ~'event-refines event-refines
             ~'event-extends event-extends
             ~'status event-status
-            ~'with event-with]
+            ~'with event-with
+            ~'finite eventb-finite]
         ~lisb)))

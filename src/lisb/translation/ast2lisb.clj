@@ -32,6 +32,7 @@
              APow1SubsetExpression
              AFinSubsetExpression
              AFin1SubsetExpression
+             AFinitePredicate
              ACardExpression
              AUnionExpression
              AIntersectionExpression
@@ -760,6 +761,9 @@
 (defmethod ast->lisb AFin1SubsetExpression [node]
   (expression 'fin1 node))
 
+(defmethod ast->lisb AFinitePredicate [node]
+  (lisbify 'finite (.getSet node)))
+
 (defmethod ast->lisb ACardExpression [node]
   (expression 'card node))
 
@@ -890,7 +894,7 @@
   (ast->lisb (.getExpression node)))
 
 (defmethod ast->lisb APartitionPredicate [node]
-  (lisbify 'partition (.getSet node) (.getElements node)))
+  (apply lisbify 'partition (.getSet node) (.getElements node)))
 
 (defmethod ast->lisb AEventBComprehensionSetExpression [node]
   (lisbify 'comprehension-set (.getIdentifiers node) (.getPredicates node)))
