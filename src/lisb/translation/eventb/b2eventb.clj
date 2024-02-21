@@ -24,6 +24,15 @@
         other (s/setval [s/ALL (TAG :actions)] s/NONE (:clauses event))]
     (assoc event :clauses (conj other updated))))
 
+(defn- add-args
+  "Adds *args* to *event*"
+  [event args]
+  (let [old (s/select [:clauses s/ALL (TAG :args) :values s/ALL] event)
+        updated (apply dsl/event-any (concat old args))
+        other (s/setval [s/ALL (TAG :args)] s/NONE (:clauses event))]
+    (assoc event :clauses (conj other updated))))
+
+
 (defn- append-name
   "Append *event* name with all *postfixes*"
   [event & postfixes]
@@ -46,9 +55,17 @@
 (defmethod sub->events :becomes-such [base-event ir]
   [(add-actions base-event ir)])
 
+(defn- subs->events [base-event subs]
+  (reduce (fn [events sub] (mapcat #(sub->events % sub) events)) [base-event] subs))
+
+(defmethod sub->events :any [base-event ir]
+  (-> base-event
+      (add-args (:ids ir))
+      (add-guards (:pred ir))
+      (subs->events (:subs ir))))
+
 (defmethod sub->events :parallel-sub [base-event ir]
-  (reduce (fn [events sub] (mapcat #(sub->events % sub) events))
-          [base-event]  (:subs ir)))
+  (subs->events base-event (:subs ir)))
 
 (defmethod sub->events :precondition [base-event ir]
     (-> (apply add-guards base-event

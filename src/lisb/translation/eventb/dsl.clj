@@ -63,11 +63,10 @@
    :type :extends
    :value event-name})
 
-(defn eventb-event
-  ([name & clauses]
+(defn eventb-event [name & clauses]
   {:tag :event
    :name name
-   :clauses clauses}))
+   :clauses clauses})
 
 ;; Other
 
