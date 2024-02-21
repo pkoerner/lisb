@@ -3,6 +3,18 @@
             [lisb.translation.lisb2ir :refer [b band bparallel-sub]]
             [clojure.spec.alpha :as s]))
 
+
+(comment
+  ;;TODO: flatten event ir, by adding a top level key for all event-clauses.
+  "{:tag :event
+   :args [:x :y]
+   :witnesses [...]
+   :status :convergent
+   :reference {:tag :event-reference ...}
+   :guards [...]
+   :actions [...]}")
+
+
 (defn eventb-context [name & clauses]
   {:tag :context
    :name name
