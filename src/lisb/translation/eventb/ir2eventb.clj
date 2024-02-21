@@ -59,7 +59,7 @@
 (defmethod ir-expr->str :mul [ir] (chain-expr "*" (:nums ir)))
 (defmethod ir-expr->str :div [ir] (chain-expr "/" (:nums ir)))
 (defmethod ir-expr->str :mod [ir] (chain-expr "mod" (:nums ir)))
-;;(defmethod ir-expr->str :pow [ir-expr] (chain-expr " ** " (:nums ir-expr)))
+(defmethod ir-expr->str :pow [ir-expr] (chain-expr " ** " (:nums ir-expr)))
 
 (defmethod ir-expr->str :integer-set [_] "INT")
 (defmethod ir-expr->str :int-set [_] "INT")
@@ -119,6 +119,12 @@
 
 (defmethod ir-expr->str :power1-set [ir]
   (str "POW1(" (ir-expr->str (:set ir)) ")"))
+
+(defmethod ir-expr->str :fin [ir]
+  (str "FIN(" (ir-expr->str (:set ir)) ")"))
+
+(defmethod ir-expr->str :fin1 [ir]
+  (str "FIN1(" (ir-expr->str (:set ir)) ")"))
 
 (defmethod ir-expr->str :card [ir]
   (str "card(" (ir-expr->str (:set ir)) ")"))
@@ -199,7 +205,7 @@
   (str (ir-expr->str rel) "~"))
 
 (defmethod ir-expr->str :image [{:keys [rel set]}]
-  (str (ir-expr->str rel) "[" (ir-expr->str set) "]")) 
+  (str (ir-expr->str rel) "[" (ir-expr->str set) "]"))
 
 (defmethod ir-expr->str :domain-restriction [{:keys [rel set]}]
   (str (ir-expr->str set) "<|" (ir-expr->str rel)))
