@@ -55,6 +55,9 @@
 (defmethod sub->events :becomes-such [base-event ir]
   [(add-actions base-event ir)])
 
+(defmethod sub->events :skip [base-event ir]
+  [base-event])
+
 (defn- subs->events [base-event subs]
   (reduce (fn [events sub] (mapcat #(sub->events % sub) events)) [base-event] subs))
 
