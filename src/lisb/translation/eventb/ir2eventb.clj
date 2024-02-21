@@ -94,7 +94,7 @@
 (defmethod ir-pred->str :for-all [ir]
   (str "!" (str/join "," (map rodin-name (:ids ir))) "." (ir-pred->str (:implication ir))))
 (defmethod ir-pred->str :exists [ir]
-  (str "#" (str/join "," (map rodin-name (:ids ir)) (ir-pred->str (:pred ir)))))
+  (str "#" (str/join "," (map rodin-name (:ids ir))) "." (ir-pred->str (:pred ir))))
 
 ;; Equality
 
