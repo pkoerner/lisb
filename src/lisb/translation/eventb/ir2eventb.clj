@@ -121,21 +121,6 @@
 (defmethod ir-expr->str :power1-set [ir]
   (str "POW1(" (ir-expr->str (:set ir)) ")"))
 
-(defmethod ir-expr->str :fin [ir]
-  (ir-expr->str
-   (eventb
-    (comprehension-set
-     :set (and (member? :set (:set ir))
-               (finite :set))))))
-
-(defmethod ir-expr->str :fin1 [ir]
-  (ir-expr->str
-   #(eventb
-    (comprehension-set
-     :set (and (member? :set (:set ir))
-               (finite :set)
-               (not= :set #{}))))))
-
 (defmethod ir-expr->str :card [ir]
   (str "card(" (ir-expr->str (:set ir)) ")"))
 

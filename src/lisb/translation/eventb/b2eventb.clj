@@ -1,11 +1,12 @@
 (ns lisb.translation.eventb.b2eventb
   (:require [com.rpl.specter :as s]
-            [lisb.translation.eventb.util :refer [eventb]]
+            [lisb.translation.eventb.dsl :refer [eventb]]
             [lisb.translation.util :refer [b] :as butil]
             [lisb.translation.lisb2ir :refer [bnot]]
             [lisb.translation.eventb.dsl :refer [eventb-event] :as dsl]
             [lisb.translation.eventb.specter-util :refer [CLAUSES CLAUSE NAME TAG INCLUDES]])
   (:import [de.prob.model.eventb Event]))
+
 
 
 (defn- add-guards
@@ -292,4 +293,37 @@
     (if (= :refinement (:tag ir))
       (assoc machine :tag :refinement :abstract-machine-name (:abstract-machine-name ir))
       machine)))
+
+;; Expressions
+
+;; Set of B expression tags which can be transformed to Event-B an expression.
+;; All tags should have an implementation of transform-expression
+(def transformable-expressions #{:fin :fin1})
+
+(defmulti transform-expression :tag)
+
+(defmethod transform-expression :fin [ir]
+  (let [set-keyword (keyword (gensym "lisbset"))]
+    (eventb
+     (comprehension-set
+      set-keyword (and (member? set-keyword (:set ir))
+                       (finite set-keyword))))))
+
+(defmethod transform-expression :fin1 [ir]
+  (let [set-keyword (keyword (gensym "lisbset"))]
+    (eventb
+     (comprehension-set
+      set-keyword (and (member? set-keyword (:set ir))
+                (finite set-keyword)
+                (not= set-keyword #{}))))))
+
+(defn IR-NODE-IN [x] (s/walker #(contains? x (:tag %))))
+
+(defn transform-all-expressions [ir]
+  "Replaces the B expression which are implemented by *transform-expression*
+  with an equivalent Event-B construct"
+  [ir]
+  (s/transform (IR-NODE-IN transformable-expressions)
+               transform-expression
+               ir))
 
