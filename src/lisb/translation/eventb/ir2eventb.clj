@@ -2,6 +2,7 @@
   (:require [clojure.string :as str]
             [clojure.spec.alpha :as spec]
             [com.rpl.specter :as s]
+            [lisb.translation.eventb.dsl :refer [eventb]]
             [lisb.translation.eventb.specter-util :refer :all])
   (:import
    (de.prob.model.eventb
@@ -121,10 +122,19 @@
   (str "POW1(" (ir-expr->str (:set ir)) ")"))
 
 (defmethod ir-expr->str :fin [ir]
-  (str "FIN(" (ir-expr->str (:set ir)) ")"))
+  (ir-expr->str
+   (eventb
+    (comprehension-set
+     :set (and (member? :set (:set ir))
+               (finite :set))))))
 
 (defmethod ir-expr->str :fin1 [ir]
-  (str "FIN1(" (ir-expr->str (:set ir)) ")"))
+  (ir-expr->str
+   #(eventb
+    (comprehension-set
+     :set (and (member? :set (:set ir))
+               (finite :set)
+               (not= :set #{}))))))
 
 (defmethod ir-expr->str :card [ir]
   (str "card(" (ir-expr->str (:set ir)) ")"))
