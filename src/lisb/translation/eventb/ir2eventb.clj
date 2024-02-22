@@ -2,6 +2,7 @@
   (:require [clojure.string :as str]
             [clojure.spec.alpha :as spec]
             [com.rpl.specter :as s]
+            [lisb.translation.eventb.dsl :refer [eventb]]
             [lisb.translation.eventb.specter-util :refer :all])
   (:import
    (de.prob.model.eventb
@@ -59,7 +60,7 @@
 (defmethod ir-expr->str :mul [ir] (chain-expr "*" (:nums ir)))
 (defmethod ir-expr->str :div [ir] (chain-expr "/" (:nums ir)))
 (defmethod ir-expr->str :mod [ir] (chain-expr "mod" (:nums ir)))
-;;(defmethod ir-expr->str :pow [ir-expr] (chain-expr " ** " (:nums ir-expr)))
+(defmethod ir-expr->str :pow [ir-expr] (chain-expr " ** " (:nums ir-expr)))
 
 (defmethod ir-expr->str :integer-set [_] "INT")
 (defmethod ir-expr->str :int-set [_] "INT")
@@ -94,7 +95,7 @@
 (defmethod ir-pred->str :for-all [ir]
   (str "!" (str/join "," (map rodin-name (:ids ir))) "." (ir-pred->str (:implication ir))))
 (defmethod ir-pred->str :exists [ir]
-  (str "#" (str/join "," (map rodin-name (:ids ir)) (ir-pred->str (:pred ir)))))
+  (str "#" (str/join "," (map rodin-name (:ids ir))) "." (ir-pred->str (:pred ir))))
 
 ;; Equality
 
@@ -199,7 +200,7 @@
   (str (ir-expr->str rel) "~"))
 
 (defmethod ir-expr->str :image [{:keys [rel set]}]
-  (str (ir-expr->str rel) "[" (ir-expr->str set) "]")) 
+  (str (ir-expr->str rel) "[" (ir-expr->str set) "]"))
 
 (defmethod ir-expr->str :domain-restriction [{:keys [rel set]}]
   (str (ir-expr->str set) "<|" (ir-expr->str rel)))

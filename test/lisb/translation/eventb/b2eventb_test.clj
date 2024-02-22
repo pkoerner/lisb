@@ -18,11 +18,10 @@
     (= (s/transform path set e1)
        (s/transform path set e2))))
 
-(def event-cmp-path (s/stay-then-continue s/ALL :clauses))
 
 (deftest sub->events-compare-clauses
-  (are [sub events] (= (s/transform event-cmp-path set events)
-                       (s/transform event-cmp-path set (sub->events (eventb (event :test)) sub)))
+  (are [sub events] (cmp-events (sub->events (eventb (event :test)) sub) events)
+
     (b (assign :x 42))
     [(eventb (event :test (then (assign :x 42))))]
 
@@ -39,6 +38,12 @@
      (eventb (event :test-else
                     (when (not (= :p 1)))
                     (then (assign :x 5))))]
+
+    (b (any [:x :y] (> :x 2) (assign :foo :x)))
+    [(eventb (event :test
+                    (any :x :y)
+                    (when (> :x 2))
+                    (then (assign :foo :x))))]
 
     (b (case :x
          2 (assign :x 1)
@@ -103,8 +108,8 @@
 
 
 (deftest parallel-sub-test
-  (are [sub events] (= (s/transform event-cmp-path set events)
-                       (s/transform event-cmp-path set (sub->events (eventb (event :test)) sub)))
+  (are [sub events] (cmp-events (sub->events (eventb (event :test)) sub) events)
+
     (b (|| (assign :x 1) (becomes-element-of :y nat-set) (becomes-such [:z] (> :z' 10))))
     [(eventb (event :test (then (assign :x 1) (becomes-element-of :y nat-set) (becomes-such [:z] (> :z' 10)))))]
 
@@ -270,11 +275,13 @@
 
   (apply concat (s/select [(CLAUSE :operations) :values s/ALL] m0) [[:op1 :op2]])
 
-  (sub->events (eventb-event :foo)
-               (eventb (select :cond1 (assign :a 1)
+  (sub->events (eventb (event :foo))
+               (b (if-sub (> :a 1)
+                    (any [:x] (> :x 2) (select :cond1 (assign :a 1)
                                :cond2 (assign :a 2)
                                :cond3 (if-sub :cond
                                               (assign :then 3)
                                               (assign :else 4)
-                                              ))))
+                                              )))
+                    (assign :then 42))))
   )

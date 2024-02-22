@@ -1,6 +1,7 @@
 (ns lisb.translation.eventb.util
   (:require [potemkin :refer [import-vars]]
             [lisb.prob.animator :refer [api injector]]
+            [lisb.translation.eventb.b2eventb :as b2eventb]
             [lisb.translation.eventb dsl ir2eventb eventb2lisb]
             [clojure.walk :refer [walk]])
   (:import
@@ -49,7 +50,7 @@
               de.prob.model.eventb.EventBMachine (model-with-machine model value)))
           (.get modelCreator) machines-or-contexts))
 
-(defn ir->prob-model [& ir] (->> ir (map ir->prob) (apply prob-model)))
+(defn ir->prob-model [& ir] (->> ir (map (comp ir->prob b2eventb/transform-all-expressions)) (apply prob-model)))
 
 
 (defn prob-model->rodin [model model-name path]
@@ -73,31 +74,4 @@
              (let [machine (ir->prob ir)
                    model (prob-model machine)]
                (.load model machine {})))))
-
-(comment
-  (def ir (eventb (machine :foo
-                           (variables :s :t)
-                           (invariants
-                            (subset? :s (cartesian-product nat-set bool-set))
-                            (subset? :t nat-set))
-                           (init
-                            (assign
-                             :s #{}
-                             :t #{1, 2})))))
-
-  (get-type (get-statespace ir) (eventb (cartesian-product :s :t)))
-
-  (def model (rodin->prob-model  "../../bachelor-rodin/ABZ2020_v4/PitmanController2_TIME.bum"))
-  (prob->lisb (second (.getContexts model)))
-
-  (def new-model (->> model
-                      prob->lisb
-                      lisb->ir
-                      (apply ir->prob-model)))
-
-  (->> (with-out-str
-         (doseq [machine (rodin->lisb "../../bachelor-rodin/ABZ2020_v4/PitmanController2_TIME.bum" )]
-           (clojure.pprint/pprint (list 'def (list 'eventb machine)))))
-       (spit "src/lisb/examples/eventb/abz2020.clj"))
-  )
 
