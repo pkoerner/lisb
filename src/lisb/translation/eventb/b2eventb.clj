@@ -283,11 +283,13 @@
   (let [events (apply dsl/eventb-events
                       (mapcat op->events (s/select [(CLAUSE :operations) :values s/ALL] ir)))
         sees (butil/bsees (context-name (:name ir)))
+        ;; only keep "dynamic" machine-clauses
         machine (->> ir
                      (s/select [(s/multi-path
-                                  (CLAUSE :invariants)
-                                  (CLAUSE :variables)
-                                  (CLAUSE :assertions))])
+                                 (CLAUSE :invariants)
+                                 (CLAUSE :init)
+                                 (CLAUSE :variables)
+                                 (CLAUSE :assertions))])
                      (apply dsl/eventb-machine (:name ir) sees events)
                      remove-empty-clauses)]
     (if (= :refinement (:tag ir))
