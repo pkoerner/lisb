@@ -308,14 +308,14 @@
   (let [set-keyword (keyword (gensym "lisbset"))]
     (eventb
      (comprehension-set
-      set-keyword (and (member? set-keyword (:set ir))
+      set-keyword (and (subset? set-keyword (:set ir))
                        (finite set-keyword))))))
 
 (defmethod transform-expression :fin1 [ir]
   (let [set-keyword (keyword (gensym "lisbset"))]
     (eventb
      (comprehension-set
-      set-keyword (and (member? set-keyword (:set ir))
+      set-keyword (and (subset? set-keyword (:set ir))
                 (finite set-keyword)
                 (not= set-keyword #{}))))))
 
