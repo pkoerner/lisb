@@ -3,6 +3,7 @@
             [lisb.prob.animator :refer [api injector]]
             [lisb.translation.eventb.b2eventb :as b2eventb]
             [lisb.translation.eventb dsl ir2eventb eventb2lisb]
+            [lisb.translation.eventb.ir2eventb :refer [ir->prob-with-label]]
             [clojure.walk :refer [walk]])
   (:import
    de.prob.model.eventb.translate.ModelToXML
@@ -50,7 +51,10 @@
               de.prob.model.eventb.EventBMachine (model-with-machine model value)))
           (.get modelCreator) machines-or-contexts))
 
-(defn ir->prob-model [& ir] (->> ir (map (comp ir->prob b2eventb/transform-all-expressions)) (apply prob-model)))
+(defn ir->prob-model [& ir] (->> ir
+                                 (map  b2eventb/transform-all-expressions)
+                                 (map-indexed (fn [n ir] (ir->prob-with-label ir (str n "-"))))
+                                 (apply prob-model)))
 
 
 (defn prob-model->rodin [model model-name path]

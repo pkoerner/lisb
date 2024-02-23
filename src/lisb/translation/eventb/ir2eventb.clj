@@ -22,6 +22,8 @@
    de.prob.animator.domainobjects.EventB
    de.prob.model.representation.ModelElementList))
 
+(def label-postfix (atom ""))
+
 (defn rodin-name [kw]
   (str/replace (name kw) #"-" "_"))
 
@@ -310,10 +312,10 @@
 (defn extract-invariants [clauses]
   "converts all the invariants and assertions to EventBInvariant objects, where assertions are marked as theorems"
   (let [invariant (map-indexed
-                   (fn [i pred] (EventBInvariant. (str "inv" i) (ir-pred->str pred) false #{}))
+                   (fn [i pred] (EventBInvariant. (str "inv" @label-postfix i) (ir-pred->str pred) false #{}))
                    (:values (find-clause :invariants clauses)))
         theorems  (map-indexed
-                   (fn [i pred] (EventBInvariant. (str "thm" i) (ir-pred->str pred) true #{}))
+                   (fn [i pred] (EventBInvariant. (str "thm" @label-postfix i) (ir-pred->str pred) true #{}))
                    (:values (find-clause :assertions clauses)))]
     (ModelElementList. (concat invariant theorems))))
 
@@ -348,7 +350,7 @@
 (defmethod ir->prob :init [{:keys [values]}]
  (->> values
       (mapcat ir-sub->strs)
-      (map-indexed (fn [i code] (EventBAction. (str "init" i) code #{})))
+      (map-indexed (fn [i code] (EventBAction. (str "init" @label-postfix i) code #{})))
       ModelElementList.
       (.withActions (new-event "INITIALISATION" :ordinary :none))))
 
@@ -359,14 +361,14 @@
   (ModelElementList. (map (fn [x] (EventParameter. (clojure.core/name x))) values)))
 
 (defmethod ir->prob :guards [{:keys [values]}]
- (ModelElementList. (map-indexed (fn [i x] (EventBGuard. (str "grd" i) (ir-pred->str x) false #{})) values)))
+ (ModelElementList. (map-indexed (fn [i x] (EventBGuard. (str "grd" @label-postfix i) (ir-pred->str x) false #{})) values)))
 
 (defmethod ir->prob :witnesses [{:keys [values]}]
   (ModelElementList. (map ir->prob values)))
 
 (defmethod ir->prob :actions [{:keys [values]}]
   (ModelElementList. (map-indexed
-                       (fn [i code] (EventBAction. (str "act" i) code #{}))
+                       (fn [i code] (EventBAction. (str "act" @label-postfix i) code #{}))
                        (mapcat ir-sub->strs values))))
 
 (defmethod ir->prob :event [{:keys [name clauses]}]
@@ -421,12 +423,12 @@
                              [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set) :elems s/ALL]) ir)))))
 (defn extract-axioms [ir]
   (ModelElementList. (map-indexed
-                       (fn [i pred] (EventBAxiom. (str "axm" i) (ir-pred->str pred) false #{}))
+                       (fn [i pred] (EventBAxiom. (str "axm" @label-postfix i) (ir-pred->str pred) false #{}))
                        (s/select [(CLAUSE :properties) :values s/ALL] ir))))
 
 (defn extract-theorems [ir]
   (ModelElementList. (map-indexed
-                  (fn [i pred] (EventBAxiom. (str "thm" i) (ir-pred->str pred) true #{}))
+                  (fn [i pred] (EventBAxiom. (str "thm" @label-postfix i) (ir-pred->str pred) true #{}))
                   (s/select [(CLAUSE :theorems) :values s/ALL] ir))))
 
 (defmethod ir->prob :extends [ir]
@@ -445,3 +447,8 @@
 
 (defmethod ir->prob nil [_] nil)
 
+(defn ir->prob-with-label [ir new-label-postfix]
+  (reset! label-postfix new-label-postfix)
+  (let [result (ir->prob ir)]
+    (reset! label-postfix "")
+    result))
