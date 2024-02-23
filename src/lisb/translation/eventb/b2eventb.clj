@@ -93,10 +93,10 @@
        (append-name "-then")
        (add-guards (:cond ir))
        (sub->events (:then ir)))
-    (when (:else ir)
-      (-> base-event (append-name "-else")
-        (add-guards (bnot (:cond ir)))
-        (sub->events (:else ir))))))
+   (-> base-event (append-name "-else")
+       (add-guards (bnot (:cond ir)))
+       (sub->events (or (:else ir) (butil/b skip))))
+     ))
 
 (defmethod sub->events :cond [base-event {:keys [clauses]}]
   (let [guards  (reduce (fn [acc cur]
