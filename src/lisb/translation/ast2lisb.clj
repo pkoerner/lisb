@@ -356,9 +356,7 @@
 (defmethod ast->lisb AFreetypesMachineClause [node]
   (concat-last 'freetypes (.getFreetypes node)))
 (defmethod ast->lisb AFreetype [node]
-  ; not yet released feature: parameters for freetype definitions
-  #_(concat (list 'freetype (ast->lisb (.getName node)) (mapv ast->lisb (.getParameters node))) (.getConstructors node))
-  (concat (list 'freetype (ast->lisb (.getName node)) []) (map ast->lisb (.getConstructors node))))
+  (concat (list 'freetype (ast->lisb (.getName node)) (mapv ast->lisb (.getParameters node))) (map ast->lisb (.getConstructors node))))
 (defmethod ast->lisb AElementFreetypeConstructor [node]
   (lisbify 'constructor (.getName node)))
 (defmethod ast->lisb AConstructorFreetypeConstructor [node]
@@ -513,8 +511,10 @@
 ;;; if-then-else
 
 (defmethod ast->lisb AIfThenElseExpression [node]
+  (assert (empty? (.getElsifs node)) "elsifs not supported")
   (lisbify 'if (.getCondition node) (.getThen node) (.getElse node)))
 (defmethod ast->lisb AIfPredicatePredicate [node]
+  (assert (empty? (.getElsifs node)) "elsifs not supported")
   (lisbify 'if (.getCondition node) (.getThen node) (.getElse node)))
 
 
