@@ -17,4 +17,5 @@ prob_log.txt
 /lisb.iml
 /.idea/
 .clj-kondo/.cache
+.clj-kondo/potemkin
 .calva/

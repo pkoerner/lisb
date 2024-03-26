@@ -25,7 +25,7 @@ OPERATIONS
 
   IncreaseTime(delta) = SELECT delta:NATURAL & 
       (curDeadlines/={} => delta <= min(ran(curDeadlines))) THEN
-     curDeadlines := %x.(x:dom(curDeadlines)|curDeadlines(x)-delta)
+     curDeadlines := %(x).(x:dom(curDeadlines)|curDeadlines(x)-delta)
   END;
   
   IncreaseTimeUntilDeadline(timer,delta) =
@@ -33,7 +33,7 @@ OPERATIONS
           timer : dom(curDeadlines) &
           delta = min(ran(curDeadlines)) & 
           delta = curDeadlines(timer) THEN
-     curDeadlines := %x.(x:dom(curDeadlines) \ {timer}|curDeadlines(x)-delta)
+     curDeadlines := %(x).(x:dom(curDeadlines) \ {timer}|curDeadlines(x)-delta)
   END
 
 END

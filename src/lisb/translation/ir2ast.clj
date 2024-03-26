@@ -500,9 +500,7 @@
   (s/assert (s/keys :req-un [::values]) ir-node)
   (AFreetypesMachineClause. (ir-node-values->ast ir-node)))
 (defmethod ir-node->ast-node :freetype [ir-node]
-  ; not yet released feature: parameters for freetype definitions
-  #_(AFreetype. (TIdentifierLiteral. (name (:id ir-node))) (ir-node-args->ast ir-node) (ir-node-constructors->ast ir-node))
-  (AFreetype. (TIdentifierLiteral. (name (:id ir-node))) (ir-node-constructors->ast ir-node)))
+  (AFreetype. (TIdentifierLiteral. (name (:id ir-node))) (ir-node-args->ast ir-node) (ir-node-constructors->ast ir-node)))
 (defmethod ir-node->ast-node :ft-element [ir-node]
   (AElementFreetypeConstructor. (TIdentifierLiteral. (name (:id ir-node)))))
 (defmethod ir-node->ast-node :ft-constructor [ir-node]
@@ -643,7 +641,7 @@
          else (ir-node-else->ast ir-node)]
      (cond
        (and (instance? PExpression then) (instance? PExpression else)) (AIfThenElseExpression. condition then '() else)
-       (and (instance? PPredicate then) (instance? PPredicate else)) (AIfPredicatePredicate. condition then else)
+       (and (instance? PPredicate then) (instance? PPredicate else)) (AIfPredicatePredicate. condition then '() else)
        :else (throw (Exception. (str "Unsupported ast nodes for if-block" then else))))))
 
 

@@ -59,10 +59,13 @@
               ;;; misc
               bset-enum bmap-set defpred pred almost-flatten wrap bempty-machine])
 
-(defn ast->b [ast]
+(defn ast->b [ast & {:keys [indent]}]
   (let [ext-translator (SyntaxExtensionTranslator.)
         pprinter (PrettyPrinter.)]
     #_(.apply ast ext-translator) ; this is required for if-pred, but breaks with strings
+    (if (string? indent)
+      (.setIndent pprinter indent)
+      (.setUseIndentation pprinter (true? indent)))
     (.apply ast pprinter)
     (.getPrettyPrint pprinter)))
 
