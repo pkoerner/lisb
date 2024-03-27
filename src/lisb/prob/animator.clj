@@ -66,7 +66,45 @@
     (.getPrettyPrint cmd)))
 
 
+(defn root-state [state-space]
+  (.getRoot ss))
 
+(defn translate-transition [trans]
+  (if (seq (.getParams trans))
+    (cons (keyword (.getName trans)) (.getParams trans)) 
+    (keyword (.getName trans))))
+
+(defn get-transitions [state]
+  (.explore state)
+  (let [transs (.getTransitions state)]
+    (map translate-transition transs)))
+
+(defn successor [state op-kw]
+  ;; TODO: parameters
+  (.perform state (name op-kw) (into-array String []))
+  )
+
+;; TODO: states should probably be proxy objects
+;; that print as maps but delegate the relevant methods to the original state object
+
+(comment
+  (use 'clojure.reflect)
+  (use 'clojure.pprint)
+  (def rr (comp print-table :members reflect))
+  (use 'lisb.examples.sebastian)
+  (use 'lisb.translation.util)
+  (def ss (state-space! (ir->ast generic-timer-mc)))
+  (print-table (:members (reflect ss)))
+  (.getValues (.getRoot ss))
+  (import 'de.prob.animator.domainobjects.EvalOptions)
+  (.getVariableValues (.getRoot ss) EvalOptions/DEFAULT)
+  (clojure.repl/pst)
+  (.explore (.getRoot ss))
+  (rr (root-state ss))
+  (.getTransitions (.getRoot ss))
+  (rr (first (get-transitions (root-state ss))))
+  (successor (root-state ss) :$initialise_machine)
+  )
 
 (use 'lisb.translation.util)
 (declare eval-formula' try-get-solutions)
