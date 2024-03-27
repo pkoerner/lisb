@@ -9,7 +9,9 @@
            de.prob.animator.domainobjects.FormulaExpand
            de.prob.animator.domainobjects.EvalResult
            de.prob.animator.domainobjects.ComputationNotCompletedResult
-           de.prob.animator.domainobjects.EnumerationWarning))
+           de.prob.animator.domainobjects.EnumerationWarning
+           de.prob.statespace.State
+           ))
 
 
 ; XXX load an instance of MainModule.class to ensure Prob 2.0 is properly loaded.
@@ -87,23 +89,62 @@
 ;; TODO: states should probably be proxy objects
 ;; that print as maps but delegate the relevant methods to the original state object
 
+(defn reify-mappy [state]
+  (reify
+    clojure.lang.ILookup
+    (valAt [this k]
+      (.valAt this k nil))
+    (valAt [this k not-found]
+      (let [m (.getVariableValues state FormulaExpand/TRUNCATE)
+            formalism (type (first (keys m)))
+            key-var (first (filter #(= (.getCode %) (name k)) (keys m)))
+            ;; TODO use this line instead once the AbstractEvalElement is fixed
+            ;key-var (clojure.lang.Reflector/invokeConstructor formalism (into-array [(name k)]))
+            ]
+        (def vv (get m key-var))
+        (if key-var
+          (retranslate (de.hhu.stups.prob.translator.Translator/translate (.getValue (get m key-var))))
+          not-found)))))
+
+(defmethod clojure.core/print-method State [this writer]
+  (print-simple 
+    (into {} (map (fn [[k v]]
+                    [(.getCode k) (.getValue v)]) 
+                  (.getVariableValues this FormulaExpand/EXPAND)))
+    writer))
+
 (comment
+  (do
   (use 'clojure.reflect)
   (use 'clojure.pprint)
   (def rr (comp print-table :members reflect))
   (use 'lisb.examples.sebastian)
   (use 'lisb.translation.util)
   (def ss (state-space! (ir->ast generic-timer-mc)))
-  (print-table (:members (reflect ss)))
-  (.getValues (.getRoot ss))
+  ; (print-table (:members (reflect ss)))
+  ; (.getValues (.getRoot ss))
   (import 'de.prob.animator.domainobjects.EvalOptions)
-  (.getVariableValues (.getRoot ss) EvalOptions/DEFAULT)
-  (clojure.repl/pst)
+  (import 'de.prob.animator.domainobjects.FormulaExpand)
+  ; (.getVariableValues (.getRoot ss) EvalOptions/DEFAULT)
+  ; (clojure.repl/pst)
   (.explore (.getRoot ss))
-  (rr (root-state ss))
+  ; (rr (root-state ss))
   (.getTransitions (.getRoot ss))
-  (rr (first (get-transitions (root-state ss))))
-  (successor (root-state ss) :$initialise_machine)
+  ; (rr (first (get-transitions (root-state ss))))
+  (def stat (successor (root-state ss) :$initialise_machine)))
+  (.getVariableValues stat FormulaExpand/EXPAND)
+  (type (first (keys (.getVariableValues stat FormulaExpand/EXPAND))))
+  (rr stat)
+  (do stat)
+
+  (clojure.lang.Reflector/invokeConstructor f (into-array [(ir->ast :x)]))
+  (get (reify-mappy stat) :curDeadlines)
+  
+  (retranslate (.getValue (.translate vv)))
+  [key-var m]
+
+  (do stat)
+
   )
 
 (use 'lisb.translation.util)
