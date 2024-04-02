@@ -72,8 +72,9 @@
   (.getRoot ss))
 
 (defn translate-transition [trans]
-  (if (seq (.getParams trans))
-    (cons (keyword (.getName trans)) (.getParams trans)) 
+  (if (seq (.getParameterValues trans))
+    [(keyword (.getName trans)) 
+     (zipmap (.getParameterNames trans) (.getParameterValues trans))]
     (keyword (.getName trans))))
 
 (defn get-transitions [state]
@@ -81,10 +82,14 @@
   (let [transs (.getTransitions state)]
     (map translate-transition transs)))
 
-(defn successor [state op-kw]
-  ;; TODO: parameters
-  (.perform state (name op-kw) (into-array String []))
-  )
+(defn successor 
+  ([state op-kw]
+   (successor state op-kw {}))
+  ([state op-kw parameter-map]
+  (.perform state (name op-kw)
+            (into-array String
+                        (map (fn [[k v]] (ir->b (b= k v)))
+                             parameter-map)))))
 
 ;; TODO: states should probably be proxy objects
 ;; that print as maps but delegate the relevant methods to the original state object
@@ -149,6 +154,24 @@
   [key-var m]
 
   (do stat)
+
+  (def ss2 (state-space! (b->ast (slurp "/home/philipp/CAN_BUS_tlc.mch"))))
+
+  (successor (.getRoot ss2) :$setup_constants)
+  (def st (-> (.getRoot ss2)
+      (successor :$setup_constants)
+      (successor :$initialise_machine)
+      ;(successor :Update "0")
+      ;get-transitions
+  ;    reify-mappy
+  ;    :T1_state
+      ))
+  (get-transitions st)
+  (.perform st "Update" (into-array String ["pmax=0"]))
+  (successor st "Update" {:pmax 0})
+
+  ;; TODO: how much translation of values is desirable?
+  ;; TODO: what is a good way to make states (accessing values) and transtions (getting successors) feel clojure-y?
 
   )
 
