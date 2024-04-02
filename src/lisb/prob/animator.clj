@@ -104,13 +104,18 @@
         (def vv (get m key-var))
         (if key-var
           (retranslate (de.hhu.stups.prob.translator.Translator/translate (.getValue (get m key-var))))
-          not-found)))))
+          not-found)))
+    ))
 
 (defmethod clojure.core/print-method State [this writer]
   (print-simple 
     (into {} (map (fn [[k v]]
-                    [(.getCode k) (.getValue v)]) 
-                  (.getVariableValues this FormulaExpand/EXPAND)))
+                    [(keyword (.getCode k))
+                     (if-not (instance? de.prob.animator.domainobjects.IdentifierNotInitialised v)
+                       (.getValue v) 
+                       :prob/uninitialised)]) 
+                  (concat (.getConstantValues this FormulaExpand/EXPAND)
+                          (.getVariableValues this FormulaExpand/EXPAND))))
     writer))
 
 (comment
