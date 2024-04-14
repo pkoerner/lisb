@@ -13,4 +13,5 @@
                  [potemkin "0.4.7"]
                  [com.rpl/specter "1.1.4"]
                  [clj-wallhack "1.0.1"]
+                 [org.flatland/ordered "1.15.11"]
                  [de.hhu.stups/prob-java "4.13.1"]])
