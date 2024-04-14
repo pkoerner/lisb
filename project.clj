@@ -16,4 +16,5 @@
                  [clj-wallhack "1.0.1"]
                  [de.hhu.stups/prob-java "4.13.2-SNAPSHOT"]
                  [de.hhu.stups/value-translator "0.1.4"]
+                 [org.flatland/ordered "1.15.11"]
                  ])
