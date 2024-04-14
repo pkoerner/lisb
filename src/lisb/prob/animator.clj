@@ -69,6 +69,16 @@
     (.execute animator cmd)
     (.getPrettyPrint cmd)))
 
+(defn successor 
+  ([state op-kw]
+   #_(successor state op-kw {})
+   ;; TODO: what happens if findTransition has multiple possible successor states?
+   (wrap-state (.getDestination (.findTransition state (name op-kw) []))))
+  ([state op-kw parameter-map]
+   (wrap-state (.perform state (name op-kw)
+                         (into-array String
+                                     (map (fn [[k v]] (ir->b (b= k v)))
+                                          parameter-map))))))
 
 (defn wrap-state [state] 
   (proxy [State clojure.lang.ILookup] [(.getId state) (.getStateSpace state)]
@@ -109,15 +119,6 @@
   ([state add-op-namespace-to-kw] (.explore state)
    (let [transs (.getTransitions state)]
      (map #(translate-transition % add-op-namespace-to-kw) transs))))
-
-(defn successor 
-  ([state op-kw]
-   (successor state op-kw {}))
-  ([state op-kw parameter-map]
-   (wrap-state (.perform state (name op-kw)
-                         (into-array String
-                                     (map (fn [[k v]] (ir->b (b= k v)))
-                                          parameter-map))))))
 
 ;; TODO: states should probably be proxy objects
 ;; that print as maps but delegate the relevant methods to the original state object
@@ -212,6 +213,9 @@
 
   (root-state ss2)
   (pprint (-> ss2 root-state :op/$setup_constants :op/$initialise_machine ))
+  (-> ss2 root-state :op/$setup_constants :op/$initialise_machine (.findTransition "Update" []) (.getDestination))
+  (class (-> ss2 root-state :op/$setup_constants :op/$initialise_machine ))
+  (-> ss2 root-state :op/$setup_constants :op/$initialise_machine :op/Update :op/T3Initiate :op/T3writebus)
   (get-in (root-state ss2) [:op/$setup_constants :op/$initialise_machine [:Update {:pmax 0}] :op/T3Initiate])
   (successor (.getRoot ss2) :$setup_constants)
   (def st (-> (.getRoot ss2)
