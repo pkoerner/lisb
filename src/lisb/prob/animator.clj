@@ -1,5 +1,7 @@
 (ns lisb.prob.animator
   (:require [lisb.prob.retranslate :refer [retranslate]])
+  (:require [lisb.translation.lisb2ir :refer [b=]]) ;; TODO: change this to avoid cyclic dependencies
+  (:require [lisb.translation.util :refer [ir->b]]) ;; TODO: change this to avoid cyclic dependencies
   (:import com.google.inject.Guice
            com.google.inject.Stage
            de.prob.MainModule
@@ -69,7 +71,7 @@
 
 
 (defn root-state [state-space]
-  (.getRoot ss))
+  (.getRoot state-space))
 
 (defn translate-transition [trans]
   (if (seq (.getParameterValues trans))
