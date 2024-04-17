@@ -309,8 +309,9 @@
        (filter #(= tag (:tag %)))
        first))
 
-(defn extract-invariants [clauses]
+(defn extract-invariants
   "converts all the invariants and assertions to EventBInvariant objects, where assertions are marked as theorems"
+  [clauses]
   (let [invariant (map-indexed
                    (fn [i pred] (EventBInvariant. (str "inv" @label-postfix i) (ir-pred->str pred) false #{}))
                    (:values (find-clause :invariants clauses)))
@@ -339,8 +340,9 @@
 
 (defn clause->prob [tag clauses] (ir->prob (find-clause tag clauses)))
 
-(defn extract-events [clauses]
+(defn extract-events
   "converts all events and the initialisation to ProB Event objects"
+  [clauses]
   (let [events (or (clause->prob :events clauses) ())
         init   (find-clause :init clauses)]
     (ModelElementList. (if init

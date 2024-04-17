@@ -45,7 +45,7 @@
 
 (defmulti sub->events
   "Expects the substitutions and a base-event and returns a translated as a list of events based on the base-event"
-  (fn [base-event ir & args] (:tag ir)))
+  (fn [_base-event ir & _args] (:tag ir)))
 
 (defmethod sub->events :assignment [base-event ir]
   [(add-actions base-event ir)])
@@ -56,7 +56,7 @@
 (defmethod sub->events :becomes-such [base-event ir]
   [(add-actions base-event ir)])
 
-(defmethod sub->events :skip [base-event ir]
+(defmethod sub->events :skip [base-event _ir]
   [base-event])
 
 (defn- subs->events [base-event subs]
@@ -144,9 +144,9 @@
 (defn literal? [x] (or (keyword? x) (number? x)))
 
 (defn literal-name [literal]
-  (cond
-    (keyword? literal) (name literal)
-    :default (str literal)))
+  (if (keyword? literal)
+    (name literal)
+    (str literal)))
 
 (defmethod sub->events :case [base-event {:keys [expr cases]}]
   (concat
@@ -178,8 +178,9 @@
      (s/if-path map?
        (s/continue-then-stay s/MAP-VALS p))))
 
-(defn replace-args-in-body [op values]
-  "Replaces all ouccurences of arguments with the values"
+(defn replace-args-in-body 
+  "Replaces all occurrences of arguments with the values"
+  [op values]
   (let [replacement (into {} (map vector (:args op) values))]
     (:body (s/transform [:body (s/walker replacement)] replacement op)))) ;;FIXME: keys and tag value can also be replaced
 
@@ -258,8 +259,9 @@
 
 (defn context-name [machine-name] (keyword (str (name machine-name) "-ctx")))
 
-(defn extract-context [ir]
+(defn extract-context
   "Extracts an Event-B context from an classical B machine"
+  [ir]
   (let [partitions (map (fn [ir]
                           (apply dsl/eventb-partition (:id ir) (map (fn [x] #{x}) (:elems ir))))
                         (s/select [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set)] ir))
@@ -278,8 +280,9 @@
          remove-empty-clauses)))
 
 
-(defn extract-machine [ir]
+(defn extract-machine
   "Extracts an Event-B machine from an classical B machine. Operations are converted to Events"
+  [ir]
   (let [events (apply dsl/eventb-events
                       (mapcat op->events (s/select [(CLAUSE :operations) :values s/ALL] ir)))
         sees (butil/bsees (context-name (:name ir)))
@@ -321,7 +324,7 @@
 
 (defn IR-NODE-IN [x] (s/walker #(contains? x (:tag %))))
 
-(defn transform-all-expressions [ir]
+(defn transform-all-expressions
   "Replaces the B expression which are implemented by *transform-expression*
   with an equivalent Event-B construct"
   [ir]
