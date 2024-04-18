@@ -53,9 +53,9 @@
                       :pred pred})
                    (partition 2 clauses))})
 
-(defn event-when [& gurads]
+(defn event-when [& guards]
   {:tag :guards
-   :values gurads})
+   :values guards})
 
 (defn event-status [status]
   {:tag :status

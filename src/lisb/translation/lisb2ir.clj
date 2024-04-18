@@ -1660,7 +1660,8 @@
     :else lisb))
 
 
-(defmacro b [lisb]
+(defmacro b 
+  [lisb]
   (let [pre-processed-lisb (pre-process-lisb lisb)]
     `(let [
            ; parse units
@@ -1945,5 +1946,6 @@
          (do (b ~wrapped-body))))))
 
 
-(defmacro defpred [name & args]
+(defmacro defpred 
+  [name & args]
   `(def ~name (pred ~name ~@args)))

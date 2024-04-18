@@ -7,11 +7,19 @@
            com.rpl.specter/defnav clojure.core/defn
            com.rpl.specter/defrichnav clojure.core/defn
            lisb.translation.lisb2ir/pred clojure.core/fn
-           lisb.translation.lisb2ir/defpred clojure.core/defn}
+           lisb.translation.lisb2ir/defpred clojure.core/defn
+           }
+ :hooks {}
  :linters
- {:unresolved-symbol {:exclude [(lisb.translation.eventb.dsl/eventb)
+ {:missing-body-in-when {:exclude [(lisb.translation.eventb.dsl/eventb)]}
+  :unresolved-symbol {:exclude [(lisb.translation.eventb.dsl/eventb)
                                 (lisb.translation.lisb2ir/b)
+                                (lisb.translation.lisb2ir/defpred)
+                                (lisb.translation.util/defpred)
                                 (lisb.translation.util/b)
                                 (lisb.adl.adl2lisb/adl)
-                                (com.rpl.specter/recursive-path)]}
-  :invalid-arity  {:skip-args [(lisb.adl.adl2lisb/adl)]}}}
+                                (com.rpl.specter/recursive-path)]} 
+  :invalid-arity  {:skip-args [lisb.adl.adl2lisb/adl
+                               lisb.adl.adl2lisb/algorithm
+                               ]}
+  #_#_:type-mismatch {:exclude [(lisb.translation.lisb2ir/defpred)]}}}

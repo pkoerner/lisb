@@ -1,5 +1,5 @@
 (ns lisb.examples.connect-four
-  (:require [lisb.core :refer [eval-ir-formula]]
+  (:require [lisb.core :refer [eval-ir-formula]] 
             [lisb.translation.util :refer :all])
 
   #_(:require [seesaw.core :refer [repaint! canvas show! frame]]

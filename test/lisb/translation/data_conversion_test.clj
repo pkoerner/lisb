@@ -1,7 +1,7 @@
 (ns lisb.translation.data-conversion-test
-  (:require [clojure.test :refer :all]
-            [lisb.translation.lisb2ir :refer :all]
-            [lisb.translation.data-conversion :refer :all]))
+  (:require [clojure.test :refer [deftest is testing]]
+            [lisb.translation.lisb2ir :refer [brecord bsequence bset-enum]]
+            [lisb.translation.data-conversion :refer [convert]]))
 
 
 (deftest base-conversion

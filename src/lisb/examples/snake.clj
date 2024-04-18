@@ -14,7 +14,7 @@
   (possible-ops smalltrace))
 
 (comment
-  this wants to be a snake game example when grown up.
+  ; this wants to be a snake game example when grown up.
   (def snek (b (machine
                  :Snek
                  (variables :board :direction)
