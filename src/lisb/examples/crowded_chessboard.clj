@@ -95,7 +95,7 @@
    (let [field (binterval 1 (b* :n :n))
          amount-bishops (if (= size 4) 5 (- (* 2 size) 2))
          repr (b (and (= :n size)
-                                    (bmember? :board (b--> field :figures))
+                                    (bmember? :board (btotal-function field :figures))
                                     (how-many :queen size)
                                     (how-many :rook size)
                                     (how-many :bishop amount-bishops)
