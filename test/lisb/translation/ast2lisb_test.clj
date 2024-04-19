@@ -1,12 +1,13 @@
 (ns lisb.translation.ast2lisb-test
   (:require [clojure.test :refer :all]
-            [lisb.translation.util :refer :all]))
+            [lisb.translation.util :refer :all]
+            [clojure.java.io :as io]))
 
 
 (deftest examples-sebastian-test
   (testing "examples-sebastian"
-    (are [name] (= (read-string (slurp (clojure.java.io/resource (str "machines/lisb/sebastian/" name ".edn"))))
-                   (b->lisb (slurp (clojure.java.io/resource (str "machines/b/sebastian/" name ".mch")))))
+    (are [name] (= (read-string (slurp (io/resource (str "machines/lisb/sebastian/" name ".edn"))))
+                   (b->lisb (slurp (io/resource (str "machines/b/sebastian/" name ".mch")))))
                 "GenericTimersMC"
                 "TrafficLight2"
                 "TrafficLightTime_Ref"
@@ -15,8 +16,8 @@
 
 (deftest examples-marriages-test
   (testing "examples-marriages"
-    (are [name] (= (read-string (slurp (clojure.java.io/resource (str "machines/lisb/marriages/" name ".edn"))))
-                   (b->lisb (slurp (clojure.java.io/resource (str "machines/b/marriages/" name ".mch")))))
+    (are [name] (= (read-string (slurp (io/resource (str "machines/lisb/marriages/" name ".edn"))))
+                   (b->lisb (slurp (io/resource (str "machines/b/marriages/" name ".mch")))))
                 "Life"
                 "Marriage"
                 "Registrar"
@@ -26,8 +27,8 @@
 (deftest examples-simple-test
   (testing "examples-simple"
     (are [name] (=
-                  (read-string (slurp (clojure.java.io/resource (str "machines/lisb/simple/" name ".edn"))))
-                  (b->lisb (slurp (clojure.java.io/resource (str "machines/b/simple/" name ".mch")))))
+                  (read-string (slurp (io/resource (str "machines/lisb/simple/" name ".edn"))))
+                  (b->lisb (slurp (io/resource (str "machines/b/simple/" name ".mch")))))
                 "Lift"
                 "ACounter"
                 "GCD"

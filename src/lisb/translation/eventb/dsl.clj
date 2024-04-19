@@ -21,7 +21,7 @@
    :machine-clauses clauses})
 (s/fdef eventb-context
   :args (s/cat :machine-clauses ::machine-clauses)
-  :ret (s/and (s/keys :req-un (::tag) :req (::machine-clauses))
+  :ret (s/and (s/keys :req-un [::tag] :req [::machine-clauses])
               #(= :machine (:tag %))))             ; TODO: concretize spec
 
 (defn eventb-machine [name & clauses]
@@ -53,9 +53,9 @@
                       :pred pred})
                    (partition 2 clauses))})
 
-(defn event-when [& gurads]
+(defn event-when [& guards]
   {:tag :guards
-   :values gurads})
+   :values guards})
 
 (defn event-status [status]
   {:tag :status

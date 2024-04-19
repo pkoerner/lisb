@@ -86,7 +86,7 @@
     (assoc m :name machine-name :args [])))
 (s/fdef process-machine-name
         :args (s/cat :m ::m :machine-name ::machine-name)
-        :ret (s/keys :req-un (::tag) :req (::machine-clauses))
+        :ret (s/keys :req-un [::tag] :req [::machine-clauses])
         )             ; TODO: concretize spec
 
 (defn bmachine [machine-name & machine-clauses]
@@ -96,7 +96,7 @@
     machine-name))
 (s/fdef bmachine
         :args (s/cat :machine-clauses ::machine-clauses)
-        :ret (s/and (s/keys :req-un (::tag) :req (::machine-clauses))
+        :ret (s/and (s/keys :req-un [::tag] :req [::machine-clauses])
                     #(= :machine (:tag %))))             ; TODO: concretize spec
 
 (defn bmodel [machine-name & machine-clauses]
@@ -106,7 +106,7 @@
     machine-name))
 (s/fdef bmodel
         :args (s/cat :machine-clauses ::machine-clauses)
-        :ret (s/and (s/keys :req-un (::tag) :req (::machine-clauses))
+        :ret (s/and (s/keys :req-un [::tag] :req [::machine-clauses])
                     #(= :model (:tag %))))             ; TODO: concretize spec
 
 (defn bsystem [machine-name & machine-clauses]
@@ -116,7 +116,7 @@
     machine-name))
 (s/fdef bsystem
         :args (s/cat :machine-clauses ::machine-clauses)
-        :ret (s/and (s/keys :req-un (::tag) :req (::machine-clauses))
+        :ret (s/and (s/keys :req-un [::tag] :req [::machine-clauses])
                     #(= :system (:tag %))))             ; TODO: concretize spec
 
 (defn brefinement [machine-name abstract-machine-name & machine-clauses]
@@ -127,7 +127,7 @@
     machine-name))
 (s/fdef brefinement
         :args (s/cat :machine-names ::machine-names :abstract-machine-name ::abstract-machine-name :machine-clauses ::machine-clauses)
-        :ret (s/and (s/keys :req-un (::tag) :req (::abstract-machine-name ::machine-clauses))
+        :ret (s/and (s/keys :req-un [::tag] :req [::abstract-machine-name ::machine-clauses])
                     #(= :refinement (:tag %))))             ; TODO: concretize spec
 
 (defn bimplementation [machine-name abstract-machine-name & machine-clauses]
@@ -138,7 +138,7 @@
     machine-name))
 (s/fdef bimplementation
         :args (s/cat :machine-names ::machine-names :abstract-machine-name ::abstract-machine-name :machine-clauses ::machine-clauses)
-        :ret (s/and (s/keys :req-un (::tag) :req (::abstract-machine-name ::machine-clauses))
+        :ret (s/and (s/keys :req-un [::tag] :req [::abstract-machine-name ::machine-clauses])
                     #(= :implementation (:tag %))))             ; TODO: concretize spec
 
 
@@ -149,7 +149,7 @@
   (process-machine-name {:tag :machine-reference} machine-reference))
 (s/fdef process-machine-reference
         :args (s/cat :machine-references ::machine-references)
-        :ret (s/and (s/keys :req-un (::tag))
+        :ret (s/and (s/keys :req-un [::tag])
                     #(= :machine-reference (:tag %))))              ; TODO: concretize spec
 
 (defn buses [& machine-names]
@@ -157,7 +157,7 @@
    :values machine-names})
 (s/fdef buses
         :args (s/cat :machine-names ::machine-names)
-        :ret (s/and (s/keys :req-un (::tag) :req (::values))
+        :ret (s/and (s/keys :req-un [::tag] :req [::values])
                     #(= :uses (:tag %))))
 
 (defn bincludes [& machine-references]
@@ -165,7 +165,7 @@
    :values (map process-machine-reference machine-references)})
 (s/fdef bincludes
         :args (s/cat :machine-references ::machine-references)
-        :ret (s/and (s/keys :req-un (::tag) :req (::values))
+        :ret (s/and (s/keys :req-un [::tag] :req [::values])
                     #(= :includes (:tag %))))
 
 (defn bsees [& machine-names]
@@ -173,7 +173,7 @@
    :values machine-names})
 (s/fdef bsees
         :args (s/cat :machine-names ::machine-names)
-        :ret (s/and (s/keys :req-un (::tag) :req (::values))
+        :ret (s/and (s/keys :req-un [::tag] :req [::values])
                     #(= :sees (:tag %))))
 
 (defn bextends [& machine-references]
@@ -181,7 +181,7 @@
    :values (map process-machine-reference machine-references)})
 (s/fdef bextends
         :args (s/cat :machine-references ::machine-references)
-        :ret (s/and (s/keys :req-un (::tag) :req (::values))
+        :ret (s/and (s/keys :req-un [::tag] :req [::values])
                     #(= :extends (:tag %))))
 
 (defn bpromotes [& ops]
@@ -189,7 +189,7 @@
    :values ops})
 (s/fdef bpromotes
         :args (s/cat :ops ::ops)
-        :ret (s/and (s/keys :req-un (::tag) :req (::values))
+        :ret (s/and (s/keys :req-un [::tag] :req [::values])
                     #(= :promotes (:tag %))))
 
 ;; machine sections
@@ -199,7 +199,7 @@
    :values preds})
 (s/fdef bconstraints
         :args (s/cat :preds ::preds)
-        :ret (s/and (s/keys :req-un (::tag) :req (::values))
+        :ret (s/and (s/keys :req-un [::tag] :req [::values])
                     #(= :contraints (:tag %))))
 
 (defn bsets [& set-defs]
@@ -207,14 +207,14 @@
    :values set-defs})
 (s/fdef bsets
         :args (s/cat :set-defs ::set-defs)
-        :ret (s/and (s/keys :req-un (::tag) :req (::values))
+        :ret (s/and (s/keys :req-un [::tag] :req [::values])
                     #(= :sets (:tag %))))
 (defn bdeferred-set [id]
   {:tag :deferred-set
    :id id})
 (s/fdef bdeferred-set
         :args (s/cat :id ::id)
-        :ret (s/and (s/keys :req-un (::tag) :req (::id))
+        :ret (s/and (s/keys :req-un [::tag] :req [::id])
                     #(= :deferred-set (:tag %))))
 (defn benumerated-set [id & elems]
   {:tag :enumerated-set
@@ -222,7 +222,7 @@
    :elems elems})
 (s/fdef benumerated-set
         :args (s/cat :id ::id :elems ::elems)
-        :ret (s/and (s/keys :req-un (::tag) :req (::id ::elems))
+        :ret (s/and (s/keys :req-un [::tag] :req [::id ::elems])
                     #(= :enumerated-set (:tag %))))
 
 (defn bconstants [& ids]
@@ -230,7 +230,7 @@
    :values ids})
 (s/fdef bconstants
         :args (s/cat :ids ::ids)
-        :ret (s/and (s/keys :req-un (::tag) :req (::values))
+        :ret (s/and (s/keys :req-un [::tag] :req [::values])
                     #(= :constants (:tag %))))
 
 (defn bproperties [& preds]
@@ -238,7 +238,7 @@
    :values preds})
 (s/fdef bproperties
         :args (s/cat :preds ::preds)
-        :ret (s/and (s/keys :req-un (::tag) :req (::values))
+        :ret (s/and (s/keys :req-un [::tag] :req [::values])
                     #(= :properties (:tag %))))
 
 (defn bdefinitions [& defs]
@@ -246,7 +246,7 @@
    :values defs})
 (s/fdef bdefinitions
         :args (s/cat :defs ::defs)
-        :ret (s/and (s/keys :req-un (::tag) :req (::values))
+        :ret (s/and (s/keys :req-un [::tag] :req [::values])
                     #(= :definitions (:tag %))))
 (defn bexpression-definition [name args expr]
   {:tag :expression-definition
@@ -255,7 +255,7 @@
    :expr expr})
 (s/fdef bexpression-definition
         :args (s/cat :name ::name :args ::args :expr ::expr)
-        :ret (s/and (s/keys :req-un (::tag) :req (::name ::args ::expr))
+        :ret (s/and (s/keys :req-un [::tag] :req [::name ::args ::expr])
                     #(= :expression-definition (:tag %))))
 (defn bpredicate-definition [name args pred]
   {:tag :predicate-definition
@@ -264,7 +264,7 @@
    :pred pred})
 (s/fdef bpredicate-definition
         :args (s/cat :name ::name :args ::args :pred ::pred)
-        :ret (s/and (s/keys :req-un (::tag) :req (::name ::args ::pred))
+        :ret (s/and (s/keys :req-un [::tag] :req [::name ::args ::pred])
                     #(= :predicate-definition (:tag %))))
 (defn bsubstitution-definition [name args sub]
   {:tag :substitution-definition
@@ -273,14 +273,14 @@
    :sub sub})
 (s/fdef bsubstitution-definition
         :args (s/cat :name ::name :args ::args :sub ::sub)
-        :ret (s/and (s/keys :req-un (::tag) :req (::name ::args ::sub))
+        :ret (s/and (s/keys :req-un [::tag] :req [::name ::args ::sub])
                     #(= :substitution-definition (:tag %))))
 (defn bfile-definition [file]
   {:tag :file-definition
    :file file})
 (s/fdef bfile-definition
         :args (s/cat :file ::file)
-        :ret (s/and (s/keys :req-un (::tag) :req (::file))
+        :ret (s/and (s/keys :req-un [::tag] :req [::file])
                     #(= :file-definition (:tag %))))
 
 (defn bfreetypes [& ft-defs]
@@ -288,7 +288,7 @@
    :values ft-defs})
 (s/fdef bfreetypes
   :args (s/cat :ft-defs ::ft-defs)
-  :ret (s/and (s/keys :req-un (::tag) :req (::values))
+  :ret (s/and (s/keys :req-un [::tag] :req [::values])
               #(= :freetypes (:tag %))))
 (defn bfreetype [id args & constructors]
   {:tag :freetype
@@ -297,7 +297,7 @@
    :constructors constructors})
 (s/fdef bfreetype
   :args (s/cat :id ::id :args ::args :constructors ::constructors)
-  :ret (s/and (s/keys :req-un (::tag) :req (::id ::args ::values))
+  :ret (s/and (s/keys :req-un [::tag] :req [::id ::args ::values])
               #(= :freetype (:tag %))))
 (defn bconstructor
   ([id] {:tag :ft-element
@@ -307,15 +307,15 @@
                   :expr argument}))
 (s/fdef bconstructor
   :args (s/cat :id ::id :argument (s/nilable ::expr))
-  :ret (s/or :ft-element (s/and (s/keys :req-un (::tag) :req (::id)) #(= :ft-element (:tag %)))
-             :ft-constructor (s/and (s/keys :req-un (::tag) :req (::id ::expr)) #(= :ft-constructor (:tag %)))))
+  :ret (s/or :ft-element (s/and (s/keys :req-un [::tag] :req [::id]) #(= :ft-element (:tag %)))
+             :ft-constructor (s/and (s/keys :req-un [::tag] :req [::id ::expr]) #(= :ft-constructor (:tag %)))))
 
 (defn bvariables [& ids]
   {:tag :variables
    :values ids})
 (s/fdef bvariables
         :args (s/cat :ids ::ids)
-        :ret (s/and (s/keys :req-un (::tag) :req (::values))
+        :ret (s/and (s/keys :req-un [::tag] :req [::values])
                     #(= :variables (:tag %))))
 
 (defn binvariants [& preds]
@@ -323,7 +323,7 @@
    :values preds})
 (s/fdef binvariants
         :args (s/cat :preds ::preds)
-        :ret (s/and (s/keys :req-un (::tag) :req (::values))
+        :ret (s/and (s/keys :req-un [::tag] :req [::values])
                     #(= :invariants (:tag %))))
 
 (defn bassertions [& preds]
@@ -331,7 +331,7 @@
    :values preds})
 (s/fdef bassertions
         :args (s/cat :preds ::preds)
-        :ret (s/and (s/keys :req-un (::tag) :req (::values))
+        :ret (s/and (s/keys :req-un [::tag] :req [::values])
                     #(= :assertions (:tag %))))
 
 (defn binit [& subs]
@@ -339,7 +339,7 @@
    :values subs})
 (s/fdef binit
         :args (s/cat :subs ::subs)
-        :ret (s/and (s/keys :req-un (::tag) :req (::values))
+        :ret (s/and (s/keys :req-un [::tag] :req [::values])
                     #(= :init (:tag %))))
 
 (defn boperations [& op-defs]
@@ -347,7 +347,7 @@
    :values op-defs})
 (s/fdef boperations
         :args (s/cat :op-defs ::op-defs)
-        :ret (s/and (s/keys :req-un (::tag) :req (::values))
+        :ret (s/and (s/keys :req-un [::tag] :req [::values])
                     #(= :operations (:tag %))))
 (defn bop
   ([returns name args body]
@@ -360,7 +360,7 @@
    (bop [] name args body)))
 (s/fdef bop
         :args (s/cat :returns (s/? ::returns) :name ::name :args ::args :body ::body)
-        :ret (s/and (s/keys :req-un (::tag) :req (::name ::args ::body) :opt (::returns))
+        :ret (s/and (s/keys :req-un [::tag] :req [::name ::args ::body] :opt [::returns])
                     #(= :op (:tag %))))
 
 
@@ -369,7 +369,7 @@
 (def bskip {:tag :skip})
 (s/fdef bskip
         :args (s/cat)
-        :ret (s/and (s/keys :req-un (::tag))
+        :ret (s/and (s/keys :req-un [::tag])
                     #(= :skip (:tag %))))
 
 (defn bblock [sub]
@@ -377,7 +377,7 @@
    :sub sub})
 (s/fdef bblock
         :args (s/cat :sub ::sub)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sub))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sub])
                     #(= :block (:tag %))))
 
 (defn bassign [& id-vals]
@@ -385,7 +385,7 @@
    :id-vals id-vals})
 (s/fdef bassign
         :args (s/cat :id-vals ::id-vals)
-        :ret (s/and (s/keys :req-un (::tag) :req (::id-vals))
+        :ret (s/and (s/keys :req-un [::tag] :req [::id-vals])
                     #(= :assignment (:tag %))))
 
 (defn bbecomes-element-of [ids set]
@@ -394,7 +394,7 @@
    :set set})
 (s/fdef bbecomes-element-of
         :args (s/cat :ids ::ids :set ::set)
-        :ret (s/and (s/keys :req-un (::tag) :req (::ids ::set))
+        :ret (s/and (s/keys :req-un [::tag] :req [::ids ::set])
                     #(= :becomes-element-of (:tag %))))
 
 (defn bbecomes-such [ids pred]
@@ -403,7 +403,7 @@
    :pred pred})
 (s/fdef bbecomes-such
         :args (s/cat :ids ::ids :pred ::pred)
-        :ret (s/and (s/keys :req-un (::tag) :req (::ids ::pred))
+        :ret (s/and (s/keys :req-un [::tag] :req [::ids ::pred])
                     #(= :becomes-such (:tag %))))
 
 (defn bop-call-with-returns [returns op & args]
@@ -413,14 +413,14 @@
    :args    args})
 (s/fdef bop-call-with-returns
         :args (s/cat :returns ::returns :op ::op :args ::args)
-        :ret (s/and (s/keys :req-un (::tag) :req (::returns ::op ::args))
+        :ret (s/and (s/keys :req-un [::tag] :req [::returns ::op ::args])
                     #(= :op-call (:tag %))))
 
 (defn bop-call [op & args]
   (apply (partial bop-call-with-returns [] op) args))
 (s/fdef bop-call-with-returns
         :args (s/cat :op ::op :args ::args)
-        :ret (s/and (s/keys :req-un (::tag) :req (::returns ::op ::args))
+        :ret (s/and (s/keys :req-un [::tag] :req [::returns ::op ::args])
                     #(= :op-call (:tag %))))               ; TODO: concretize spec
 
 (defn bparallel-sub [& subs]
@@ -430,7 +430,7 @@
      :subs subs}))
 (s/fdef bparallel-sub
         :args (s/cat :subs ::subs)
-        :ret (s/or :parallel-sub (s/and (s/keys :req-un (::tag) :req (::subs))
+        :ret (s/or :parallel-sub (s/and (s/keys :req-un [::tag] :req [::subs])
                                           #(= :parallel-sub (:tag %)))
                    :sub ::sub))
 
@@ -441,7 +441,7 @@
      :subs subs}))
 (s/fdef bsequential-sub
         :args (s/cat :subs ::subs)
-        :ret (s/or :sequential-sub (s/and (s/keys :req-un (::tag) :req (::subs))
+        :ret (s/or :sequential-sub (s/and (s/keys :req-un [::tag] :req [::subs])
                                           #(= :sequential-sub (:tag %)))
                    :sub ::sub))
 
@@ -452,7 +452,7 @@
    :subs subs})
 (s/fdef bany
         :args (s/cat :ids ::ids :pred ::pred :subs ::subs)
-        :ret (s/and (s/keys :req-un (::tag) :req (::ids ::pred ::subs))
+        :ret (s/and (s/keys :req-un [::tag] :req [::ids ::pred ::subs])
                     #(= :any (:tag %))))
 
 (defn blet-sub [id-vals & subs]
@@ -461,7 +461,7 @@
    :subs subs})
 (s/fdef blet-sub
         :args (s/cat :id-vals ::id-vals :subs ::subs)
-        :ret (s/and (s/keys :req-un (::tag) :req (::id-vals ::subs))
+        :ret (s/and (s/keys :req-un [::tag] :req [::id-vals ::subs])
                     #(= :let-sub (:tag %))))
 
 (defn bvar [ids & subs]
@@ -470,7 +470,7 @@
    :subs subs})
 (s/fdef bvar
         :args (s/cat :ids ::ids :subs ::subs)
-        :ret (s/and (s/keys :req-un (::tag) :req (::ids ::subs))
+        :ret (s/and (s/keys :req-un [::tag] :req [::ids ::subs])
                     #(= :var (:tag %))))
 
 (defn bprecondition [pred & subs]
@@ -479,7 +479,7 @@
    :subs subs})
 (s/fdef bprecondition
         :args (s/cat :pred ::pred :subs ::subs)
-        :ret (s/and (s/keys :req-un (::tag) :req (::pred ::subs))
+        :ret (s/and (s/keys :req-un [::tag] :req [::pred ::subs])
                     #(= :precondition (:tag %))))
 
 (defn bassert [pred & subs]
@@ -488,7 +488,7 @@
    :subs subs})
 (s/fdef bassert
         :args (s/cat :pred ::pred :subs ::subs)
-        :ret (s/and (s/keys :req-un (::tag) :req (::pred ::subs))
+        :ret (s/and (s/keys :req-un [::tag] :req [::pred ::subs])
                     #(= :assert (:tag %))))
 
 (defn bchoice [& subs]
@@ -496,7 +496,7 @@
    :subs subs})
 (s/fdef bchoice
         :args (s/cat :subs ::subs)
-        :ret (s/and (s/keys :req-un (::tag) :req (::subs))
+        :ret (s/and (s/keys :req-un [::tag] :req [::subs])
                     #(= :choice (:tag %))))
 
 (defn bif-sub
@@ -511,14 +511,14 @@
                       (bif-sub cond then))))
 (s/fdef bif-sub
         :args (s/cat :cond ::cond :then ::then :else(s/? ::else))
-        :ret (s/and (s/keys :req-un (::tag) :req (::cond ::then) :opt (::else))
+        :ret (s/and (s/keys :req-un [::tag] :req [::cond ::then] :opt [::else])
                     #(= :if-sub (:tag %))))
 (defn bcond [& clauses]
     {:tag :cond
      :clauses clauses})
 (s/fdef bcond
         :args (s/cat :clauses ::clauses)
-        :ret (s/and (s/keys :req-un (::tag) :req (::clauses))
+        :ret (s/and (s/keys :req-un [::tag] :req [::clauses])
                     #(= :cond (:tag %))))
 
 (defn bselect [& clauses]
@@ -526,7 +526,7 @@
    :clauses clauses})
 (s/fdef bselect
         :args (s/cat :clauses ::clauses)
-        :ret (s/and (s/keys :req-un (::tag) :req (::clauses))
+        :ret (s/and (s/keys :req-un [::tag] :req [::clauses])
                     #(= :select (:tag %))))
 
 (defn bcase [expr & cases]
@@ -535,7 +535,7 @@
    :cases cases})
 (s/fdef bcase
         :args (s/cat :expr ::expr :cases ::cases)
-        :ret (s/and (s/keys :req-un (::tag) :req (::expr ::cases))
+        :ret (s/and (s/keys :req-un [::tag] :req [::expr ::cases])
                     #(= :case (:tag %))))
 
 
@@ -552,7 +552,7 @@
   ([cond then else] {:tag :if :cond cond :then then :else else})) ; else is always present
 (s/fdef bif
         :args (s/cat :cond ::cond :then ::then :else ::else)
-        :ret (s/and (s/keys :req-un (::tag) :req (::cond ::then ::else))
+        :ret (s/and (s/keys :req-un [::tag] :req [::cond ::then ::else])
                     #(= :if (:tag %))))
 
 
@@ -570,7 +570,7 @@
    :expr-or-pred expr-or-pred})
 (s/fdef blet
         :args (s/cat :id-vals ::id-vals :expr-or-pred ::expr-or-pred)
-        :ret (s/and (s/keys :req-un (::tag) :req (::id-vals ::expr-or-pred))
+        :ret (s/and (s/keys :req-un [::tag] :req [::id-vals ::expr-or-pred])
                     #(= :let (:tag %))))
 
 ;;; trees
@@ -599,7 +599,7 @@
   {:tag :string-set})
 (s/fdef bstring-set
         :args (s/cat )
-        :ret (s/and (s/keys :req-un (::tag))
+        :ret (s/and (s/keys :req-un [::tag])
                     #(= :string-set (:tag %))))
 
 
@@ -610,7 +610,7 @@
    :id-types id-types})
 (s/fdef bstruct
         :args (s/cat :id-types ::id-types)
-        :ret (s/and (s/keys :req-un (::tag) :req (::id-types))
+        :ret (s/and (s/keys :req-un [::tag] :req [::id-types])
                     #(= :struct (:tag %))))
 
 (defn brecord [& id-vals]
@@ -618,7 +618,7 @@
    :id-vals id-vals})
 (s/fdef brecord
         :args (s/cat :id-vals ::id-vals)
-        :ret (s/and (s/keys :req-un (::tag) :req (::id-vals))
+        :ret (s/and (s/keys :req-un [::tag] :req [::id-vals])
                     #(= :record (:tag %))))
 
 (defn brecord-get [rec id]
@@ -627,7 +627,7 @@
    :id id})
 (s/fdef brecord-get
         :args (s/cat :rec ::rec :id ::id)
-        :ret (s/and (s/keys :req-un (::tag) :req (::rec ::id))
+        :ret (s/and (s/keys :req-un [::tag] :req [::rec ::id])
                     #(= :record-get (:tag %))))
 
 
@@ -640,7 +640,7 @@
     :elems elems}))
 (s/fdef bsequence
         :args (s/or :empty-sequence (s/cat) :sequence (s/cat :elems ::elems))
-        :ret (s/and (s/keys :req-un (::tag) :opt (::elems))
+        :ret (s/and (s/keys :req-un [::tag] :opt [::elems])
                     #(contains? #{:empty-sequence :sequence} (:tag %))))
 
 (defn bseq [set]
@@ -648,7 +648,7 @@
    :set set})
 (s/fdef bseq
         :args (s/cat :set ::set)
-        :ret (s/and (s/keys :req-un (::tag) :req (::set))
+        :ret (s/and (s/keys :req-un [::tag] :req [::set])
                     #(= :seq (:tag %))))
 
 (defn bseq1 [set]
@@ -656,7 +656,7 @@
    :set set})
 (s/fdef bseq1
         :args (s/cat :set ::set)
-        :ret (s/and (s/keys :req-un (::tag) :req (::set))
+        :ret (s/and (s/keys :req-un [::tag] :req [::set])
                     #(= :seq1 (:tag %))))
 
 (defn biseq [set]
@@ -664,7 +664,7 @@
    :set set})
 (s/fdef biseq
         :args (s/cat :set ::set)
-        :ret (s/and (s/keys :req-un (::tag) :req (::set))
+        :ret (s/and (s/keys :req-un [::tag] :req [::set])
                     #(= :iseq (:tag %))))
 
 (defn biseq1 [set]
@@ -672,7 +672,7 @@
    :set set})
 (s/fdef biseq1
         :args (s/cat :set ::set)
-        :ret (s/and (s/keys :req-un (::tag) :req (::set))
+        :ret (s/and (s/keys :req-un [::tag] :req [::set])
                     #(= :iseq1 (:tag %))))
 
 (defn bperm [set]
@@ -680,7 +680,7 @@
    :set set})
 (s/fdef bperm
         :args (s/cat :set ::set)
-        :ret (s/and (s/keys :req-un (::tag) :req (::set))
+        :ret (s/and (s/keys :req-un [::tag] :req [::set])
                     #(= :perm (:tag %))))
 
 (defn bsize [seq]
@@ -688,7 +688,7 @@
    :seq seq})
 (s/fdef bsize
         :args (s/cat :seq ::seq)
-        :ret (s/and (s/keys :req-un (::tag) :req (::seq))
+        :ret (s/and (s/keys :req-un [::tag] :req [::seq])
                     #(= :size (:tag %))))
 
 (defn bconcat [& seqs]
@@ -696,7 +696,7 @@
    :seqs seqs})
 (s/fdef bconcat
         :args (s/cat :seqs ::seqs)
-        :ret (s/and (s/keys :req-un (::tag) :req (::seqs))
+        :ret (s/and (s/keys :req-un [::tag] :req [::seqs])
                     #(= :concat (:tag %))))
 
 (defn bprepend [elem seq]
@@ -705,7 +705,7 @@
    :seq seq})
 (s/fdef bprepend
         :args (s/cat :elem ::elem :seq ::seq)
-        :ret (s/and (s/keys :req-un (::tag) :req (::seq ::elem))
+        :ret (s/and (s/keys :req-un [::tag] :req [::seq ::elem])
                     #(= :prepend (:tag %))))
 
 (defn bappend [seq & elems]
@@ -714,7 +714,7 @@
    :elems elems})
 (s/fdef bappend
         :args (s/cat :seq ::seq :elems ::elems)
-        :ret (s/and (s/keys :req-un (::tag) :req (::seq ::elems))
+        :ret (s/and (s/keys :req-un [::tag] :req [::seq ::elems])
                     #(= :append (:tag %))))
 
 (defn breverse [seq]
@@ -722,7 +722,7 @@
    :seq seq})
 (s/fdef breverse
         :args (s/cat :seq ::seq)
-        :ret (s/and (s/keys :req-un (::tag) :req (::seq))
+        :ret (s/and (s/keys :req-un [::tag] :req [::seq])
                     #(= :reverse (:tag %))))
 
 (defn bfirst [seq]
@@ -730,7 +730,7 @@
    :seq seq})
 (s/fdef bfirst
         :args (s/cat :seq ::seq)
-        :ret (s/and (s/keys :req-un (::tag) :req (::seq))
+        :ret (s/and (s/keys :req-un [::tag] :req [::seq])
                     #(= :first (:tag %))))
 
 (defn blast [seq]
@@ -738,7 +738,7 @@
    :seq seq})
 (s/fdef blast
         :args (s/cat :seq ::seq)
-        :ret (s/and (s/keys :req-un (::tag) :req (::seq))
+        :ret (s/and (s/keys :req-un [::tag] :req [::seq])
                     #(= :last (:tag %))))
 
 (defn bfront [seq]
@@ -746,7 +746,7 @@
    :seq seq})
 (s/fdef bfront
         :args (s/cat :seq ::seq)
-        :ret (s/and (s/keys :req-un (::tag) :req (::seq))
+        :ret (s/and (s/keys :req-un [::tag] :req [::seq])
                     #(= :front (:tag %))))
 
 (defn btail [seq]
@@ -754,7 +754,7 @@
    :seq seq})
 (s/fdef btail
         :args (s/cat :seq ::seq)
-        :ret (s/and (s/keys :req-un (::tag) :req (::seq))
+        :ret (s/and (s/keys :req-un [::tag] :req [::seq])
                     #(= :tail (:tag %))))
 
 (defn bconc [seq-of-seqs]
@@ -762,7 +762,7 @@
    :seq-of-seqs seq-of-seqs})
 (s/fdef bconc
         :args (s/cat :seq-of-seqs ::seq-of-seqs)
-        :ret (s/and (s/keys :req-un (::tag) :req (::seq-of-seqs))
+        :ret (s/and (s/keys :req-un [::tag] :req [::seq-of-seqs])
                     #(= :conc (:tag %))))
 
 (defn btake [num seq]
@@ -771,7 +771,7 @@
    :num num})
 (s/fdef btake
         :args (s/cat :num ::num :seq ::seq)
-        :ret (s/and (s/keys :req-un (::tag) :req (::num ::seq))
+        :ret (s/and (s/keys :req-un [::tag] :req [::num ::seq])
                     #(= :take (:tag %))))
 
 (defn bdrop [num seq]
@@ -780,7 +780,7 @@
    :num num})
 (s/fdef bdrop
         :args (s/cat :num ::num :seq ::seq)
-        :ret (s/and (s/keys :req-un (::tag) :req (::num ::seq))
+        :ret (s/and (s/keys :req-un [::tag] :req [::num ::seq])
                     #(= :drop (:tag %))))
 
 
@@ -791,7 +791,7 @@
    :sets sets})
 (s/fdef bpartial-function
         :args (s/cat :sets ::sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sets])
                     #(= :partial-fn (:tag %))))
 
 (defn btotal-function [& sets]
@@ -799,7 +799,7 @@
    :sets sets})
 (s/fdef btotal-function
         :args (s/cat :sets ::sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sets])
                     #(= :total-fn (:tag %))))
 
 (defn bpartial-surjection [& sets]
@@ -807,7 +807,7 @@
    :sets sets})
 (s/fdef bpartial-surjection
         :args (s/cat :sets ::sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sets])
                     #(= :partial-surjection (:tag %))))
 
 (defn btotal-surjection [& sets]
@@ -815,7 +815,7 @@
    :sets sets})
 (s/fdef btotal-surjection
         :args (s/cat :sets ::sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sets])
                     #(= :total-surjection (:tag %))))
 
 (defn bpartial-injection [& sets]
@@ -823,7 +823,7 @@
    :sets sets})
 (s/fdef bpartial-injection
         :args (s/cat :sets ::sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sets])
                     #(= :partial-injection (:tag %))))
 
 (defn btotal-injection [& sets]
@@ -831,7 +831,7 @@
    :sets sets})
 (s/fdef btotal-injection
         :args (s/cat :sets ::sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sets])
                     #(= :total-injection (:tag %))))
 
 (defn bpartial-bijection [& sets]
@@ -839,7 +839,7 @@
    :sets sets})
 (s/fdef bpartial-bijection
         :args (s/cat :sets ::sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sets])
                     #(= :partial-bijection (:tag %))))
 
 (defn btotal-bijection [& sets]
@@ -847,7 +847,7 @@
    :sets sets})
 (s/fdef btotal-bijection
         :args (s/cat :sets ::sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sets])
                     #(= :total-bijection (:tag %))))
 
 (defn blambda [ids pred expr]
@@ -857,7 +857,7 @@
    :expr expr})
 (s/fdef blambda
         :args (s/cat :ids ::ids :pred ::pred :expr ::expr)
-        :ret (s/and (s/keys :req-un (::tag) :req (::ids ::pred ::expr))
+        :ret (s/and (s/keys :req-un [::tag] :req [::ids ::pred ::expr])
                     #(= :lambda (:tag %))))
 #_(defn bfn [id-types expr]
   {:tag :fn
@@ -870,7 +870,7 @@
    :args args})
 (s/fdef bfn-call
         :args (s/cat :f ::f :args ::args)
-        :ret (s/and (s/keys :req-un (::tag) :req (::f ::args))
+        :ret (s/and (s/keys :req-un [::tag] :req [::f ::args])
                     #(= :fn-call (:tag %))))
 
 
@@ -881,7 +881,7 @@
    :sets sets})
 (s/fdef brelation
         :args (s/cat :sets ::sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sets])
                     #(= :relation (:tag %))))
 
 (defn btotal-relation [& sets]
@@ -889,7 +889,7 @@
    :sets sets})
 (s/fdef btotal-relation
         :args (s/cat :sets ::sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sets])
                     #(= :total-relation (:tag %))))
 
 (defn bsurjective-relation [& sets]
@@ -897,7 +897,7 @@
    :sets sets})
 (s/fdef bsurjective-relation
         :args (s/cat :sets ::sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sets])
                     #(= :surjective-realtion (:tag %))))
 
 (defn btotal-surjective-relation [& sets]
@@ -905,7 +905,7 @@
    :sets sets})
 (s/fdef btotal-surjective-relation
         :args (s/cat :sets ::sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sets])
                     #(= :total-surjective-relation (:tag %))))
 
 (defn bmaplet [& elems]
@@ -913,7 +913,7 @@
    :elems elems})
 (s/fdef bmaplet
         :args (s/cat :elems ::elems)
-        :ret (s/and (s/keys :req-un (::tag) :req (::elems))
+        :ret (s/and (s/keys :req-un [::tag] :req [::elems])
                     #(= :maplet (:tag %))))
 
 (defn bdom [rel]
@@ -921,7 +921,7 @@
    :rel rel})
 (s/fdef bdom
         :args (s/cat :rel ::rel)
-        :ret (s/and (s/keys :req-un (::tag) :req (::rel))
+        :ret (s/and (s/keys :req-un [::tag] :req [::rel])
                     #(= :dom (:tag %))))
 
 (defn bran [rel]
@@ -929,7 +929,7 @@
    :rel rel})
 (s/fdef bran
         :args (s/cat :rel ::rel)
-        :ret (s/and (s/keys :req-un (::tag) :req (::rel))
+        :ret (s/and (s/keys :req-un [::tag] :req [::rel])
                     #(= :ran (:tag %))))
 
 (defn bid [set]
@@ -937,7 +937,7 @@
    :set set})
 (s/fdef bid
         :args (s/cat :set ::set)
-        :ret (s/and (s/keys :req-un (::tag) :req (::set))
+        :ret (s/and (s/keys :req-un [::tag] :req [::set])
                     #(= :id (:tag %))))
 
 (defn bdomain-restriction [set rel]
@@ -946,7 +946,7 @@
    :rel rel})
 (s/fdef bdomain-restriction
         :args (s/cat :set ::set :rel ::rel)
-        :ret (s/and (s/keys :req-un (::tag) :req (::rel ::set))
+        :ret (s/and (s/keys :req-un [::tag] :req [::rel ::set])
                     #(= :domain-restriction (:tag %))))
 
 (defn bdomain-subtraction [set rel]
@@ -955,7 +955,7 @@
    :rel rel})
 (s/fdef bdomain-subtraction
         :args (s/cat :set ::set :rel ::rel)
-        :ret (s/and (s/keys :req-un (::tag) :req (::rel ::set))
+        :ret (s/and (s/keys :req-un [::tag] :req [::rel ::set])
                     #(= :domain-subtraction (:tag %))))
 
 (defn brange-restriction [rel set]
@@ -964,7 +964,7 @@
    :set set})
 (s/fdef brange-restriction
         :args (s/cat :rel ::rel :set ::set)
-        :ret (s/and (s/keys :req-un (::tag) :req (::rel ::set))
+        :ret (s/and (s/keys :req-un [::tag] :req [::rel ::set])
                     #(= :range-restriction (:tag %))))
 
 (defn brange-subtraction [rel set]
@@ -973,7 +973,7 @@
    :set set})
 (s/fdef brange-subtraction
         :args (s/cat :rel ::rel :set ::set)
-        :ret (s/and (s/keys :req-un (::tag) :req (::rel ::set))
+        :ret (s/and (s/keys :req-un [::tag] :req [::rel ::set])
                     #(= :range-subtraction (:tag %))))
 
 (defn binverse [rel]
@@ -981,7 +981,7 @@
    :rel rel})
 (s/fdef binverse
         :args (s/cat :rel ::rel)
-        :ret (s/and (s/keys :req-un (::tag) :req (::rel))
+        :ret (s/and (s/keys :req-un [::tag] :req [::rel])
                     #(= :inverse (:tag %))))
 
 (defn bimage [rel set]
@@ -990,7 +990,7 @@
    :set set})
 (s/fdef bimage
         :args (s/cat :rel ::rel :set ::set)
-        :ret (s/and (s/keys :req-un (::tag) :req (::rel ::set))
+        :ret (s/and (s/keys :req-un [::tag] :req [::rel ::set])
                     #(= :image (:tag %))))
 
 (defn boverride [& rels]
@@ -998,7 +998,7 @@
    :rels rels})
 (s/fdef boverride
         :args (s/cat :rels ::rels)
-        :ret (s/and (s/keys :req-un (::tag) :req (::rels))
+        :ret (s/and (s/keys :req-un [::tag] :req [::rels])
                     #(= :override (:tag %))))
 
 (defn bdirect-product [& rels]
@@ -1006,7 +1006,7 @@
    :rels rels})
 (s/fdef bdirect-product
         :args (s/cat :rels ::rels)
-        :ret (s/and (s/keys :req-un (::tag) :req (::rels))
+        :ret (s/and (s/keys :req-un [::tag] :req [::rels])
                     #(= :direct-product (:tag %))))
 
 (defn bcomposition [& rels]
@@ -1014,7 +1014,7 @@
    :rels rels})
 (s/fdef bcomposition
         :args (s/cat :rels ::rels)
-        :ret (s/and (s/keys :req-un (::tag) :req (::rels))
+        :ret (s/and (s/keys :req-un [::tag] :req [::rels])
                     #(= :composition (:tag %))))
 
 (defn bparallel-product [& rels]
@@ -1022,7 +1022,7 @@
    :rels rels})
 (s/fdef bparallel-product
         :args (s/cat :rels ::rels)
-        :ret (s/and (s/keys :req-un (::tag) :req (::rels))
+        :ret (s/and (s/keys :req-un [::tag] :req [::rels])
                     #(= :parallel-product (:tag %))))
 
 (defn bprj1 [set1 set2]
@@ -1031,7 +1031,7 @@
    :set2 set2})
 (s/fdef bprj1
         :args (s/cat :set1 ::set1 :set2 ::set2)
-        :ret (s/and (s/keys :req-un (::tag) :req (::set1 ::set2))
+        :ret (s/and (s/keys :req-un [::tag] :req [::set1 ::set2])
                     #(= :prj1 (:tag %))))
 
 (defn bprj2 [set1 set2]
@@ -1040,7 +1040,7 @@
    :set2 set2})
 (s/fdef bprj2
         :args (s/cat :set1 ::set1 :set2 ::set2)
-        :ret (s/and (s/keys :req-un (::tag) :req (::set1 ::set2))
+        :ret (s/and (s/keys :req-un [::tag] :req [::set1 ::set2])
                     #(= :prj2 (:tag %))))
 
 (defn bclosure1 [rel]
@@ -1048,7 +1048,7 @@
    :rel rel})
 (s/fdef bclosure1
         :args (s/cat :rel ::rel)
-        :ret (s/and (s/keys :req-un (::tag) :req (::rel))
+        :ret (s/and (s/keys :req-un [::tag] :req [::rel])
                     #(= :closure1 (:tag %))))
 
 (defn bclosure [rel]
@@ -1056,7 +1056,7 @@
    :rel rel})
 (s/fdef bclosure
         :args (s/cat :rel ::rel)
-        :ret (s/and (s/keys :req-un (::tag) :req (::rel))
+        :ret (s/and (s/keys :req-un [::tag] :req [::rel])
                     #(= :closure (:tag %))))
 
 (defn biterate [rel num]
@@ -1065,7 +1065,7 @@
    :num num})
 (s/fdef biterate
         :args (s/cat :rel ::rel :num ::num)
-        :ret (s/and (s/keys :req-un (::tag) :req (::rel ::num))
+        :ret (s/and (s/keys :req-un [::tag] :req [::rel ::num])
                     #(= :iterate (:tag %))))
 
 (defn bfnc [rel]
@@ -1073,7 +1073,7 @@
    :rel rel})
 (s/fdef bfnc
         :args (s/cat :rel ::rel)
-        :ret (s/and (s/keys :req-un (::tag) :req (::rel))
+        :ret (s/and (s/keys :req-un [::tag] :req [::rel])
                     #(= :fnc (:tag %))))
 
 (defn brel [rel]
@@ -1081,7 +1081,7 @@
    :rel rel})
 (s/fdef brel
         :args (s/cat :rel ::rel)
-        :ret (s/and (s/keys :req-un (::tag) :req (::rel))
+        :ret (s/and (s/keys :req-un [::tag] :req [::rel])
                     #(= :rel (:tag %))))
 
 
@@ -1090,37 +1090,37 @@
 (def binteger-set {:tag :integer-set})
 (s/fdef binteger-set
         :args (s/cat)
-        :ret (s/and (s/keys :req-un (::tag))
+        :ret (s/and (s/keys :req-un [::tag])
                     #(= :integer-set (:tag %))))
 
 (def bnatural-set {:tag :natural-set})
 (s/fdef bnatural-set
         :args (s/cat)
-        :ret (s/and (s/keys :req-un (::tag))
+        :ret (s/and (s/keys :req-un [::tag])
                     #(= :natural-set (:tag %))))
 
 (def bnatural1-set {:tag :natural1-set})
 (s/fdef bnatural1-set
         :args (s/cat)
-        :ret (s/and (s/keys :req-un (::tag))
+        :ret (s/and (s/keys :req-un [::tag])
                     #(= :natural1-set (:tag %))))
 
 (def bint-set {:tag :int-set})
 (s/fdef bint-set
         :args (s/cat)
-        :ret (s/and (s/keys :req-un (::tag))
+        :ret (s/and (s/keys :req-un [::tag])
                     #(= :int-set (:tag %))))
 
 (def bnat-set {:tag :nat-set})
 (s/fdef bnat-set
         :args (s/cat)
-        :ret (s/and (s/keys :req-un (::tag))
+        :ret (s/and (s/keys :req-un [::tag])
                     #(= :nat-set (:tag %))))
 
 (def bnat1-set {:tag :nat1-set})
 (s/fdef bnat1-set
         :args (s/cat)
-        :ret (s/and (s/keys :req-un (::tag))
+        :ret (s/and (s/keys :req-un [::tag])
                     #(= :nat1-set (:tag %))))
 
 (defn binterval [from to]
@@ -1129,28 +1129,28 @@
    :to to})
 (s/fdef binterval
         :args (s/cat :from ::from :to ::to)
-        :ret (s/and (s/keys :req-un (::tag) :req (::from ::to))
+        :ret (s/and (s/keys :req-un [::tag] :req [::from ::to])
                     #(= :interval (:tag %))))
 
 (defn brange [from to]
   (binterval from (bpredecessor to)))
 (s/fdef binterval
         :args (s/cat :from ::from :to ::to)
-        :ret (s/and (s/keys :req-un (::tag) :req (::from ::to))
+        :ret (s/and (s/keys :req-un [::tag] :req [::from ::to])
                     #(= :interval (:tag %))))  ; TODO: concretize spec
 
 (def bmin-int
   {:tag :min-int})
 (s/fdef bmin-int
         :args (s/cat)
-        :ret (s/and (s/keys :req-un (::tag))
+        :ret (s/and (s/keys :req-un [::tag])
                     #(= :min-int (:tag %))))
 
 (def bmax-int
   {:tag :max-int})
 (s/fdef bmax-int
         :args (s/cat)
-        :ret (s/and (s/keys :req-un (::tag))
+        :ret (s/and (s/keys :req-un [::tag])
                     #(= :max-int (:tag %))))
 
 (defn b> [& nums]
@@ -1158,7 +1158,7 @@
    :nums nums})
 (s/fdef b>
         :args (s/cat :nums ::nums)
-        :ret (s/and (s/keys :req-un (::tag) :req (::nums))
+        :ret (s/and (s/keys :req-un [::tag] :req [::nums])
                     #(= :greater (:tag %))))
 
 (defn b< [& nums]
@@ -1166,7 +1166,7 @@
    :nums nums})
 (s/fdef b<
         :args (s/cat :nums ::nums)
-        :ret (s/and (s/keys :req-un (::tag) :req (::nums))
+        :ret (s/and (s/keys :req-un [::tag] :req [::nums])
                     #(= :less (:tag %))))
 
 (defn b>= [& nums]
@@ -1174,7 +1174,7 @@
    :nums nums})
 (s/fdef b>=
         :args (s/cat :nums ::nums)
-        :ret (s/and (s/keys :req-un (::tag) :req (::nums))
+        :ret (s/and (s/keys :req-un [::tag] :req [::nums])
                     #(= :greater-equals (:tag %))))
 
 (defn b<= [& nums]
@@ -1182,7 +1182,7 @@
    :nums nums})
 (s/fdef b<=
         :args (s/cat :nums ::nums)
-        :ret (s/and (s/keys :req-un (::tag) :req (::nums))
+        :ret (s/and (s/keys :req-un [::tag] :req [::nums])
                     #(= :less-equals (:tag %))))
 
 (defn bmax
@@ -1194,7 +1194,7 @@
      (bmax nums))))
 (s/fdef bmax
         :args (s/cat :set ::set)
-        :ret (s/and (s/keys :req-un (::tag) :req (::set))
+        :ret (s/and (s/keys :req-un [::tag] :req [::set])
                     #(= :max (:tag %))))
 
 (defn bmin
@@ -1206,7 +1206,7 @@
      (bmin nums))))
 (s/fdef bmin
         :args (s/cat :set ::set)
-        :ret (s/and (s/keys :req-un (::tag) :req (::set))
+        :ret (s/and (s/keys :req-un [::tag] :req [::set])
                     #(= :min (:tag %))))
 
 (defn b+ [& nums]
@@ -1214,7 +1214,7 @@
    :nums nums})
 (s/fdef b+
         :args (s/cat :nums ::nums)
-        :ret (s/and (s/keys :req-un (::tag) :req (::nums))
+        :ret (s/and (s/keys :req-un [::tag] :req [::nums])
                     #(= :add (:tag %))))
 
 (defn b- [& nums]
@@ -1223,7 +1223,7 @@
     {:tag :sub, :nums nums}))
 (s/fdef b-
         :args (s/cat :nums ::nums)
-        :ret (s/and (s/keys :req-un (::tag) :req (::nums))
+        :ret (s/and (s/keys :req-un [::tag] :req [::nums])
                     #(= :sub (:tag %))))
 
 (defn bcart-or-mult [& nums-or-sets]
@@ -1231,7 +1231,7 @@
    :nums-or-sets nums-or-sets})
 (s/fdef bcart-or-mult
         :args (s/cat :nums-or-sets ::nums-or-sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::nums-or-sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::nums-or-sets])
                     #(= :cartesian-product-or-multiplication (:tag %))))
 
 (defn b* [& nums]
@@ -1239,7 +1239,7 @@
    :nums nums})
 (s/fdef b*
         :args (s/cat :nums ::nums)
-        :ret (s/and (s/keys :req-un (::tag) :req (::nums))
+        :ret (s/and (s/keys :req-un [::tag] :req [::nums])
                     #(= :mul (:tag %))))
 
 (defn bdiv [& nums]
@@ -1247,7 +1247,7 @@
    :nums nums})
 (s/fdef bdiv
         :args (s/cat :nums ::nums)
-        :ret (s/and (s/keys :req-un (::tag) :req (::nums))
+        :ret (s/and (s/keys :req-un [::tag] :req [::nums])
                     #(= :div (:tag %))))
 
 (defn b** [& nums]
@@ -1255,7 +1255,7 @@
    :nums nums})
 (s/fdef b**
         :args (s/cat :nums ::nums)
-        :ret (s/and (s/keys :req-un (::tag) :req (::nums))
+        :ret (s/and (s/keys :req-un [::tag] :req [::nums])
                     #(= :pow (:tag %))))
 
 (defn bmod [& nums]
@@ -1263,7 +1263,7 @@
    :nums nums})
 (s/fdef bmod
         :args (s/cat :nums ::nums)
-        :ret (s/and (s/keys :req-un (::tag) :req (::nums))
+        :ret (s/and (s/keys :req-un [::tag] :req [::nums])
                     #(= :mod (:tag %))))
 
 (defn bpi [ids pred expr]
@@ -1273,7 +1273,7 @@
    :expr expr})
 (s/fdef bpi
         :args (s/cat :ids ::ids :pred ::pred :expr ::expr)
-        :ret (s/and (s/keys :req-un (::tag) :req (::ids ::pred ::expr))
+        :ret (s/and (s/keys :req-un [::tag] :req [::ids ::pred ::expr])
                     #(= :pi (:tag %))))
 
 (defn bsigma [ids pred expr]
@@ -1283,7 +1283,7 @@
    :expr expr})
 (s/fdef bsigma
         :args (s/cat :ids ::ids :pred ::pred :expr ::expr)
-        :ret (s/and (s/keys :req-un (::tag) :req (::ids ::pred ::expr))
+        :ret (s/and (s/keys :req-un [::tag] :req [::ids ::pred ::expr])
                     #(= :sigma (:tag %))))
 
 (defn bsuccessor [num]
@@ -1291,7 +1291,7 @@
    :num num})
 (s/fdef bsuccessor
         :args (s/cat :num ::num)
-        :ret (s/and (s/keys :req-un (::tag) :req (::num))
+        :ret (s/and (s/keys :req-un [::tag] :req [::num])
                     #(= :successor (:tag %))))
 
 (defn bpredecessor [num]
@@ -1299,7 +1299,7 @@
    :num num})
 (s/fdef bpredecessor
         :args (s/cat :num ::num)
-        :ret (s/and (s/keys :req-un (::tag) :req (::num))
+        :ret (s/and (s/keys :req-un [::tag] :req [::num])
                     #(= :predecessor (:tag %))))
 
 
@@ -1311,7 +1311,7 @@
    :pred pred})
 (s/fdef bcomprehension-set
         :args (s/cat :ids ::ids :pred ::pred)
-        :ret (s/and (s/keys :req-un (::tag) :req (::ids ::pred))
+        :ret (s/and (s/keys :req-un [::tag] :req [::ids ::pred])
                     #(= :comprehension-set (:tag %))))
 
 (defn bpow [set]
@@ -1319,7 +1319,7 @@
    :set set})
 (s/fdef bpow
         :args (s/cat :set ::set)
-        :ret (s/and (s/keys :req-un (::tag) :req (::set))
+        :ret (s/and (s/keys :req-un [::tag] :req [::set])
                     #(= :power-set (:tag %))))
 
 (defn bpow1 [set]
@@ -1327,7 +1327,7 @@
    :set set})
 (s/fdef bpow1
         :args (s/cat :set ::set)
-        :ret (s/and (s/keys :req-un (::tag) :req (::set))
+        :ret (s/and (s/keys :req-un [::tag] :req [::set])
                     #(= :power1-set (:tag %))))
 
 (defn bfin [set]
@@ -1335,7 +1335,7 @@
    :set set})
 (s/fdef bfin
         :args (s/cat :set ::set)
-        :ret (s/and (s/keys :req-un (::tag) :req (::set))
+        :ret (s/and (s/keys :req-un [::tag] :req [::set])
                     #(= :fin (:tag %))))
 
 (defn bfin1 [set]
@@ -1343,7 +1343,7 @@
    :set set})
 (s/fdef bfin1
         :args (s/cat :set ::set)
-        :ret (s/and (s/keys :req-un (::tag) :req (::set))
+        :ret (s/and (s/keys :req-un [::tag] :req [::set])
                     #(= :fin1 (:tag %))))
 
 (defn bcard [set]
@@ -1351,7 +1351,7 @@
    :set set})
 (s/fdef bcard
         :args (s/cat :set ::set)
-        :ret (s/and (s/keys :req-un (::tag) :req (::set))
+        :ret (s/and (s/keys :req-un [::tag] :req [::set])
                     #(= :cardinality (:tag %))))
 
 (defn bcartesian-product [& sets]
@@ -1359,7 +1359,7 @@
    :sets sets})
 (s/fdef bcartesian-product
         :args (s/cat :sets ::sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sets])
                     #(= :cartesian-product (:tag %))))
 
 (defn bunion [& sets]
@@ -1367,7 +1367,7 @@
    :sets sets})
 (s/fdef bunion
         :args (s/cat :sets ::sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sets])
                     #(= :union (:tag %))))
 
 (defn bintersection [& sets]
@@ -1375,7 +1375,7 @@
    :sets sets})
 (s/fdef bintersection
         :args (s/cat :sets ::sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sets])
                     #(= :intersection (:tag %))))
 
 (defn bset- [& sets]
@@ -1383,7 +1383,7 @@
    :sets sets})
 (s/fdef bset-
         :args (s/cat :sets ::sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sets])
                     #(= :difference (:tag %))))
 
 (defn bmember? [elem set]
@@ -1392,7 +1392,7 @@
    :set set})
 (s/fdef bmember?
         :args (s/cat :elem ::elem :set ::set)
-        :ret (s/and (s/keys :req-un (::tag) :req (::elem ::set))
+        :ret (s/and (s/keys :req-un [::tag] :req [::elem ::set])
                     #(= :member (:tag %))))
 
 (defn bcontains? [set & elems]
@@ -1403,7 +1403,7 @@
                 elems)))
 (s/fdef bcontains?
         :args (s/cat :set ::set  :elem ::elem )
-        :ret (s/and (s/keys :req-un (::tag) :req (::preds))
+        :ret (s/and (s/keys :req-un [::tag] :req [::preds])
                     #(= :and (:tag %))))  ; TODO: concretize spec
 
 (defn bsubset? [& sets]
@@ -1411,7 +1411,7 @@
    :sets sets})
 (s/fdef bsubset?
         :args (s/cat :sets ::sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sets])
                     #(= :subset (:tag %))))
 
 (defn bstrict-subset? [& sets]
@@ -1419,7 +1419,7 @@
    :sets sets})
 (s/fdef bstrict-subset?
         :args (s/cat :sets ::sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sets])
                     #(= :strict-subset (:tag %))))
 
 ; adds superset to lisb
@@ -1427,7 +1427,7 @@
   (apply bsubset? (reverse sets)))
 (s/fdef bsuperset?
         :args (s/cat :sets ::sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sets])
                     #(= :subset (:tag %))))  ; TODO: concretize spec
 
 ; adds superset-strict to lisb
@@ -1435,7 +1435,7 @@
   (apply bstrict-subset? (reverse sets)))
 (s/fdef bstrict-superset?
         :args (s/cat :sets ::sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::sets])
                     #(= :strict-subset (:tag %))))  ; TODO: concretize spec
 
 (defn bunite-sets [set-of-sets]
@@ -1443,7 +1443,7 @@
    :set-of-sets set-of-sets})
 (s/fdef bunite-sets
         :args (s/cat :set-of-sets ::set-of-sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::set-of-sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::set-of-sets])
                     #(= :unite-sets (:tag %))))
 
 (defn bintersect-sets [set-of-sets]
@@ -1451,7 +1451,7 @@
    :set-of-sets set-of-sets})
 (s/fdef bintersect-sets
         :args (s/cat :set-of-sets ::set-of-sets)
-        :ret (s/and (s/keys :req-un (::tag) :req (::set-of-sets))
+        :ret (s/and (s/keys :req-un [::tag] :req [::set-of-sets])
                     #(= :intersect-sets (:tag %))))
 
 (defn bunion-pe [ids pred expr]
@@ -1461,7 +1461,7 @@
    :expr expr})
 (s/fdef bunion-pe
         :args (s/cat :ids ::ids :pred ::pred :expr ::expr)
-        :ret (s/and (s/keys :req-un (::tag) :req (::ids ::pred ::expr))
+        :ret (s/and (s/keys :req-un [::tag] :req [::ids ::pred ::expr])
                     #(= :union-pe (:tag %))))
 
 (defn bintersection-pe [ids pred expr]
@@ -1471,7 +1471,7 @@
    :expr expr})
 (s/fdef bintersection-pe
         :args (s/cat :ids ::ids :pred ::pred :expr ::expr)
-        :ret (s/and (s/keys :req-un (::tag) :req (::ids ::pred ::expr))
+        :ret (s/and (s/keys :req-un [::tag] :req [::ids ::pred ::expr])
                     #(= :intersection-pe (:tag %))))
 
 
@@ -1480,7 +1480,7 @@
 (def bbool-set {:tag :bool-set})
 (s/fdef bbool-set
         :args (s/cat)
-        :ret (s/and (s/keys :req-un (::tag))
+        :ret (s/and (s/keys :req-un [::tag])
                     #(= :bool-set (:tag %))))
 
 (defn bpred->bool [pred]
@@ -1488,7 +1488,7 @@
    :pred pred})
 (s/fdef bpred->bool
         :args (s/cat :pred ::pred)
-        :ret (s/and (s/keys :req-un (::tag) :req (::pred))
+        :ret (s/and (s/keys :req-un [::tag] :req [::pred])
                     #(= :pred->bool (:tag %))))
 
 
@@ -1500,7 +1500,7 @@
    :right right})
 (s/fdef b=
         :args (s/cat :left ::left :right ::right)
-        :ret (s/and (s/keys :req-un (::tag) :req (::left ::right))
+        :ret (s/and (s/keys :req-un [::tag] :req [::left ::right])
                     #(= :equals (:tag %))))
 
 (defn bnot= [left right]
@@ -1509,14 +1509,14 @@
    :right right})
 (s/fdef bnot=
         :args (s/cat :left ::left :right ::right)
-        :ret (s/and (s/keys :req-un (::tag) :req (::left ::right))
+        :ret (s/and (s/keys :req-un [::tag] :req [::left ::right])
                     #(= :not-equals (:tag %))))
 ; syntactic sugar
 (defn bdistinct? [& elems]
   (apply band (map (fn [[elem1 elem2]] (bnot= elem1 elem2)) (combinations elems 2))))
 (s/fdef bdistinct?
         :args (s/cat :elems ::elems)
-        :ret (s/and (s/keys :req-un (::tag) :req (::preds))
+        :ret (s/and (s/keys :req-un [::tag] :req [::preds])
                     #(= :and (:tag %))))                    ; TODO: concretize spec
 
 
@@ -1529,7 +1529,7 @@
      :preds preds}))
 (s/fdef band
         :args (s/cat :preds ::preds)
-        :ret (s/and (s/keys :req-un (::tag) :req (::preds))
+        :ret (s/and (s/keys :req-un [::tag] :req [::preds])
                     #(= :and (:tag %))))
 
 (defn bor [& preds]
@@ -1539,7 +1539,7 @@
      :preds preds}))
 (s/fdef bor
         :args (s/cat :preds ::preds)
-        :ret (s/and (s/keys :req-un (::tag) :req (::preds))
+        :ret (s/and (s/keys :req-un [::tag] :req [::preds])
                     #(= :or (:tag %))))
 
 (defn bimplication [& preds]
@@ -1547,7 +1547,7 @@
    :preds preds})
 (s/fdef bimplication
         :args (s/cat :preds ::preds)
-        :ret (s/and (s/keys :req-un (::tag) :req (::preds))
+        :ret (s/and (s/keys :req-un [::tag] :req [::preds])
                     #(= :implication (:tag %))))
 
 (defn bequivalence [& preds]
@@ -1555,7 +1555,7 @@
    :preds preds})
 (s/fdef bequivalence
         :args (s/cat :preds ::preds)
-        :ret (s/and (s/keys :req-un (::tag) :req (::preds))
+        :ret (s/and (s/keys :req-un [::tag] :req [::preds])
                     #(= :equivalence (:tag %))))
 
 (defn bnot [pred]
@@ -1563,7 +1563,7 @@
    :pred pred})
 (s/fdef bnot
         :args (s/cat :pred ::pred)
-        :ret (s/and (s/keys :req-un (::tag) :req (::pred))
+        :ret (s/and (s/keys :req-un [::tag] :req [::pred])
                     #(= :not (:tag %))))
 
 (defn bfor-all
@@ -1576,7 +1576,7 @@
 (s/fdef bfor-all
         :args (s/or :arity-2 (s/cat :ids ::ids :implication ::implication)
                     :arity-3 (s/cat :ids ::ids :premise ::pred :conclusion ::pred))
-        :ret (s/and (s/keys :req-un (::tag) :req (::ids ::implication))
+        :ret (s/and (s/keys :req-un [::tag] :req [::ids ::implication])
                     #(= :for-all (:tag %))))
 
 (defn bexists [ids pred]
@@ -1585,7 +1585,7 @@
    :pred pred})
 (s/fdef bexists
         :args (s/cat :ids ::ids :pred ::pred)
-        :ret (s/and (s/keys :req-un (::tag) :req (::ids ::pred))
+        :ret (s/and (s/keys :req-un [::tag] :req [::ids ::pred])
                     #(= :exists (:tag %))))
 
 ;;; misc
@@ -1660,7 +1660,8 @@
     :else lisb))
 
 
-(defmacro b [lisb]
+(defmacro b 
+  [lisb]
   (let [pre-processed-lisb (pre-process-lisb lisb)]
     `(let [
            ; parse units
@@ -1945,5 +1946,6 @@
          (do (b ~wrapped-body))))))
 
 
-(defmacro defpred [name & args]
+(defmacro defpred 
+  [name & args]
   `(def ~name (pred ~name ~@args)))

@@ -66,11 +66,11 @@
 
 
 (defn attack [size figure attack-fn]
-  (clojure.core/fn-call band (for [i (range 1 (inc size))
-                                 j (range 1 (inc size))
-                                 [a b] (attack-fn size i j)]
-                             (b=> (b= figure (bfn-call :board (transform-position size i j)))
-                                  (bnot= figure (bfn-call :board (transform-position size a b)))))))
+  (apply band (for [i (range 1 (inc size))
+                    j (range 1 (inc size))
+                    [a b] (attack-fn size i j)]
+                (bimplication (b= figure (bfn-call :board (transform-position size i j)))
+                              (bnot= figure (bfn-call :board (transform-position size a b)))))))
 
 (defn how-many [figure amount]
   (b= amount (bcard (blambda [:pos]
