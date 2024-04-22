@@ -1,10 +1,10 @@
 (ns lisb.translation.lisb2ir-test
   (:require [clojure.test :refer :all]
             [lisb.translation.util :refer [lisb->ir b pred]]
-    [lisb.examples.simple :as simple]
-    [lisb.examples.marriages :as marriages]
-    [lisb.examples.sebastian :as sebastian]
-            ))
+            [lisb.examples.simple :as simple]
+            [lisb.examples.marriages :as marriages]
+            [lisb.examples.sebastian :as sebastian]
+            [clojure.java.io]))
 
 
 (deftest examples-sebastian-test

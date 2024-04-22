@@ -23,7 +23,7 @@
        
        (and (list? form)
             (symbol? (first form)))
-       (cons (get {'<-- 'lisb.translation.lisb2ir/op-call-with-returns
+       (cons (get {'<-- 'lisb.translation.lisb2ir/bop-call-with-returns
                    'machine 'lisb.translation.lisb2ir/bmachine
                    'model 'lisb.translation.lisb2ir/bmodel
                    'system 'lisb.translation.lisb2ir/bsystem

@@ -1,25 +1,5 @@
 (ns lisb.translation.eventb.dsl
-  (:require [lisb.translation.lisb2ir :as l2ir]
-            [clojure.walk :as walk]))
-
-#_(defmacro eventb [lisb]
-  `(l2ir/b (let [~'axioms ~'properties
-                 ~'theorems ~'assertions
-                 ~'context eventb-context
-                 ~'machine eventb-machine
-                 ~'variant eventb-variant
-                 ~'partition eventb-partition
-                 ~'events eventb-events
-                 ~'event eventb-event
-                 ~'when event-when
-                 ~'any event-any
-                 ~'then event-then
-                 ~'event-refines event-refines
-                 ~'event-extends event-extends
-                 ~'status event-status
-                 ~'with event-with
-                 ~'finite eventb-finite]
-             ~lisb)))
+  (:require [clojure.walk :as walk]))
 
 (defmacro eventb [lisb]
   (list 'lisb.translation.lisb2ir/b
@@ -28,8 +8,8 @@
            (cond
              (and (list? form)
                   (symbol? (first form)))
-             (cons (get {'axioms 'lisb.translation.lisb2ir/properties
-                         'theorems 'lisb.translation.lisb2ir/assertions
+             (cons (get {'axioms 'properties
+                         'theorems 'assertions
                          'context 'lisb.translation.eventb.dsl/eventb-context
                          'machine 'lisb.translation.eventb.dsl/eventb-machine
                          'variant 'lisb.translation.eventb.dsl/eventb-variant
