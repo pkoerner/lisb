@@ -15,7 +15,9 @@
                        lisb.translation.lisb2ir/defpred lisb.translation.lisb2ir/defpred
                        lisb.translation.util/b lisb.translation.lisb2ir/b
                        lisb.translation.util/pred lisb.translation.lisb2ir/pred
-                       lisb.translation.util/defpred lisb.translation.lisb2ir/defpred}}
+                       lisb.translation.util/defpred lisb.translation.lisb2ir/defpred
+                       lisb.translation.eventb.dsl/eventb lisb.translation.eventb.dsl/eventb
+                       lisb.translation.eventb.util/eventb lisb.translation.eventb.dsl/eventb}}
  :linters
  {:missing-body-in-when {:exclude [(lisb.translation.eventb.dsl/eventb)]}
   :unresolved-symbol {:exclude [(lisb.translation.eventb.dsl/eventb)
@@ -25,7 +27,8 @@
                                 (lisb.translation.util/b)
                                 (lisb.adl.adl2lisb/adl)
                                 (com.rpl.specter/recursive-path)]} 
-  :unresolved-namespace {:exclude [lisb.translation.lisb2ir]}
+  :unresolved-namespace {:exclude [lisb.translation.lisb2ir
+                                   lisb.translation.eventb.dsl]}
   :invalid-arity  {:skip-args [lisb.adl.adl2lisb/adl
                                lisb.adl.adl2lisb/algorithm
                                ]}
