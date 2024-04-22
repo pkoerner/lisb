@@ -20,7 +20,9 @@
                        lisb.translation.eventb.util/eventb lisb.translation.eventb.dsl/eventb}}
  :linters
  {;:missing-body-in-when {:exclude [(lisb.translation.eventb.dsl/eventb)]}
-  :refer-all {:exclude [lisb.translation.lisb2ir]}
+  :refer-all {:exclude [lisb.translation.lisb2ir
+                        lisb.translation.util
+                        clojure.test]}
   :unresolved-symbol {:exclude [#_(lisb.translation.eventb.dsl/eventb)
                                 #_(lisb.translation.lisb2ir/b)
                                 #_(lisb.translation.lisb2ir/defpred)
