@@ -23,7 +23,9 @@
   :refer-all {:exclude [lisb.translation.lisb2ir
                         lisb.translation.util
                         clojure.test]}
-  :clojure-lsp/unused-public-var {:exclude-regex #{"lisb.examples.*"}}
+  :clojure-lsp/unused-public-var {:exclude-regex #{"lisb.examples.*"}
+                                  :exclude #{lisb.translation.util
+                                             lisb.translation.eventb.util}}
   :unresolved-symbol {:exclude [#_(lisb.translation.eventb.dsl/eventb)
                                 #_(lisb.translation.lisb2ir/b)
                                 #_(lisb.translation.lisb2ir/defpred)
