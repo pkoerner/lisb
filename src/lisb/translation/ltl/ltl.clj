@@ -1,4 +1,5 @@
-(ns lisb.translation.ltl.ltl)
+(ns lisb.translation.ltl.ltl
+  (:refer-clojure :exclude [next]))
 
 ;; TODO: This is a quick experiment that does not cover all operators.
 ;; The code is thus small enough that it is not split into several namespaces.
