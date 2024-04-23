@@ -4,7 +4,7 @@
 
 (defpred jobs-pred [holds-job]
   ;; using strings in lack of constants
-  (clojure.core/let [roberta "Roberta"
+    (clojure.core/let [roberta "Roberta"
         thelma "Thelma"
         steve "Steve"
         pete "Pete"
@@ -46,7 +46,7 @@
       (not (member? pete (bmap-set holds-job-fn :qualified-jobs)))
 
       (= :golfers #{roberta, (holds-job-fn chef) (holds-job-fn police)})
-      (= (count :golfers) 3))))
+      (= (size :golfers) 3))))
 
 (defn jobs []
   (eval-ir-formula (jobs-pred :jobs)))
