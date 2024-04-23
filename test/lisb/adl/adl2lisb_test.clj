@@ -1,4 +1,5 @@
 (ns lisb.adl.adl2lisb-test
+  (:refer-clojure :exclude [assert while])
   (:require [clojure.test :refer :all])
   (:require [lisb.adl.adl2lisb :refer :all])
   (:require [lisb.translation.lisb2ir :refer :all]))
