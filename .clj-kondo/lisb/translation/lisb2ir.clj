@@ -487,33 +487,11 @@
        ~pre-processed-lisb)))
 
 
-
-
-(defn wrap [ctx node]
-  (cond
-    (keyword? node) `(~node ~ctx)
-    (map? node) (into {} (map (fn f [[k v]]  [k (wrap ctx v)]) node))
-    (set? node) (set (map (partial wrap ctx) node))
-    (list? node) (apply list (map (partial wrap ctx) node))
-    (vector? node) (vec  (map (partial wrap ctx) node))
-    :else node))
-
-
-(defn almost-flatten [x]
-  (remove coll? (rest (tree-seq coll? seq x))))
-
-
-(defmacro pred [name bindings & body]
-  `(fn ~name ~bindings
-     (b ~@body))
- #_(let [body (last args)
-        params (drop-last args)
-        ctx (gensym 'lisb_ctx_)
-        wrapped-body (wrap ctx body)
-        keywords (set (filter keyword? (almost-flatten body)))]
+(defmacro pred [name & args]
+  (let [body (last args)
+        params (drop-last args)]
     `(fn ~name ~@params
-       (let [~ctx (into {} (mapv (fn [x#] [x# (keyword (gensym "lisb_"))]) ~keywords))]
-         (do (b ~wrapped-body))))))
+       (b ~body))))
 
 
 (defmacro defpred
