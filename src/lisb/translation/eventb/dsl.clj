@@ -1,6 +1,5 @@
 (ns lisb.translation.eventb.dsl
-  (:require [clojure.walk :refer [walk]]
-            [lisb.translation.lisb2ir :refer [b band bparallel-sub]]
+  (:require [lisb.translation.lisb2ir :refer [b]]
             [clojure.spec.alpha :as s]))
 
 
@@ -109,3 +108,4 @@
             ~'with event-with
             ~'finite eventb-finite]
         ~lisb)))
+

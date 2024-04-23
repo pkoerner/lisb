@@ -1,15 +1,10 @@
 (ns lisb.translation.eventb.b2eventb-test
-  (:require [clojure.test :refer [deftest are is]]
+  (:require [clojure.test :refer :all]
             [lisb.translation.util :refer [b]]
             [lisb.translation.eventb.util :refer [eventb]]
-            [lisb.translation.eventb.specter-util :refer :all]
+            [lisb.translation.eventb.specter-util :refer [CLAUSE]]
             [com.rpl.specter :as s]
             [lisb.translation.eventb.b2eventb :refer [sub->events] :as sut]))
-
-(def visit-all-sequences (s/recursive-path [] p (s/cond-path
-                                         seq? (s/stay-then-continue [s/ALL p])
-                                         ;;vector? (s/stay-then-continue [s/ALL p])
-                                         map? [s/MAP-VALS p])))
 
 (defn- cmp-events
   "Compares to list of events"
@@ -171,7 +166,7 @@
                 (= :c 10)
                 (partition :TRAIN #{:t2} #{:t3} #{:t1}))))))
 
-(deftest extract-context-test
+(deftest extract-context-test2
   (are [in out] (= (s/transform machine-cmp-path set (sut/extract-context in))
                    (s/transform machine-cmp-path set out))
     (b (machine :m0
@@ -263,13 +258,14 @@
     (sut/extract-machine (assoc m0 :name :m1))))
 
 (comment
-  (require '[clojure.pprint :refer [pp pprint]])
+  (require '[clojure.pprint :refer [pprint]])
 
+  (def visit-all-sequences (s/recursive-path [] p (s/cond-path
+                                                   seq? (s/stay-then-continue [s/ALL p])
+                                           ;;vector? (s/stay-then-continue [s/ALL p])
+                                                   map? [s/MAP-VALS p])))
+  
   (pprint (sut/extract-machine (sut/includes->inline m1 m0)))
-  (pprint (extract-context (includes->inline m1cl m0)))
-
-  (extract-machine (includes->refinement m1 m0))
-  (extract-context (includes->refinement m1 m0))
 
   (sut/update-clause-values m0 :operations concat (map {:op1 {:tag :op :name :op1} :op2 {:tag :op :name :op2}} [:op1 :op2]))
 

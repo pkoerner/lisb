@@ -1,11 +1,11 @@
 (ns lisb.translation.data-conversion
-  (:require [lisb.translation.lisb2ir :refer [b bsequence bset-enum brecord]]))
+  (:require [lisb.translation.lisb2ir :refer [bsequence bset-enum brecord]]))
 
 (defn ensure-list [maybe-k]
   (if (keyword? maybe-k) [maybe-k] maybe-k))
 
 (defn convert [data btype type-arg #_[inner-type inner-rest]]
-  (if (or (not (#{:fn :set :tuple :sequence :record} btype)))
+  (if (not (#{:fn :set :tuple :sequence :record} btype))
     data
     (let [[typel typer] (ensure-list type-arg)]
       (case btype

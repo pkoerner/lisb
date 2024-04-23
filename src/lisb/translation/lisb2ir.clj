@@ -71,7 +71,8 @@
 (declare bnot)
 (declare bpredecessor)
 
-(defn to-vec [v]
+;; TODO: duplicated code, also in ir2ast
+(defn- to-vec [v]
   (if (vector? v)
     v
     [v]))
@@ -1928,7 +1929,7 @@
     (set? node) (set (map (partial wrap ctx) node))
     (list? node) (apply list (map (partial wrap ctx) node))
     (vector? node) (vec  (map (partial wrap ctx) node))
-    :otherwise node))
+    :else node))
 
 
 (defn almost-flatten [x]

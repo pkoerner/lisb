@@ -1,6 +1,6 @@
 (ns lisb.integration-test
   (:require [clojure.test :refer :all]
-            [lisb.core :refer [eval-ir-formula ir-state-space!]]
+            [lisb.core :refer [eval-ir-formula]]
             [lisb.translation.util :refer :all]))
 
 (deftest integration

@@ -21,7 +21,7 @@
    :invariants []})
 
 (defn do [pc & args]
-  (loop [[instr & instrs :as allinstrs] args
+  (loop [[instr & instrs :as _allinstrs] args
          pc pc
          ops []
          invariants []]

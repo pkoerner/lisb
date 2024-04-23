@@ -1,8 +1,9 @@
 (ns lisb.translation.eventb.ir2eventb-test
   (:require [lisb.translation.eventb.dsl :refer [eventb]]
-            [lisb.translation.eventb.ir2eventb :refer :all]
-            [clojure.test :refer [are deftest is run-tests testing]]
+            [lisb.translation.eventb.ir2eventb :refer [ir->prob ir-expr->str ir-pred->str ir-sub->strs]]
+            [clojure.test :refer :all]
             ))
+
 
 (deftest expr-test
   (testing "Expressions"

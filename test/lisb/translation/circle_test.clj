@@ -1,6 +1,6 @@
 (ns lisb.translation.circle-test
   (:require [clojure.test :refer :all]
-            [lisb.translation.util :refer [ast->ir ir->ast b ast->lisb ir->b b->lisb b->ir lisb->ir]]))
+            [lisb.translation.util :refer [ast->ir ir->ast b]]))
 
 (deftest machine-test
   (testing "machine"

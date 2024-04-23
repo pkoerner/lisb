@@ -1,5 +1,5 @@
 (ns lisb.core
-  (:require [lisb.prob.animator :refer :all]
+  (:require [lisb.prob.animator :refer [eval-formula state-space!]]
             [lisb.translation.util :refer [ir->ast bempty-machine band]]))
 
 

@@ -1,10 +1,7 @@
 (ns lisb.translation.eventb.eventb2lisb
-  (:require [lisb.translation.ast2lisb :refer [ast->lisb]]
-            [lisb.translation.lisb2ir :refer [b bop]]
+  (:require [lisb.translation.ast2lisb :refer [ast->lisb]] 
             [clojure.string :as str])
-  (:import de.prob.MainModule
-           de.prob.scripting.EventBFactory
-           (de.prob.animator.domainobjects EventB)
+  (:import (de.prob.animator.domainobjects EventB)
            (de.prob.model.representation ModelElementList)
            (de.prob.model.eventb
             EventBModel
@@ -126,5 +123,6 @@
 (defmethod prob->lisb ModelElementList [node]
   (map prob->lisb node))
 
-(defmethod prob->lisb nil [node]
+(defmethod prob->lisb nil [_node]
+  ;; TODO: throw exception instead?
   nil)

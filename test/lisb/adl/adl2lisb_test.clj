@@ -1,6 +1,6 @@
 (ns lisb.adl.adl2lisb-test
   (:require [clojure.test :refer :all])
-  (:require [lisb.adl.adl2lisb :refer :all])
+  (:require [lisb.adl.adl2lisb :refer [adl algorithm assign assert while]])
   (:require [lisb.translation.lisb2ir :refer :all]))
 
 (deftest multiply-example-test

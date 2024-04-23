@@ -1,6 +1,5 @@
 (ns lisb.examples.crowded-chessboard
-  (:require [clojure.set :refer [union]]
-            [clojure.pprint :refer [print-table]]
+  (:require [clojure.pprint :refer [print-table]]
             [lisb.prob.animator :refer [api]]
             [lisb.core :refer [eval-ir-formula]]
             [lisb.translation.lisb2ir :refer :all]))

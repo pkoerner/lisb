@@ -122,11 +122,11 @@
   (☐ (=> P (◇ S))))
 
 ;; a tad of a DSL
-(defn dwyer-response [S P & [opt-kw opt-Q opt-kw2 opt-R]]
+(defn dwyer-response [S P & [opt-kw opt-Q _opt-kw2 opt-R]]
   (cond (not opt-kw) (dwyer-s-responds-p-globally S P)
         (= opt-kw :between) (dwyer-s-responds-p-between-q-and-r S P opt-Q opt-R)
         (= opt-kw :before) (dwyer-s-responds-p-before-r S P opt-Q)
-        :otherwise :not-implemented))
+        :else :not-implemented))
 
 (defn dwyer [tag & args]
   (case tag

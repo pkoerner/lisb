@@ -1,7 +1,6 @@
 (ns lisb.translation.ir2ast
-  (:require [lisb.translation.lisb2ir :refer [b= bnot= band bmember? bimplication machine-clause-tags substitution-tags
-                                              seq-tags fn-tags rel-tags num-tags set-tags boolean-tags expr-tags
-                                              pred-tags]])
+  (:require [lisb.translation.lisb2ir :refer [band b= bmember? 
+                                              machine-clause-tags substitution-tags set-tags rel-tags fn-tags seq-tags num-tags pred-tags]])
   (:require [clojure.spec.alpha :as s])
   (:import (de.be4.classicalb.core.parser.node Start
                                                EOF
@@ -14,7 +13,6 @@
                                                ABlockSubstitution
                                                AAssignSubstitution
                                                AAddExpression
-                                               AMinusExpression
                                                AMultOrCartExpression
                                                AMinusOrSetSubtractExpression
                                                ADivExpression
@@ -136,8 +134,7 @@
                                                ARecordFieldExpression
                                                AStringExpression
                                                AStringSetExpression
-                                               TStringLiteral
-                                               ADefinitionExpression
+                                               TStringLiteral 
                                                ALetExpressionExpression
                                                ALetPredicatePredicate
                                                AConstantsMachineClause
@@ -186,15 +183,19 @@
                                                ASelectSubstitution
                                                ASelectWhenSubstitution
                                                PExpression
-                                               PPredicate
-                                               POperation
-                                               ADefinitionFileParseUnit
+                                               PPredicate 
                                                AParseUnitDefinitionParseUnit
                                                PMachineClause
                                                PSubstitution
                                                AOperationReference
                                                AMachineReferenceNoParams
-                                               PDefinition AExtendsMachineClause AIncludesMachineClause AMachineReference AUsesMachineClause APromotesMachineClause AOpSubstitution ASystemMachineVariant AModelMachineVariant ARefinementMachineParseUnit AImplementationMachineParseUnit ASeesMachineClause ACaseOrSubstitution ACaseSubstitution AExpressionDefinitionDefinition APredicateDefinitionDefinition ASubstitutionDefinitionDefinition TDefLiteralSubstitution TDefLiteralPredicate AFileDefinitionDefinition)))
+                                               PDefinition AExtendsMachineClause AIncludesMachineClause AMachineReference AUsesMachineClause APromotesMachineClause AOpSubstitution ASystemMachineVariant AModelMachineVariant ARefinementMachineParseUnit AImplementationMachineParseUnit ASeesMachineClause ACaseOrSubstitution ACaseSubstitution AExpressionDefinitionDefinition APredicateDefinitionDefinition ASubstitutionDefinitionDefinition TDefLiteralSubstitution TDefLiteralPredicate AFileDefinitionDefinition
+                                               ;; unused for some reason
+                                               ;POperation
+                                               ;ADefinitionFileParseUnit
+                                               ;ADefinitionExpression
+                                               ;AMinusExpression
+                                               )))
 
 
 (declare ir->ast-node)
@@ -339,6 +340,7 @@
                 :misc ::misc
                 :pred->bool  (s/and (s/keys :req-un [::tag])
                                     #(= :pred->bool (:tag %)))))
+;; TODO: expr-tags are not used for some reason
 (s/def ::expr (s/or
                 :keyword keyword?
                 :misc ::misc
@@ -620,6 +622,7 @@
   (if (vector? v)
     v
     [v]))
+
 (defn case-or-sub [[case then]]
   (ACaseOrSubstitution. (to-vec case) then))
 (defmethod ir-node->ast-node :case [ir-node]
@@ -1178,7 +1181,7 @@
     (true? ir) (ABooleanTrueExpression.)
     (false? ir) (ABooleanFalseExpression.)
     (nil? ir) nil
-    :otherwise (println :unhandled-literal ir)))
+    :else (println :unhandled-literal ir)))
 
 (defn ir->ast [ir]
   (let [top-ast-node (ir->ast-node ir)]

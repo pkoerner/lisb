@@ -5,7 +5,8 @@
             [lisb.examples.marriages :as marriages]
             [lisb.examples.function-returns :as function-returns]
             [lisb.examples.sebastian :as sebastian]
-            [clojure.java.io])
+            [clojure.java.io]
+            [clojure.string])
   (:require [clojure.spec.alpha :as s]))
 
 (s/check-asserts true)
