@@ -202,16 +202,25 @@
 (defn pre-translato [lisb ir] 
   (fresh [l lisbop irop arg-keys arg newlisb lisbop2]
          (conde
+          ; pre_translato(Lisb, IR) :-  primitive(Lisb), Lisb = IR. 
           [(pred lisb primitive?)
            (== lisb ir)]
 
+          ; pre_translato(Lisb, IR) :-  primitive(IR), Lisb = IR. 
           [(pred ir primitive?)
            (== lisb ir)]
           
+          ; pre_translato(Lisb, IR) :-  symbol(Lisb), matches(lisb, irop), IR = {:tag irop}. 
           [(pred lisb symbol?)
            (db/matches lisb irop)
            (== ir {:tag irop})]
           
+          ; pre_translato(Lisb, IR) :- 
+          ;   var(Lisb),
+          ;   IRop = (:tag IR),
+          ;  (transform-ir(IR, IRop, Lisb) ;
+          ;   matches(Lisbop, IRop, ArgKeys), has-args(IRop, ArgKeys), project(...)). 
+              
           [(lvaro lisb)
            (== irop (:tag ir))
            (conde
@@ -220,6 +229,13 @@
              (db/has-args irop arg-keys)
              (project [arg-keys] (translato2lisb lisb ir lisbop arg-keys))])]
 
+          ; pre_translato(Lisb, IR) :- 
+          ;   var(IR),
+          ;   Lisb = [LisbOP|_],
+          ;   transform-lisb(Lisb, NewLisb, LisbOP, LisbOP2),
+          ;   matches(LisbOP2, IRop),
+          ;   has-args(IRop, ArgKeys),
+          ;   project(...). 
           [(lvaro ir)
            (firsto lisb lisbop)
            (transform-lisb lisb newlisb lisbop lisbop2) 

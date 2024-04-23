@@ -1,7 +1,6 @@
 (ns lisb.translation.core-logic-translation.lisb2ir-test
   (:require [clojure.test :refer :all]
-            [lisb.translation.core-logic-translation.lisb2ir :refer :all] 
-            #_[expectations.clojure.test :refer :all]))
+            [lisb.translation.core-logic-translation.lisb2ir :refer :all]))
 
 (deftest simple-add-lisb->ir
   (testing "translate simple lisb (add)"

@@ -8,6 +8,357 @@
 (pldb/db-rel has-args ^:index op ^:index types)
 (pldb/db-rel override op condition f)
 
+; (defmacro to-db [functor m]
+;   `(pldb/db
+;     ~@(for [[k v] m]
+;         [functor `(quote ~k) v])))
+; 
+; order 
+; (def order
+;   (into {} (map-indexed (fn [idx [sym k]] [k idx])
+;    (partition 2 '[+ :add, - :sub, / :div, ** :pow, * :mul,
+;         ; LOGICAL PREDICATES
+;         mod :mod, and :and, not :not, or :or, => :implication, implication :implication,
+;         <=> :equivalence, equivalence :equivalence, exists :exists, for-all :for-all,
+;         ; EQUALITY
+;         = :equals, not= :not-equals,
+;         ; BOOLEANS
+;         bool-set :bool-set, pred->bool :pred->bool,
+;         ; SETS
+;         comprehension-set :comprehension-set, pow :power-set, pow1 :power1-set,
+;         fin :fin, fin1 :fin1, card :cardinality, cart-or-mult :cartesian-product-or-multiplication,
+;         cartesian-product :cartesian-product, union :union, intersection :intersection, set- :difference,
+;         member? :member, subset? :subset?, superset? :superset?, strict-subset? :strict-subset?, 
+;         strict-superset? :strict-superset?, unite-sets :unite-sets, intersect-sets :intersect-sets
+;         union-pe :union-pe, intersection-pe :intersection-pe
+;         ; NUMBERS
+;         integer-set :integer-set, natural-set :natural-set, int-set :int-set, nat-set :nat-set,
+;         nat1-set :nat1-set, interval :interval, min-int :min-int, max-int :max-int,
+;         > :greater, >= :greater-equals, < :less, <= :less-equals, max :max, min :min,
+;         pi :product, sigma :sum, successor :successor, predecessor :predecessor, 
+;         ; RELATIONS
+;         <-> :relation, <<-> :total-relation, <->> :surjective-relation, <<->> :total-surjective-relation,
+;         |-> :maplet, dom :dom, ran :ran, <| :domain-restriction, <<| :domain-subtraction,
+;         |> :range-restriction, |>> :range-subtraction, inverse :inverse, image :image,
+;         <+ :override, >< :direct-product, composition :composition, parallel-product :parallel-product,
+;         prj1 :prj1, prj2 :prj2, closure :closure, closure1 :closure1, iterate :iterate,
+;         fnc :fnc, rel :rel, 'id :id
+;         ; FUNCTIONS
+;         +-> :partial-fn, --> :total-fn, +->> :partial-surjection, -->> :total-surjection,
+;         >+> :partial-injection, >-> :total-injection, >+>> :partial-bijection, >->> :total-bijection,
+;         lambda :lambda, fn-call :fn-call, 
+;         ; SEQUENCES
+;         sequence :sequence, seq :seq, seq1 :seq1, iseq :iseq, iseq1 :iseq1, perm :perm,
+;         size :size, concat :concat, -> :prepend, <- :append, reverse :reverse,
+;         first :first, last :last, front :front, tail :tail, take :take, drop :drop,
+;         conc :conc,
+;         ; RECORDS
+;         struct :struct, record :record, record-get :record-get,
+;         ; STRINGS
+;         string-set :string-set,
+;         ; LET AND IF-THEN-ELSE
+;         ite :if-then-else, let-in :let-in,
+;         ; SUBSTITUTIONS
+;         skip :skip, assign :assignment, becomes-element-of :becomes-element-of, becomes-such :becomes-such;
+;         op-call :op-call
+;         ;|| :parallel-substitution
+;         parallel-sub :parallel-sub, sequential-sub :sequential-sub, any :any,
+;         let-sub :let-sub, ;;id-vals als vec
+;         var :var, pre :precondition, precondition :precondition, assert :assert, choice :choice
+;         if-sub :if-sub, ;; mehrere arg-tags?
+;         cond-sub :cond-sub, select :select, case :case
+;         ; MACHINE REFERENCES
+;         uses :uses, includes :includes, sees :sees, extends :extends, promotes :promotes,
+;         ; MACHINE SECTION
+;         constraints :constraints, sets :sets, constants :constants, properties :properties,
+;         variables :variables, invariants :invariants, assertions :assertions, init :init,
+;         operations :operations,
+;         ; SET DEFINITIONS
+;         deferred-set :deferred-set, enumerated-set :enumerated-set ;; lisb auch: id #{el1 el2}
+;         ; OPERATIONS DEFINITIONS
+;         op :op
+;         ; DEFINITIONS
+;         definitions :definitions, expression-definition :expression-definition, predicate-definition :predicate-definition;
+;         substitution-definition :substitution-definition, file-definition :file-definition
+;         ; MACHINE 
+;         machine-reference :machine-reference, machine :machine, model :model;
+;         system :system, refinement :refinement, implementation :implementation,
+;         ; MACHINE NAME
+;         name :name]))))
+; 
+; (clojure.pprint/pprint (let [matches (first (vals (first (vals facts_ops))))
+;       has_args (first (vals (first (vals facts_args_ir)))) 
+;       m1 (into {} (map (comp vec reverse) matches))
+;       m2 (into {} (map (comp vec ) has_args))
+;       merged (merge-with (fn [v1 v2] [v1 (vec v2)]) m1 m2)
+;       data (sort-by (comp #(get order % 999) first) merged)
+;       ]
+;   data
+;   (for [[x [y z]] data]
+;     ['relation x (quote y) z]
+;     )
+;   ))
+
+
+(pldb/db-rel rules ^:index tag ^:index lisb args)
+(defmacro lisb-translation-rules->db [functor rule-tuples]
+  `(pldb/db
+     ~@(map (fn [[x y z]] [functor x `(quote y) z]) rule-tuples)))
+
+(def rules-tag-sym-args
+  (lisb-translation-rules->db rules
+  [[:add + [:nums]]
+   [:sub - [:nums]]
+   [:div / [:nums]]
+   [:pow ** [:nums]]
+   [:mul * [:nums]]
+   [:mod mod [:nums]]
+   [:and and [:preds]]
+   [:not not [:pred]]
+   [:or or [:preds]]
+   [:implication => [:preds]]
+   [:equivalence <=> [:preds]]
+   [:exists exists [:ids :pred]]
+   [:for-all for-all [:ids :implication]]
+   [:equals = [:left :right]]
+   [:not-equals not= [:left :right]]
+   [:bool-set bool-set []]
+   [:pred->bool pred->bool [:pred]]
+   [:comprehension-set comprehension-set [:ids :pred]]
+   [:power-set pow [:set]]
+   [:power1-set pow1 [:set]]
+   [:fin fin [:set]]
+   [:fin1 fin1 [:set]]
+   [:cardinality card [:set]]
+   [:cartesian-product-or-multiplication cart-or-mult [:nums-or-sets]]
+   [:cartesian-product cartesian-product [:sets]]
+   [:union union [:sets]]
+   [:intersection intersection [:sets]]
+   [:difference set- [:sets]]
+   [:member member? [:elem :set]]
+   [:subset? subset? [:sets]]
+   [:superset? superset? [:sets]]
+   [:strict-subset? strict-subset? [:sets]]
+   [:strict-superset? strict-superset? [:sets]]
+   [:unite-sets unite-sets [:set-of-sets]]
+   [:intersect-sets intersect-sets [:set-of-sets]]
+   [:union-pe union-pe [:ids :pred :expr]]
+   [:intersection-pe intersection-pe [:ids :pred :expr]]
+   [:integer-set integer-set []]
+   [:natural-set natural-set []]
+   [:int-set int-set []]
+   [:nat-set nat-set []]
+   [:nat1-set nat1-set []]
+   [:interval interval [:from :to]]
+   [:min-int min-int []]
+   [:max-int max-int []]
+   [:greater > [:nums]]
+   [:greater-equals >= [:nums]]
+   [:less < [:nums]]
+   [:less-equals <= [:nums]]
+   [:max max [:set]]
+   [:min min [:set]]
+   [:product pi [:ids :pred :expr]]
+   [:sum sigma [:ids :pred :expr]]
+   [:successor successor [:num]]
+   [:predecessor predecessor [:num]]
+   [:relation <-> [:sets]]
+   [:total-relation <<-> [:sets]]
+   [:surjective-relation <->> [:sets]]
+   [:total-surjective-relation <<->> [:sets]]
+   [:maplet |-> [:left :right]]
+   [:dom dom [:rel]]
+   [:ran ran [:rel]]
+   [:domain-restriction <| [:rel :set]]
+   [:domain-subtraction <<| [:rel :set]]
+   [:range-restriction |> [:rel :set]]
+   [:range-subtraction |>> [:rel :set]]
+   [:inverse inverse [:rel]]
+   [:image image [:rel]]
+   [:override <+ [:rels]]
+   [:direct-product >< [:rels]]
+   [:composition composition [:rels]]
+   [:parallel-product parallel-product [:rels]]
+   [:prj1 prj1 [:set1 :set2]]
+   [:prj2 prj2 [:set1 :set2]]
+   [:closure closure [:rel]]
+   [:closure1 closure1 [:rel]]
+   [:iterate iterate [:rel :num]]
+   [:fnc fnc [:rel]]
+   [:rel rel [:rel]]
+   [:id id [:set]]
+   [:partial-fn +-> [:sets]]
+   [:total-fn --> [:sets]]
+   [:partial-surjection +->> [:sets]]
+   [:total-surjection -->> [:sets]]
+   [:partial-injection >+> [:sets]]
+   [:total-injection >-> [:sets]]
+   [:partial-bijection >+>> [:sets]]
+   [:total-bijection >->> [:sets]]
+   [:lambda lambda [:ids :pred :expr]]
+   [:fn-call fn-call [:f :args]]
+   [:sequence sequence [:elems]]
+   [:seq seq [:set]]
+   [:seq1 seq1 [:set]]
+   [:iseq iseq [:set]]
+   [:iseq1 iseq1 [:set]]
+   [:perm perm [:set]]
+   [:size size [:seq]]
+   [:concat concat [:seqs]]
+   [:prepend -> [:elem :seq]]
+   [:append <- [:seq :elem]]
+   [:reverse reverse [:seq]]
+   [:first first [:seq]]
+   [:last last [:seq]]
+   [:front front [:seq]]
+   [:tail tail [:seq]]
+   [:take take [:num :seq]]
+   [:drop drop [:num :seq]]
+   [:conc conc [:seq-of-seqs]]
+   [:struct struct [:id-types]]
+   [:record record [:id-vals]]
+   [:record-get record-get [:rec :id]]
+   [:string-set string-set []]
+   [:if-then-else ite [:cond :then :else]]
+   [:let-in let-in [:id-vals :expr-or-pred]]
+   [:skip skip []]
+   [:assignment assign [:id-vals]]
+   [:becomes-element-of becomes-element-of [:ids :set]]
+   [:becomes-such becomes-such [:ids :set]]
+   [:op-call op-call [:returns :op :args]]
+   [:parallel-sub parallel-sub [:subs]]
+   [:sequential-sub sequential-sub [:subs]]
+   [:any any [:ids :pred :subs]]
+   [:let-sub let-sub [:id-vals :subs]]
+   [:var var [:ids :subs]]
+   [:precondition pre [:pred :subs]]
+   [:assert assert [:pred :subs]]
+   [:choice choice [:subs]]
+   [:if-sub if-sub [:cond :then :else]]
+   [:cond-sub cond-sub [:clauses]]
+   [:select select [:clauses]]
+   [:case case [:expr :clauses]]
+   [:uses uses [:values]]
+   [:includes includes [:values]]
+   [:sees sees [:values]]
+   [:extends extends [:values]]
+   [:promotes promotes [:values]]
+   [:constraints constraints [:values]]
+   [:sets sets [:values]]
+   [:constants constants [:values]]
+   [:properties properties [:values]]
+   [:variables variables [:values]]
+   [:invariants invariants [:values]]
+   [:assertions assertions [:values]]
+   [:init init [:values]]
+   [:operations operations [:values]]
+   [:deferred-set deferred-set [:id]]
+   [:enumerated-set enumerated-set [:id :elems]]
+   [:op op [:returns :name :args :body]]
+   [:definitions definitions [:values]]
+   [:expression-definition expression-definition [:name :args :expr]]
+   [:predicate-definition predicate-definition [:name :args :pred]]
+   [:substitution-definition substitution-definition [:name :args :sub]]
+   [:file-definition file-definition [:file]]
+   [:machine-reference machine-reference [:name :args :body]]
+   [:machine machine [:name :machine-clauses]]
+   [:model model [:name :machine-clauses]]
+   [:system system [:name :machine-clauses]]
+   [:refinement
+    refinement
+    [:name :abstract-machine-name :machine-clauses]]
+   [:implementation
+    implementation
+    [:name :abstract-machine-name :machine-clauses]]
+   [:name name [:name]]
+   [:empty-sequence nil nil]
+   [:has-args :cond :then]]))
+
+;#_(spit "db.tmp" (with-out-str (clojure.pprint/pprint (let [matches (first (vals (first (vals facts_ops))))
+;      has_args (first (vals (first (vals facts_args_ir)))) 
+;      m1 (into {} (map (comp vec reverse) matches))
+;      m2 (into {} (map (comp vec ) has_args))
+;      merged (merge-with (fn [v1 v2] [v1 (vec v2)]) m1 m2)
+;      data (sort-by (comp #(get order % 999) first) merged)
+;      ]
+;  data
+;  (for [[x [y z]] data]
+;    [x y z]
+;    )
+;  ))))
+
+;(def facts_ops
+;  (to-db matches 
+;       {+ :add, - :sub, / :div, ** :pow, * :mul,
+;        ; LOGICAL PREDICATES
+;        mod :mod, and :and, not :not, or :or, => :implication, implication :implication,
+;        <=> :equivalence, equivalence :equivalence, exists :exists, for-all :for-all,
+;        ; EQUALITY
+;        = :equals, not= :not-equals,
+;        ; BOOLEANS
+;        bool-set :bool-set, pred->bool :pred->bool,
+;        ; SETS
+;        comprehension-set :comprehension-set, pow :power-set, pow1 :power1-set,
+;        fin :fin, fin1 :fin1, card :cardinality, cart-or-mult :cartesian-product-or-multiplication,
+;        cartesian-product :cartesian-product, union :union, intersection :intersection, set- :difference,
+;        member? :member, subset? :subset?, superset? :superset?, strict-subset? :strict-subset?, 
+;        strict-superset? :strict-superset?, unite-sets :unite-sets, intersect-sets :intersect-sets
+;        union-pe :union-pe, intersection-pe :intersection-pe
+;        ; NUMBERS
+;        integer-set :integer-set, natural-set :natural-set, int-set :int-set, nat-set :nat-set,
+;        nat1-set :nat1-set, interval :interval, min-int :min-int, max-int :max-int,
+;        > :greater, >= :greater-equals, < :less, <= :less-equals, max :max, min :min,
+;        pi :product, sigma :sum, successor :successor, predecessor :predecessor, 
+;        ; RELATIONS
+;        <-> :relation, <<-> :total-relation, <->> :surjective-relation, <<->> :total-surjective-relation,
+;        |-> :maplet, dom :dom, ran :ran, <| :domain-restriction, <<| :domain-subtraction,
+;        |> :range-restriction, |>> :range-subtraction, inverse :inverse, image :image,
+;        <+ :override, >< :direct-product, composition :composition, parallel-product :parallel-product,
+;        prj1 :prj1, prj2 :prj2, closure :closure, closure1 :closure1, iterate :iterate,
+;        fnc :fnc, rel :rel,
+;        ; FUNCTIONS
+;        +-> :partial-fn, --> :total-fn, +->> :partial-surjection, -->> :total-surjection,
+;        >+> :partial-injection, >-> :total-injection, >+>> :partial-bijection, >->> :total-bijection,
+;        lambda :lambda, fn-call :fn-call, id :id,
+;        ; SEQUENCES
+;        sequence :sequence, seq :seq, seq1 :seq1, iseq :iseq, iseq1 :iseq1, perm :perm,
+;        size :size, concat :concat, -> :prepend, <- :append, reverse :reverse,
+;        first :first, last :last, front :front, tail :tail, take :take, drop :drop,
+;        conc :conc
+;        ; RECORDS
+;        struct :struct, record :record, record-get :record-get,
+;        ; STRINGS
+;        string-set :string-set,
+;        ; LET AND IF-THEN-ELSE
+;        ite :if-then-else, let-in :let-in,
+;        ; SUBSTITUTIONS
+;        skip :skip, assign :assignment, becomes-element-of :becomes-element-of, becomes-such :becomes-such;
+;        op-call :op-call
+;        ;|| :parallel-substitution
+;        parallel-sub :parallel-sub, sequential-sub :sequential-sub, any :any,
+;        let-sub :let-sub, ;;id-vals als vec
+;        var :var, pre :precondition, precondition :precondition, assert :assert, choice :choice
+;        if-sub :if-sub, ;; mehrere arg-tags?
+;        cond-sub :cond-sub, select :select, case :case
+;        ; MACHINE REFERENCES
+;        uses :uses, includes :includes, sees :sees, extends :extends, promotes :promotes,
+;        ; MACHINE SECTION
+;        constraints :constraints, sets :sets, constants :constants, properties :properties,
+;        variables :variables, invariants :invariants, assertions :assertions, init :init,
+;        operations :operations,
+;        ; SET DEFINITIONS
+;        deferred-set :deferred-set, enumerated-set :enumerated-set ;; lisb auch: id #{el1 el2}
+;        ; OPERATIONS DEFINITIONS
+;        op :op
+;        ; DEFINITIONS
+;        definitions :definitions, expression-definition :expression-definition, predicate-definition :predicate-definition;
+;        substitution-definition :substitution-definition, file-definition :file-definition
+;        ; MACHINE 
+;        machine-reference :machine-reference, machine :machine, model :model;
+;        system :system, refinement :refinement, implementation :implementation,
+;        ; MACHINE NAME
+;        name :name  }))
+
 
 (def facts_ops
   (pldb/db
@@ -252,8 +603,8 @@
    [has-args :less-equals '(:nums)]
    [has-args :max '(:set)]
    [has-args :min '(:set)]
-   [has-args :pi '(:ids :pred :expr)]
-   [has-args :sigma '(:ids :pred :expr)]
+   [has-args :product '(:ids :pred :expr)]
+   [has-args :sum '(:ids :pred :expr)]
    [has-args :successor '(:num)]
    [has-args :predecessor '(:num)]
                    ; RELATIONS
@@ -320,7 +671,7 @@
     ; STRINGS
    [has-args :string-set '()]
     ; LET AND IF-THEN-ELSE
-   [has-args :ite '(:cond :then :else)]
+   [has-args :if-then-else '(:cond :then :else)]
    [has-args :let-in '(:id-vals :expr-or-pred)]
     ; SUBSTITUTIONS
    [has-args :skip '()]
@@ -342,7 +693,7 @@
    [has-args :has-args '(:cond :then :else)];; mehrere arg-tags?
    [has-args :cond-sub '(:clauses)]
    [has-args :select  '(:clauses)]
-   ;[has-args :case  '(:expr :clauses)] ; ?? 
+   [has-args :case  '(:expr :clauses)] ; ?? 
     ; MACHINE CLAUSES
    [has-args :uses '(:values)]
    [has-args :includes '(:values)]
