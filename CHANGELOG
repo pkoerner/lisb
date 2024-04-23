@@ -9,10 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added Support for Event-B
   - Added Support for Reals in Classical-B
   - Added support for FREETYPES
+  - Added working clj-kondo config
   ### Changed
   - Default state space (empty machine) is only loaded if needed (instead of on start-up).
   - Make `if` more similar to `let`: `if-expr` was replaced by `if` which works with both expressions and predicates
   - add support for n-ary tuples in `maplet`
+  - add support for variadic version of `b=`
 
 ## [0.0.4]
   ### Added:
