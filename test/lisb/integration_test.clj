@@ -10,6 +10,10 @@
             for now only 'truish' predicates are evaluated because eval-lisb-predicate cannot handle
             ComputationNotCompletedResults yet"
     (is (eval-ir-formula (b= 1 1)))
+    (is (eval-ir-formula (b= 1 1 (+ 0 1))))
+    (is (eval-ir-formula (bnot (b= 1 1 0))))
+    (is (eval-ir-formula (bnot (b= 1 0 1))))
+    (is (eval-ir-formula (bnot (b= 0 1 1))))
     (is (eval-ir-formula (b= :x 1)))
     (is (eval-ir-formula (b= :x true)))
     (is (eval-ir-formula (b= :x false)))

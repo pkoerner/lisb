@@ -1495,10 +1495,13 @@
 
 ;;; equality predicates
 
-(defn b= [left right]
-  {:tag :equals
-   :left left
-   :right right})
+(defn b=
+  ([left right]
+   {:tag :equals
+    :left left
+    :right right})
+  ([left right & more]
+   (apply band (map (partial apply b=) (partition 2 1 (cons left (cons right more)))))))
 (s/fdef b=
         :args (s/cat :left ::left :right ::right)
         :ret (s/and (s/keys :req-un [::tag] :req [::left ::right])
