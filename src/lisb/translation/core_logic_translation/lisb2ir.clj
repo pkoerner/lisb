@@ -254,8 +254,11 @@
             (conso k kstail ks)
             (project [k] (conso [k v] acc acc2))
             (map-from-keys-auxo kstail acc2 m))]))
-(defn mappo [ks m]
-  (map-from-keys-auxo ks [] m))
+
+(defn mappo [tag ks m]
+  (fresh [res]
+         (map-from-keys-auxo ks [] res)
+         (project [res] (== m (into {:tag tag} res)))))
 
 (defn new-translato [lisb ir]
   (conde
@@ -265,20 +268,10 @@
     ;; translato([operator & args], IR) :-
     ;;   
     [(fresh [operator args ir-tag more-tags all-tags xx]
-            (trace-lvars :in lisb ir args ir-tag more-tags) 
             (conso operator args lisb)
-            (trace-lvars :destructure-dsl operator args) 
             (featurec ir {:tag ir-tag})
-            (trace-lvars :destructure-map ir-tag) 
             (db/rules ir-tag operator more-tags) 
-            (trace-lvars :hallo ir-tag operator more-tags)
-            (conso :tag more-tags all-tags)
-            (trace-lvars :all-tags all-tags)
-            (mappo all-tags ir)
-            (trace-lvars :res? ir ir-tag)
-            (featurec ir {:tag ir-tag})
-            (== (:tag ir) ir-tag) ;; TODO: this is bs
-            (trace-lvars :res?? ir ir-tag)
+            (mappo ir-tag more-tags ir)
             )
      ]))
 
@@ -300,10 +293,19 @@
 (lisb->ir '(implication :foo :bar))
 
   (pldb/with-dbs [db/rules-tag-sym-args]
-    (run 1 [q p] (db/rules q 'implication p))) 
+    (run 1 [q p v] (featurec p {:foo q})
+         (== p {:foo v})
+         (== v 42)
+         )
+    
+    ) 
 (into {} [[:foo 0]])
     (run* [q v] (== q (apply hash-map [v 42]))
           (== v :foo)
+          )
+
+    (run* [q v] (== q (apply hash-map [:foo 42]))
+          (project [q] (== v (:foo q)))
           )
 
     (run* [q] (mappo [:foo :bar] {:foo 42, :bar 43})
