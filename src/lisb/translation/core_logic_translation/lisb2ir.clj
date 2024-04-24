@@ -19,11 +19,11 @@
   `(~'op [] ~name ~args ~body))
 
 (defn ir->lisb "Initiates main query IR to lisb." [ir]
-  (pldb/with-dbs [db/facts_args_ir db/facts_ops facts_special_ir]
-    (run 1 [q] (pre-translato q ir))))
+  (pldb/with-dbs [db/rules-tag-sym-args db/facts_args_ir db/facts_ops facts_special_ir]
+    (run 2 [q] (pre-translato q ir))))
 
 (defn lisb->ir "Initiates main query lisb to IR." [lisb]
-  (pldb/with-dbs [db/facts_args_ir db/facts_ops facts_special_lisb]
+  (pldb/with-dbs [db/rules-tag-sym-args db/facts_args_ir db/facts_ops facts_special_lisb]
     (run 1 [q] (pre-translato lisb q))))
 
 (def primitive? 
@@ -99,7 +99,8 @@
 (defn translato-helper
   "helper relation for translating nested IR or lisb."
   [args] 
-  (pldb/with-dbs [db/facts_args_ir db/facts_ops facts_special_lisb facts_special_ir] 
+  (pldb/with-dbs [db/rules-tag-sym-args
+                  db/facts_args_ir db/facts_ops facts_special_lisb facts_special_ir] 
     (run 1 [res]
          (fresh [head tail rhead condition f]
             (conda
@@ -152,7 +153,7 @@
           [(fresh [args tail]
                   (== args (map ir arg-keys)) 
                   (project [args] (== tail (map helper args))) 
-                  (project [tail](conso lisbop (flatten-last tail) lisb)))]))) 
+                  (project [tail] (conso lisbop (flatten-last tail) lisb)))]))) 
                   
 
 (defn translato2ir 
@@ -200,7 +201,7 @@
 
 
 (defn pre-translato [lisb ir] 
-  (fresh [l lisbop irop arg-keys arg newlisb lisbop2]
+  (fresh [l lisbop irop arg-keys arg newlisb lisbop2 dc]
          (conde
           ; pre_translato(Lisb, IR) :-  primitive(Lisb), Lisb = IR. 
           [(pred lisb primitive?)
@@ -225,8 +226,10 @@
            (== irop (:tag ir))
            (conde
             [(transform-ir ir irop lisb)]
-            [(db/matches lisbop irop)
+            [(db/rules irop lisbop dc)
+             (db/matches lisbop irop)
              (db/has-args irop arg-keys)
+             (trace-lvars :wtf arg-keys)
              (project [arg-keys] (translato2lisb lisb ir lisbop arg-keys))])]
 
           ; pre_translato(Lisb, IR) :- 
@@ -243,3 +246,97 @@
            (db/has-args irop arg-keys) 
            (project [arg-keys] (translato2ir newlisb ir irop arg-keys))])))
            
+
+(defn map-from-keys-auxo [ks acc m]
+  (conde
+    [(emptyo ks) (project [acc] (== m (into {} acc)))] ;; note: project is non-relational
+    [(fresh [v acc2 k kstail]
+            (conso k kstail ks)
+            (project [k] (conso [k v] acc acc2))
+            (map-from-keys-auxo kstail acc2 m))]))
+(defn mappo [ks m]
+  (map-from-keys-auxo ks [] m))
+
+(defn new-translato [lisb ir]
+  (conde
+    ;; translato(X,X) :- primitive(X).
+    [(== lisb ir)
+     (pred lisb keyword?)]
+    ;; translato([operator & args], IR) :-
+    ;;   
+    [(fresh [operator args ir-tag more-tags all-tags xx]
+            (trace-lvars :in lisb ir args ir-tag more-tags) 
+            (conso operator args lisb)
+            (trace-lvars :destructure-dsl operator args) 
+            (featurec ir {:tag ir-tag})
+            (trace-lvars :destructure-map ir-tag) 
+            (db/rules ir-tag operator more-tags) 
+            (trace-lvars :hallo ir-tag operator more-tags)
+            (conso :tag more-tags all-tags)
+            (trace-lvars :all-tags all-tags)
+            (mappo all-tags ir)
+            (trace-lvars :res? ir ir-tag)
+            (featurec ir {:tag ir-tag})
+            (== (:tag ir) ir-tag) ;; TODO: this is bs
+            (trace-lvars :res?? ir ir-tag)
+            )
+     ]))
+
+
+(defn lisb->ir [lisb]
+  (pldb/with-dbs [db/rules-tag-sym-args]
+    (run 1 [q] (new-translato lisb q))))
+
+(defn ir->lisb [ir]
+  (pldb/with-dbs [db/rules-tag-sym-args]
+    (run 1 [q] (new-translato q ir))))
+
+
+(comment
+  (lisb->ir :x)
+  (ir->lisb :x)
+  (ir->lisb {:tag :implication :preds [:foo :bar]})
+(lisb->ir '(=> :foo :bar))
+(lisb->ir '(implication :foo :bar))
+
+  (pldb/with-dbs [db/rules-tag-sym-args]
+    (run 1 [q p] (db/rules q 'implication p))) 
+(into {} [[:foo 0]])
+    (run* [q v] (== q (apply hash-map [v 42]))
+          (== v :foo)
+          )
+
+    (run* [q] (mappo [:foo :bar] {:foo 42, :bar 43})
+          )
+    (run* [q] (mappo [:foo :bar] q)
+          )
+    (run* [q] (mappo [:foo :bar] q)
+          (featurec q {:foo 42})
+          (featurec q {:bar 43})
+          )
+
+    (run* [q r] 
+          (== r [:foo :bar])
+          (== q (zipmap r [1 2])))
+    
+  
+  
+
+     (run* [q] (== q :x) (pred keyword? q))
+     (run* [q v x] (== q {:tag x, v 42})
+                   (== x :foo)
+                   (== v :bar)
+                   )
+     (run* [q v] (featurec q {:tag 3})
+                 (== v :foo)
+           )
+   (pldb/with-dbs [db/rules-tag-sym-args
+                   db/facts_args_ir db/facts_ops facts_special_lisb facts_special_ir]
+     #_(run 1 [q] (db/has-args :op-call q))
+     #_(run 1 [q] (db/has-args :op-call q))
+    #_ (run 1 [q p r s] (db/rules :op-call q p) (conso r s p)
+          
+          ))
+(= (quote (<-- (1 2) (op-call :someop []))) (first (translato {:tag :op-call, :returns [1 2], :op :someop, :args []})))
+)
+

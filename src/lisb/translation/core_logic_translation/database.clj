@@ -103,7 +103,7 @@
 (pldb/db-rel rules ^:index tag ^:index lisb args)
 (defmacro lisb-translation-rules->db [functor rule-tuples]
   `(pldb/db
-     ~@(map (fn [[x y z]] [functor x `(quote y) z]) rule-tuples)))
+     ~@(map (fn [[x y z]] [functor x `(quote ~y) z]) rule-tuples)))
 
 (def rules-tag-sym-args
   (lisb-translation-rules->db rules
@@ -116,6 +116,7 @@
    [:and and [:preds]]
    [:not not [:pred]]
    [:or or [:preds]]
+   [:implication implication [:preds]]
    [:implication => [:preds]]
    [:equivalence <=> [:preds]]
    [:exists exists [:ids :pred]]
