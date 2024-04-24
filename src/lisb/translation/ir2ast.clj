@@ -697,7 +697,7 @@
 
 (defmethod ir-node->ast-node :seq [ir-node]
   (s/assert (s/keys :req-un [::set]) ir-node)
-  (ASeqExpression. (ir-node-set->ast ir-node)))
+  (ASeqExpression. ^PExpression (ir-node-set->ast ir-node)))
 
 (defmethod ir-node->ast-node :seq1 [ir-node]
   (s/assert (s/keys :req-un [::set]) ir-node)
