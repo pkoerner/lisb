@@ -1,8 +1,8 @@
 (ns lisb.examples.eventb.abz2020
-  (:require [lisb.translation.eventb.util :refer [eventb ir->prob-model prob-model->rodin]]
+  (:require [lisb.translation.eventb.util :refer [ir->prob-model prob-model->rodin]]
             [lisb.translation.util :refer [lisb->ir] :as butil]
             [lisb.translation.eventb.b2eventb :as b2eventb]
-            [lisb.translation.eventb.ir2eventb :refer [rodin-name]]))
+            [clojure.java.io]))
 
 
 (defn- load-edn [lisb-name]

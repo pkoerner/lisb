@@ -1,10 +1,10 @@
 (ns lisb.translation.lisb2ir-test
   (:require [clojure.test :refer :all]
             [lisb.translation.util :refer [lisb->ir b pred]]
-    [lisb.examples.simple :as simple]
-    [lisb.examples.marriages :as marriages]
-    [lisb.examples.sebastian :as sebastian]
-            ))
+            [lisb.examples.simple :as simple]
+            [lisb.examples.marriages :as marriages]
+            [lisb.examples.sebastian :as sebastian]
+            [clojure.java.io]))
 
 
 (deftest examples-sebastian-test
@@ -168,7 +168,7 @@
     (is (fn? (pred [] (+ 1 2)))))
   
   (testing "the pred macro has a parameter list just like fn"
-    (is (fn? (pred [x y] (+ 1 2)))))
+    (is (fn? (pred [_x _y] (+ 1 2)))))
 
   (testing "the resulting function generates a representation
             which replaces the parameter symbols with the values provided"

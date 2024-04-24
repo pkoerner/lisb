@@ -1,4 +1,5 @@
 (ns lisb.adl.adl2lisb
+  (:refer-clojure :exclude [assert while])
   (:require [lisb.translation.util :refer :all]))
 
 (defn assert [pc pred]
@@ -21,7 +22,7 @@
    :invariants []})
 
 (defn do [pc & args]
-  (loop [[instr & instrs :as allinstrs] args
+  (loop [[instr & instrs :as _allinstrs] args
          pc pc
          ops []
          invariants []]

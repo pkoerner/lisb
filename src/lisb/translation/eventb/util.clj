@@ -2,17 +2,14 @@
   (:require [potemkin :refer [import-vars]]
             [lisb.prob.animator :refer [api injector]]
             [lisb.translation.eventb.b2eventb :as b2eventb]
-            [lisb.translation.eventb dsl ir2eventb eventb2lisb]
+            [lisb.translation.eventb dsl eventb2lisb]
             [lisb.translation.eventb.ir2eventb :refer [ir->prob-with-label]]
-            [clojure.walk :refer [walk]])
+            )
   (:import
    de.prob.model.eventb.translate.ModelToXML
    (de.prob.model.eventb
-    EventBModel
-    EventBMachine
-    Context)
-   (de.prob.model.representation
-    DependencyGraph
+    EventBModel)
+   (de.prob.model.representation 
     DependencyGraph$ERefType)
    (de.prob.animator.domainobjects
     FormulaExpand

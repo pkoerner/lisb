@@ -1,6 +1,5 @@
 (ns lisb.examples.eventb.traffic-lights
   (:require [lisb.translation.eventb.dsl :refer [eventb]]
-            [lisb.translation.eventb.ir2eventb :refer [ir->prob]]
             [lisb.translation.eventb.util :refer [ir->prob-model prob-model->rodin]]))
 
 (def tlc_0 (eventb (context :tlc_0
@@ -107,6 +106,7 @@
                                         (then (assign :CallButtonState true)))
                                  ))))
 (comment
+  (require 'clojure.pprint)
   (clojure.pprint/pprint tlm_1)
   (def model (ir->prob-model tlc_0 tlc_1 tlm_0 tlm_1 tlm_2))
   (prob-model->rodin model "traffic_lights" "./resources/eventb")

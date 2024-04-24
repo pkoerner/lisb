@@ -1,5 +1,5 @@
 (ns lisb.examples.marriages
-  (:require [lisb.translation.lisb2ir :refer [lisb->ir b]]))
+  (:require [lisb.translation.lisb2ir :refer [b]]))
 
 (def life (b (machine
                :Life

@@ -9,7 +9,7 @@
   ([size1]
    (clojure.core/let [width (binterval 1 :n)
          repr (band (b= :n size1)
-                    (bmember? :queens (b>-> width width))
+                    (bmember? :queens (btotal-injection width width))
                     (bfor-all [:q1 :q2]
                               (band (bmember? :q1 width)
                                     (bmember? :q2 width)

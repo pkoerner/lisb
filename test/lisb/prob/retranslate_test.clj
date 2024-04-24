@@ -1,6 +1,6 @@
 (ns lisb.prob.retranslate-test
   (:require [clojure.test :refer :all]
-            [lisb.prob.retranslate :refer :all])
+            [lisb.prob.retranslate :refer [retranslate]])
   (:import (de.hhu.stups.prob.translator BAtom BBoolean BNumber BString BSet BTuple BRecord)
            (de.hhu.stups.prob.translator.interpretations BRelation BFunction BSequence)))
 

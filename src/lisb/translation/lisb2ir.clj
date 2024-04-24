@@ -71,7 +71,8 @@
 (declare bnot)
 (declare bpredecessor)
 
-(defn to-vec [v]
+;; TODO: duplicated code, also in ir2ast
+(defn- to-vec [v]
   (if (vector? v)
     v
     [v]))
@@ -1494,10 +1495,13 @@
 
 ;;; equality predicates
 
-(defn b= [left right]
-  {:tag :equals
-   :left left
-   :right right})
+(defn b=
+  ([left right]
+   {:tag :equals
+    :left left
+    :right right})
+  ([left right & more]
+   (apply band (map (partial apply b=) (partition 2 1 (cons left (cons right more)))))))
 (s/fdef b=
         :args (s/cat :left ::left :right ::right)
         :ret (s/and (s/keys :req-un [::tag] :req [::left ::right])
@@ -1928,7 +1932,7 @@
     (set? node) (set (map (partial wrap ctx) node))
     (list? node) (apply list (map (partial wrap ctx) node))
     (vector? node) (vec  (map (partial wrap ctx) node))
-    :otherwise node))
+    :else node))
 
 
 (defn almost-flatten [x]

@@ -20,10 +20,10 @@
                  (variables :board :direction)
                  (invariants
                    ;types
-                   (member :board (total-fn
+                   (member? :board (total-function
                                     (* (range 1 9) (range 1 9))
                                     {0 1}))
-                   (member :direction (* (range -1 1) (range -1 1))))
+                   (member? :direction (* (range -1 1) (range -1 1))))
                  (init (assign :board )) ; oh. how do i do set comprehension?
                  ))))
 
@@ -33,7 +33,7 @@
 
   (create-ns 'b)
 
-  (intern 'b
+  #_(intern 'b
           'take
           btake)
   )

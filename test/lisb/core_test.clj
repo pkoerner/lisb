@@ -37,6 +37,6 @@
 
 (deftest unsat-core-predicate-test
   (testing "unsat core works with predicates that minimize a parameter set"
-    (is (= (unsat-core-predicate (pred [c] (not (subset? #{4 5 7} c)))
+    (is (= (unsat-core-predicate (pred pp [c] (not (subset? #{4 5 7} c)))
                                  (set (range 10)))
            #{4 5 7}))))

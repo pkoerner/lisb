@@ -1,5 +1,5 @@
 (ns lisb.examples.sebastian
-  (:require [lisb.translation.lisb2ir :refer [lisb->ir b]]))
+  (:require [lisb.translation.lisb2ir :refer [b]]))
 
 (def generic-timer-mc (b (machine
                            [:GenericTimersMC :TIMERS]

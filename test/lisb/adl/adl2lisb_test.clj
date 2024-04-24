@@ -1,5 +1,7 @@
 (ns lisb.adl.adl2lisb-test
+  (:refer-clojure :exclude [assert while])
   (:require [clojure.test :refer :all])
+  #_{:clj-kondo/ignore #{:refer-all}}
   (:require [lisb.adl.adl2lisb :refer :all])
   (:require [lisb.translation.lisb2ir :refer :all]))
 
@@ -33,6 +35,7 @@
              (algorithm
                (while (> :x 0)
                  (assert (= (+ :p (* :x :y)) (* 5 3)))
+                 #_{:clj-kondo/ignore [:missing-else-branch]}
                  (if (not= 0 (mod :x 2))
                    (assign :p (+ :p :y)))
                  (assign :x (/ :x 2) :y (* :y 2)))
@@ -81,6 +84,7 @@
            (algorithm
              (do
                (assign :x 0))
+             #_{:clj-kondo/ignore [:missing-else-branch]}
              (if (> :x 1)
                (do
                  (assign :x 2)
@@ -98,6 +102,7 @@
                          (bop :assign3 [] (bprecondition (b= :pc 3) (bsequential-sub (bassign :x 3) (bassign :pc 5))))
                          (bop :assign4 [] (bprecondition (b= :pc 4) (bsequential-sub (bassign :y 4) (bassign :pc 5))))]}
            (algorithm
+             #_{:clj-kondo/ignore [:missing-else-branch]}
              (if (> :x 0)
                (assign :x 1))
              (if (> :x 2)

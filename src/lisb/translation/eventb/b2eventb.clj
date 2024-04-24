@@ -1,11 +1,9 @@
 (ns lisb.translation.eventb.b2eventb
   (:require [com.rpl.specter :as s]
-            [lisb.translation.eventb.dsl :refer [eventb]]
-            [lisb.translation.util :refer [b] :as butil]
+            [lisb.translation.util :as butil]
             [lisb.translation.lisb2ir :refer [bnot]]
-            [lisb.translation.eventb.dsl :refer [eventb-event] :as dsl]
-            [lisb.translation.eventb.specter-util :refer [CLAUSES CLAUSE NAME TAG INCLUDES]])
-  (:import [de.prob.model.eventb Event]))
+            [lisb.translation.eventb.dsl :refer [eventb eventb-event] :as dsl]
+            [lisb.translation.eventb.specter-util :refer [CLAUSES CLAUSE NAME TAG INCLUDES]]))
 
 
 
@@ -173,10 +171,12 @@
      (eventb-event (:name ir)))
     (:body ir)))
 
-(def MAP-NODES
-   (s/recursive-path [] p
-     (s/if-path map?
-       (s/continue-then-stay s/MAP-VALS p))))
+(comment
+  (def MAP-NODES
+    (s/recursive-path [] p
+                      (s/if-path map?
+                                 (s/continue-then-stay s/MAP-VALS p))))
+  )
 
 (defn replace-args-in-body 
   "Replaces all occurrences of arguments with the values"

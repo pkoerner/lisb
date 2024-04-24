@@ -1,6 +1,5 @@
 (ns lisb.examples.crowded-chessboard
-  (:require [clojure.set :refer [union]]
-            [clojure.pprint :refer [print-table]]
+  (:require [clojure.pprint :refer [print-table]]
             [lisb.prob.animator :refer [api]]
             [lisb.core :refer [eval-ir-formula]]
             [lisb.translation.lisb2ir :refer :all]))
@@ -95,7 +94,7 @@
    (let [field (binterval 1 (b* :n :n))
          amount-bishops (if (= size 4) 5 (- (* 2 size) 2))
          repr (b (and (= :n size)
-                                    (bmember? :board (b--> field :figures))
+                                    (bmember? :board (btotal-function field :figures))
                                     (how-many :queen size)
                                     (how-many :rook size)
                                     (how-many :bishop amount-bishops)
