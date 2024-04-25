@@ -1097,11 +1097,11 @@
 
 (defmethod ir-node->ast-node :unite-sets [ir-node]
   (s/assert (s/keys :req-un [::set-of-sets]) ir-node)
-  (AGeneralUnionExpression. (ir->ast-node (:set-of-sets ir-node))))
+  (construct-with-pexpression AGeneralUnionExpression (ir->ast-node (:set-of-sets ir-node))))
 
 (defmethod ir-node->ast-node :intersect-sets [ir-node]
   (s/assert (s/keys :req-un [::set-of-sets]) ir-node)
-  (AGeneralIntersectionExpression. (ir->ast-node (:set-of-sets ir-node))))
+  (construct-with-pexpression AGeneralIntersectionExpression (ir->ast-node (:set-of-sets ir-node))))
 
 (defmethod ir-node->ast-node :union-pe [ir-node]
   (s/assert (s/keys :req-un [::ids ::pred ::expr]) ir-node)

@@ -278,7 +278,8 @@
   (testing "The AST classes offer a copy constructor.
            This can be an issue for unary operators
            which can have the same node as children.
-           This test shall assert that the relevant nodes are constructed correctly."
+           This test shall assert that the relevant nodes are constructed correctly.
+           Note that test results may differ depending on the setup."
     (are [ir] (= ir (ast->ir (ir->ast ir)))
               (b (not (not (= 1 1))))
               (b (seq (seq :x)))
@@ -300,4 +301,6 @@
               (b (pow (pow :x)))
               (b (pow1 (pow1 :x)))
               (b (fin (fin :x)))
-              (b (fin1 (fin1 :x))))))
+              (b (fin1 (fin1 :x)))
+              (b (unite-sets (unite-sets :x)))
+              (b (intersect-sets (intersect-sets :x))))))
