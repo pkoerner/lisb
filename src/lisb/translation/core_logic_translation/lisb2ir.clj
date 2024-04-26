@@ -260,18 +260,82 @@
          (map-from-keys-auxo ks [] res)
          (project [res] (== m (into {:tag tag} res)))))
 
+
+(defn tuples-from-keys-aux [ks acc tuples]
+  (conde
+    [(emptyo ks) (== tuples acc)] ;; note: project is non-relational
+    [(fresh [v acc2 k kstail]
+            (conso k kstail ks)
+            (project [k] (conso [k v] acc acc2))
+            (map-from-keys-auxo kstail acc2 tuples))]))
+
+(defn list-same-counto-zip [l1 l2 zipped]
+  (conde [(emptyo l1) (emptyo l2) (emptyo zipped)]
+         [(fresh [h1 h2 t1 t2 hz tz]
+                 (conso h1 t1 l1)
+                 (conso h2 t2 l2)
+                 (== hz [h1 h2])
+                 (conso hz tz zipped)
+                 (list-same-counto-zip t1 t2 tz))]))
+
+(defn secondo [l e]
+  (fresh [tmp]
+         (resto l tmp)
+         (firsto tmp e)))
+
+(defn maplisto 
+  ([g l1]
+   (conde [(emptyo l1)]
+          [(fresh [h t] (conso h t l1) (g h) (maplisto g t))]))
+  ([g l1 l2]
+   (conde [(emptyo l1) (emptyo l2)]
+          [(fresh [h1 h2 t1 t2] (conso h1 t1 l1) (conso h2 t2 l2) (g h1 h2) (maplisto g t1 t2))])))
+
+(defn match-values-with-keys [ks vs res]
+  (conde [(fresh [tag] (== ks [[tag]])
+                       (== [[tag vs]] res))]
+         [(emptyo vs) (emptyo ks) (emptyo res)]
+         [(fresh [ks-head ks-tail vs-head vs-tail res-head res-tail]
+                 (conso ks-head ks-tail ks)
+                 (conso vs-head vs-tail vs)
+                 (conso res-head res-tail res)
+                 (== res-head [ks-head vs-head])
+                 (match-values-with-keys ks-tail vs-tail res-tail))]))
+
+(defn try-pairs-mappo [pairs mappo]
+  (conda [(nonlvaro mappo)
+          (project [mappo] (== pairs (seq mappo)))]
+         [(lvaro mappo)
+          s#]
+         )
+  )
+(defn pairs-mappo [pairs mappo]
+  (project [pairs] (== mappo (into {} pairs))))
+
 (defn new-translato [lisb ir]
   (conde
     ;; translato(X,X) :- primitive(X).
-    [(== lisb ir)
-     (pred lisb keyword?)]
+    [(trace-lvars :ez lisb ir)
+     (== lisb ir)
+     (pred lisb primitive?)]
     ;; translato([operator & args], IR) :-
     ;;   
-    [(fresh [operator args ir-tag more-tags all-tags xx]
-            (conso operator args lisb)
+    [(fresh [operator args ir-tag more-tags all-tags translatod-args zippo ir-pairs ir-pairs-with-tag]
+            (conso operator args lisb) ;; lisb = [operator | args] 
             (featurec ir {:tag ir-tag})
-            (db/rules ir-tag operator more-tags) 
-            (mappo ir-tag more-tags ir)
+            (db/rules ir-tag operator more-tags)   ;; ir-tag = :implication, operator = 'implication, more-tags = [[:preds]]
+            ;(mappo ir-tag more-tags ir)
+            (trace-lvars :here ir-tag operator more-tags)
+            (try-pairs-mappo ir-pairs-with-tag ir)
+            (match-values-with-keys more-tags translatod-args ir-pairs)
+            (conso [:tag ir-tag] ir-pairs ir-pairs-with-tag)
+            (trace-lvars :here ir-pairs ir-pairs-with-tag)
+            (list-same-counto-zip args translatod-args zippo)
+            (trace-lvars :b4mapl args more-tags translatod-args)
+            (maplisto new-translato args translatod-args)
+            (trace-lvars :mapl args translatod-args)
+            (pairs-mappo ir-pairs-with-tag ir)
+            ;(== ir ir-pairs)
             )
      ]))
 
@@ -284,14 +348,47 @@
   (pldb/with-dbs [db/rules-tag-sym-args]
     (run 1 [q] (new-translato q ir))))
 
+#_(defn counto [l n]
+  (conde [(emptyo l) (== 0 n)]
+         [(fresh [_ tmptail tmpcnt]
+                 (conso _ tmptail l)
+                 (counto tmptail tmpcnt)
+                 (== n (inc tmpcnt)))]))
 
 (comment
+
+(lisb->ir '(=> (+ 1 2) :bar))
+(lisb->ir '(=> :foo :bar))
+(lisb->ir '(+ :foo :bar))
+
+
   (lisb->ir :x)
   (ir->lisb :x)
   (ir->lisb {:tag :implication :preds [:foo :bar]})
+  (ir->lisb {:tag :implication :preds [:foo :bar]})
 (lisb->ir '(=> :foo :bar))
-(lisb->ir '(implication :foo :bar))
+(first (ir->lisb (first (lisb->ir '(=> (+ 1 2 3) (* (+ 1 4) 5) (* 6 7 8 ))))))
+(ir->lisb (first (lisb->ir '(implication (implication :quux :foo) :bar))))
+(lisb->ir '(+ 1 4))
 
+(run 1 [x] 
+     (fresh [e y]
+            (== x y)
+            (== y [[:foo e]])
+            (everyg
+              #(fresh [e1 e2] 
+                      (firsto % e1) (secondo % e2)
+                      (new-translato e1 e2))
+              y)))
+
+
+(run 1 [n] (fresh [x] (== x 42) (== n [:foo x])))
+(run 1 [n] (fresh [h t] (conso h t :a)))
+
+(run 3 [n] (match-values-with-keys [:foo :bar :bar] [1 2 3] n))
+(run 1 [n] (secondo [:foo :bar :bar] n))
+(run 1 [n] (counto [:foo :bar :bar] n))
+(run 2 [n z] (list-same-counto-zip n [:foo :bar :bar] z))
   (pldb/with-dbs [db/rules-tag-sym-args]
     (run 1 [q p v] (featurec p {:foo q})
          (== p {:foo v})
