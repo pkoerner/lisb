@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.5] - SNAPSHOT
+## [0.0.6] - SNAPSHOT
+
+## [0.0.5]
   ### Added
   - Added Support for Event-B
   - Added Support for Reals in Classical-B
@@ -15,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Make `if` more similar to `let`: `if-expr` was replaced by `if` which works with both expressions and predicates
   - add support for n-ary tuples in `maplet`
   - add support for variadic version of `b=`
+  ### Fixed
+  - some nested operators were swallowed by the copy constructors (Java, BParser)
 
 ## [0.0.4]
   ### Added:

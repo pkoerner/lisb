@@ -197,6 +197,21 @@
                                                ;AMinusExpression
                                                )))
 
+;; This is necessary because at the time of implementation,
+;; the ProB Java AST has one-arity nodes with:
+;; - A PExpression constructor,
+;; - A copy constructor specific to the class.
+;; Clojure cannot resolve the correct constructor, even with type hints.
+(defn construct-with-x [clazz arg x]
+  (let [constructor (first (filter (fn [constrs] (= [x] (into [] (.getParameterTypes constrs))))
+                                   (.getConstructors clazz)))]
+    (.newInstance constructor (into-array Object [arg]))))
+
+(defn construct-with-pexpression [clazz arg]
+  (construct-with-x clazz arg PExpression))
+
+(defn construct-with-ppredicate [clazz arg]
+  (construct-with-x clazz arg PPredicate) )
 
 (declare ir->ast-node)
 
@@ -697,23 +712,23 @@
 
 (defmethod ir-node->ast-node :seq [ir-node]
   (s/assert (s/keys :req-un [::set]) ir-node)
-  (ASeqExpression. (ir-node-set->ast ir-node)))
+  (construct-with-pexpression ASeqExpression (ir-node-set->ast ir-node)))
 
 (defmethod ir-node->ast-node :seq1 [ir-node]
   (s/assert (s/keys :req-un [::set]) ir-node)
-  (ASeq1Expression. (ir-node-set->ast ir-node)))
+  (construct-with-pexpression ASeq1Expression (ir-node-set->ast ir-node)))
 
 (defmethod ir-node->ast-node :iseq [ir-node]
   (s/assert (s/keys :req-un [::set]) ir-node)
-  (AIseqExpression. (ir-node-set->ast ir-node)))
+  (construct-with-pexpression AIseqExpression (ir-node-set->ast ir-node)))
 
 (defmethod ir-node->ast-node :iseq1 [ir-node]
   (s/assert (s/keys :req-un [::set]) ir-node)
-  (AIseq1Expression. (ir-node-set->ast ir-node)))
+  (construct-with-pexpression AIseq1Expression (ir-node-set->ast ir-node)))
 
 (defmethod ir-node->ast-node :perm [ir-node]
   (s/assert (s/keys :req-un [::set]) ir-node)
-  (APermExpression. (ir-node-set->ast ir-node)))
+  (construct-with-pexpression APermExpression (ir-node-set->ast ir-node)))
 
 (defmethod ir-node->ast-node :size [ir-node]
   (s/assert (s/keys :req-un [::seq]) ir-node)
@@ -733,27 +748,27 @@
 
 (defmethod ir-node->ast-node :reverse [ir-node]
   (s/assert (s/keys :req-un [::seq]) ir-node)
-  (ARevExpression. (ir-node-seq->ast ir-node)))
+  (construct-with-pexpression ARevExpression (ir-node-seq->ast ir-node)))
 
 (defmethod ir-node->ast-node :first [ir-node]
   (s/assert (s/keys :req-un [::seq]) ir-node)
-  (AFirstExpression. (ir-node-seq->ast ir-node)))
+  (construct-with-pexpression AFirstExpression (ir-node-seq->ast ir-node)))
 
 (defmethod ir-node->ast-node :last [ir-node]
   (s/assert (s/keys :req-un [::seq]) ir-node)
-  (ALastExpression. (ir-node-seq->ast ir-node)))
+  (construct-with-pexpression ALastExpression (ir-node-seq->ast ir-node)))
 
 (defmethod ir-node->ast-node :front [ir-node]
   (s/assert (s/keys :req-un [::seq]) ir-node)
-  (AFrontExpression. (ir-node-seq->ast ir-node)))
+  (construct-with-pexpression AFrontExpression (ir-node-seq->ast ir-node)))
 
 (defmethod ir-node->ast-node :tail [ir-node]
   (s/assert (s/keys :req-un [::seq]) ir-node)
-  (ATailExpression. (ir-node-seq->ast ir-node)))
+  (construct-with-pexpression ATailExpression (ir-node-seq->ast ir-node)))
 
 (defmethod ir-node->ast-node :conc [ir-node]
   (s/assert (s/keys :req-un [::seq-of-seqs]) ir-node)
-  (AGeneralConcatExpression. (ir->ast-node (:seq-of-seqs ir-node))))
+  (construct-with-pexpression AGeneralConcatExpression (ir->ast-node (:seq-of-seqs ir-node))))
 
 (defmethod ir-node->ast-node :take [ir-node]
   (s/assert (s/keys :req-un [::seq ::num]) ir-node)
@@ -831,15 +846,15 @@
 
 (defmethod ir-node->ast-node :dom [ir-node]
   (s/assert (s/keys :req-un [::rel]) ir-node)
-  (ADomainExpression. (ir-node-rel->ast ir-node)))
+  (construct-with-pexpression ADomainExpression (ir-node-rel->ast ir-node)))
 
 (defmethod ir-node->ast-node :ran [ir-node]
   (s/assert (s/keys :req-un [::rel]) ir-node)
-  (ARangeExpression. (ir-node-rel->ast ir-node)))
+  (construct-with-pexpression ARangeExpression (ir-node-rel->ast ir-node)))
 
 (defmethod ir-node->ast-node :id [ir-node]
   (s/assert (s/keys :req-un [::set]) ir-node)
-  (AIdentityExpression. (ir-node-set->ast ir-node)))
+  (construct-with-pexpression AIdentityExpression (ir-node-set->ast ir-node)))
 
 (defmethod ir-node->ast-node :domain-restriction [ir-node]
   (s/assert (s/keys :req-un [::rel ::set]) ir-node)
@@ -859,7 +874,7 @@
 
 (defmethod ir-node->ast-node :inverse [ir-node]
   (s/assert (s/keys :req-un [::rel]) ir-node)
-  (AReverseExpression. (ir-node-rel->ast ir-node)))
+  (construct-with-pexpression AReverseExpression (ir-node-rel->ast ir-node)))
 
 (defmethod ir-node->ast-node :image [ir-node]
   (s/assert (s/keys :req-un [::rel ::set]) ir-node)
@@ -891,11 +906,11 @@
 
 (defmethod ir-node->ast-node :closure1 [ir-node]
   (s/assert (s/keys :req-un [::rel]) ir-node)
-  (AClosureExpression. (ir-node-rel->ast ir-node)))
+  (construct-with-pexpression AClosureExpression (ir-node-rel->ast ir-node)))
 
 (defmethod ir-node->ast-node :closure [ir-node]
   (s/assert (s/keys :req-un [::rel]) ir-node)
-  (AReflexiveClosureExpression. (ir-node-rel->ast ir-node)))
+  (construct-with-pexpression AReflexiveClosureExpression (ir-node-rel->ast ir-node)))
 
 (defmethod ir-node->ast-node :iterate [ir-node]
   (s/assert (s/keys :req-un [::rel]) ir-node)
@@ -1034,19 +1049,19 @@
 
 (defmethod ir-node->ast-node :power-set [ir-node]
   (s/assert (s/keys :req-un [::set]) ir-node)
-  (APowSubsetExpression. (ir-node-set->ast ir-node)))
+  (construct-with-pexpression APowSubsetExpression (ir-node-set->ast ir-node)))
 
 (defmethod ir-node->ast-node :power1-set [ir-node]
   (s/assert (s/keys :req-un [::set]) ir-node)
-  (APow1SubsetExpression. (ir-node-set->ast ir-node)))
+  (construct-with-pexpression APow1SubsetExpression (ir-node-set->ast ir-node)))
 
 (defmethod ir-node->ast-node :fin [ir-node]
   (s/assert (s/keys :req-un [::set]) ir-node)
-  (AFinSubsetExpression. (ir-node-set->ast ir-node)))
+  (construct-with-pexpression AFinSubsetExpression (ir-node-set->ast ir-node)))
 
 (defmethod ir-node->ast-node :fin1 [ir-node]
   (s/assert (s/keys :req-un [::set]) ir-node)
-  (AFin1SubsetExpression. (ir-node-set->ast ir-node)))
+  (construct-with-pexpression AFin1SubsetExpression (ir-node-set->ast ir-node)))
 
 (defmethod ir-node->ast-node :cardinality [ir-node]
   (s/assert (s/keys :req-un [::set]) ir-node)
@@ -1082,11 +1097,11 @@
 
 (defmethod ir-node->ast-node :unite-sets [ir-node]
   (s/assert (s/keys :req-un [::set-of-sets]) ir-node)
-  (AGeneralUnionExpression. (ir->ast-node (:set-of-sets ir-node))))
+  (construct-with-pexpression AGeneralUnionExpression (ir->ast-node (:set-of-sets ir-node))))
 
 (defmethod ir-node->ast-node :intersect-sets [ir-node]
   (s/assert (s/keys :req-un [::set-of-sets]) ir-node)
-  (AGeneralIntersectionExpression. (ir->ast-node (:set-of-sets ir-node))))
+  (construct-with-pexpression AGeneralIntersectionExpression (ir->ast-node (:set-of-sets ir-node))))
 
 (defmethod ir-node->ast-node :union-pe [ir-node]
   (s/assert (s/keys :req-un [::ids ::pred ::expr]) ir-node)
@@ -1145,7 +1160,7 @@
       (= AMemberPredicate pt) (ANotMemberPredicate. (.getLeft predicate) (.getRight predicate))
       (= ASubsetPredicate pt) (ANotSubsetPredicate. (.getLeft predicate) (.getRight predicate))
       (= ASubsetStrictPredicate pt) (ANotSubsetStrictPredicate. (.getLeft predicate) (.getRight predicate))
-      :else (ANegationPredicate. predicate))))
+      :else (construct-with-ppredicate ANegationPredicate predicate))))
 
 (defmethod ir-node->ast-node :for-all [ir-node]
   (s/assert (s/keys :req-un [::ids ::implication]) ir-node)

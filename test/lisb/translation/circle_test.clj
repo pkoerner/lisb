@@ -273,3 +273,34 @@
               (b (not (= 1 1)))
               (b (for-all [:x] (contains? nat-set :x) (< 0 :x)))
               (b (exists [:x] (and (= 1 1) (= 2 2)))))))
+
+(deftest self-nested-operators-test
+  (testing "The AST classes offer a copy constructor.
+           This can be an issue for unary operators
+           which can have the same node as children.
+           This test shall assert that the relevant nodes are constructed correctly.
+           Note that test results may differ depending on the setup."
+    (are [ir] (= ir (ast->ir (ir->ast ir)))
+              (b (not (not (= 1 1))))
+              (b (seq (seq :x)))
+              (b (seq1 (seq1 :x)))
+              (b (iseq (iseq :x)))
+              (b (perm (perm :x)))
+              (b (reverse (reverse :x)))
+              (b (first (first :x)))
+              (b (last (last :x)))
+              (b (front (front :x)))
+              (b (tail (tail :x)))
+              (b (conc (conc :x)))
+              (b (dom (dom :x)))
+              (b (ran (ran :x)))
+              (b (identity (identity :x)))
+              (b (inverse (inverse :x)))
+              (b (closure (closure :x)))
+              (b (closure1 (closure1 :x)))
+              (b (pow (pow :x)))
+              (b (pow1 (pow1 :x)))
+              (b (fin (fin :x)))
+              (b (fin1 (fin1 :x)))
+              (b (unite-sets (unite-sets :x)))
+              (b (intersect-sets (intersect-sets :x))))))
