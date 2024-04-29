@@ -304,7 +304,10 @@
 
 (defn try-pairs-mappo [pairs mappo]
   (conda [(nonlvaro mappo)
-          (project [mappo] (== pairs (seq mappo)))]
+          (fresh [tmp-pairs tag smaller-tmp-pairs]
+                 (project [mappo] (== tmp-pairs (seq mappo)))
+                 (rembero [:tag tag] tmp-pairs smaller-tmp-pairs)
+                 (conso [:tag tag] smaller-tmp-pairs pairs))]
          [(lvaro mappo)
           s#]))
 
@@ -347,7 +350,7 @@
 
 (comment
 
-(lisb->ir '(=> (+ 1 2) :bar))
+(lisb->ir '(=> (+ 1 2 3) :bar))
 (lisb->ir '(=> :foo :bar))
 (lisb->ir '(+ :foo :bar))
 (lisb->ir '(+ "a" "b"))
@@ -358,7 +361,7 @@
   (lisb->ir '(nat-set))
   (lisb->ir 'nat-set)
   (ir->lisb :x)
-  (ir->lisb {:tag :implication :preds [:foo :bar]})
+  (ir->lisb {:preds [:foo :bar], :tag :implication})
   (ir->lisb {:tag :implication :preds [:foo :bar]})
 (lisb->ir '(=> :foo :bar))
 (first (ir->lisb (first (lisb->ir '(=> (+ 1 2 3) (* (+ 1 4) 5) (* 6 7 8 ))))))
