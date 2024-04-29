@@ -5,16 +5,15 @@
 
 ;; numbers
 
-(def num-gen (gen/one-of 
+(def num-gen (gen/one-of
               [(gen/fmap keyword (gen/not-empty (gen/resize 10 gen/string-alphanumeric)))
                gen/large-integer]))
-(def num-expr-gen (gen/recursive-gen
-                   (fn [inner]
-                     (gen/fmap list*
-                               (gen/tuple (gen/elements '[+ - * /])
-                                          inner
-                                          inner)))
-                   num-gen))
+(def num-expr-gen (gen/resize 3 (gen/recursive-gen
+                                 (fn [inner]
+                                   (gen/bind (gen/elements '[+ - * /])
+                                             (fn [op] (gen/fmap (partial cons op)
+                                                                (gen/vector inner 2 5)))))
+                                 num-gen)))
 (def num-pred-gen
   (gen/fmap list*
             (gen/tuple (gen/elements '[> < >= <=])
@@ -28,31 +27,29 @@
   (gen/fmap set
             (gen/vector gen/large-integer)))
 
-(def complex-num-set-gen (gen/recursive-gen
-                      (fn [inner]
-                        (gen/one-of
-                         [(gen/fmap list*
-                                     (gen/tuple (gen/elements '[pow pow1 fin fin1])
-                                                inner))
-                          (gen/fmap list*
-                                    (gen/tuple (gen/elements '[cartesian-product
-                                                               union
-                                                               intersection
-                                                               set-])
-                                               inner
-                                               inner))]))
-                     simple-num-set-gen))
+(def complex-num-set-gen (gen/resize 3 (gen/recursive-gen
+                                        (fn [inner]
+                                          (gen/one-of
+                                           [(gen/fmap list*
+                                                      (gen/tuple (gen/elements '[pow pow1 fin fin1])
+                                                                 inner))
+                                            (gen/bind (gen/elements '[cartesian-product
+                                                                      union
+                                                                      intersection
+                                                                      set-])
+                                                      (fn [op] (gen/fmap (partial cons op)
+                                                                         (gen/vector inner 2 5))))]))
+                                        simple-num-set-gen)))
 
 (def num-set-pos-pred-gen
-  (gen/one-of [(gen/fmap list*
-                         (gen/tuple (gen/elements '[subset? superset?
-                                                    strict-subset? strict-superset?])
-                                    complex-num-set-gen
-                                    complex-num-set-gen))
+  (gen/one-of [(gen/bind (gen/elements '[subset? superset?
+                                         strict-subset? strict-superset?])
+                         (fn [op] (gen/fmap (partial cons op)
+                                            (gen/vector complex-num-set-gen 2 5))))
                (gen/fmap list*
                          (gen/tuple (gen/return 'member?)
-                                    complex-num-set-gen
-                                    num-expr-gen))]))
+                                    num-expr-gen
+                                    complex-num-set-gen))]))
 
 (def num-set-neg-pred-gen
   (gen/fmap list*
@@ -68,24 +65,22 @@
   (gen/one-of [num-pred-gen num-set-pred-gen]))
 
 (def pred-gen
-  (gen/recursive-gen (fn [inner]
-                       (gen/one-of [(gen/fmap list*
-                                              (gen/tuple (gen/elements '[and or => <=>])
-                                                         inner
-                                                         inner))
-                                    (gen/fmap list*
-                                              (gen/tuple (gen/return 'not)
-                                                         inner))]))
-                     single-pred-gen))
+  (gen/resize 3 (gen/recursive-gen (fn [inner]
+                                     (gen/one-of [(gen/bind (gen/elements '[and or => <=>])
+                                                            (fn [op] (gen/fmap (partial cons op)
+                                                                               (gen/vector inner 2 5))))
+                                                  (gen/fmap list*
+                                                            (gen/tuple (gen/return 'not)
+                                                                       inner))]))
+                                   single-pred-gen)))
 
 
 ;; relations
 
 (def set-rel-gen
-  (gen/fmap list*
-            (gen/tuple (gen/elements '[<-> <<-> <->> <<->>])
-                       complex-num-set-gen
-                       complex-num-set-gen)))
+  (gen/bind (gen/elements '[<-> <<-> <->> <<->>])
+            (fn [op] (gen/fmap (partial cons op)
+                               (gen/vector complex-num-set-gen 2 5)))))
 
 (def domain-rel-gen
   (gen/fmap list*
