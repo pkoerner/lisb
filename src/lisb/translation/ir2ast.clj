@@ -511,7 +511,7 @@
 (defmethod ir-node->ast-node :substitution-definition [ir-node]
   (ASubstitutionDefinitionDefinition. (TDefLiteralSubstitution. (name (:name ir-node))) (ir-node-args->ast ir-node) (ir-node-sub->ast ir-node)))
 (defmethod ir-node->ast-node :file-definition [ir-node]
-  (AFileDefinitionDefinition. (ir-node->ast-node (:name ir-node))))
+  (AFileDefinitionDefinition. (TStringLiteral. (:file ir-node))))
 
 (defmethod ir-node->ast-node :freetypes [ir-node]
   (s/assert (s/keys :req-un [::values]) ir-node)
