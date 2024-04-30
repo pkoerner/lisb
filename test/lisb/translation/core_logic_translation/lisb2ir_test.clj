@@ -42,11 +42,11 @@
 (deftest simple-multiple-arg-types-lisb->ir
   (testing "Übersetze lisb mit mehreren Argument-Typen zu entsprechender IR"
     (is (= {:tag :comprehension-set :ids (list "id1" "id2" "id3") :pred {:tag :member, :elem :x, :set {:tag :nat-set}}}
-           (first (lisb->ir '(comprehension-set ("id1" "id2" "id3") (member? :x nat-set))))))))
+           (first (lisb->ir '(comprehension-set ["id1" "id2" "id3"] (member? :x nat-set))))))))
   
 (deftest simple-multiple-arg-types-ir->lisb
   (testing "Übersetze IR mit mehreren Argument-Typen zu entsprechendem lisb" 
-    (is (= '(comprehension-set ("id1" "id2" "id3") (member? :x nat-set)) (first (translato {:tag :comprehension-set :ids (list "id1" "id2" "id3") :pred {:tag :member :elem :x :set {:tag :nat-set}}}))))))
+    (is (= '(comprehension-set ("id1" "id2" "id3") (member? :x nat-set)) (first (ir->lisb {:tag :comprehension-set :ids (list "id1" "id2" "id3") :pred {:tag :member :elem :x :set {:tag :nat-set}}}))))))
 
 ; syntactic sugar
 
@@ -105,12 +105,12 @@
 (deftest op-call-lisb->ir
   (testing "translate '<--' to :op-call IR when given op-call as argument"
     (is (= {:tag :op-call :returns [1 2] :op :someop :args []}
-            (first (lisb->ir '(<-- (1 2) (op-call :someop []))))))))
+            (first (lisb->ir '(<-- [1 2] (op-call :someop []))))))))
 
 ;; 
 (deftest op-call-ir->lisb
   (testing "translate :op-call to '<--' with op-call in body when :op in IR"
-    (is (= '(<-- (1 2) (op-call :someop []))
+    (is (= '(<-- [1 2] (op-call :someop []))
             (first (ir->lisb {:tag :op-call :returns [1 2] :op :someop :args []}))))))
 
 (deftest name-op-lisb->ir

@@ -269,6 +269,7 @@
 ;            (project [k] (conso [k v] acc acc2))
 ;            (map-from-keys-auxo kstail acc2 tuples))]))
 
+(declare new-translato)
 (defn list-same-counto-zip [l1 l2 zipped]
   (conde [(emptyo l1) (emptyo l2) (emptyo zipped)]
          [(fresh [h1 h2 t1 t2 hz tz]
@@ -314,22 +315,43 @@
 (defn pairs-mappo [pairs mappo]
   (project [pairs] (== mappo (into {} pairs))))
 
+(defne treat-specialo [lisb ir]
+  ([_ _]
+   (fresh [_1 _2]
+          (conso _1 _2 lisb) ; ensure list-parens ;; TODO: incomplete
+          (matche [lisb]
+                  ([['<-- returns ['op-call . opname-args]]]
+                   (fresh [tmplisb newlisb]
+                          (conso returns opname-args tmplisb)
+                          (conso 'op-call tmplisb newlisb)
+                          (new-translato newlisb ir)))
+                  ([['<-- returns [opname args body]]]
+                   (new-translato `(~'op ~returns ~opname ~args ~body) ir))
+                  ([['for-all ids lhs rhs]]
+                   (new-translato `(~'for-all ~ids (~'implication ~lhs ~rhs)) ir)
+                   )
+                  ))))
+
+;; TODO: implement constant symbols like nat-set
 (defn new-translato [lisb ir]
-  (conde
-    [(== lisb ir)
-     (pred lisb primitive?)]
-    [(fresh [operator args ir-tag more-tags all-tags translatod-args _zippo ir-pairs ir-pairs-with-tag]
-            (conso operator args lisb) 
-            (featurec ir {:tag ir-tag})
-            (db/rules ir-tag operator more-tags)
-            (try-pairs-mappo ir-pairs-with-tag ir)
-            (match-values-with-keys more-tags translatod-args ir-pairs)
-            (conso [:tag ir-tag] ir-pairs ir-pairs-with-tag)
-            (list-same-counto-zip args translatod-args _zippo)
-            (maplisto new-translato args translatod-args)
-            (pairs-mappo ir-pairs-with-tag ir)
-            )
-     ]))
+  (condu [(treat-specialo lisb ir)]
+         [(conde
+           [(== lisb ir)
+            (pred lisb primitive?)]
+           [(== lisb ir)
+            (pred lisb vector?)] ;; NOTE: assuming vectors are only valid for collections of identifiers
+           [(fresh [operator args ir-tag more-tags all-tags translatod-args _zippo ir-pairs ir-pairs-with-tag]
+                   (conso operator args lisb) 
+                   (featurec ir {:tag ir-tag})
+                   (db/rules ir-tag operator more-tags)
+                   (try-pairs-mappo ir-pairs-with-tag ir)
+                   (match-values-with-keys more-tags translatod-args ir-pairs)
+                   (conso [:tag ir-tag] ir-pairs ir-pairs-with-tag)
+                   (list-same-counto-zip args translatod-args _zippo)
+                   (maplisto new-translato args translatod-args)
+                   (pairs-mappo ir-pairs-with-tag ir)
+                   )
+            ])]))
 
 (def translato new-translato)
 
@@ -350,6 +372,12 @@
 
 (comment
 
+(lisb->ir '(<-- [:a :b] (op-call :someop [:c :d])))
+(lisb->ir '(<-- [:a :b] (op-call :someop [])))
+(ir->lisb {:tag :op-call, :returns :res, :op :someop, :args :bla})
+(lisb->ir '(<-- :res (:somename :args (< 1 2))))
+(ir->lisb '{:tag :op, :returns :res, :name :somename, :args :args, :body {:tag :less, :nums (1 2)}})
+(lisb->ir '(op-call :res :someop :bla))
 (lisb->ir '(=> (+ 1 2 3) :bar))
 (lisb->ir '(=> :foo :bar))
 (lisb->ir '(+ :foo :bar))
@@ -381,6 +409,7 @@
 
 (run 1 [n] (fresh [x] (== x 42) (== n [:foo x])))
 (run 1 [n] (fresh [h t] (conso h t :a)))
+
 
 (run 3 [n] (match-values-with-keys [:foo :bar :bar] [1 2 3] n))
 (run 1 [n] (secondo [:foo :bar :bar] n))

@@ -242,6 +242,7 @@
    [:precondition pre [:pred [:subs]]]
    [:assert assert [:pred [:subs]]]
    [:choice choice [[:subs]]]
+   [:if-sub if-sub [:cond :then]]
    [:if-sub if-sub [:cond :then :else]]
    [:cond cond [[:clauses]]]
    [:select select [[:clauses]]]
