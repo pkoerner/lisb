@@ -340,18 +340,26 @@
             (pred lisb primitive?)]
            [(== lisb ir)
             (pred lisb vector?)] ;; NOTE: assuming vectors are only valid for collections of identifiers
-           [(fresh [operator args ir-tag more-tags all-tags translatod-args _zippo ir-pairs ir-pairs-with-tag]
+           [(fresh [ir-tag ir-pairs-with-tag]
+                   (featurec ir {:tag ir-tag})
+                   (db/rules ir-tag lisb more-tags)
+                   (emptyo more-tags)
+                   (== ir-pairs-with-tag [[:tag ir-tag]])
+                   (pairs-mappo ir-pairs-with-tag ir))]
+           [(fresh [operator args ir-tag more-tags all-tags translatod-args _zippo ir-pairs ir-pairs-with-tag _1 _2]
                    (conso operator args lisb) 
                    (featurec ir {:tag ir-tag})
                    (db/rules ir-tag operator more-tags)
+                   (conso _1 _2 more-tags)
                    (try-pairs-mappo ir-pairs-with-tag ir)
                    (match-values-with-keys more-tags translatod-args ir-pairs)
                    (conso [:tag ir-tag] ir-pairs ir-pairs-with-tag)
                    (list-same-counto-zip args translatod-args _zippo)
                    (maplisto new-translato args translatod-args)
                    (pairs-mappo ir-pairs-with-tag ir)
-                   )
-            ])]))
+                   ) ]
+           
+           )]))
 
 (def translato new-translato)
 
