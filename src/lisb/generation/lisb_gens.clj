@@ -65,6 +65,24 @@
                        number-gen)))
 
 
+;; booleans
+
+(def true-false-gen
+  (gen/elements '[true false]))
+
+(def boolean-set-gen
+  (gen/return 'bool-set))
+
+(def predicate-to-boolean-gen
+  (gen/fmap list*
+            (gen/tuple (gen/return 'pred->bool)
+                       number-predicate-gen)))
+
+(def boolean-gen
+  (gen/one-of [true-false-gen
+               predicate-to-boolean-gen]))
+
+
 ;; sets
 
 (def simple-num-set-gen
@@ -159,6 +177,11 @@
 (test-gen number-gen)
 (test-gen interval-set-gen)
 (test-gen number-predicate-gen)
+
+(test-gen true-false-gen)
+(test-gen boolean-set-gen)
+(test-gen predicate-to-boolean-gen)
+(test-gen boolean-gen)
 
 (test-gen simple-num-set-gen)
 (test-gen complex-num-set-gen)
