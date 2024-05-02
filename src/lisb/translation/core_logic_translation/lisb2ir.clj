@@ -332,7 +332,9 @@
                    )
                   ))))
 
-;; TODO: implement constant symbols like nat-set
+;; TODO: ensure IR allows seqs for identifier lists, but DSL does not (?) 
+;; TODO: operation clause (operations have form (:name ... ...))
+;; TODO: machine structure
 (defn new-translato [lisb ir]
   (condu [(treat-specialo lisb ir)]
          [(conde
@@ -342,8 +344,7 @@
             (pred lisb vector?)] ;; NOTE: assuming vectors are only valid for collections of identifiers
            [(fresh [ir-tag ir-pairs-with-tag]
                    (featurec ir {:tag ir-tag})
-                   (db/rules ir-tag lisb more-tags)
-                   (emptyo more-tags)
+                   (db/rules ir-tag lisb [])
                    (== ir-pairs-with-tag [[:tag ir-tag]])
                    (pairs-mappo ir-pairs-with-tag ir))]
            [(fresh [operator args ir-tag more-tags all-tags translatod-args _zippo ir-pairs ir-pairs-with-tag _1 _2]
