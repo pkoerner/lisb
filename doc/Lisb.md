@@ -312,10 +312,10 @@
 |----------------------------|------------------------|------------------------------------|-------------|
 | `FREETYPES ft-def1;ft-def2...` | `(freetypes & ft-defs)` | `{:tag :freetypes :values ft-defs}` |             |
 #### Free type definitions
-| B                                   | Lisb                                        | IR                                                                        | Description               |
-|-------------------------------------|---------------------------------------------|---------------------------------------------------------------------------|---------------------------|
-| `name = constructor1,...`           | `(freetype name [] & constructors)`         | `{:tag :freetype :name name :args [] :constructors constructors}`         |                           |
-| `name(arg1,...) = constructor1,...` | `(freetype name [arg1 ...] & constructors)` | `{:tag :freetype :name name :args [arg1 ...] :constructors constructors}` | `args` are paramter types |
+| B                                   | Lisb                                        | IR                                                                        | Description                    |
+|-------------------------------------|---------------------------------------------|---------------------------------------------------------------------------|--------------------------------|
+| `name = constructor1,...`           | `(freetype name [] & constructors)`         | `{:tag :freetype :name name :args [] :constructors constructors}`         |                                |
+| `name(arg1,...) = constructor1,...` | `(freetype name [arg1 ...] & constructors)` | `{:tag :freetype :name name :args [arg1 ...] :constructors constructors}` | `args` are the parameter types |
 #### Free type constructors
 | B           | Lisb                     | IR                                          | Description                 |
 |-------------|--------------------------|---------------------------------------------|-----------------------------|
