@@ -1,5 +1,6 @@
 (ns lisb.generation.lisb-gens
-  (:require [lisb.translation.lisb2ir :refer :all])
+  (:require [lisb.translation.lisb2ir :refer :all]
+            [lisb.examples.simple :as simple])
   (:require [clojure.test.check.generators :as gen]))
 
 
@@ -85,47 +86,80 @@
 
 ;; sets
 
-(def simple-num-set-gen
-  (gen/one-of [(gen/fmap set (gen/vector gen/large-integer))
+;; TODO: comprehension-set; union/intersect with predicate
+
+(def basic-set-gen
+  (gen/one-of [(gen/fmap set (gen/vector number-gen))
                integer-set-gen
-               interval-set-gen]))
+               interval-set-gen
+               (gen/fmap set (gen/vector boolean-gen))
+               boolean-set-gen]))
 
-(def complex-num-set-gen (gen/resize 3 (gen/recursive-gen
-                                        (fn [inner]
-                                          (gen/one-of
-                                           [(gen/fmap list*
-                                                      (gen/tuple (gen/elements '[pow pow1 fin fin1])
-                                                                 inner))
-                                            (gen/bind (gen/elements '[cartesian-product
-                                                                      union
-                                                                      intersection
-                                                                      set-])
-                                                      (fn [op] (gen/fmap (partial cons op)
-                                                                         (gen/vector inner 2 5))))]))
-                                        simple-num-set-gen)))
+(def pow-fin-set-gen
+  (gen/fmap list*
+            (gen/tuple (gen/elements '[pow pow1 fin fin1])
+                       basic-set-gen)))
 
-(def num-set-pos-pred-gen
-  (gen/one-of [(gen/bind (gen/elements '[subset? superset?
-                                         strict-subset? strict-superset?])
-                         (fn [op] (gen/fmap (partial cons op)
-                                            (gen/vector complex-num-set-gen 2 5))))
+(def simple-set-gen
+  (gen/one-of [basic-set-gen
+               pow-fin-set-gen]))
+
+(def set-expression-gen
+  (gen/bind (gen/elements '[cartesian-product
+                            union
+                            intersection
+                            set-])
+            (fn [op] (gen/fmap (partial cons op)
+                               (gen/vector simple-set-gen 2 5)))))
+
+(def set-gen
+  (gen/one-of [simple-set-gen
+               set-expression-gen]))
+
+(def card-gen
+  (gen/fmap list*
+            (gen/tuple (gen/return 'card)
+                       set-gen)))
+
+(def member-gen
+  (gen/one-of [(gen/fmap list*
+                         (gen/tuple (gen/elements '[member? in])
+                                    (gen/one-of [number-gen boolean-gen])
+                                    basic-set-gen))
                (gen/fmap list*
-                         (gen/tuple (gen/return 'member?)
-                                    number-gen
-                                    complex-num-set-gen))]))
+                         (gen/tuple (gen/return 'contains?)
+                                    basic-set-gen
+                                    (gen/one-of [number-gen boolean-gen])))]))
 
-(def num-set-neg-pred-gen
+(def subset-superset-gen
+  (gen/bind (gen/elements '[subset? superset?
+                            strict-subset? strict-superset?])
+            (fn [op] (gen/fmap (partial cons op)
+                               (gen/vector set-gen 2 5)))))
+
+(def pos-set-predicate-gen
+  (gen/one-of [member-gen
+               subset-superset-gen]))
+
+(def neg-set-predicate-gen
   (gen/fmap list*
             (gen/tuple (gen/return 'not)
-                       num-set-pos-pred-gen)))
+                       pos-set-predicate-gen)))
 
-(def num-set-pred-gen (gen/one-of [num-set-pos-pred-gen num-set-neg-pred-gen]))
+(def set-predicate-gen
+  (gen/one-of [pos-set-predicate-gen
+               neg-set-predicate-gen]))
+
+(def union-inter-set
+  (gen/fmap list*
+            (gen/tuple (gen/elements '[unite-sets intersect-sets])
+                       (gen/set set-gen {:max-elements 2}))))
 
 
 ;; logical predicates
 
 (def single-pred-gen
-  (gen/one-of [number-predicate-gen num-set-pred-gen]))
+  (gen/one-of [number-predicate-gen set-predicate-gen]))
 
 (def pred-gen
   (gen/resize 3 (gen/recursive-gen (fn [inner]
@@ -143,19 +177,19 @@
 (def set-rel-gen
   (gen/bind (gen/elements '[<-> <<-> <->> <<->>])
             (fn [op] (gen/fmap (partial cons op)
-                               (gen/vector complex-num-set-gen 2 5)))))
+                               (gen/vector set-gen 2 5)))))
 
 (def domain-rel-gen
   (gen/fmap list*
             (gen/tuple (gen/elements '[<| <<|])
-                       complex-num-set-gen
+                       set-gen
                        set-rel-gen)))
 
 (def range-rel-gen
   (gen/fmap list*
             (gen/tuple (gen/elements '[|> |>>])
                        set-rel-gen
-                       complex-num-set-gen)))
+                       set-gen)))
 
 (def rel-gen
   (gen/one-of [set-rel-gen domain-rel-gen range-rel-gen]))
@@ -183,11 +217,18 @@
 (test-gen predicate-to-boolean-gen)
 (test-gen boolean-gen)
 
-(test-gen simple-num-set-gen)
-(test-gen complex-num-set-gen)
-(test-gen num-set-pos-pred-gen)
-(test-gen num-set-neg-pred-gen)
-(test-gen num-set-pred-gen)
+(test-gen basic-set-gen)
+(test-gen pow-fin-set-gen)
+(test-gen simple-set-gen)
+(test-gen set-expression-gen)
+(test-gen set-gen)
+(test-gen card-gen)
+(test-gen member-gen)
+(test-gen subset-superset-gen)
+(test-gen pos-set-predicate-gen)
+(test-gen neg-set-predicate-gen)
+(test-gen set-predicate-gen)
+(test-gen union-inter-set)
 
 (test-gen single-pred-gen)
 (test-gen pred-gen)
