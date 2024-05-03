@@ -435,3 +435,9 @@
                 "#(x).(x:NAT & 0=x)" (b (exists [:x] (and (member? :x nat-set) (= 0 :x))))
                 "#(x,y).(x:NAT & y:NAT & 0=x+y)" (b (exists [:x :y] (and (member? :x nat-set) (member? :y nat-set) (= 0 (+ :x :y)))))
                 )))
+
+(deftest pragmas-test
+  (testing "pragmas"
+    (are [b ir] (= b (ast->b (ir->ast ir)))
+      "/*@label test */ 1=1" (b (label "test" (= 1 1)))
+      "1=1 /*@desc test */" (b (description "test" (= 1 1))))))

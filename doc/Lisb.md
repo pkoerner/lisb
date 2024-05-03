@@ -243,6 +243,12 @@
 | `CASE expr OF EITHER cond1 THEN sub1 OR cond2 THEN sub2 ... END END`               | `(case expr & cases)`                         |                                                         |                                        |
 | `CASE expr OF EITHER cond1 THEN sub1 OR cond2 THEN sub2 ... ELSE sub-else END END` | `(case expr & case)`                          |                                                         |                                        |
 
+## Pragmas
+| B                     | Lisb                      | IR                                                 | Description                                                       |
+|-----------------------|---------------------------|----------------------------------------------------|-------------------------------------------------------------------|
+| `/*label LBL */ pred` | `(label LBL pred)`        | `{:tag :label :label LBL :pred pred}`              | labelled predicate                                                |
+| `pred /*desc DESC */` | `(description DESC pred)` | `{:tag :description :description DESC :pred pred}` | predicate with description (can use special descriptions as well) |
+
 ## Machine clauses
 ### Machine inclusion
 | B                                | Lisb                              | IR                                            | Description                          |
@@ -301,7 +307,20 @@
 | `name == sub`                 | `(substitution-definition name [] sub)`   | `{:tag :substitution-definition :name name :args [] :sub sub}`   |             |
 | `name(arg1,arg2,...) == sub`  | `(substitution-definition name args sub)` | `{:tag :substitution-definition :name name :args args :sub sub}` |             |
 | `"FILE.def"`                  | `(file-definition "FILE.def")`            | `{:tag :file-definition :file "FILE.def"}`                       |             |
-
+### Free types
+| B                          | Lisb                   | IR                                 | Description |
+|----------------------------|------------------------|------------------------------------|-------------|
+| `FREETYPES ft-def1;ft-def2...` | `(freetypes & ft-defs)` | `{:tag :freetypes :values ft-defs}` |             |
+#### Free type definitions
+| B                                   | Lisb                                        | IR                                                                        | Description               |
+|-------------------------------------|---------------------------------------------|---------------------------------------------------------------------------|---------------------------|
+| `name = constructor1,...`           | `(freetype name [] & constructors)`         | `{:tag :freetype :name name :args [] :constructors constructors}`         |                           |
+| `name(arg1,...) = constructor1,...` | `(freetype name [arg1 ...] & constructors)` | `{:tag :freetype :name name :args [arg1 ...] :constructors constructors}` | `args` are paramter types |
+#### Free type constructors
+| B           | Lisb                     | IR                                          | Description                 |
+|-------------|--------------------------|---------------------------------------------|-----------------------------|
+| `name`      | `(constructor name)`     | `{:tag :ft-element :id name}`               |                             |
+| `name(arg)` | `(constructor name arg)` | `{:tag :ft-constructor :id name :expr arg}` | `arg` is the contained type |
 
 ## Machine
 | B                                                                       | Lisb                                                                    | IR                                                                                                                            | Description         |

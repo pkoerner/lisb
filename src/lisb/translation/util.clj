@@ -56,6 +56,8 @@
               b= bnot= bdistinct?
               ;;; logical predicates
               band bor bimplication bequivalence bnot bfor-all bexists
+              ;;; pragmas
+              blabel bdescription
               ;;; misc
               bset-enum bmap-set defpred pred almost-flatten wrap bempty-machine])
 

@@ -365,3 +365,9 @@
     (testing "translation to vector"
       (is (vector? (second (b-predicate->lisb "!(x).(x:NAT => 0<x)"))))
       (is (vector? (second (b-predicate->lisb "#(x).(1=1 & 2=2)")))))))
+
+(deftest pragma-predicates-test
+  (testing "pragma-predicates"
+    (are [lisb b-pred] (= lisb (b-predicate->lisb b-pred))
+      '(label "test" (= 1 1)) "/*@label test */ 1=1"
+      '(description "test" (= 1 1)) "1=1 /*@desc test */")))

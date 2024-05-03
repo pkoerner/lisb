@@ -274,6 +274,12 @@
               (b (for-all [:x] (contains? nat-set :x) (< 0 :x)))
               (b (exists [:x] (and (= 1 1) (= 2 2)))))))
 
+(deftest pragmas-test
+  (testing "pragmas"
+    (are [ir] (= ir (ast->ir (ir->ast ir)))
+      (b (label "test" (= 1 1)))
+      (b (description "test" (= 1 1))))))
+
 (deftest self-nested-operators-test
   (testing "The AST classes offer a copy constructor.
            This can be an issue for unary operators

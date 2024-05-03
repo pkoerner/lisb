@@ -100,6 +100,8 @@
                                                AImplicationPredicate
                                                AForallPredicate
                                                AExistsPredicate
+                                               ALabelPredicate
+                                               ADescriptionPredicate
                                                AIntervalExpression
                                                ASequenceExtensionExpression
                                                AEmptySequenceExpression
@@ -135,6 +137,8 @@
                                                AStringExpression
                                                AStringSetExpression
                                                TStringLiteral 
+                                               TPragmaIdOrString
+                                               TPragmaFreeText
                                                ALetExpressionExpression
                                                ALetPredicatePredicate
                                                AConstantsMachineClause
@@ -316,6 +320,9 @@
 (s/def ::name keyword?)
 (s/def ::abstract-machine-name keyword?)
 (s/def ::op keyword?)
+(s/def ::file string?)
+(s/def ::label string?)
+(s/def ::description string?)
 
 (s/def ::machine-clause (s/and (s/keys :req-un [::tag])
                                #(contains? machine-clause-tags (:tag %))))
@@ -1170,6 +1177,15 @@
   (s/assert (s/keys :req-un [::ids ::pred]) ir-node)
   (AExistsPredicate. (ir-node-ids->ast ir-node) (ir-node-pred->ast ir-node)))
 
+;;; pragmas
+
+(defmethod ir-node->ast-node :label [ir-node]
+  (s/assert (s/keys :req-un [::label ::pred]) ir-node)
+  (ALabelPredicate. (TPragmaIdOrString. (:label ir-node)) (ir-node-pred->ast ir-node)))
+
+(defmethod ir-node->ast-node :description [ir-node]
+  (s/assert (s/keys :req-un [::description ::pred]) ir-node)
+  (ADescriptionPredicate. (TPragmaFreeText. (:description ir-node)) (ir-node-pred->ast ir-node)))
 
 ;;; misc
 

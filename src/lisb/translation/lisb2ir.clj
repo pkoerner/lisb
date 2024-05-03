@@ -64,7 +64,8 @@
                  :member :subset :strict-subset
                  ; number predicates
                  :greater :less :greater-equals :less-equals
-                 })
+                 ; pragmas
+                 :label :description})
 
 (declare b=)
 (declare band)
@@ -1592,6 +1593,26 @@
         :ret (s/and (s/keys :req-un [::tag] :req [::ids ::pred])
                     #(= :exists (:tag %))))
 
+;;; pragmas
+
+(defn blabel [label pred]
+  {:tag :label
+   :label label
+   :pred pred})
+(s/fdef blabel
+  :args (s/cat :label ::label :pred ::pred)
+  :ret (s/and (s/keys :req-un [::tag ::label ::pred])
+              #(= :label (:tag %))))
+
+(defn bdescription [description pred]
+  {:tag :description
+   :description description
+   :pred pred})
+(s/fdef bdescription
+  :args (s/cat :description ::description :pred ::pred)
+  :ret (s/and (s/keys :req-un [::tag ::label ::pred])
+              #(= :description (:tag %))))
+
 ;;; misc
 
 
@@ -1914,7 +1935,11 @@
            ~'=> bimplication                                ; sugar
            ~'not bnot
            ~'for-all bfor-all
-           ~'exists bexists]
+           ~'exists bexists
+           
+           ;;; pragmas
+           ~'label blabel
+           ~'description bdescription]
        ~pre-processed-lisb
        )))
 
