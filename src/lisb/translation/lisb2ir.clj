@@ -1610,7 +1610,7 @@
    :pred pred})
 (s/fdef bdescription
   :args (s/cat :description ::description :pred ::pred)
-  :ret (s/and (s/keys :req-un [::tag ::label ::pred])
+  :ret (s/and (s/keys :req-un [::tag ::description ::pred])
               #(= :description (:tag %))))
 
 ;;; misc
