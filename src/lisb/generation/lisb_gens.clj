@@ -1,6 +1,5 @@
 (ns lisb.generation.lisb-gens
-  (:require [lisb.translation.lisb2ir :refer :all]
-            [lisb.examples.simple :as simple])
+  (:require [lisb.translation.lisb2ir :refer :all])
   (:require [clojure.test.check.generators :as gen]))
 
 
@@ -195,6 +194,91 @@
   (gen/one-of [set-rel-gen domain-rel-gen range-rel-gen]))
 
 
+;; machine name / operation name
+
+(def machine-name-gen
+  (gen/fmap keyword
+            (gen/not-empty (gen/resize 10 gen/string-alphanumeric))))
+
+(def arg-gen
+  (gen/one-of [simple-number-gen
+               true-false-gen]))
+
+(def machine-name-with-args-gen
+  (gen/bind machine-name-gen
+            (fn [name]
+              (gen/fmap vec
+                        (gen/fmap (partial cons name)
+                                  (gen/vector arg-gen 0 3))))))
+
+(def operation-name-gen
+  (gen/fmap keyword
+            (gen/not-empty (gen/resize 10 gen/string-alphanumeric))))
+
+
+;; machine inclusion
+
+(def uses-sees-gen
+  (gen/bind (gen/elements '[uses sees])
+            (fn [type]
+              (gen/fmap (partial cons type)
+                        (gen/vector machine-name-gen 1 3)))))
+
+(def includes-extends-gen
+  (gen/bind (gen/elements '[includes extends])
+            (fn [type]
+              (gen/fmap (partial cons type)
+                        (gen/vector machine-name-with-args-gen 1 3)))))
+
+(def promotes-gen
+  (gen/fmap (partial cons 'promotes)
+            (gen/vector operation-name-gen 1 3)))
+
+(def inclusion-gen
+  (gen/one-of [uses-sees-gen
+               includes-extends-gen
+               promotes-gen]))
+
+
+;; machine clauses
+
+(def machine-clause-gen
+  (gen/one-of [inclusion-gen]))
+
+
+;; machine
+
+(def machine-gen
+  (gen/bind (gen/fmap list*
+                      (gen/tuple (gen/elements '[machine model system])
+                                 machine-name-with-args-gen))
+            (fn [type]
+              (gen/fmap (partial concat type)
+                        (gen/vector machine-clause-gen 0 5)))))
+
+(def refinement-implementation-gen
+  (gen/bind (gen/fmap list*
+                      (gen/tuple (gen/elements '[refinement
+                                                 implementation])
+                                 machine-name-with-args-gen
+                                 machine-name-gen))
+            (fn [type]
+              (gen/fmap (partial concat type)
+                        (gen/vector machine-clause-gen 0 5)))))
+
+
+;; generate lisb
+
+(def lisb-gen
+  (gen/one-of [machine-gen
+               refinement-implementation-gen
+               ;; TODO: remove when used in some other generator
+               card-gen
+               union-inter-set
+               pred-gen
+               rel-gen]))
+
+
 ;; testing
 
 (defn test-gen [g]
@@ -237,6 +321,23 @@
 (test-gen domain-rel-gen)
 (test-gen range-rel-gen)
 (test-gen rel-gen)
+
+(test-gen machine-name-gen)
+(test-gen arg-gen)
+(test-gen machine-name-with-args-gen)
+(test-gen operation-name-gen)
+
+(test-gen uses-sees-gen)
+(test-gen includes-extends-gen)
+(test-gen promotes-gen)
+(test-gen inclusion-gen)
+
+(test-gen machine-clause-gen)
+
+(test-gen machine-gen)
+(test-gen refinement-implementation-gen)
+
+(test-gen lisb-gen)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
