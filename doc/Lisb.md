@@ -249,6 +249,7 @@
 | `/*label LBL */ pred` | `(label LBL pred)`        | `{:tag :label :label LBL :pred pred}`              | labelled predicate                                                |
 | `pred /*desc DESC */` | `(description DESC pred)` | `{:tag :description :description DESC :pred pred}` | predicate with description (can use special descriptions as well) |
 
+
 ## Machine clauses
 ### Machine inclusion
 | B                                | Lisb                              | IR                                            | Description                          |
@@ -322,20 +323,6 @@
 | `name`      | `(constructor name)`     | `{:tag :ft-element :id name}`               |                             |
 | `name(arg)` | `(constructor name arg)` | `{:tag :ft-constructor :id name :expr arg}` | `arg` is the contained type |
 
-### Free types
-| B                          | Lisb                   | IR                                 | Description |
-|----------------------------|------------------------|------------------------------------|-------------|
-| `FREETYPES ft-def1;ft-def2...` | `(freetypes & ft-defs)` | `{:tag :freetypes :values ft-defs}` |             |
-#### Free type definitions
-| B                                   | Lisb                                        | IR                                                                        | Description                    |
-|-------------------------------------|---------------------------------------------|---------------------------------------------------------------------------|--------------------------------|
-| `name = constructor1,...`           | `(freetype name [] & constructors)`         | `{:tag :freetype :name name :args [] :constructors constructors}`         |                                |
-| `name(arg1,...) = constructor1,...` | `(freetype name [arg1 ...] & constructors)` | `{:tag :freetype :name name :args [arg1 ...] :constructors constructors}` | `args` are the parameter types |
-#### Free type constructors
-| B           | Lisb                     | IR                                          | Description                 |
-|-------------|--------------------------|---------------------------------------------|-----------------------------|
-| `name`      | `(constructor name)`     | `{:tag :ft-element :id name}`               |                             |
-| `name(arg)` | `(constructor name arg)` | `{:tag :ft-constructor :id name :expr arg}` | `arg` is the contained type |
 
 ## Machine
 | B                                                                       | Lisb                                                                    | IR                                                                                                                            | Description         |
