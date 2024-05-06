@@ -301,6 +301,20 @@
 | `name == sub`                 | `(substitution-definition name [] sub)`   | `{:tag :substitution-definition :name name :args [] :sub sub}`   |             |
 | `name(arg1,arg2,...) == sub`  | `(substitution-definition name args sub)` | `{:tag :substitution-definition :name name :args args :sub sub}` |             |
 | `"FILE.def"`                  | `(file-definition "FILE.def")`            | `{:tag :file-definition :file "FILE.def"}`                       |             |
+### Free types
+| B                              | Lisb                    | IR                                  | Description |
+|--------------------------------|-------------------------|-------------------------------------|-------------|
+| `FREETYPES ft-def1;ft-def2...` | `(freetypes & ft-defs)` | `{:tag :freetypes :values ft-defs}` |             |
+#### Free type definitions
+| B                                   | Lisb                                        | IR                                                                        | Description                                                           |
+|-------------------------------------|---------------------------------------------|---------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| `name = constructor1,...`           | `(freetype name [] & constructors)`         | `{:tag :freetype :name name :args [] :constructors constructors}`         |                                                                       |
+| `name(arg1,...) = constructor1,...` | `(freetype name [arg1 ...] & constructors)` | `{:tag :freetype :name name :args [arg1 ...] :constructors constructors}` | `args` are the parameter types, this is currently unsupported in ProB |
+#### Free type constructors
+| B           | Lisb                     | IR                                          | Description                 |
+|-------------|--------------------------|---------------------------------------------|-----------------------------|
+| `name`      | `(constructor name)`     | `{:tag :ft-element :id name}`               |                             |
+| `name(arg)` | `(constructor name arg)` | `{:tag :ft-constructor :id name :expr arg}` | `arg` is the contained type |
 
 
 ## Machine
