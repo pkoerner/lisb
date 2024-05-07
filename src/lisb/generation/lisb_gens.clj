@@ -27,12 +27,12 @@
                number-neighbour-gen]))
 
 (def number-expression-gen
-  (gen/resize 3 (gen/recursive-gen
+  (gen/resize 2 (gen/recursive-gen
                  (fn [inner]
                    (gen/bind (gen/elements '[+ - * / ** mod])
                              (fn [op]
                                (gen/fmap (partial cons op)
-                                         (gen/vector inner 2 5)))))
+                                         (gen/vector inner 2 3)))))
                  simple-number-gen)))
 
 (def integer-set-gen
@@ -141,9 +141,8 @@
                subset-superset-gen]))
 
 (def neg-set-predicate-gen
-  (gen/fmap list*
-            (gen/tuple (gen/return 'not)
-                       pos-set-predicate-gen)))
+  (gen/fmap (partial cons 'not)
+            (gen/fmap list pos-set-predicate-gen)))
 
 (def set-predicate-gen
   (gen/one-of [pos-set-predicate-gen
@@ -157,18 +156,28 @@
 
 ;; logical predicates
 
-(def single-pred-gen
-  (gen/one-of [number-predicate-gen set-predicate-gen]))
+;; TODO: universal/existanial quantification
 
-(def pred-gen
-  (gen/resize 3 (gen/recursive-gen (fn [inner]
-                                     (gen/one-of [(gen/bind (gen/elements '[and or => <=>])
-                                                            (fn [op] (gen/fmap (partial cons op)
-                                                                               (gen/vector inner 2 5))))
-                                                  (gen/fmap list*
-                                                            (gen/tuple (gen/return 'not)
-                                                                       inner))]))
-                                   single-pred-gen)))
+(def basic-predicate-gen
+  (gen/one-of [number-predicate-gen
+               set-predicate-gen]))
+
+(def pos-logical-predicate-gen
+  (gen/resize 2 (gen/recursive-gen
+                 (fn [inner]
+                   (gen/bind (gen/elements '[and or => 'implication <=> 'equivalence])
+                             (fn [op]
+                               (gen/fmap (partial cons op)
+                                         (gen/vector inner 2)))))
+                 basic-predicate-gen)))
+
+(def neg-logical-predicate-gen
+  (gen/fmap (partial cons 'not)
+            (gen/fmap list pos-logical-predicate-gen)))
+
+(def logical-predicate-gen
+  (gen/one-of [pos-logical-predicate-gen
+               neg-logical-predicate-gen]))
 
 
 ;; relations
@@ -176,7 +185,7 @@
 (def set-rel-gen
   (gen/bind (gen/elements '[<-> <<-> <->> <<->>])
             (fn [op] (gen/fmap (partial cons op)
-                               (gen/vector set-gen 2 5)))))
+                               (gen/vector set-gen 2 3)))))
 
 (def domain-rel-gen
   (gen/fmap list*
@@ -306,7 +315,7 @@
                                  machine-name-with-args-gen))
             (fn [type]
               (gen/fmap (partial concat type)
-                        (gen/vector machine-clause-gen 0 5)))))
+                        (gen/vector machine-clause-gen 0 3)))))
 
 (def refinement-implementation-gen
   (gen/bind (gen/fmap list*
@@ -316,7 +325,7 @@
                                  machine-name-gen))
             (fn [type]
               (gen/fmap (partial concat type)
-                        (gen/vector machine-clause-gen 0 5)))))
+                        (gen/vector machine-clause-gen 0 3)))))
 
 
 ;; generate lisb
@@ -327,7 +336,7 @@
                ;; TODO: remove when used in some other generator
                card-gen
                union-inter-set
-               pred-gen
+               logical-predicate-gen
                rel-gen]))
 
 
@@ -366,8 +375,10 @@
 (test-gen set-predicate-gen)
 (test-gen union-inter-set)
 
-(test-gen single-pred-gen)
-(test-gen pred-gen)
+(test-gen basic-predicate-gen)
+(test-gen pos-logical-predicate-gen)
+(test-gen neg-logical-predicate-gen)
+(test-gen logical-predicate-gen)
 
 (test-gen set-rel-gen)
 (test-gen domain-rel-gen)
