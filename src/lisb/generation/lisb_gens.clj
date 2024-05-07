@@ -200,7 +200,7 @@
   (gen/fmap keyword
             (gen/not-empty (gen/resize 10 gen/string-alphanumeric))))
 
-(def arg-gen
+(def machine-arg-gen
   (gen/one-of [simple-number-gen
                true-false-gen]))
 
@@ -209,7 +209,7 @@
             (fn [name]
               (gen/fmap vec
                         (gen/fmap (partial cons name)
-                                  (gen/vector arg-gen 0 3))))))
+                                  (gen/vector machine-arg-gen 0 3))))))
 
 (def operation-name-gen
   (gen/fmap keyword
@@ -240,10 +240,62 @@
                promotes-gen]))
 
 
+;; definitions
+
+(def definitions-name-gen
+  (gen/fmap keyword
+            (gen/not-empty (gen/resize 10 gen/string-alphanumeric))))
+
+(def definitions-arg-gen
+  (gen/one-of [simple-number-gen
+               true-false-gen]))
+
+(def expression-definition-gen
+  (gen/fmap list*
+            (gen/tuple (gen/return 'expression-definition)
+                       definitions-name-gen
+                       (gen/vector definitions-arg-gen 0 3)
+                       (gen/one-of [number-expression-gen
+                                    set-expression-gen]))))
+
+(def predicate-definition-gen
+  (gen/fmap list*
+            (gen/tuple (gen/return 'predicate-definition)
+                       definitions-name-gen
+                       (gen/vector definitions-arg-gen 0 3)
+                       (gen/one-of [number-predicate-gen
+                                    set-predicate-gen]))))
+
+(def substitution-definition-gen
+  (gen/fmap list*
+            (gen/tuple (gen/return 'substitution-definition)
+                       definitions-name-gen
+                       (gen/vector definitions-arg-gen 0 3)
+                       (gen/return nil)))) ;; TODO: add real substitutions
+
+(def file-definition-gen
+  (gen/fmap (partial cons 'file-definition)
+            (gen/fmap (fn [file-name]
+                        (list (apply str (concat file-name ".dev"))))
+                      (gen/not-empty (gen/resize 10 gen/string-alphanumeric)))))
+
+(def definitions-gen
+  (gen/fmap (partial cons 'definitions)
+            (gen/vector (gen/one-of [expression-definition-gen
+                                     predicate-definition-gen
+                                     substitution-definition-gen
+                                     file-definition-gen])
+                        1
+                        3)))
+
+
 ;; machine clauses
 
 (def machine-clause-gen
-  (gen/one-of [inclusion-gen]))
+  (gen/one-of [inclusion-gen
+               definitions-gen
+               ;; TODO: add more
+               ]))
 
 
 ;; machine
@@ -323,7 +375,7 @@
 (test-gen rel-gen)
 
 (test-gen machine-name-gen)
-(test-gen arg-gen)
+(test-gen machine-arg-gen)
 (test-gen machine-name-with-args-gen)
 (test-gen operation-name-gen)
 
@@ -331,6 +383,14 @@
 (test-gen includes-extends-gen)
 (test-gen promotes-gen)
 (test-gen inclusion-gen)
+
+(test-gen definitions-name-gen)
+(test-gen definitions-arg-gen)
+(test-gen expression-definition-gen)
+(test-gen predicate-definition-gen)
+(test-gen substitution-definition-gen)
+(test-gen file-definition-gen)
+(test-gen definitions-gen)
 
 (test-gen machine-clause-gen)
 
