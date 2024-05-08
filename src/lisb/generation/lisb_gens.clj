@@ -180,6 +180,29 @@
                neg-logical-predicate-gen]))
 
 
+;; equality
+
+(def equality-element-gen
+  (gen/one-of [number-gen
+               boolean-gen
+               basic-predicate-gen
+               logical-predicate-gen]))
+
+(def equal-not-euqal-gen
+  (gen/fmap list*
+            (gen/tuple (gen/elements '[= not=])
+                       equality-element-gen
+                       equality-element-gen)))
+
+(def distinct-gen
+  (gen/fmap (partial cons 'distinct?)
+            (gen/vector equality-element-gen 2 3)))
+
+(def equality-gen
+  (gen/one-of [equal-not-euqal-gen
+               distinct-gen]))
+
+
 ;; relations
 
 (def set-rel-gen
@@ -379,6 +402,11 @@
 (test-gen pos-logical-predicate-gen)
 (test-gen neg-logical-predicate-gen)
 (test-gen logical-predicate-gen)
+
+(test-gen equality-element-gen)
+(test-gen equal-not-euqal-gen)
+(test-gen distinct-gen)
+(test-gen equality-gen)
 
 (test-gen set-rel-gen)
 (test-gen domain-rel-gen)
