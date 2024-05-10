@@ -352,10 +352,10 @@
                    (featurec ir {:tag ir-tag})
                    (db/rules ir-tag operator more-tags)
                    (conso _1 _2 more-tags)
-                   (try-pairs-mappo ir-pairs-with-tag ir)
+                   (try-pairs-mappo ir-pairs-with-tag ir) ;; TODO: recursively do featurec?
                    (match-values-with-keys more-tags translatod-args ir-pairs)
                    (conso [:tag ir-tag] ir-pairs ir-pairs-with-tag)
-                   (list-same-counto-zip args translatod-args _zippo)
+                   ; (list-same-counto-zip args translatod-args _zippo)
                    (maplisto new-translato args translatod-args)
                    (pairs-mappo ir-pairs-with-tag ir)
                    ) ]
@@ -388,6 +388,7 @@
 (ir->lisb '{:tag :op, :returns :res, :name :somename, :args :args, :body {:tag :less, :nums (1 2)}})
 (lisb->ir '(op-call :res :someop :bla))
 (lisb->ir '(=> (+ 1 2 3) :bar))
+(lisb->ir '(for-all [:x] (member? :x nat-set) (<= :x 0)))
 (lisb->ir '(=> :foo :bar))
 (lisb->ir '(+ :foo :bar))
 (lisb->ir '(+ "a" "b"))
@@ -415,6 +416,15 @@
                       (new-translato e1 e2))
               y)))
 
+(run 1 [p q]
+     (== q {:tag :sub, :nums [1 2]})
+     (matche [p q]
+             ([['+ . args] {:tag :add, :nums args'}]
+              (maplisto == args args'))
+             ([['- . args] {:tag :sub, :nums args'}]
+              (maplisto == args args'))
+             )
+     )
 
 (run 1 [n] (fresh [x] (== x 42) (== n [:foo x])))
 (run 1 [n] (fresh [h t] (conso h t :a)))
@@ -426,8 +436,8 @@
 (run 2 [n z] (list-same-counto-zip n [:foo :bar :bar] z))
   (pldb/with-dbs [db/rules-tag-sym-args]
     (run 1 [q p v] (featurec p {:foo q})
-         (== p {:foo v})
-         (== v 42)
+                   (== q {:foo v})
+                   (== v 42)
          )
     
     ) 
