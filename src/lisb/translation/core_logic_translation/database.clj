@@ -144,6 +144,7 @@
    [:intersection intersection [[:sets]]]
    [:difference set- [[:sets]]]
    [:member member? [:elem :set]]
+   [:member contains? [:set :elem]] ;; TODO: this allows several elems
    [:subset? subset? [[:sets]]]
    [:superset? superset? [[:sets]]]
    [:strict-subset? strict-subset? [[:sets]]]
@@ -230,7 +231,7 @@
    [:if-then-else ite [:cond :then :else]]
    [:let-in let-in [:id-vals :expr-or-pred]]
    [:skip skip []]
-   [:assignment assign [:id-vals]]
+   [:assignment assign [[:id-vals]]]
    [:becomes-element-of becomes-element-of [:ids :set]]
    [:becomes-such becomes-such [:ids :set]]
    [:op-call op-call [:returns :op :args]]

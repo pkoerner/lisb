@@ -315,18 +315,49 @@
 (defn pairs-mappo [pairs mappo]
   (project [pairs] (== mappo (into {} pairs))))
 
+(defn translate-name [lisb ir]
+  (conde [(== lisb ir) (pred ir keyword?)]
+         [(fresh [namey args]
+                 (conso namey args lisb)
+                 (== ir {:name namey, :args args}))]))
+
+(defnu translate-opo [lisb ir]
+  ([['<-- returns [opname args body]] {:tag :op, :returns returns, :name translated-name, :args args, :body translated-body}]
+    (translate-name opname translated-name)
+    (new-translato body translated-body)
+    )
+  ([[opname args body] {:tag :op, :name translated-name :returns [], :args args, :body translated-body}]
+    (translate-name opname translated-name)
+    (new-translato body translated-body)
+   )
+  )
+
 (defne treat-specialo [lisb ir]
   ([_ _]
    (fresh [_1 _2]
           (conso _1 _2 lisb) ; ensure list-parens ;; TODO: incomplete
           (matche [lisb]
+                  ([[mch-decl mchname . clauses]]
+                   (membero mch-decl '[machine model system ])
+                   (fresh [translated-clauses translated-name]
+                          (== ir {:tag :machine :name translated-name :clauses translated-clauses})  ;; TODO: choose tag according to symbol
+                          (maplisto new-translato clauses translated-clauses)
+                          (translate-name mchname translated-name)
+                          )
+                   )
+;; TODO: refinement implementation
+                  
+                  ([['operations . ops]]
+                   (fresh [translated-ops]
+                          (== ir {:tag :operations, :values translated-ops})
+                          (maplisto translate-opo ops translated-ops)))
                   ([['<-- returns ['op-call . opname-args]]]
                    (fresh [tmplisb newlisb]
                           (conso returns opname-args tmplisb)
                           (conso 'op-call tmplisb newlisb)
                           (new-translato newlisb ir)))
-                  ([['<-- returns [opname args body]]]
-                   (new-translato `(~'op ~returns ~opname ~args ~body) ir))
+                  ;([['<-- returns [opname args body]]]
+                  ; (new-translato `(~'op ~returns ~opname ~args ~body) ir))
                   ([['for-all ids lhs rhs]]
                    (new-translato `(~'for-all ~ids (~'implication ~lhs ~rhs)) ir)
                    )
@@ -391,9 +422,36 @@
 (lisb->ir '(for-all [:x] (member? :x nat-set) (<= :x 0)))
 (lisb->ir '(=> :foo :bar))
 (lisb->ir '(+ :foo :bar))
+(lisb->ir '(assign :foo 42 :bar 43))
 (lisb->ir '(+ "a" "b"))
 (lisb->ir '["a" "b"])
+(lisb->ir '(pre (and (contains? :TIMERS :timer) (contains? natural-set :deadline))
+                (assign (fn-call :curDeadlines :timer) :deadline)))
 
+(lisb->ir '(and (contains? :TIMERS :timer) (contains? natural-set :deadline)))
+(lisb->ir '(contains? :TIMERS :timer))
+(ir->lisb (first (lisb->ir '(machine :foo
+                    (constants :bar)
+                    (operations (:AbsoluteSetDeadline [:timer :deadline]
+                                        (pre (and (contains? :TIMERS :timer) (contains? natural-set :deadline))
+                                             (assign (fn-call :curDeadlines :timer) :deadline)))
+                                (<-- returns (:foo [] (assign :bla 42)))
+                                )
+                    ))))
+
+
+(ir->lisb (first (lisb->ir '(operations (:AbsoluteSetDeadline [:timer :deadline]
+                                        (pre (and (contains? :TIMERS :timer) (contains? natural-set :deadline))
+                                             (assign (fn-call :curDeadlines :timer) :deadline)))
+                                (<-- returns (:foo [] (assign :bla 42)))
+                                )
+                    )))
+
+  (pldb/with-dbs [db/rules-tag-sym-args]
+    (run 1 [q] (new-translato '(assign :bla 42) q))) 
+
+  (pldb/with-dbs [db/rules-tag-sym-args]
+    (run 1 [q] (new-translato q '{:tag :assignment, :id-vals (:bla 42)}))) 
 
   (lisb->ir :x)
   (lisb->ir '(nat-set))
@@ -428,6 +486,9 @@
 
 (run 1 [n] (fresh [x] (== x 42) (== n [:foo x])))
 (run 1 [n] (fresh [h t] (conso h t :a)))
+
+(run 1 [n] (== n {1 2 3 4})) ;; okay
+; (run 1 [n] (== n #{1 2 3 4})) ;; not okay
 
 
 (run 3 [n] (match-values-with-keys [:foo :bar :bar] [1 2 3] n))
