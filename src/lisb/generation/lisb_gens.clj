@@ -1,6 +1,8 @@
 (ns lisb.generation.lisb-gens
   (:require [lisb.translation.lisb2ir :refer :all])
-  (:require [clojure.test.check.generators :as gen]))
+  (:require [clojure.test.check :as tc])
+  (:require [clojure.test.check.generators :as gen])
+  (:require [clojure.test.check.properties :as prop]))
 
 
 ;; numbers
@@ -148,10 +150,111 @@
   (gen/one-of [pos-set-predicate-gen
                neg-set-predicate-gen]))
 
-(def union-inter-set
+(def union-inter-set-gen
   (gen/fmap list*
             (gen/tuple (gen/elements '[unite-sets intersect-sets])
                        (gen/set set-gen {:max-elements 2}))))
+
+
+;; relations
+
+(def set-relation-gen
+  (gen/bind (gen/elements '[<-> relation <<-> <->> <<->>])
+            (fn [op]
+              (gen/fmap (partial cons op)
+                        (gen/vector set-gen 2 3)))))
+
+(def maplet-relation-gen
+  (gen/bind (gen/elements '[|-> maplet])
+            (fn [op]
+              (gen/fmap (partial cons op)
+                        (gen/vector (gen/one-of [number-gen
+                                                 boolean-gen])
+                                    1 3)))))
+
+(def identity-relation-gen
+  (gen/fmap (partial cons 'id)
+            (gen/fmap list set-gen)))
+
+(def projection-relation-gen
+  (gen/fmap list*
+            (gen/tuple (gen/elements '[prj1 prj2])
+                       set-gen
+                       set-gen)))
+
+(def basic-relation-gen
+  (gen/one-of [set-relation-gen
+               maplet-relation-gen
+               identity-relation-gen
+               projection-relation-gen]))
+
+(def domain-relation-gen
+  (gen/fmap list*
+            (gen/tuple (gen/elements '[<| domain-restriction
+                                       <<| domain-subtraction])
+                       set-gen
+                       basic-relation-gen)))
+
+(def range-relation-gen
+  (gen/fmap list*
+            (gen/tuple (gen/elements '[|> range-restriction
+                                       |>> range-subtraction])
+                       basic-relation-gen
+                       set-gen)))
+
+(def inverse-relation-gen
+  (gen/fmap (partial cons 'inverse)
+            (gen/fmap list basic-relation-gen)))
+
+(def closure-relation-gen
+  (gen/bind (gen/elements '[closure1 closure])
+            (fn [op]
+              (gen/fmap (partial cons op)
+                        (gen/fmap list basic-relation-gen)))))
+
+(def simple-relation-gen
+  (gen/one-of [basic-relation-gen
+               domain-relation-gen
+               range-relation-gen
+               inverse-relation-gen
+               closure-relation-gen]))
+
+(def relation-expression-gen
+  (gen/bind (gen/elements '[override <+
+                            direct-product ><
+                            composition
+                            parallel-product])
+            (fn [op]
+              (gen/fmap (partial cons op)
+                        (gen/vector simple-relation-gen 0 3)))))
+
+(def relation-gen
+  (gen/one-of [simple-relation-gen
+               relation-expression-gen]))
+
+(def domain-range-gen
+  (gen/bind (gen/elements '[dom ran])
+            (fn [op]
+              (gen/fmap (partial cons op)
+                        (gen/fmap list relation-gen)))))
+
+(def image-gen
+  (gen/fmap list*
+            (gen/tuple (gen/return 'image)
+                       relation-gen
+                       set-gen)))
+
+(def iterate-relation-gen
+  (gen/fmap list*
+            (gen/tuple (gen/return 'iterate)
+                       relation-gen
+                       simple-number-gen)))
+
+(def translate-relation-gen
+  (gen/bind (gen/elements '[fnc rel])
+            (fn [op]
+              (gen/fmap (partial cons op)
+                        (gen/fmap list relation-gen)))))
 
 
 ;; logical predicates
@@ -201,29 +304,6 @@
 (def equality-gen
   (gen/one-of [equal-not-euqal-gen
                distinct-gen]))
-
-
-;; relations
-
-(def set-rel-gen
-  (gen/bind (gen/elements '[<-> <<-> <->> <<->>])
-            (fn [op] (gen/fmap (partial cons op)
-                               (gen/vector set-gen 2 3)))))
-
-(def domain-rel-gen
-  (gen/fmap list*
-            (gen/tuple (gen/elements '[<| <<|])
-                       set-gen
-                       set-rel-gen)))
-
-(def range-rel-gen
-  (gen/fmap list*
-            (gen/tuple (gen/elements '[|> |>>])
-                       set-rel-gen
-                       set-gen)))
-
-(def rel-gen
-  (gen/one-of [set-rel-gen domain-rel-gen range-rel-gen]))
 
 
 ;; machine name / operation name
@@ -354,20 +434,35 @@
 ;; generate lisb
 
 (def lisb-gen
-  (gen/one-of [machine-gen
+  (gen/one-of [;; machines
+               machine-gen
                refinement-implementation-gen
+               ;; basics
+               number-gen
+               boolean-gen
+               set-gen
+               relation-gen
+               logical-predicate-gen
+               equality-gen
                ;; TODO: remove when used in some other generator
                card-gen
-               union-inter-set
-               logical-predicate-gen
-               rel-gen]))
+               union-inter-set-gen
+               domain-range-gen
+               image-gen
+               iterate-relation-gen
+               translate-relation-gen]))
 
 
 ;; testing
-
-(defn test-gen [g]
-  (let [x (gen/generate g)]
+(defn test-gen [gen]
+  (let [x (gen/generate gen)]
     (lisb->ir x)))
+
+(defn check-gen [num-tests gen]
+  (let [gen-prop (prop/for-all [v gen]
+                               (lisb->ir v)
+                               true)]
+    (get-in (tc/quick-check num-tests gen-prop) [:shrunk :smallest])))
 
 (test-gen min-max-integer-gen)
 (test-gen number-literal-gen)
@@ -396,7 +491,24 @@
 (test-gen pos-set-predicate-gen)
 (test-gen neg-set-predicate-gen)
 (test-gen set-predicate-gen)
-(test-gen union-inter-set)
+(test-gen union-inter-set-gen)
+
+(test-gen set-relation-gen)
+(test-gen maplet-relation-gen)
+(test-gen identity-relation-gen)
+(test-gen projection-relation-gen)
+(test-gen basic-relation-gen)
+(test-gen domain-relation-gen)
+(test-gen range-relation-gen)
+(test-gen inverse-relation-gen)
+(test-gen closure-relation-gen)
+(test-gen simple-relation-gen)
+(test-gen relation-expression-gen)
+(test-gen relation-gen)
+(test-gen domain-range-gen)
+(test-gen image-gen)
+(test-gen iterate-relation-gen)
+(test-gen translate-relation-gen)
 
 (test-gen basic-predicate-gen)
 (test-gen pos-logical-predicate-gen)
@@ -407,11 +519,6 @@
 (test-gen equal-not-euqal-gen)
 (test-gen distinct-gen)
 (test-gen equality-gen)
-
-(test-gen set-rel-gen)
-(test-gen domain-rel-gen)
-(test-gen range-rel-gen)
-(test-gen rel-gen)
 
 (test-gen machine-name-gen)
 (test-gen machine-arg-gen)
@@ -437,6 +544,7 @@
 (test-gen refinement-implementation-gen)
 
 (test-gen lisb-gen)
+(check-gen 1000 lisb-gen)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
