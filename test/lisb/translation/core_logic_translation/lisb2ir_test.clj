@@ -94,12 +94,12 @@
 (deftest op-lisb->ir
   (testing "translate '<--' to :op IR when given name as argument"
     (is (= {:tag :op :returns [ 1 2] :name :somename :args [] :body {:tag :less :nums [1 2]}}
-            (first (lisb->ir '(<-- [1 2] (:somename [] (< 1 2)))))))))
+            (first (op->ir '(<-- [1 2] (:somename [] (< 1 2)))))))))
 
 (deftest op-ir->lisb
   (testing "translate :op to <-- with name in body when :name in IR"
     (is (= '(<-- (1 2) (:somename [] (< 1 2)))
-            (first (ir->lisb {:tag :op :returns [1 2] :name :somename :args [] :body {:tag :less :nums [1 2]}}))))))
+            (first (ir->op {:tag :op :returns [1 2] :name :somename :args [] :body {:tag :less :nums [1 2]}}))))))
             
 
 (deftest op-call-lisb->ir
@@ -110,18 +110,18 @@
 ;; 
 (deftest op-call-ir->lisb
   (testing "translate :op-call to '<--' with op-call in body when :op in IR"
-    (is (= '(<-- [1 2] (op-call :someop []))
-            (first (ir->lisb {:tag :op-call :returns [1 2] :op :someop :args []}))))))
+    (is (= '(<-- [:a :b] (op-call :someop []))
+            (first (ir->lisb {:tag :op-call :returns [:a :b] :op :someop :args []}))))))
 
 (deftest name-op-lisb->ir
   (testing "translate op name from lisb to IR"
     (is (= {:tag :op :returns [] :name :opname :args [] :body {:tag :add, :nums [1 2]}}
-            (first (lisb->ir '(:opname [] (+ 1 2))))))))
+            (first (op->ir '(:opname [] (+ 1 2))))))))
 
 (deftest name-op-ir->lisb
   (testing "translate op name from IR to lisb"
     (is (= '(:opname [] (+ 1 2))
-            (first (ir->lisb 
+            (first (ir->op 
                     {:tag :op :returns [] :name :opname :args [] :body {:tag :add, :nums [1 2]}}))))))
 
  

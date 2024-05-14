@@ -345,12 +345,13 @@
                  (== ir {:name namey, :args args}))]))
 
 (defnu translate-opo [lisb ir]
+  ([[opname args body] {:tag :op, :name translated-name :returns [], :args args, :body translated-body}]
+    (translate-name opname translated-name)
+    (new-translato body translated-body))
   ([['<-- returns [opname args body]] {:tag :op, :returns returns, :name translated-name, :args args, :body translated-body}]
     (translate-name opname translated-name)
     (new-translato body translated-body))
-  ([[opname args body] {:tag :op, :name translated-name :returns [], :args args, :body translated-body}]
-    (translate-name opname translated-name)
-    (new-translato body translated-body)))
+  )
 
 (defne treat-specialo [lisb ir]
   ([_ _]
@@ -420,6 +421,14 @@
 (defn ir->lisb [ir]
   (pldb/with-dbs [db/rules-tag-sym-args]
     (run 1 [q] (new-translato q ir))))
+
+(defn op->ir [lisb]
+  (pldb/with-dbs [db/rules-tag-sym-args]
+    (run 1 [q] (translate-opo lisb q))))
+
+(defn ir->op [ir]
+  (pldb/with-dbs [db/rules-tag-sym-args]
+    (run 1 [q] (translate-opo q ir))))
 
 #_(defn counto [l n]
   (conde [(emptyo l) (== 0 n)]
