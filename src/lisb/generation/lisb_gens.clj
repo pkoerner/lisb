@@ -257,6 +257,52 @@
                         (gen/fmap list relation-gen)))))
 
 
+;; functions
+
+(def set-function-gen
+  (gen/bind (gen/elements '[+-> partial-function
+                            --> total-function
+                            +->> partial-surjection
+                            -->> total-surjection
+                            >+> partial-injection
+                            >-> total-injection
+                            >+>> partial-bijection
+                            >->> total-bijection])
+            (fn [op]
+              (gen/fmap (partial cons op)
+                        (gen/vector set-gen 0 3)))))
+
+(def lambda-id-gen
+  (gen/fmap keyword
+            (gen/not-empty (gen/resize 5 gen/string-alphanumeric))))
+
+(def lambda-function-gen
+  (gen/fmap list*
+            (gen/tuple (gen/return 'lambda)
+                       (gen/vector lambda-id-gen 1 3)
+                       (gen/one-of [number-predicate-gen set-predicate-gen])
+                       (gen/one-of [number-expression-gen set-expression-gen]))))
+
+(def function-gen
+  (gen/one-of [set-function-gen
+               lambda-function-gen]))
+
+(def function-name-gen
+  (gen/fmap keyword
+            (gen/not-empty (gen/resize 10 gen/string-alphanumeric))))
+
+(def function-arg-gen
+  (gen/one-of [simple-number-gen
+               true-false-gen]))
+
+(def function-call-gen
+  (gen/fmap (partial apply concat)
+            (gen/tuple (gen/fmap list (gen/return 'fn-call))
+                       (gen/fmap list (gen/one-of [function-name-gen
+                                                   function-gen]))
+                       (gen/vector function-arg-gen 0 3))))
+
+
 ;; logical predicates
 
 ;; TODO: universal/existanial quantification
@@ -442,6 +488,7 @@
                boolean-gen
                set-gen
                relation-gen
+               function-gen
                logical-predicate-gen
                equality-gen
                ;; TODO: remove when used in some other generator
@@ -450,12 +497,15 @@
                domain-range-gen
                image-gen
                iterate-relation-gen
-               translate-relation-gen]))
+               translate-relation-gen
+               function-call-gen]))
 
 
 ;; testing
+(def last-lisb (atom ()))
 (defn test-gen [gen]
   (let [x (gen/generate gen)]
+    (reset! last-lisb x)
     (lisb->ir x)))
 
 (defn check-gen [num-tests gen]
@@ -509,6 +559,14 @@
 (test-gen image-gen)
 (test-gen iterate-relation-gen)
 (test-gen translate-relation-gen)
+
+(test-gen set-function-gen)
+(test-gen lambda-id-gen)
+(test-gen lambda-function-gen)
+(test-gen function-gen)
+(test-gen function-name-gen)
+(test-gen function-arg-gen)
+(test-gen function-call-gen)
 
 (test-gen basic-predicate-gen)
 (test-gen pos-logical-predicate-gen)
