@@ -315,13 +315,13 @@
 (defna extract-mappo-auxo [ks m kv-pairs]
   ([[] _ []])
   ([[[h-ks] . t-ks] m [[h-ks v-ks] . t-pairs]]
-  ;; we know: nonlvaro m
-         (project [m h-ks] (== v-ks (get m h-ks))) ;; TODO: featurec
-         (extract-mappo-auxo t-ks m t-pairs)) 
+   ;; we know: nonlvaro m
+   (project [m h-ks] (== v-ks (get m h-ks)))
+   (extract-mappo-auxo t-ks m t-pairs)) 
   ([[h-ks . t-ks] m [[h-ks v-ks] . t-pairs]]
-  ;; we know: nonlvaro m
-         (project [m h-ks] (== v-ks (get m h-ks))) ;; TODO: featurec
-         (extract-mappo-auxo t-ks m t-pairs)))
+   ;; we know: nonlvaro m
+   (project [m h-ks] (== v-ks (get m h-ks)))
+   (extract-mappo-auxo t-ks m t-pairs)))
 
 ;; TODO: why do we need to handle the tag special?
 (defn try-extract-mappo 
