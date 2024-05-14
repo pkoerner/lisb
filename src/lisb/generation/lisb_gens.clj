@@ -303,6 +303,77 @@
                        (gen/vector function-arg-gen 0 3))))
 
 
+;; sequences
+
+(def sequence-element-gen
+  (gen/one-of [simple-number-gen
+               true-false-gen]))
+
+(def basic-sequence-gen
+  (gen/fmap (partial cons 'sequence)
+            (gen/vector sequence-element-gen 0 3)))
+
+(def concat-sequence-gen
+  (gen/fmap (partial cons 'concat)
+            (gen/vector basic-sequence-gen 2 3)))
+
+(def prepend-sequence-gen
+  (gen/fmap list*
+            (gen/tuple (gen/elements '[-> prepend])
+                       sequence-element-gen
+                       basic-sequence-gen)))
+
+(def append-sequence-gen
+  (gen/bind (gen/elements '[<- append])
+            (fn [op]
+              (gen/fmap (partial cons op)
+                        (gen/vector sequence-element-gen 1 3)))))
+
+(def reverse-front-tail-gen
+  (gen/bind (gen/elements '[reverse
+                            front drop-last
+                            tail rest])
+            (fn [op]
+              (gen/fmap (partial cons op)
+                        (gen/fmap list basic-sequence-gen)))))
+
+(def take-drop-gen
+  (gen/fmap list*
+            (gen/tuple (gen/elements '[take drop])
+                       simple-number-gen
+                       basic-sequence-gen)))
+
+(def sequence-gen
+  (gen/one-of [basic-sequence-gen
+               concat-sequence-gen
+               prepend-sequence-gen
+               append-sequence-gen
+               reverse-front-tail-gen
+               take-drop-gen]))
+
+(def sequence-set-gen
+  (gen/bind (gen/elements '[seq seq1 iseq iseq1 perm])
+            (fn [op]
+              (gen/fmap (partial cons op)
+                        (gen/fmap list set-gen)))))
+
+(def sequence-size-gen
+  (gen/fmap (partial cons 'size)
+            (gen/fmap list sequence-gen)))
+
+(def first-last-gen
+  (gen/bind (gen/elements '[first last])
+            (fn [op]
+              (gen/fmap (partial cons op)
+                        (gen/fmap list sequence-gen)))))
+
+(def concat-sequence-of-sequences-gen
+  (gen/fmap (partial cons 'conc)
+            (gen/fmap list
+                      (gen/fmap (partial cons 'sequence)
+                                (gen/vector sequence-gen 0 3)))))
+
+
 ;; logical predicates
 
 ;; TODO: universal/existanial quantification
@@ -489,6 +560,7 @@
                set-gen
                relation-gen
                function-gen
+               sequence-gen
                logical-predicate-gen
                equality-gen
                ;; TODO: remove when used in some other generator
@@ -498,7 +570,11 @@
                image-gen
                iterate-relation-gen
                translate-relation-gen
-               function-call-gen]))
+               function-call-gen
+               sequence-set-gen
+               sequence-size-gen
+               first-last-gen
+               concat-sequence-of-sequences-gen]))
 
 
 ;; testing
@@ -567,6 +643,19 @@
 (test-gen function-name-gen)
 (test-gen function-arg-gen)
 (test-gen function-call-gen)
+
+(test-gen sequence-element-gen)
+(test-gen basic-sequence-gen)
+(test-gen concat-sequence-gen)
+(test-gen prepend-sequence-gen)
+(test-gen append-sequence-gen)
+(test-gen reverse-front-tail-gen)
+(test-gen take-drop-gen)
+(test-gen sequence-gen)
+(test-gen sequence-set-gen)
+(test-gen sequence-size-gen)
+(test-gen first-last-gen)
+(test-gen concat-sequence-of-sequences-gen)
 
 (test-gen basic-predicate-gen)
 (test-gen pos-logical-predicate-gen)
