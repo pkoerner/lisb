@@ -46,7 +46,7 @@
   
 (deftest simple-multiple-arg-types-ir->lisb
   (testing "Übersetze IR mit mehreren Argument-Typen zu entsprechendem lisb" 
-    (is (= '(comprehension-set ("id1" "id2" "id3") (member? :x nat-set)) (first (ir->lisb {:tag :comprehension-set :ids ["id1" "id2" "id3"] :pred {:tag :member :elem :x :set {:tag :nat-set}}}))))))
+    (is (= '(comprehension-set ("id1" "id2" "id3") (contains? nat-set :x)) (first (ir->lisb {:tag :comprehension-set :ids ["id1" "id2" "id3"] :pred {:tag :member :elem :x :set {:tag :nat-set}}}))))))
 
 ; syntactic sugar
 
@@ -76,7 +76,7 @@
     (is (= {:tag :for-all :ids [:x],
             :implication {:tag :implication, :preds [{:tag :member, :elem :x, :set {:tag :nat-set}} {:tag :less-equals, :nums [:x 0]}]}}
           (first (lisb->ir '(for-all [:x] (member? :x nat-set) (<= :x 0))))))
-    (is (= '(for-all [:x] (member? :x nat-set) (<= :x 0))
+    (is (= '(for-all [:x] (contains? nat-set :x) (<= :x 0))
             (first (ir->lisb {:tag :for-all :ids [:x],
                                :implication {:tag :implication, 
                                              :preds [{:tag :member, :elem :x, :set {:tag :nat-set}} {:tag :less-equals, :nums [:x 0]}]}}))))))
@@ -127,14 +127,14 @@
  
 (deftest refinement
   (testing "translate refinement with machine-ref correctly"
-    (is (= '(refinement :somename :someref (+ 1 2 3))
+    (is (= '(refinement :somename :someref (invariants true))
            (first (ir->lisb {:tag :refinement 
-                              :name :somename 
-                              :abstract-machine-name {:tag :machine-reference, :name :someref} 
-                              :machine-clauses [{:tag :add, :nums [1 2 3]}]}))))
+                             :name :somename 
+                             :abstract-machine-name {:tag :machine-reference, :name :someref} 
+                             :machine-clauses [{:tag :invariants, :values [true]}]}))))
     (is (= {:tag :refinement 
             :name :somename 
             :abstract-machine-name {:tag :machine-reference, :name :someref} 
-            :machine-clauses {:tag :add, :nums [1 2 3]}}
-           (first (lisb->ir '(refinement :somename :someref (+ 1 2 3))))))))
+            :machine-clauses [{:tag :invariants, :values [true]}]}
+           (first (lisb->ir '(refinement :somename :someref (invariants true))))))))
 

@@ -344,6 +344,10 @@
                  (conso namey args lisb)
                  (== ir {:name namey, :args args}))]))
 
+(defne wrap-machine-ref [translated wrapped]
+  ([{:name namey :args :args} {:tag :machine-reference :name namey :args args}])
+  ([namey {:tag :machine-reference :name namey}]))
+
 (defnu translate-opo [lisb ir]
   ([[opname args body] {:tag :op, :name translated-name :returns [], :args args, :body translated-body}]
     (translate-name opname translated-name)
@@ -353,6 +357,7 @@
     (new-translato body translated-body))
   )
 
+
 (defne treat-specialo [lisb ir]
   ([_ _]
    (fresh [_1 _2]
@@ -361,13 +366,18 @@
                   ([[mch-decl mchname . clauses]]
                    (fresh [ir-tag translated-clauses translated-name]
                           (membero [mch-decl ir-tag] '[[machine :machine] [model :model] [system :system] ])
-                          (== ir {:tag ir-tag :name translated-name :clauses translated-clauses})  ;; TODO: choose tag according to symbol
+                          (== ir {:tag ir-tag :name translated-name :machine-clauses translated-clauses})  ;; TODO: choose tag according to symbol
                           (maplisto new-translato clauses translated-clauses)
-                          (translate-name mchname translated-name)
-                          )
-                   )
-;; TODO: refinement implementation
-                  
+                          (translate-name mchname translated-name)))
+                  ([[ref-decl mchname abstr-name . clauses]]
+                   (fresh [ir-tag translated-clauses translated-name translated-abstr-name mch-ref]
+                          (membero [ref-decl ir-tag] '[[refinement :refinement] [implementation :implementation]])
+                          (== ir {:tag ir-tag, :name translated-name, :abstract-machine-name mch-ref :machine-clauses translated-clauses})
+                          (maplisto new-translato clauses translated-clauses)
+                          (translate-name mchname translated-name)  
+                          (wrap-machine-ref translated-abstr-name mch-ref)  
+                          (translate-name abstr-name translated-abstr-name)
+                          ))
                   ([['operations . ops]]
                    (fresh [translated-ops]
                           (== ir {:tag :operations, :values translated-ops})
