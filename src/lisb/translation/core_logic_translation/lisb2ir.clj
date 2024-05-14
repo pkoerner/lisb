@@ -312,6 +312,29 @@
          [(lvaro mappo)
           s#]))
 
+(defna extract-mappo-auxo [ks m kv-pairs]
+  ([[] _ []])
+  ([[[h-ks] . t-ks] m [[h-ks v-ks] . t-pairs]]
+  ;; we know: nonlvaro m
+         (project [m h-ks] (== v-ks (get m h-ks))) ;; TODO: featurec
+         (extract-mappo-auxo t-ks m t-pairs)) 
+  ([[h-ks . t-ks] m [[h-ks v-ks] . t-pairs]]
+  ;; we know: nonlvaro m
+         (project [m h-ks] (== v-ks (get m h-ks))) ;; TODO: featurec
+         (extract-mappo-auxo t-ks m t-pairs)))
+
+;; TODO: why do we need to handle the tag special?
+(defn try-extract-mappo 
+  [ks m kv-pairs]
+  (conda [(emptyo ks) (emptyo kv-pairs)]
+         [(nonlvaro m)
+          (fresh [tag kv-pairs-t]
+                 (project [m] (== tag (:tag m)))
+                 (extract-mappo-auxo ks m kv-pairs-t)
+                 (conso [:tag tag] kv-pairs-t kv-pairs))]
+         [(lvaro m)
+          s#]))
+
 (defn pairs-mappo [pairs mappo]
   (project [pairs] (== mappo (into {} pairs))))
 
@@ -324,13 +347,10 @@
 (defnu translate-opo [lisb ir]
   ([['<-- returns [opname args body]] {:tag :op, :returns returns, :name translated-name, :args args, :body translated-body}]
     (translate-name opname translated-name)
-    (new-translato body translated-body)
-    )
+    (new-translato body translated-body))
   ([[opname args body] {:tag :op, :name translated-name :returns [], :args args, :body translated-body}]
     (translate-name opname translated-name)
-    (new-translato body translated-body)
-   )
-  )
+    (new-translato body translated-body)))
 
 (defne treat-specialo [lisb ir]
   ([_ _]
@@ -338,9 +358,9 @@
           (conso _1 _2 lisb) ; ensure list-parens ;; TODO: incomplete
           (matche [lisb]
                   ([[mch-decl mchname . clauses]]
-                   (membero mch-decl '[machine model system ])
-                   (fresh [translated-clauses translated-name]
-                          (== ir {:tag :machine :name translated-name :clauses translated-clauses})  ;; TODO: choose tag according to symbol
+                   (fresh [ir-tag translated-clauses translated-name]
+                          (membero [mch-decl ir-tag] '[[machine :machine] [model :model] [system :system] ])
+                          (== ir {:tag ir-tag :name translated-name :clauses translated-clauses})  ;; TODO: choose tag according to symbol
                           (maplisto new-translato clauses translated-clauses)
                           (translate-name mchname translated-name)
                           )
@@ -367,7 +387,7 @@
 ;; TODO: operation clause (operations have form (:name ... ...))
 ;; TODO: machine structure
 (defn new-translato [lisb ir]
-  (condu [(treat-specialo lisb ir)]
+  (conda [(treat-specialo lisb ir)]
          [(conde
            [(== lisb ir)
             (pred lisb primitive?)]
@@ -383,15 +403,13 @@
                    (featurec ir {:tag ir-tag})
                    (db/rules ir-tag operator more-tags)
                    (conso _1 _2 more-tags)
-                   (try-pairs-mappo ir-pairs-with-tag ir) ;; TODO: recursively do featurec?
+                   ;(try-pairs-mappo ir-pairs-with-tag ir) ;; TODO: recursively do featurec? ;; TODO: something does not align with order in maps in some cases (e.g., only member or contains? works) 
+                   (try-extract-mappo more-tags ir ir-pairs-with-tag)
                    (match-values-with-keys more-tags translatod-args ir-pairs)
                    (conso [:tag ir-tag] ir-pairs ir-pairs-with-tag)
                    ; (list-same-counto-zip args translatod-args _zippo)
                    (maplisto new-translato args translatod-args)
-                   (pairs-mappo ir-pairs-with-tag ir)
-                   ) ]
-           
-           )]))
+                   (pairs-mappo ir-pairs-with-tag ir))])]))
 
 (def translato new-translato)
 
@@ -412,6 +430,9 @@
 
 (comment
 
+(run 1 [q] (try-extract-mappo [:foo :bar] {:foo 42, :bar 43 :tag :foo} q))
+
+
 (lisb->ir '(<-- [:a :b] (op-call :someop [:c :d])))
 (lisb->ir '(<-- [:a :b] (op-call :someop [])))
 (ir->lisb {:tag :op-call, :returns :res, :op :someop, :args :bla})
@@ -430,6 +451,8 @@
 
 (lisb->ir '(and (contains? :TIMERS :timer) (contains? natural-set :deadline)))
 (lisb->ir '(contains? :TIMERS :timer))
+(lisb->ir '(member? :TIMERS :timer))
+
 (ir->lisb (first (lisb->ir '(machine :foo
                     (constants :bar)
                     (operations (:AbsoluteSetDeadline [:timer :deadline]
@@ -447,6 +470,9 @@
                                 )
                     )))
 
+
+  (pldb/with-dbs [db/rules-tag-sym-args]
+    (run 3 [q] (new-translato q {:tag :member, :elem :timer :set :TIMERS}))) 
   (pldb/with-dbs [db/rules-tag-sym-args]
     (run 1 [q] (new-translato '(assign :bla 42) q))) 
 
