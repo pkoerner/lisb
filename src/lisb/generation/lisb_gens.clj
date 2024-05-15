@@ -85,6 +85,44 @@
                predicate-to-boolean-gen]))
 
 
+;; strings
+
+(def string-gen
+  (gen/resize 10 gen/string-alphanumeric))
+
+(def string-set-gen
+  (gen/return 'string-set))
+
+
+;; records
+
+(def record-id-gen
+  (gen/fmap keyword
+            (gen/not-empty (gen/resize 5 gen/string-alphanumeric))))
+
+(def struct-gen
+  (gen/fmap (partial apply concat (list 'struct))
+            (gen/vector (gen/tuple record-id-gen
+                                   (gen/one-of [integer-set-gen
+                                                boolean-set-gen
+                                                string-set-gen]))
+                        1 3)))
+
+(def record-gen
+  (gen/fmap (partial apply concat (list 'record))
+            (gen/vector (gen/tuple record-id-gen
+                                   (gen/one-of [number-gen
+                                                boolean-gen
+                                                string-gen]))
+                        1 3)))
+
+(def record-get-gen
+  (gen/fmap list*
+            (gen/tuple (gen/return 'record-get)
+                       record-gen
+                       record-id-gen)))
+
+
 ;; sets
 
 ;; TODO: comprehension-set; union/intersect with predicate
@@ -94,7 +132,10 @@
                integer-set-gen
                interval-set-gen
                (gen/fmap set (gen/vector boolean-gen))
-               boolean-set-gen]))
+               boolean-set-gen
+               (gen/fmap set (gen/vector string-gen))
+               string-set-gen
+               (gen/fmap set (gen/vector record-gen))]))
 
 (def pow-fin-set-gen
   (gen/fmap list*
@@ -125,12 +166,18 @@
 (def member-gen
   (gen/one-of [(gen/fmap list*
                          (gen/tuple (gen/elements '[member? in])
-                                    (gen/one-of [number-gen boolean-gen])
+                                    (gen/one-of [number-gen
+                                                 boolean-gen
+                                                 string-gen
+                                                 record-gen])
                                     basic-set-gen))
                (gen/fmap list*
                          (gen/tuple (gen/return 'contains?)
                                     basic-set-gen
-                                    (gen/one-of [number-gen boolean-gen])))]))
+                                    (gen/one-of [number-gen
+                                                 boolean-gen
+                                                 string-gen
+                                                 record-gen])))]))
 
 (def subset-superset-gen
   (gen/bind (gen/elements '[subset? superset?
@@ -169,7 +216,9 @@
             (fn [op]
               (gen/fmap (partial cons op)
                         (gen/vector (gen/one-of [number-gen
-                                                 boolean-gen])
+                                                 boolean-gen
+                                                 string-gen
+                                                 record-gen])
                                     1 3)))))
 
 (def identity-relation-gen
@@ -405,6 +454,8 @@
 (def equality-element-gen
   (gen/one-of [number-gen
                boolean-gen
+               string-gen
+               record-gen
                basic-predicate-gen
                logical-predicate-gen]))
 
@@ -557,6 +608,9 @@
                ;; basics
                number-gen
                boolean-gen
+               string-gen
+               struct-gen
+               record-gen
                set-gen
                relation-gen
                function-gen
@@ -564,6 +618,7 @@
                logical-predicate-gen
                equality-gen
                ;; TODO: remove when used in some other generator
+               record-get-gen
                card-gen
                union-inter-set-gen
                domain-range-gen
@@ -605,6 +660,14 @@
 (test-gen boolean-set-gen)
 (test-gen predicate-to-boolean-gen)
 (test-gen boolean-gen)
+
+(test-gen string-gen)
+(test-gen string-set-gen)
+
+(test-gen record-id-gen)
+(test-gen struct-gen)
+(test-gen record-gen)
+(test-gen record-get-gen)
 
 (test-gen basic-set-gen)
 (test-gen pow-fin-set-gen)
