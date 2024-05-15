@@ -4,13 +4,12 @@
 
 (deftest test-primitive?
   (testing "predicate works correctly"
-    (is (= true (primitive? 2)))
-    (is (= true (primitive? "some string")))
-    (is (= true (primitive? :somekeyword)))
-    (is (= true (primitive? false)))
-    (is (= true (primitive? #{1 2 3})))
-    (is (= nil  (primitive? '())))
-    (is (= nil  (primitive? 'symbol)))))
+    (is (primitive? 2))
+    (is (primitive? "some string"))
+    (is (primitive? :somekeyword))
+    (is (primitive? false))
+    (is (not (primitive? '())))
+    (is (not (primitive? 'symbol)))))
 
 ;(deftest test-zip-with-rest
 ;  (testing "zip-with-rest works as described"

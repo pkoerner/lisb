@@ -76,7 +76,7 @@
     (is (= {:tag :for-all :ids [:x],
             :implication {:tag :implication, :preds [{:tag :member, :elem :x, :set {:tag :nat-set}} {:tag :less-equals, :nums [:x 0]}]}}
            (lisb->ir '(for-all [:x] (member? :x nat-set) (<= :x 0)))))
-    (is (= '(for-all [:x] (contains? nat-set :x) (<= :x 0))
+    (is (= '(for-all [:x] (implication (contains? nat-set :x) (<= :x 0)))
            (ir->lisb {:tag :for-all :ids [:x],
                       :implication {:tag :implication, 
                                     :preds [{:tag :member, :elem :x, :set {:tag :nat-set}} {:tag :less-equals, :nums [:x 0]}]}})))))
@@ -142,13 +142,18 @@
 (deftest misc-test
   (testing "a small number of test cases I used doing development"
     (are [x y] (= x y) 
+         (lisb->ir #{1 2 3})
+           #{1 2 3}
+         (lisb->ir #{1 '(+ 1 1) 3})
+           #{1 {:tag :add, :nums [1 1]} 3}
          (lisb->ir '(<-- [:a :b] (op-call :someop [:c :d]))) 
            {:tag :op-call, :returns [:a :b], :op :someop, :args [:c :d]}
          (lisb->ir '(<-- [:a :b] (op-call :someop []))) 
            {:tag :op-call, :returns [:a :b], :op :someop, :args []} 
          (ir->lisb {:tag :op-call, :returns :res, :op :someop, :args :bla}) 
            '(<-- :res (op-call :someop :bla))
-         (op->ir '(<-- :res (:somename :args (< 1 2)))) '{:tag :op, :returns :res, :name :somename, :args :args, :body {:tag :less, :nums (1 2)}}
+         (op->ir '(<-- :res (:somename :args (< 1 2)))) 
+           '{:tag :op, :returns :res, :name :somename, :args :args, :body {:tag :less, :nums (1 2)}}
          (ir->lisb '{:tag :op, :returns :res, :name :somename, :args :args, :body {:tag :less, :nums (1 2)}}) 
            '(op :res :somename :args (< 1 2))
          (lisb->ir '(op-call :res :someop :bla)) 
@@ -200,16 +205,18 @@
          '(<-- [:a :b] (op-call :someop []))
          '(<-- :res (op-call :someop :bla))
          '(implication (+ 1 2 3) :bar)
-         '(for-all [:x] (contains? nat-set :x) (<= :x 0))
+         '(for-all [:x] (implication (contains? nat-set :x) (<= :x 0)))
          '(implication (+ 1 2 3) (* (+ 1 4) 5) (* 6 7 8 ))
          '(implication :foo :bar)
          '(+ :foo :bar)
          '(assign :foo 42 :bar 43)
          '(+ "a" "b")
          '["a" "b"]
+         #{1 2 3}
+         '#{1 (+ 1 1) 3}
          '(pre (and (contains? :TIMERS :timer) (contains? natural-set :deadline))
                (assign (fn-call :curDeadlines :timer) :deadline))
-         '(and (contains? :TIMERS :timer) (contains? natural-set :deadline))
+         '(and (contains? :TIMERS :timer) (contains? natural-set :deadline ))
          '(contains? :TIMERS :timer)
          '(machine :foo
                    (constants :bar)

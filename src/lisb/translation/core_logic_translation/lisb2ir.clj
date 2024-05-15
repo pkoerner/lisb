@@ -4,9 +4,14 @@
   (:require [clojure.core.logic :refer :all])
   (:require [clojure.core.logic.protocols :refer [IWalkTerm walk-term]]))
 
+(extend-protocol IWalkTerm
+  clojure.lang.IPersistentSet
+  (walk-term [v f] (with-meta (set (walk-term (seq v) f)) (meta v))))
+
+
 (def primitive? 
   "predicate that returns true if argument is not a seq or a symbol." 
-  (some-fn number? boolean? string? keyword? set?))
+  (some-fn number? boolean? string? keyword?))
 
 (declare new-translato)
 
@@ -116,12 +121,14 @@
                    (fresh [translated-ops]
                           (== ir {:tag :operations, :values translated-ops})
                           (maplisto translate-opo ops translated-ops)))
+                  ;; TODO: try generate syntactic sugar only if nonlvaro lisb
                   ([['<-- returns ['op-call . opname-args]]]
                    (fresh [tmplisb newlisb]
                           (conso returns opname-args tmplisb)
                           (conso 'op-call tmplisb newlisb)
                           (new-translato newlisb ir)))
                   ([['for-all ids lhs rhs]]
+                   (nonlvaro ids)
                    (new-translato `(~'for-all ~ids (~'implication ~lhs ~rhs)) ir))))))
 
 ;; TODO: ensure IR allows seqs for identifier lists, but DSL does not (?) 
@@ -130,8 +137,21 @@
          [(conde
            [(== lisb ir)
             (pred lisb primitive?)]
+           [(nonlvaro lisb) 
+            (pred lisb set?)
+            (fresh [lisb' ir']
+                   (project [lisb] (== lisb' (seq lisb)))
+                   (maplisto new-translato lisb' ir')
+                   (project [ir'] (== ir (set ir')))) ]
+           [(nonlvaro ir) 
+            (pred ir set?)
+            (fresh [lisb' ir']
+                   (project [ir] (== ir' (seq ir)))
+                   (maplisto new-translato lisb' ir')
+                   (project [lisb'] (== lisb (set lisb'))))]
            [(== lisb ir)
-            (pred lisb vector?)] ;; NOTE: assuming vectors are only valid for collections of identifiers
+            (pred lisb vector?)
+            ] ;; NOTE: assuming vectors are only valid for collections of identifiers
            [(fresh [ir-tag ir-pairs-with-tag]
                    (featurec ir {:tag ir-tag})
                    (db/rules ir-tag lisb [])
@@ -141,12 +161,18 @@
                    (conso operator args lisb) 
                    (featurec ir {:tag ir-tag})
                    (db/rules ir-tag operator more-tags)
-                   (conso _1 _2 more-tags)
+                   (conso _1 _2 more-tags) ;; NOTE: this is necessary to avoid backtracking from the branch above.
+                                           ;;       otherwise, one could generate DSL code such as (nat-set)
                    (try-extract-mappo more-tags ir ir-pairs)
                    (match-values-with-keys more-tags translatod-args ir-pairs)
                    (conso [:tag ir-tag] ir-pairs ir-pairs-with-tag)
                    (maplisto new-translato args translatod-args)
-                   (pairs-mappo ir-pairs-with-tag ir))])]))
+                   (pairs-mappo ir-pairs-with-tag ir))]
+           )]
+         
+         [(lvaro lisb) (nonlvaro ir) (project [ir] (throw (IllegalArgumentException. (str ir))))]
+         [(nonlvaro lisb) (lvaro ir) (project [lisb] (throw (IllegalArgumentException. (str (list* lisb)))))]
+         ))
 
 (def translato new-translato)
 
@@ -175,7 +201,10 @@
 
 (comment
 
-(run 1 [q] (try-extract-mappo [:foo :bar] {:foo 42, :bar 43 :tag :foo} q))
+  (ir->lisb (lisb->ir #{1 '(+ 1 1) 3}))
+(run 1 [q] (== q #{1 2})
+           (project [q] (== nil (println q)))
+     )
 
 
 (lisb->ir '(<-- [:a :b] (op-call :someop [:c :d])))
@@ -183,10 +212,10 @@
 (ir->lisb {:tag :op-call, :returns :res, :op :someop, :args :bla})
 (op->ir '(<-- :res (:somename :args (< 1 2))))
 (ir->lisb '{:tag :op, :returns :res, :name :somename, :args :args, :body {:tag :less, :nums (1 2)}})
-(lisb->ir '(op-call :res :someop :bla))
-(lisb->ir '(=> (+ 1 2 3) :bar))
-(lisb->ir '(for-all [:x] (member? :x nat-set) (<= :x 0)))
-(lisb->ir '(=> :foo :bar))
+(ir->lisb (lisb->ir '(op-call :res :someop :bla)))
+(ir->lisb (lisb->ir '(=> (+ 1 2 3) :bar)))
+(ir->lisb (lisb->ir '(for-all [:x] (member? :x nat-set) (<= :x 0))))
+(ir->lisb (lisb->ir '(=> :foo :bar)))
 (lisb->ir '(+ :foo :bar))
 (lisb->ir '(assign :foo 42 :bar 43))
 (lisb->ir '(+ "a" "b"))
