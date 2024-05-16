@@ -100,7 +100,7 @@
 ;   ))
 
 
-(pldb/db-rel rules ^:index tag ^:index lisb args)
+(pldb/db-rel rules :index tag ^:index lisb args)
 (defmacro lisb-translation-rules->db [functor rule-tuples]
   `(pldb/db
      ~@(map (fn [[x y z]] [functor x `(quote ~y) z]) rule-tuples)))
@@ -158,6 +158,8 @@
    [:int-set int-set []]
    [:nat-set nat-set []]
    [:nat1-set nat1-set []]
+   [:natural-set natural-set []]
+   [:natural1-set natural1-set []]
    [:interval interval [:from :to]]
    [:min-int min-int []]
    [:max-int max-int []]
@@ -165,12 +167,14 @@
    [:greater-equals >= [[:nums]]]
    [:less < [[:nums]]]
    [:less-equals <= [[:nums]]]
-   [:max max [:set]]
+   [:max max [[:set]]]
    [:min min [:set]]
    [:product pi [:ids :pred :expr]]
    [:sum sigma [:ids :pred :expr]]
    [:successor successor [:num]]
    [:predecessor predecessor [:num]]
+   [:successor inc [:num]]
+   [:predecessor dec [:num]]
    [:relation <-> [[:sets]]]
    [:total-relation <<-> [[:sets]]]
    [:surjective-relation <->> [[:sets]]]

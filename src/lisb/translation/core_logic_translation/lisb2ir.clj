@@ -140,13 +140,13 @@
            [(nonlvaro lisb) 
             (pred lisb set?)
             (fresh [lisb' ir']
-                   (project [lisb] (== lisb' (seq lisb)))
+                   (project [lisb] (== lisb' (or (seq lisb) [])))
                    (maplisto new-translato lisb' ir')
                    (project [ir'] (== ir (set ir')))) ]
            [(nonlvaro ir) 
             (pred ir set?)
             (fresh [lisb' ir']
-                   (project [ir] (== ir' (seq ir)))
+                   (project [ir] (== ir' (or (seq ir) [])))
                    (maplisto new-translato lisb' ir')
                    (project [lisb'] (== lisb (set lisb'))))]
            [(== lisb ir)
@@ -175,6 +175,7 @@
          ))
 
 (def translato new-translato)
+
 
 (defn lisb->ir [lisb]
   (first (pldb/with-dbs [db/rules-tag-sym-args]
