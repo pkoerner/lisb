@@ -1708,7 +1708,6 @@
            ~'skip bskip
            ~'block bblock
            ~'assign bassign
-           ~'set! bassign                                   ; sugar
            ~'becomes-element-of bbecomes-element-of
            ~'becomes-member bbecomes-element-of             ; sugar
            ~'becomes-such bbecomes-such
