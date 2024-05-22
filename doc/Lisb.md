@@ -211,7 +211,8 @@
 ## Let and If-Then-Else
 | B                                                                | Lisb                            | IR                                                              | Description                                 |
 |------------------------------------------------------------------|---------------------------------|-----------------------------------------------------------------|---------------------------------------------|
-| `IF cond THEN then ELSE else END`                                | `(ite cond then else)`          | `{:tag :if-then-else, :cond cond, :then then, :else else}`      | conditional for expressions and predicates  | <!-- detect and rewrite to if -->
+| `IF cond THEN then ELSE else END`                                | `(if-expr cond then else)`      | `{:tag :if, :cond cond, :then then, :else else}`                | conditional for expressions                 |
+| `IF cond THEN then ELSE else END`                                | `(if-pred cond then else)`      | `{:tag :if, :cond cond, :then then, :else else}`                | conditional for predicates                  |
 | `LET id1,id2,... BE id1=val1 & id2=val2 ... IN expr-or-pred END` | `(let-in id-vals expr-or-pred)` | `{:tag :let-in, :id-vals id-vals, :expr-or-pred :expr-or-pred}` | let for expression and predicates           |
 
 ## Substitutions
