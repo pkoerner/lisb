@@ -1660,9 +1660,9 @@
     (and (seq? lisb) (= 'operations (first lisb))) (process-op-definitions lisb)
     (and (seq? lisb) (= '<-- (first lisb))) (process-assign-returns lisb)
     (and (seq? lisb) (= 'if (first lisb))) (pre-process-lisb (list* bif (rest lisb)))
+    (set? lisb) `(hash-set ~@lisb)
     (seqable? lisb) (walk pre-process-lisb identity lisb)
     :else lisb))
-
 
 (defmacro b 
   [lisb]

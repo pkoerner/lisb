@@ -201,3 +201,10 @@
             :id-vals [:foo 1 :bar 2]
             :expr-or-pred   {:tag :add, :nums [:foo :bar]}}
            (b (let [:foo 1 :bar 2] (+ :foo :bar)))))))
+
+(deftest set-testt ; set-test is a var in clojure.test
+  (testing "a set that is valid in the lisb DSL
+           can be generated to valid IR even though
+           an alias is used"
+    (is (= (b #{(inc 42) (successor 42)})
+           #{{:tag :successor, :num 42}}))))
