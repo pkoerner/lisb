@@ -78,10 +78,10 @@
 | `num1<num2<...`         | `(< & nums)`            | `{:tag :less, :nums nums}`                                        | less than                                                     |
 | `num1=>num2=>...`       | `(>= & nums)`           | `{:tag :greater-equals, :nums nums}`                              | greater than or equal                                         |
 | `nums1<=num2<=...`      | `(<= & nums)`           | `{:tag :less-equals, :nums nums}`                                 | less than or equal                                            |
-| `max(S)`                | `(max S)`               | `{:tag :max, :set set}`                                           | maximum of a set of numbers                                   |
-| `max({m,n,o})`          | `(max m n o)`           | `{:tag :max, :set set}`                                           | sugar                                                         |
-| `min(S)`                | `(min S)`               | `{:tag :min, :set set}`                                           | minimum of a set of numbers                                   |
-| `min({m,n,o})`          | `(min m n o)`           | `{:tag :min, :set set}`                                           | sugar                                                         |
+| `max(S)`                | `(max S)`               | `{:tag :max, :set set}`  ; set is an actual Clojure set           | maximum of a set of numbers                                   |
+| `max({m,n,o})`          | `(max m n o)`           | `{:tag :max, :set set}`  ; set is an actual Clojure set           | sugar                                                         |
+| `min(S)`                | `(min S)`               | `{:tag :min, :set set}`  ; set is an actual Clojure set           | minimum of a set of numbers                                   |
+| `min({m,n,o})`          | `(min m n o)`           | `{:tag :min, :set set}`  ; set is an actual Clojure set           | sugar                                                         |
 | `num1+num2+...`         | `(+ & nums)`            | `{:tag :add, :nums nums}`                                         | addition                                                      |
 | `num1-num2-...`         | `(- & nums)`            | `{:tag :sub, :nums nums}`                                         | difference                                                    |
 | `num1*num2*...`         | `(cart-or-mult & nums)` | `{:tag :cartesian-product-or-multiplication, :nums-or-sets nums}` | cartesian product or multiplication (by parser, pls dont use) |
