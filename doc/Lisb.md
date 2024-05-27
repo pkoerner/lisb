@@ -30,77 +30,77 @@
 | `bool(pred)` | `(pred->bool pred)` | `{:tag :pred->bool, :pred pred}` | convert predicate into BOOL value    |
 
 ## Sets
-| B                             | Lisb                                       | IR                                                                 | Description                                |
-|-------------------------------|--------------------------------------------|--------------------------------------------------------------------|--------------------------------------------|
-| `{elem1,elem2,...}`           | `#{elem1 elem2 ...}`                       | `#{elem1 elem2 ...}`                                               | set enumeration                            |
-| `{id1,id2,...&#124;pred}`     | `(comprehension-set ids pred)`             | `{:tag :comprehension-set, :ids ids, :pred pred}`                  | comprehension set                          |
-|                               | `#{ids &#124; pred}`                       | `{:tag :comprehension-set, :ids ids, :pred pred}`                  | sugar                                      |
-| `POW(set)`                    | `(pow set)`                                | `{:tag :power-set, :set set}`                                      | power set                                  |
-| `POW1(set)`                   | `(pow1 set)`                               | `{:tag :power1-set, :set set}`                                     | set of non-empty subsets                   |
-| `FIN(set)`                    | `(fin set)`                                | `{:tag :fin, :set set}`                                            | set of all finite subsets                  |
-| `FIN1(set)`                   | `(fin1 set)`                               | `{:tag :fin1, :set set}`                                           | set of all non-empty finite subsets        |
-| `card(set)`                   | `(card set)`                               | `{:tag :cardinality, :set set}`                                    | cardinality                                |
-| `set1*set2*...`               | `(cart-or-mult & sets)`                    | `{:tag :cartesian-product-or-multiplication, :nums-or-sets sets}`  | cartesian product or multiplication        |
-|                               | `(cartesian-product & sets)`               | `{:tag :cartesian-product, :sets sets}`                            | cartesian product                          | 
-|                               | `(x & sets)`                               | `{:tag :cartesian-product, :sets set}`                             | sugar                                      |
-| `set1\/set2\/...`             | `(union & sets)`                           | `{:tag :union, :sets sets}`                                        | set union                                  |
-| `set1/\set2/\...`             | `(intersection & sets)`                    | `{:tag :intersection, :sets sets}`                                 | set intersection                           |
-| `set1-set2-...`               | `(set- & sets)`                            | `{:tag :difference, :sets sets}`                                   | set difference                             |
-| `elem:set`                    | `(member? elem set)`                       | `{:tag :member, :elem elem, :set set}`                             | element of                                 |
-|                               | `(in elem set)`                            | `{:tag :member, :elem elem, :set set}`                             | sugar                                      | 
-|                               | `(contains? set & elems)`                  | `(and (member? elem1 set) (member? elem2 set) ...)`                | sugar                                      | 
-| `elem/:set`                   | `(not (member? set elem))`                 |                                                                    | not element of                             | 
-| `set1<:set2&set2<:...`        | `(subset? & sets)`                         | `{:tag :subset?, :sets sets}`                                      | subset of                                  |
-|                               | `(superset? & sets)`                       | `{:tag :subset?, :sets (clore.core/reverse sets)}`                 | sugar                                      |
-| `set1/<:set2&set2/<:...`      | `(not (subset? sets))`                     |                                                                    | not subset of                              |
-| `set1<<:set2&set2<<:...`      | `(strict-subset? sets)`                    | `{:tag :strict-subset?, :sets sets}`                               | strict subset of                           |
-|                               | `(strict-superset? sets)`                  | `{:tag :strict-subset?, :sets (clojure.core/reverse sets)}`        | sugar                                      |
-| `set1/<<:set2&set2/<<:...`    | `(not (strict-subset? sets))`              |                                                                    | not strict subset of                       |
-| `union(set-of-sets)`          | `(unite-sets set-of-sets)`                 | `{:tag :unite-sets, :set-of-sets set-of-sets}`                     | generalised union over sets of sets        |
-| `inter(set-of-sets)`          | `(intersect-sets set-of-sets)`             | `{:tag :intersect-sets, :set-of-sets set-of-sets}`                 | generalised intersection over sets of sets |
-| `UNION(ids).(pred&#124;expr)` | `(union-pe ids pred expr)`                 | `{:tag :union-pe, :ids ids, :pred pred, :expr expr}`               | generalised union with predicate           |
-| `INTER(ids).(pred&#124;expr)` | `(intersection-pe ids pred expr)`          | `{:tag :intersection-pe, :ids ids, :pred pred, :expr expr}`        | generalised intersection with predicate    |
+| B                                    | Lisb                              | IR                                                                 | Description                                |
+|--------------------------------------|-----------------------------------|--------------------------------------------------------------------|--------------------------------------------|
+| `{elem1,elem2,...}`                  | `#{elem1 elem2 ...}`              | `#{elem1 elem2 ...}`                                               | set enumeration                            |
+| <code>{id1,id2,...&#124;pred}</code> | `(comprehension-set ids pred)`    | `{:tag :comprehension-set, :ids ids, :pred pred}`                  | comprehension set                          |
+|                                      | <code>#{ids &#124; pred}</code>   | `{:tag :comprehension-set, :ids ids, :pred pred}`                  | sugar                                      |
+| `POW(set)`                           | `(pow set)`                       | `{:tag :power-set, :set set}`                                      | power set                                  |
+| `POW1(set)`                          | `(pow1 set)`                      | `{:tag :power1-set, :set set}`                                     | set of non-empty subsets                   |
+| `FIN(set)`                           | `(fin set)`                       | `{:tag :fin, :set set}`                                            | set of all finite subsets                  |
+| `FIN1(set)`                          | `(fin1 set)`                      | `{:tag :fin1, :set set}`                                           | set of all non-empty finite subsets        |
+| `card(set)`                          | `(card set)`                      | `{:tag :cardinality, :set set}`                                    | cardinality                                |
+| `set1*set2*...`                      | `(cart-or-mult & sets)`           | `{:tag :cartesian-product-or-multiplication, :nums-or-sets sets}`  | cartesian product or multiplication        |
+|                                      | `(cartesian-product & sets)`      | `{:tag :cartesian-product, :sets sets}`                            | cartesian product                          | 
+|                                      | `(x & sets)`                      | `{:tag :cartesian-product, :sets set}`                             | sugar                                      |
+| `set1\/set2\/...`                    | `(union & sets)`                  | `{:tag :union, :sets sets}`                                        | set union                                  |
+| `set1/\set2/\...`                    | `(intersection & sets)`           | `{:tag :intersection, :sets sets}`                                 | set intersection                           |
+| `set1-set2-...`                      | `(set- & sets)`                   | `{:tag :difference, :sets sets}`                                   | set difference                             |
+| `elem:set`                           | `(member? elem set)`              | `{:tag :member, :elem elem, :set set}`                             | element of                                 |
+|                                      | `(in elem set)`                   | `{:tag :member, :elem elem, :set set}`                             | sugar                                      | 
+|                                      | `(contains? set & elems)`         | `(and (member? elem1 set) (member? elem2 set) ...)`                | sugar                                      | 
+| `elem/:set`                          | `(not (member? set elem))`        |                                                                    | not element of                             | 
+| `set1<:set2&set2<:...`               | `(subset? & sets)`                | `{:tag :subset?, :sets sets}`                                      | subset of                                  |
+|                                      | `(superset? & sets)`              | `{:tag :subset?, :sets (clore.core/reverse sets)}`                 | sugar                                      |
+| `set1/<:set2&set2/<:...`             | `(not (subset? sets))`            |                                                                    | not subset of                              |
+| `set1<<:set2&set2<<:...`             | `(strict-subset? sets)`           | `{:tag :strict-subset?, :sets sets}`                               | strict subset of                           |
+|                                      | `(strict-superset? sets)`         | `{:tag :strict-subset?, :sets (clojure.core/reverse sets)}`        | sugar                                      |
+| `set1/<<:set2&set2/<<:...`           | `(not (strict-subset? sets))`     |                                                                    | not strict subset of                       |
+| `union(set-of-sets)`                 | `(unite-sets set-of-sets)`        | `{:tag :unite-sets, :set-of-sets set-of-sets}`                     | generalised union over sets of sets        |
+| `inter(set-of-sets)`                 | `(intersect-sets set-of-sets)`    | `{:tag :intersect-sets, :set-of-sets set-of-sets}`                 | generalised intersection over sets of sets |
+| `UNION(ids).(pred&#124;expr)`        | `(union-pe ids pred expr)`        | `{:tag :union-pe, :ids ids, :pred pred, :expr expr}`               | generalised union with predicate           |
+| `INTER(ids).(pred&#124;expr)`        | `(intersection-pe ids pred expr)` | `{:tag :intersection-pe, :ids ids, :pred pred, :expr expr}`        | generalised intersection with predicate    |
 
 ## Numbers
-| B                       | Lisb                    | IR                                                                | Description                                                   |
-|-------------------------|-------------------------|-------------------------------------------------------------------|---------------------------------------------------------------|
-| `INTEGER`               | `integer-set`           | `{:tag :integer-set}`                                             | set of integers                                               |
-| `NATURAL`               | `natural-set`           | `{:tag :natural-set}`                                             | set of natural numbers                                        |
-| `NATURAL1`              | `natural1-set`          | `{:tag :natural1-set}`                                            | set of non-zero natural numbers                               |
-| `INT`                   | `int-set`               | `{:tag :int-set}`                                                 | set of implementable integers (MININT..MAXINT)                |
-| `NAT`                   | `nat-set`               | `{:tag :nat-set}`                                                 | set of implementable natural numbers                          |
-| `NAT1`                  | `nat1-set`              | `{:tag :nat1-set}`                                                | set of non-zero implementable natural numbers                 |
-| `from..to`              | `(interval from to)`    | `{:tag :interval, :from from, :to to}`                            | set of numbers from n to m                                    |
-|                         | `(range from to)`       | `{:tag :interval, :from from, :to (dec to)}`                      | sugar (clojure semantics)                                     |
-| `MININT`                | `min-int`               | `{:tag :min-int}`                                                 | the minimum implementable integer                             |
-| `MAXINT`                | `max-int`               | `{:tag :max-int}`                                                 | the maximum implementable integer                             |
-| `num1>num2>...`         | `(> & nums)`            | `{:tag :greater, :nums nums}`                                     | greater than                                                  |
-| `num1<num2<...`         | `(< & nums)`            | `{:tag :less, :nums nums}`                                        | less than                                                     |
-| `num1=>num2=>...`       | `(>= & nums)`           | `{:tag :greater-equals, :nums nums}`                              | greater than or equal                                         |
-| `nums1<=num2<=...`      | `(<= & nums)`           | `{:tag :less-equals, :nums nums}`                                 | less than or equal                                            |
-| `max(S)`                | `(max S)`               | `{:tag :max, :set set}`  ; set is an actual Clojure set           | maximum of a set of numbers                                   |
-| `max({m,n,o})`          | `(max m n o)`           | `{:tag :max, :set set}`  ; set is an actual Clojure set           | sugar                                                         |
-| `min(S)`                | `(min S)`               | `{:tag :min, :set set}`  ; set is an actual Clojure set           | minimum of a set of numbers                                   |
-| `min({m,n,o})`          | `(min m n o)`           | `{:tag :min, :set set}`  ; set is an actual Clojure set           | sugar                                                         |
-| `num1+num2+...`         | `(+ & nums)`            | `{:tag :add, :nums nums}`                                         | addition                                                      |
-| `num1-num2-...`         | `(- & nums)`            | `{:tag :sub, :nums nums}`                                         | difference                                                    |
-| `num1*num2*...`         | `(cart-or-mult & nums)` | `{:tag :cartesian-product-or-multiplication, :nums-or-sets nums}` | cartesian product or multiplication (by parser, pls dont use) |
-|                         | `(* & elems)`           | `{:tag :mul, :elems elems}`                                       | multiplication                                                | 
-| `num1/num2/...`         | `(div & nums)`          | `{:tag :div, :nums nums}`                                         | division                                                      |
-| `num1/num2/...`         | `(/ & nums)`            | `{:tag :div, :nums nums}`                                         | sugar                                                         |
-| `num1**num2**...`       | `(** & nums)`           | `{:tag :pow, :nums nums}`                                         | power                                                         |
-| `num1 mod num2 mod ...` | `(mod & nums)`          | `{:tag :mod, :nums nums}`                                         | remainder of division                                         |
-| `PI(z).(P&#124;E)`      | `(π #{z} P E)`          | `{:tag :product, :ids ids, :pred pred, :expr expr}`               | Set product                                                   | 
-|                         | `(pi #{z} P E)`         | `{:tag :product, :ids ids, :pred pred, :expr expr}`               | sugar                                                         | 
-| `SIGMA(z).(P&#124;E)`   | `(Σ #{z} P E)`          | `{:tag :sum, :ids ids, :pred pred, :expr expr}`                   | Set summation                                                 |
-|                         | `(sigma #{z} P E)`      | `{:tag :sum, :ids ids, :pred pred, :expr expr}`                   | sugar                                                         | 
-| `succ(n)`               | `(successor n)`         | `{:tag :successor, :num num}`                                     | successor (n+1)                                               |
-|                         | `(inc n)`               | `{:tag :successor, :num num}`                                     | sugar                                                         |
-| `pred(n)`               | `(predecessor n)`       | `{:tag :predecessor, :num num}`                                   | predecessor (n-1)                                             |
-|                         | `(dec n)`               | `{:tag :predecessor, :num num}`                                   | sugar                                                         |
-| `2`                     | `2`                     | `2`                                                               | integer literal                                               |
-| `-2`                    | `-2`                    | `-2`                                                              | integer literal                                               |
-| `0xF`                   | `15`                    | `15`                                                              | hexadecimal literal (cannot be retranslated)                  |
+| B                                | Lisb                    | IR                                                                | Description                                                   |
+|----------------------------------|-------------------------|-------------------------------------------------------------------|---------------------------------------------------------------|
+| `INTEGER`                        | `integer-set`           | `{:tag :integer-set}`                                             | set of integers                                               |
+| `NATURAL`                        | `natural-set`           | `{:tag :natural-set}`                                             | set of natural numbers                                        |
+| `NATURAL1`                       | `natural1-set`          | `{:tag :natural1-set}`                                            | set of non-zero natural numbers                               |
+| `INT`                            | `int-set`               | `{:tag :int-set}`                                                 | set of implementable integers (MININT..MAXINT)                |
+| `NAT`                            | `nat-set`               | `{:tag :nat-set}`                                                 | set of implementable natural numbers                          |
+| `NAT1`                           | `nat1-set`              | `{:tag :nat1-set}`                                                | set of non-zero implementable natural numbers                 |
+| `from..to`                       | `(interval from to)`    | `{:tag :interval, :from from, :to to}`                            | set of numbers from n to m                                    |
+|                                  | `(range from to)`       | `{:tag :interval, :from from, :to (dec to)}`                      | sugar (clojure semantics)                                     |
+| `MININT`                         | `min-int`               | `{:tag :min-int}`                                                 | the minimum implementable integer                             |
+| `MAXINT`                         | `max-int`               | `{:tag :max-int}`                                                 | the maximum implementable integer                             |
+| `num1>num2>...`                  | `(> & nums)`            | `{:tag :greater, :nums nums}`                                     | greater than                                                  |
+| `num1<num2<...`                  | `(< & nums)`            | `{:tag :less, :nums nums}`                                        | less than                                                     |
+| `num1=>num2=>...`                | `(>= & nums)`           | `{:tag :greater-equals, :nums nums}`                              | greater than or equal                                         |
+| `nums1<=num2<=...`               | `(<= & nums)`           | `{:tag :less-equals, :nums nums}`                                 | less than or equal                                            |
+| `max(S)`                         | `(max S)`               | `{:tag :max, :set set}`  ; set is an actual Clojure set           | maximum of a set of numbers                                   |
+| `max({m,n,o})`                   | `(max m n o)`           | `{:tag :max, :set set}`  ; set is an actual Clojure set           | sugar                                                         |
+| `min(S)`                         | `(min S)`               | `{:tag :min, :set set}`  ; set is an actual Clojure set           | minimum of a set of numbers                                   |
+| `min({m,n,o})`                   | `(min m n o)`           | `{:tag :min, :set set}`  ; set is an actual Clojure set           | sugar                                                         |
+| `num1+num2+...`                  | `(+ & nums)`            | `{:tag :add, :nums nums}`                                         | addition                                                      |
+| `num1-num2-...`                  | `(- & nums)`            | `{:tag :sub, :nums nums}`                                         | difference                                                    |
+| `num1*num2*...`                  | `(cart-or-mult & nums)` | `{:tag :cartesian-product-or-multiplication, :nums-or-sets nums}` | cartesian product or multiplication (by parser, pls dont use) |
+|                                  | `(* & elems)`           | `{:tag :mul, :elems elems}`                                       | multiplication                                                | 
+| `num1/num2/...`                  | `(div & nums)`          | `{:tag :div, :nums nums}`                                         | division                                                      |
+| `num1/num2/...`                  | `(/ & nums)`            | `{:tag :div, :nums nums}`                                         | sugar                                                         |
+| `num1**num2**...`                | `(** & nums)`           | `{:tag :pow, :nums nums}`                                         | power                                                         |
+| `num1 mod num2 mod ...`          | `(mod & nums)`          | `{:tag :mod, :nums nums}`                                         | remainder of division                                         |
+| <code>PI(z).(P&#124;E)</code>    | `(π #{z} P E)`          | `{:tag :product, :ids ids, :pred pred, :expr expr}`               | Set product                                                   | 
+|                                  | `(pi #{z} P E)`         | `{:tag :product, :ids ids, :pred pred, :expr expr}`               | sugar                                                         | 
+| <code>SIGMA(z).(P&#124;E)</code> | `(Σ #{z} P E)`          | `{:tag :sum, :ids ids, :pred pred, :expr expr}`                   | Set summation                                                 |
+|                                  | `(sigma #{z} P E)`      | `{:tag :sum, :ids ids, :pred pred, :expr expr}`                   | sugar                                                         | 
+| `succ(n)`                        | `(successor n)`         | `{:tag :successor, :num num}`                                     | successor (n+1)                                               |
+|                                  | `(inc n)`               | `{:tag :successor, :num num}`                                     | sugar                                                         |
+| `pred(n)`                        | `(predecessor n)`       | `{:tag :predecessor, :num num}`                                   | predecessor (n-1)                                             |
+|                                  | `(dec n)`               | `{:tag :predecessor, :num num}`                                   | sugar                                                         |
+| `2`                              | `2`                     | `2`                                                               | integer literal                                               |
+| `-2`                             | `-2`                    | `-2`                                                              | integer literal                                               |
+| `0xF`                            | `15`                    | `15`                                                              | hexadecimal literal (cannot be retranslated)                  |
 
 ## Relations
 | B                                                    | Lisb                                | IR                                               | Description                                                      |
@@ -110,8 +110,8 @@
 | `set1<<->set2<<->...`                                | `(<<-> & sets)`                     | `{:tag :total-relation, :sets sets}`             | total relation                                                   |
 | `set1<->>set2<<->...`                                | `(<->> & sets)`                     | `{:tag :surjective-relation , :sets sets}`       | surjective relation                                              |
 | `set1<<->>set2<<->...`                               | `(<<->> & sets)`                    | `{:tag :total-surjective-relation, :sets sets}`  | total surjective relation                                        |
-| <code>left&#124;->right</code>                       |  <code>(&#124;-> & elems)</code> | `{:tag :maplet, :elems elems}`       | maplet                                                           |
-|                                                      | `(maplet & elems)`               | `{:tag :maplet, :elems elems}`       | sugar                                                            | 
+| <code>left&#124;->right</code>                       |  <code>(&#124;-> & elems)</code>    | `{:tag :maplet, :elems elems}`                   | maplet                                                           |
+|                                                      | `(maplet & elems)`                  | `{:tag :maplet, :elems elems}`                   | sugar                                                            | 
 | `dom(rel)`                                           | `(dom rel)`                         | `{:tag :dom, :rel rel}`                          | domain of relation                                               |
 | `ran(rel)`                                           | `(ran rel)`                         | `{:tag :ran, :rel rel}`                          | range of relation                                                |
 | `id(set)`                                            | `(id set)`                          | `{:tag :id, :set set}`                           | identity relation                                                |
@@ -127,10 +127,10 @@
 | `rel[set]`                                           | `(image rel set)`                   | `{:tag :image, :rel rel, :set set}`              | relational image                                                 |
 | `rel1<+rel2<+...`                                    | `(override & rels)`                 | `{:tag :override, :rels rels}`                   | relational overriding (r2 overrides r1)                          |
 |                                                      | `(<+ & rels)`                       | `{:tag :override, :rels rels}`                   | sugar                                                            |
-| `rel1><rel2><...`                                    | `(direct-product & rels)`           | `{:tag :direct-product, :rels rels}`             | direct product {x,(y,z) &#124; x,y:r1 & x,z:r2}                  |
+| `rel1><rel2><...`                                    | `(direct-product & rels)`           | `{:tag :direct-product, :rels rels}`             | direct product <code>{x,(y,z) &#124; x,y:r1 & x,z:r2} </code>    |
 |                                                      | `(>< & rels)`                       | `{:tag :direct-product, :rels rels}`             | sugar                                                            |
-| `((rel1;rel2);...)`                                  | `(composition & rels)`              | `{:tag :composition, :rels rels}`                | relational composition {x,y&#124; x&#124;->z:r1 & z&#124;->y:r2} |
-| <code>((rel1&#124;&#124;rel2)&#124;&#124;...)</code> | `(parallel-product & rels)`         | `{:tag :parallel-product, :rels rels}`           | parallel product {((x,v),(y,w)) &#124; x,y:r1 & v,w:r2}          | 
+| `((rel1;rel2);...)`                                  | `(composition & rels)`              | `{:tag :composition, :rels rels}`                | relational composition <code>{x,y&#124; x&#124;->z:r1 & z&#124;->y:r2} </code> |
+| <code>((rel1&#124;&#124;rel2)&#124;&#124;...)</code> | `(parallel-product & rels)`         | `{:tag :parallel-product, :rels rels}`           | parallel product <code>{((x,v),(y,w)) &#124; x,y:r1 & v,w:r2} </code>         | 
 | `prj1(set1, set2)`                                   | `(prj1 set1 set2)`                  | `{:tag :prj1, :set1 set1, :set2 set2}`           | projection function (usage prj1(Dom,Ran)(Pair))                  | 
 | `prj2(set1, set2)`                                   | `(prj2 set1 set2)`                  | `{:tag :prj2, :set1 set1, :set2 set2}`           | projection function (usage prj2(Dom,Ran)(Pair))                  | 
 | `closure1(rel)`                                      | `(closure1 rel)`                    | `{:tag :closure1, :rel rel}`                     | transitive closure                                               |
@@ -140,26 +140,26 @@
 | `rel(rel)`                                           | `(rel rel)`                         | `{:tag :rel, :rel rel}`                          | translate relation A<->POW(B) into relation A<->B                |
 
 ## Functions
-| B                                | Lisb                          | IR                                                 | Description          |
-|----------------------------------|-------------------------------|----------------------------------------------------|----------------------|
-| `set1+->set2+->...`              | `(+-> & sets)`                | `{:tag :partial-fn, :sets sets}`                   | partial function     |
-|                                  | `(partial-function & sets)`   | `{:tag :partial-fn, :sets sets}`                   | sugar                |
-| `set1-->set2-->...`              | `(--> & sets)`                | `{:tag :total-fn, :sets sets}`                     | total function       |
-|                                  | `(total-function & sets)`     | `{:tag :total-fn, :sets sets}`                     | sugar                |
-| `set1+->>set2+->>...`            | `(+->> & sets)`               | `{:tag :partial-surjection, :sets sets}`           | partial surjection   |
-|                                  | `(partial-surjection & sets)` | `{:tag :partial-surjection, :sets sets}`           | sugar                |
-| `set1-->>set2-->>...`            | `(-->> & sets)`               | `{:tag :total-surjection, :sets sets}`             | total surjection     |
-|                                  | `(total-surjection & sets)`   | `{:tag :total-surjection, :sets sets}`             | sugar                |
-| `set1>+>set2>+>...`              | `(>+> & sets)`                | `{:tag :partial-injection, :sets sets}`            | partial injection    |
-|                                  | `(partial-injection & sets)`  | `{:tag :partial-injection, :sets sets}`            | sugar                |
-| `set1>->set2>->...`              | `(>-> & sets)`                | `{:tag :total-injection, :sets sets}`              | total injection      |
-|                                  | `(total-injection & sets)`    | `{:tag :total-injection, :sets sets}`              | sugar                |
-| `set1>+>>set2>+>>...`            | `(>+>> & sets)`               | `{:tag :partial-bijection, :sets sets}`            | partial bijection    |
-|                                  | `(partial-bijection & sets)`  | `{:tag :partial-bijection, :sets sets}`            | sugar                |
-| `set1>->>set2>->>...`            | `(>->> & sets)`               | `{:tag :total-bijection, :sets sets}`              | total bijection      |
-|                                  | `(total-bijection & sets)`    | `{:tag :total-bijection, :sets sets}`              | sugar                |
-| `%id1,id2,... .(pred&#124;expr)` | `(lambda ids pred expr)`      | `{:tag :lambda, :ids ids, :pred pred, :expr expr}` | lambda abstraction   |
-| `f(arg1,arg2,...)`               | `(fn-call f & args)`          | `{:tag :fn-call, :f f, :args args}`                | function application |
+| B                                           | Lisb                          | IR                                                 | Description          |
+|---------------------------------------------|-------------------------------|----------------------------------------------------|----------------------|
+| `set1+->set2+->...`                         | `(+-> & sets)`                | `{:tag :partial-fn, :sets sets}`                   | partial function     |
+|                                             | `(partial-function & sets)`   | `{:tag :partial-fn, :sets sets}`                   | sugar                |
+| `set1-->set2-->...`                         | `(--> & sets)`                | `{:tag :total-fn, :sets sets}`                     | total function       |
+|                                             | `(total-function & sets)`     | `{:tag :total-fn, :sets sets}`                     | sugar                |
+| `set1+->>set2+->>...`                       | `(+->> & sets)`               | `{:tag :partial-surjection, :sets sets}`           | partial surjection   |
+|                                             | `(partial-surjection & sets)` | `{:tag :partial-surjection, :sets sets}`           | sugar                |
+| `set1-->>set2-->>...`                       | `(-->> & sets)`               | `{:tag :total-surjection, :sets sets}`             | total surjection     |
+|                                             | `(total-surjection & sets)`   | `{:tag :total-surjection, :sets sets}`             | sugar                |
+| `set1>+>set2>+>...`                         | `(>+> & sets)`                | `{:tag :partial-injection, :sets sets}`            | partial injection    |
+|                                             | `(partial-injection & sets)`  | `{:tag :partial-injection, :sets sets}`            | sugar                |
+| `set1>->set2>->...`                         | `(>-> & sets)`                | `{:tag :total-injection, :sets sets}`              | total injection      |
+|                                             | `(total-injection & sets)`    | `{:tag :total-injection, :sets sets}`              | sugar                |
+| `set1>+>>set2>+>>...`                       | `(>+>> & sets)`               | `{:tag :partial-bijection, :sets sets}`            | partial bijection    |
+|                                             | `(partial-bijection & sets)`  | `{:tag :partial-bijection, :sets sets}`            | sugar                |
+| `set1>->>set2>->>...`                       | `(>->> & sets)`               | `{:tag :total-bijection, :sets sets}`              | total bijection      |
+|                                             | `(total-bijection & sets)`    | `{:tag :total-bijection, :sets sets}`              | sugar                |
+| <code>%id1,id2,... .(pred&#124;expr)</code> | `(lambda ids pred expr)`      | `{:tag :lambda, :ids ids, :pred pred, :expr expr}` | lambda abstraction   |
+| `f(arg1,arg2,...)`                          | `(fn-call f & args)`          | `{:tag :fn-call, :f f, :args args}`                | function application |
 
 <!-- | `%id1,id2,... .(id1:type1&id2:type2&... &#124;expr)`        | `(fn [id-types] expr)`   | `{:tag :fn, :id-types id-types, :expr expr}`       | sugar                | -->
 
@@ -225,7 +225,7 @@
 |                                                                                    | `(becomes-member ids set)`                    | `{:tag :becomes-element-of, :ids ids, :set set}`        | sugar                                  |
 | `ids : (pred)`                                                                     | `(becomes-such ids set)`                      | `{:tag :becomes-such, :ids ids, :pred pred}`            | choice by pred (constraining ids)      |
 | `return1,return2,... <-- op(arg1,arg2,...)`                                        | `(<-- returns (op-call op args))`             | `{:tag :op-call, :returns returns, :op op, :args args}` | call operation and assign return value |
-| `sub1&#124;&#124;sub2&#124;...`                                                    | `(&#124;&#124; & subs)`                       | `{:tag :parallel-substitution, :subs subs}`             | parallel substitution                  |
+| <code>`sub1&#124;&#124;sub2&#124;...`</code>                                       | <code>(&#124;&#124; & subs)</code>            | `{:tag :parallel-substitution, :subs subs}`             | parallel substitution                  |
 |                                                                                    | `(parallel-sub & subs)`                       | `{:tag :parallel-substitution, :subs subs}`             | sugar                                  |
 | `sub1;sub2;...`                                                                    | `(sequential-sub & subs)`                     | `{:tag :sequential-substitution, :subs subs}`           | sequential composition                 |
 | `ANY id1,id2,... WHERE pred THEN subs END`                                         | `(any ids pred subs)`                         | `{:tag :any, :ids ids, :pred pred, :subs subs}`         | non deterministic choice               |
