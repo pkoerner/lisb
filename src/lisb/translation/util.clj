@@ -1,5 +1,6 @@
 (ns lisb.translation.util
   (:require [potemkin :refer [import-vars]]
+            [lisb.prob.java-api]
             [lisb.translation ast2lisb ir2ast lisb2ir data-conversion])
   (:import
     (de.be4.classicalb.core.parser BParser)
@@ -57,6 +58,7 @@
               band bor bimplication bequivalence bnot bfor-all bexists
               ;;; misc
               bset-enum bmap-set defpred pred almost-flatten wrap bempty-machine])
+(import-vars [lisb.prob.java-api state-space!])
 
 (defn ast->b [ast & {:keys [indent]}]
   (let [_ext-translator (SyntaxExtensionTranslator.)

@@ -1,6 +1,6 @@
 (ns lisb.translation.eventb.util
   (:require [potemkin :refer [import-vars]]
-            [lisb.prob.animator :refer [api injector]]
+            [lisb.prob.java-api :refer [api injector]]
             [lisb.translation.eventb.b2eventb :as b2eventb]
             [lisb.translation.eventb dsl eventb2lisb]
             [lisb.translation.eventb.ir2eventb :refer [ir->prob-with-label]]
