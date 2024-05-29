@@ -1,10 +1,11 @@
 (ns lisb.examples.snake
   (:require [lisb.translation.lisb2ir :refer [b]]
+            [lisb.translation.util :refer [ir->b]]
             [lisb.high-level :refer :all]
             [lisb.examples.simple :as simple]))
 
 (def smalltrace
-  (let [m (load-initialized-machine-trace simple/bakery0)]
+  (let [m (load-initialized-machine-trace (ir->b simple/bakery0))]
     (-> m
         (perform :enter1)
         (perform :try1)
