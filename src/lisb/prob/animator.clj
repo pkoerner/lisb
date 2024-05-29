@@ -1,10 +1,10 @@
 (ns lisb.prob.animator
+  (:require [lisb.prob.java-api :refer :all])
   (:require [lisb.prob.retranslate :refer [retranslate]])
   (:require [lisb.translation.lisb2ir :refer [b=]])
-  (:import com.google.inject.Guice
-           com.google.inject.Stage
-           de.prob.MainModule
-           de.prob.scripting.Api
+  (:require [lisb.translation.util :refer [ir->b]]) ;; TODO: change this to avoid cyclic dependencies
+  (:require [clojure.pprint :refer [pprint]])
+  (:import 
            de.prob.animator.command.EvaluateFormulasCommand
            de.prob.animator.domainobjects.ClassicalB
            de.prob.animator.domainobjects.FormulaExpand
@@ -15,18 +15,8 @@
            ))
 
 
-  (require '[lisb.translation.util :refer [ir->b]]) ;; TODO: change this to avoid cyclic dependencies
 ; XXX load an instance of MainModule.class to ensure Prob 2.0 is properly loaded.
 ; Among other things this sets prob.home to load files from the ProB stdlib.
-(def injector (Guice/createInjector Stage/PRODUCTION [(MainModule.)]))
-
-
-(def api (.getInstance injector Api))
-
-
-(defn state-space! [ast]
-  (.b_load api ast))
-
 
 (defmulti get-result type)
 
@@ -58,6 +48,7 @@
      (get-result (first (.getValues cmd))))))
 
 
+(declare wrap-state successor)
 
 (defn bfile->b
   "Use this instead of slurping a machine file.
@@ -79,6 +70,7 @@
                          (into-array String
                                      (map (fn [[k v]] (ir->b (b= k v)))
                                           parameter-map))))))
+
 
 (defn wrap-state [state] 
   (proxy [State clojure.lang.ILookup] [(.getId state) (.getStateSpace state)]

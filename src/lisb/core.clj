@@ -1,6 +1,6 @@
 (ns lisb.core
-  (:require [lisb.prob.animator :refer [eval-formula eval-formula' state-space!]]
-            [lisb.translation.util :refer [ir->ast bempty-machine band bmember? bnot=]]))
+  (:require [lisb.prob.animator :refer :all]
+            [lisb.translation.util :refer [ir->ast bempty-machine band state-space!]]))
 
 
 (defn ir-state-space! [ir-machine]
