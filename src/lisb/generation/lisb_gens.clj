@@ -608,11 +608,11 @@
 (def case-substitution-gen
   (gen/bind (gen/fmap vec
                       (gen/bind  number-expression-gen
-                                (fn [expr]
-                                  (gen/fmap (partial apply concat ['case expr])
-                                            (gen/vector (gen/tuple number-gen
-                                                                   basic-substitution-gen)
-                                                        1 3)))))
+                                 (fn [expr]
+                                   (gen/fmap (partial apply concat ['case expr])
+                                             (gen/vector (gen/tuple number-gen
+                                                                    basic-substitution-gen)
+                                                         1 3)))))
             (fn [without-else]
               (gen/fmap list*
                         (gen/one-of [(gen/return without-else)
@@ -678,6 +678,91 @@
                promotes-gen]))
 
 
+;; machine section
+
+(def section-id-gen
+  (gen/fmap keyword
+            (gen/not-empty (gen/resize 5 gen/string-alphanumeric))))
+
+(def deferred-set-gen
+  (gen/one-of [section-id-gen
+               (gen/fmap list*
+                         (gen/tuple (gen/return 'deferred-set)
+                                    section-id-gen))]))
+
+(def enumerated-set-gen
+  (let [element-gen (gen/one-of [simple-number-gen
+                                 true-false-gen])]
+    (gen/one-of [(gen/fmap list*
+                           (gen/tuple section-id-gen
+                                      (gen/set element-gen {:min-elements 1
+                                                            :max-elements 3})))
+                 (gen/fmap (partial apply concat '(enumerated-set))
+                           (gen/tuple (gen/fmap list section-id-gen)
+                                      (gen/vector element-gen 1 3)))])))
+
+(def sets-section-gen
+  (gen/fmap (partial apply concat '(sets))
+            (gen/vector (gen/one-of [(gen/fmap list deferred-set-gen)
+                                     (gen/fmap #(if (= (first %) 'enumerated-set) (list %) %)
+                                               enumerated-set-gen)])
+                        1 3)))
+
+(def constants-variables-section-gen
+  (gen/bind (gen/elements '[constants variables])
+            (fn [op]
+              (gen/fmap (partial cons op)
+                        (gen/vector section-id-gen 1 3)))))
+
+(def predicate-section-gen
+  (gen/bind (gen/elements '[constraints properties invariants assertions])
+            (fn [op]
+              (gen/fmap (partial cons op)
+                        (gen/vector logical-predicate-gen 1 3)))))
+
+(def initialisation-section-gen
+  (gen/fmap (partial cons 'init)
+            (gen/vector substitution-gen 1 3)))
+
+(def no-return-operation-gen
+  (gen/fmap list*
+            (gen/tuple operation-name-gen
+                       (gen/vector section-id-gen 0 3)
+                       (gen/one-of [;; dump unused gens
+                                    record-get-gen
+                                    card-gen
+                                    union-inter-set-gen
+                                    domain-range-gen
+                                    image-gen
+                                    iterate-relation-gen
+                                    translate-relation-gen
+                                    function-call-gen
+                                    sequence-set-gen
+                                    sequence-size-gen
+                                    first-last-gen
+                                    concat-sequence-of-sequences-gen
+                                    equality-gen]))))
+
+(def return-operation-gen
+  (gen/fmap list*
+            (gen/tuple (gen/return '<--)
+                       (gen/vector section-id-gen 1 3)
+                       no-return-operation-gen)))
+
+(def operation-section-gen
+  (gen/fmap (partial cons 'operations)
+            (gen/vector (gen/one-of [no-return-operation-gen
+                                     return-operation-gen])
+                        1 3)))
+
+(def section-gen
+  (gen/one-of [sets-section-gen
+               constants-variables-section-gen
+               predicate-section-gen
+               initialisation-section-gen
+               operation-section-gen]))
+
+
 ;; definitions
 
 (def definitions-name-gen
@@ -731,9 +816,8 @@
 
 (def machine-clause-gen
   (gen/one-of [inclusion-gen
-               definitions-gen
-               ;; TODO: add more
-               ]))
+               section-gen
+               definitions-gen]))
 
 
 ;; machine
@@ -773,22 +857,7 @@
                relation-gen
                function-gen
                sequence-gen
-               logical-predicate-gen
-               equality-gen
-               substitution-gen
-               ;; TODO: remove when used in some other generator
-               record-get-gen
-               card-gen
-               union-inter-set-gen
-               domain-range-gen
-               image-gen
-               iterate-relation-gen
-               translate-relation-gen
-               function-call-gen
-               sequence-set-gen
-               sequence-size-gen
-               first-last-gen
-               concat-sequence-of-sequences-gen]))
+               logical-predicate-gen]))
 
 
 ;; testing
@@ -917,6 +986,18 @@
 (test-gen includes-extends-gen)
 (test-gen promotes-gen)
 (test-gen inclusion-gen)
+
+(test-gen section-id-gen)
+(test-gen deferred-set-gen)
+(test-gen enumerated-set-gen)
+(test-gen sets-section-gen)
+(test-gen constants-variables-section-gen)
+(test-gen predicate-section-gen)
+(test-gen initialisation-section-gen)
+(test-gen no-return-operation-gen)
+(test-gen return-operation-gen)
+(test-gen operation-section-gen)
+(test-gen section-gen)
 
 (test-gen definitions-name-gen)
 (test-gen definitions-arg-gen)
