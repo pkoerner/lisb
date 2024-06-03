@@ -474,6 +474,164 @@
                distinct-gen]))
 
 
+;; substitutions
+
+(def substitution-id-gen
+  (gen/fmap keyword
+            (gen/not-empty (gen/resize 5 gen/string-alphanumeric))))
+
+(def skip-substitution-gen
+  (gen/return 'skip))
+
+;; set! not working (special form)
+(def assignment-gen
+  (gen/bind (gen/elements '[assign #_set!])
+            (fn [op]
+              (gen/fmap (partial apply concat (list op))
+                        (gen/vector (gen/tuple substitution-id-gen
+                                               (gen/one-of [number-gen
+                                                            boolean-gen
+                                                            string-gen
+                                                            set-gen
+                                                            logical-predicate-gen
+                                                            relation-gen
+                                                            function-gen]))
+                                    1 3)))))
+
+(def functional-override-gen
+  (gen/fmap list*
+            (gen/tuple (gen/return 'assign)
+                       (gen/fmap list*
+                                 (gen/tuple (gen/return 'fn-call)
+                                            function-name-gen
+                                            function-arg-gen))
+                       (gen/one-of [number-expression-gen
+                                    set-expression-gen
+                                    relation-expression-gen]))))
+
+(def set-choice-gen
+  (gen/fmap list*
+            (gen/tuple (gen/elements '[becomes-element-of becomes-member])
+                       (gen/vector substitution-id-gen 1 3)
+                       set-gen)))
+
+(def predicate-choice-gen
+  (gen/fmap list*
+            (gen/tuple (gen/return 'becomes-such)
+                       (gen/vector substitution-id-gen 1 3)
+                       logical-predicate-gen)))
+
+(def assign-return-gen
+  (gen/fmap list*
+            (gen/tuple (gen/return '<--)
+                       (gen/vector substitution-id-gen 1 3)
+                       (gen/fmap (partial apply concat '(op-call))
+                                 (gen/tuple (gen/fmap list substitution-id-gen)
+                                            (gen/vector substitution-id-gen 1 3))))))
+
+(def basic-substitution-gen
+  (gen/one-of [skip-substitution-gen
+               assignment-gen
+               functional-override-gen
+               set-choice-gen
+               predicate-choice-gen
+               assign-return-gen]))
+
+(def parallel-sequential-substitution-gen
+  (gen/bind (gen/elements '[|| parallel-sub
+                            sequential-sub])
+            (fn [op]
+              (gen/fmap (partial cons op)
+                        (gen/vector basic-substitution-gen 2 3)))))
+
+(def any-substitution-gen
+  (gen/fmap (partial apply concat '(any))
+            (gen/tuple (gen/fmap list (gen/vector substitution-id-gen 1 3))
+                       (gen/fmap list logical-predicate-gen)
+                       (gen/vector basic-substitution-gen 1 3))))
+
+(def let-substitution-gen
+  (gen/fmap (partial apply concat '(let-sub))
+            (gen/tuple (gen/fmap list
+                                 (gen/fmap (partial reduce (partial apply conj) [])
+                                           (gen/vector (gen/tuple substitution-id-gen
+                                                                  (gen/one-of [number-gen
+                                                                               boolean-gen
+                                                                               string-gen
+                                                                               set-gen
+                                                                               logical-predicate-gen
+                                                                               relation-gen
+                                                                               function-gen]))
+                                                       1 3)))
+                       (gen/vector basic-substitution-gen 1 3))))
+
+(def var-substituion-gen
+  (gen/bind (gen/vector substitution-id-gen 1 3)
+            (fn [ids]
+              (gen/fmap (partial concat ['var-sub ids])
+                        (gen/vector basic-substitution-gen 1 3)))))
+
+(def pre-assert-substitution-gen
+  (gen/fmap (partial apply concat)
+            (gen/tuple (gen/fmap list (gen/elements '[pre assert]))
+                       (gen/fmap list logical-predicate-gen)
+                       (gen/vector basic-substitution-gen 1 3))))
+
+(def choice-substitution-gen
+  (gen/fmap (partial cons 'choice)
+            (gen/vector basic-substitution-gen 1 3)))
+
+(def if-substitution-gen
+  (gen/bind (gen/tuple (gen/return 'if-sub)
+                       logical-predicate-gen
+                       basic-substitution-gen)
+            (fn [without-else]
+              (gen/fmap list*
+                        (gen/one-of [(gen/return without-else)
+                                     (gen/fmap (partial conj without-else)
+                                               basic-substitution-gen)])))))
+
+(def cond-select-substitution-gen
+  (gen/bind (gen/elements '[cond select])
+            (fn [op]
+              (gen/bind (gen/fmap vec
+                                  (gen/fmap (partial apply concat [op])
+                                            (gen/vector (gen/tuple logical-predicate-gen
+                                                                   basic-substitution-gen)
+                                                        1 3)))
+                        (fn [without-else]
+                          (gen/fmap list*
+                                    (gen/one-of [(gen/return without-else)
+                                                 (gen/fmap (partial conj without-else)
+                                                           basic-substitution-gen)])))))))
+
+(def case-substitution-gen
+  (gen/bind (gen/fmap vec
+                      (gen/bind  number-expression-gen
+                                (fn [expr]
+                                  (gen/fmap (partial apply concat ['case expr])
+                                            (gen/vector (gen/tuple number-gen
+                                                                   basic-substitution-gen)
+                                                        1 3)))))
+            (fn [without-else]
+              (gen/fmap list*
+                        (gen/one-of [(gen/return without-else)
+                                     (gen/fmap (partial conj without-else)
+                                               basic-substitution-gen)])))))
+
+(def substitution-gen
+  (gen/one-of [basic-substitution-gen
+               parallel-sequential-substitution-gen
+               any-substitution-gen
+               let-substitution-gen
+               var-substituion-gen
+               pre-assert-substitution-gen
+               choice-substitution-gen
+               if-substitution-gen
+               cond-select-substitution-gen
+               case-substitution-gen]))
+
+
 ;; machine name / operation name
 
 (def machine-name-gen
@@ -551,7 +709,7 @@
             (gen/tuple (gen/return 'substitution-definition)
                        definitions-name-gen
                        (gen/vector definitions-arg-gen 0 3)
-                       (gen/return nil)))) ;; TODO: add real substitutions
+                       substitution-gen)))
 
 (def file-definition-gen
   (gen/fmap (partial cons 'file-definition)
@@ -617,6 +775,7 @@
                sequence-gen
                logical-predicate-gen
                equality-gen
+               substitution-gen
                ;; TODO: remove when used in some other generator
                record-get-gen
                card-gen
@@ -729,6 +888,25 @@
 (test-gen equal-not-euqal-gen)
 (test-gen distinct-gen)
 (test-gen equality-gen)
+
+(test-gen substitution-id-gen)
+(test-gen skip-substitution-gen)
+(test-gen assignment-gen)
+(test-gen functional-override-gen)
+(test-gen set-choice-gen)
+(test-gen predicate-choice-gen)
+(test-gen assign-return-gen)
+(test-gen basic-substitution-gen)
+(test-gen parallel-sequential-substitution-gen)
+(test-gen any-substitution-gen)
+(test-gen let-substitution-gen)
+(test-gen var-substituion-gen)
+(test-gen pre-assert-substitution-gen)
+(test-gen choice-substitution-gen)
+(test-gen if-substitution-gen)
+(test-gen cond-select-substitution-gen)
+(test-gen case-substitution-gen)
+(test-gen substitution-gen)
 
 (test-gen machine-name-gen)
 (test-gen machine-arg-gen)
