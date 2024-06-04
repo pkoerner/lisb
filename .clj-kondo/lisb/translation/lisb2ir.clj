@@ -219,7 +219,9 @@
            '=> 'lisb.translation.lisb2ir/bimplication                                ; sugar
            'not 'lisb.translation.lisb2ir/bnot
            'for-all 'lisb.translation.lisb2ir/bfor-all
-           'exists 'lisb.translation.lisb2ir/bexists}
+           'exists 'lisb.translation.lisb2ir/bexists
+           'label 'lisb.translation.lisb2ir/blabel
+           'description 'lisb.translation.lisb2ir/bdescription}
           form
           form))
    lisb))

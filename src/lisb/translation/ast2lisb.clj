@@ -47,6 +47,8 @@
             AIntSetExpression
             ANat1SetExpression
             TIdentifierLiteral
+            TPragmaIdOrString
+            TPragmaFreeText
             AConjunctPredicate
             ADisjunctPredicate
             ANegationPredicate
@@ -541,7 +543,7 @@
 ;;; strings
 
 (defmethod ast->lisb AStringExpression [node]
-  (.getText (.getContent node)))
+  (ast->lisb (.getContent node)))
 
 (defmethod ast->lisb AStringSetExpression [_]
   'string-set)
@@ -859,7 +861,6 @@
 (defmethod ast->lisb AExistsPredicate [node]
   (lisbify 'exists (.getIdentifiers node) (.getPredicate node)))
 
-
 ;;; identifier
 
 (defmethod ast->lisb AIdentifierExpression [node]
@@ -869,16 +870,24 @@
   (keyword (.getText node)))
 
 ;;; Label and Descriptions
-;;TODO: implement real behavior
 
-(defmethod ast->lisb ADescriptionExpression [node]
-  (ast->lisb (.getExpression node)))
+(defmethod ast->lisb TPragmaIdOrString [node]
+  (str (.getText node)))
 
-(defmethod ast->lisb ADescriptionPredicate [node]
-  (ast->lisb (.getPredicate node)))
+(defmethod ast->lisb TPragmaFreeText [node]
+  (str (.getText node)))
 
 (defmethod ast->lisb ALabelPredicate [node]
-  (ast->lisb (.getPredicate node)))
+  (lisbify 'label (.getName node) (.getPredicate node)))
+
+(defmethod ast->lisb ADescriptionPredicate [node]
+  (lisbify 'description (.getContent node) (.getPredicate node)))
+
+; this is used for identifiers
+; there are also ADecription[Event|Operation|Set]
+(defmethod ast->lisb ADescriptionExpression [node]
+    (ast->lisb (.getExpression node)))
+
 
 ;;; Event-B specific
 

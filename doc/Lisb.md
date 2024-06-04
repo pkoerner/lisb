@@ -243,6 +243,13 @@
 | `CASE expr OF EITHER cond1 THEN sub1 OR cond2 THEN sub2 ... END END`               | `(case expr & cases)`                         | `{:tag :case, :expr expr, :cases cases}`                |                                        |
 | `CASE expr OF EITHER cond1 THEN sub1 OR cond2 THEN sub2 ... ELSE sub-else END END` | `(case expr & cases)`                         |                                                         |                                        |
 
+## Pragmas
+| B                     | Lisb                      | IR                                                 | Description                                                       |
+|-----------------------|---------------------------|----------------------------------------------------|-------------------------------------------------------------------|
+| `/*label LBL */ pred` | `(label LBL pred)`        | `{:tag :label :label LBL :pred pred}`              | labelled predicate                                                |
+| `pred /*desc DESC */` | `(description DESC pred)` | `{:tag :description :description DESC :pred pred}` | predicate with description (can use special descriptions as well) |
+
+
 ## Machine clauses
 ### Machine inclusion
 | B                                | Lisb                              | IR                                            | Description                          |
