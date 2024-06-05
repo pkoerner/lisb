@@ -1,8 +1,6 @@
 (ns lisb.generation.lisb-gens
   (:require [lisb.translation.lisb2ir :refer :all])
-  (:require [clojure.test.check :as tc])
-  (:require [clojure.test.check.generators :as gen])
-  (:require [clojure.test.check.properties :as prop]))
+  (:require [clojure.test.check.generators :as gen]))
 
 
 (def id-gen
@@ -932,171 +930,24 @@
                logical-predicate-gen]))
 
 
-;; testing
-(def last-lisb (atom ()))
-(defn test-gen [gen]
-  (let [x (gen/generate gen)]
-    (reset! last-lisb x)
-    (lisb->ir x)))
+;; ;; testing stuff
+;; (require '[clojure.test.check :as tc])
+;; (require '[clojure.test.check.properties :as prop])
 
-(defn check-gen [num-tests gen]
-  (let [gen-prop (prop/for-all [v gen]
-                               (lisb->ir v)
-                               true)]
-    (get-in (tc/quick-check num-tests gen-prop) [:shrunk :smallest])))
+;; (def last-lisb (atom ()))
+;; (defn test-gen [gen]
+;;   (let [x (gen/generate gen)]
+;;     (reset! last-lisb x)
+;;     (lisb->ir x)))
 
-(test-gen id-gen)
-(test-gen name-gen)
+;; (defn check-gen [num-tests gen]
+;;   (let [gen-prop (prop/for-all [v gen]
+;;                                (lisb->ir v)
+;;                                true)]
+;;     (get-in (tc/quick-check num-tests gen-prop) [:shrunk :smallest])))
 
-(test-gen min-max-integer-gen)
-(test-gen number-literal-gen)
-(test-gen number-neighbour-gen)
-(test-gen simple-number-gen)
-(test-gen number-expression-gen)
-(test-gen integer-set-gen)
-(test-gen min-max-set-gen)
-(test-gen number-gen)
-(test-gen interval-set-gen)
-(test-gen number-predicate-gen)
-(test-gen product-sum-gen)
-
-(test-gen true-false-gen)
-(test-gen boolean-set-gen)
-(test-gen predicate-to-boolean-gen)
-(test-gen boolean-gen)
-
-(test-gen string-gen)
-(test-gen string-set-gen)
-
-(test-gen struct-gen)
-(test-gen record-gen)
-(test-gen record-get-gen)
-
-(test-gen basic-set-gen)
-(test-gen comprehension-set-gen)
-(test-gen pow-fin-set-gen)
-(test-gen simple-set-gen)
-(test-gen set-expression-gen)
-(test-gen set-gen)
-(test-gen card-gen)
-(test-gen member-gen)
-(test-gen subset-superset-gen)
-(test-gen pos-set-predicate-gen)
-(test-gen neg-set-predicate-gen)
-(test-gen set-predicate-gen)
-(test-gen union-inter-set-gen)
-(test-gen generalised-union-inter-set-gen)
-
-(test-gen set-relation-gen)
-(test-gen maplet-relation-gen)
-(test-gen identity-relation-gen)
-(test-gen projection-relation-gen)
-(test-gen basic-relation-gen)
-(test-gen domain-relation-gen)
-(test-gen range-relation-gen)
-(test-gen inverse-relation-gen)
-(test-gen closure-relation-gen)
-(test-gen simple-relation-gen)
-(test-gen relation-expression-gen)
-(test-gen relation-gen)
-(test-gen domain-range-gen)
-(test-gen image-gen)
-(test-gen iterate-relation-gen)
-(test-gen translate-relation-gen)
-
-(test-gen set-function-gen)
-(test-gen lambda-function-gen)
-(test-gen function-gen)
-(test-gen function-arg-gen)
-(test-gen function-call-gen)
-
-(test-gen sequence-element-gen)
-(test-gen basic-sequence-gen)
-(test-gen concat-sequence-gen)
-(test-gen prepend-sequence-gen)
-(test-gen append-sequence-gen)
-(test-gen reverse-front-tail-gen)
-(test-gen take-drop-gen)
-(test-gen sequence-gen)
-(test-gen sequence-set-gen)
-(test-gen sequence-size-gen)
-(test-gen first-last-gen)
-(test-gen concat-sequence-of-sequences-gen)
-
-(test-gen basic-predicate-gen)
-(test-gen pos-logical-predicate-gen)
-(test-gen neg-logical-predicate-gen)
-(test-gen universal-quantification-gen)
-(test-gen existential-qunatification-gen)
-(test-gen logical-predicate-gen)
-
-(test-gen equality-element-gen)
-(test-gen equal-not-euqal-gen)
-(test-gen distinct-gen)
-(test-gen equality-gen)
-
-(test-gen if-expression-gen)
-(test-gen if-predicate-gen)
-(test-gen if-gen)
-(test-gen let-gen)
-
-(test-gen skip-substitution-gen)
-(test-gen assignment-gen)
-(test-gen functional-override-gen)
-(test-gen set-choice-gen)
-(test-gen predicate-choice-gen)
-(test-gen assign-return-gen)
-(test-gen basic-substitution-gen)
-(test-gen parallel-sequential-substitution-gen)
-(test-gen any-substitution-gen)
-(test-gen let-substitution-gen)
-(test-gen var-substituion-gen)
-(test-gen pre-assert-substitution-gen)
-(test-gen choice-substitution-gen)
-(test-gen if-substitution-gen)
-(test-gen cond-select-substitution-gen)
-(test-gen case-substitution-gen)
-(test-gen substitution-gen)
-
-(test-gen machine-name-gen)
-(test-gen machine-arg-gen)
-(test-gen machine-name-with-args-gen)
-(test-gen operation-name-gen)
-
-(test-gen uses-sees-gen)
-(test-gen includes-extends-gen)
-(test-gen promotes-gen)
-(test-gen inclusion-gen)
-
-(test-gen deferred-set-gen)
-(test-gen enumerated-set-gen)
-(test-gen sets-section-gen)
-(test-gen constants-variables-section-gen)
-(test-gen predicate-section-gen)
-(test-gen initialisation-section-gen)
-(test-gen no-return-operation-gen)
-(test-gen return-operation-gen)
-(test-gen operation-section-gen)
-(test-gen section-gen)
-
-(test-gen definitions-arg-gen)
-(test-gen expression-definition-gen)
-(test-gen predicate-definition-gen)
-(test-gen substitution-definition-gen)
-(test-gen file-definition-gen)
-(test-gen definitions-gen)
-
-(test-gen freetype-constructor-gen)
-(test-gen freetype-definition-gen)
-(test-gen freetypes-gen)
-
-(test-gen machine-clause-gen)
-
-(test-gen machine-gen)
-(test-gen refinement-implementation-gen)
-
-(test-gen lisb-gen)
-(time (check-gen 1000 lisb-gen))
+;; (test-gen lisb-gen)
+;; (time (check-gen 1000 lisb-gen))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
