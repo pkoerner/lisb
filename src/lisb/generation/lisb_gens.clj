@@ -5,17 +5,23 @@
   (:require [clojure.test.check.properties :as prop]))
 
 
-;; numbers
+(def id-gen
+  (gen/fmap keyword
+            (gen/not-empty (gen/resize 5 gen/string-alphanumeric))))
 
-;; TODO: product/sum
+(def name-gen
+  (gen/fmap keyword
+            (gen/not-empty (gen/resize 10 gen/string-alphanumeric))))
+
+
+;; numbers
 
 (def min-max-integer-gen
   (gen/elements '[min-int max-int]))
 
 (def number-literal-gen
   (gen/one-of [gen/large-integer
-               (gen/fmap keyword
-                         (gen/not-empty (gen/resize 10 gen/string-alphanumeric)))]))
+               id-gen]))
 
 (def number-neighbour-gen
   (gen/fmap list*
@@ -66,6 +72,14 @@
                        number-gen
                        number-gen)))
 
+(def product-sum-gen
+  (gen/fmap list*
+            (gen/tuple (gen/elements '[π pi
+                                       Σ sigma])
+                       (gen/vector id-gen 1 3)
+                       number-predicate-gen
+                       number-expression-gen)))
+
 
 ;; booleans
 
@@ -96,13 +110,9 @@
 
 ;; records
 
-(def record-id-gen
-  (gen/fmap keyword
-            (gen/not-empty (gen/resize 5 gen/string-alphanumeric))))
-
 (def struct-gen
   (gen/fmap (partial apply concat (list 'struct))
-            (gen/vector (gen/tuple record-id-gen
+            (gen/vector (gen/tuple id-gen
                                    (gen/one-of [integer-set-gen
                                                 boolean-set-gen
                                                 string-set-gen]))
@@ -110,7 +120,7 @@
 
 (def record-gen
   (gen/fmap (partial apply concat (list 'record))
-            (gen/vector (gen/tuple record-id-gen
+            (gen/vector (gen/tuple id-gen
                                    (gen/one-of [number-gen
                                                 boolean-gen
                                                 string-gen]))
@@ -120,12 +130,10 @@
   (gen/fmap list*
             (gen/tuple (gen/return 'record-get)
                        record-gen
-                       record-id-gen)))
+                       id-gen)))
 
 
 ;; sets
-
-;; TODO: comprehension-set; union/intersect with predicate
 
 (def basic-set-gen
   (gen/one-of [(gen/fmap set (gen/vector number-gen))
@@ -137,6 +145,13 @@
                string-set-gen
                (gen/fmap set (gen/vector record-gen))]))
 
+(def comprehension-set-gen
+  (gen/bind (gen/tuple (gen/vector id-gen 1 3)
+                       number-predicate-gen)
+            (fn [[ids pred]]
+              (gen/one-of [(gen/return (list 'comprehension-set ids pred))
+                           (gen/return #{ids '| pred})]))))
+
 (def pow-fin-set-gen
   (gen/fmap list*
             (gen/tuple (gen/elements '[pow pow1 fin fin1])
@@ -144,6 +159,7 @@
 
 (def simple-set-gen
   (gen/one-of [basic-set-gen
+               comprehension-set-gen
                pow-fin-set-gen]))
 
 (def set-expression-gen
@@ -201,6 +217,13 @@
   (gen/fmap list*
             (gen/tuple (gen/elements '[unite-sets intersect-sets])
                        (gen/set set-gen {:max-elements 2}))))
+
+(def generalised-union-inter-set-gen
+  (gen/fmap list*
+            (gen/tuple (gen/elements '[union-pe intersection-pe])
+                       (gen/vector id-gen 1 3)
+                       number-predicate-gen
+                       simple-set-gen)))
 
 
 ;; relations
@@ -321,24 +344,16 @@
               (gen/fmap (partial cons op)
                         (gen/vector set-gen 0 3)))))
 
-(def lambda-id-gen
-  (gen/fmap keyword
-            (gen/not-empty (gen/resize 5 gen/string-alphanumeric))))
-
 (def lambda-function-gen
   (gen/fmap list*
             (gen/tuple (gen/return 'lambda)
-                       (gen/vector lambda-id-gen 1 3)
+                       (gen/vector id-gen 1 3)
                        (gen/one-of [number-predicate-gen set-predicate-gen])
                        (gen/one-of [number-expression-gen set-expression-gen]))))
 
 (def function-gen
   (gen/one-of [set-function-gen
                lambda-function-gen]))
-
-(def function-name-gen
-  (gen/fmap keyword
-            (gen/not-empty (gen/resize 10 gen/string-alphanumeric))))
 
 (def function-arg-gen
   (gen/one-of [simple-number-gen
@@ -347,7 +362,7 @@
 (def function-call-gen
   (gen/fmap (partial apply concat)
             (gen/tuple (gen/fmap list (gen/return 'fn-call))
-                       (gen/fmap list (gen/one-of [function-name-gen
+                       (gen/fmap list (gen/one-of [name-gen
                                                    function-gen]))
                        (gen/vector function-arg-gen 0 3))))
 
@@ -425,8 +440,6 @@
 
 ;; logical predicates
 
-;; TODO: universal/existanial quantification
-
 (def basic-predicate-gen
   (gen/one-of [number-predicate-gen
                set-predicate-gen]))
@@ -444,9 +457,25 @@
   (gen/fmap (partial cons 'not)
             (gen/fmap list pos-logical-predicate-gen)))
 
+(def universal-quantification-gen
+  (gen/bind (gen/tuple (gen/vector id-gen 1 3)
+                       basic-predicate-gen
+                       basic-predicate-gen)
+            (fn [[ids premise conclusion]]
+              (gen/one-of [(gen/return (list 'for-all ids (list 'implication premise conclusion)))
+                           (gen/return (list 'for-all ids premise conclusion))]))))
+
+(def existential-qunatification-gen
+  (gen/fmap list*
+            (gen/tuple (gen/return 'exists)
+                       (gen/vector id-gen 1 3)
+                       basic-predicate-gen)))
+
 (def logical-predicate-gen
   (gen/one-of [pos-logical-predicate-gen
-               neg-logical-predicate-gen]))
+               neg-logical-predicate-gen
+               universal-quantification-gen
+               existential-qunatification-gen]))
 
 
 ;; equality
@@ -476,10 +505,6 @@
 
 ;; substitutions
 
-(def substitution-id-gen
-  (gen/fmap keyword
-            (gen/not-empty (gen/resize 5 gen/string-alphanumeric))))
-
 (def skip-substitution-gen
   (gen/return 'skip))
 
@@ -488,7 +513,7 @@
   (gen/bind (gen/elements '[assign #_set!])
             (fn [op]
               (gen/fmap (partial apply concat (list op))
-                        (gen/vector (gen/tuple substitution-id-gen
+                        (gen/vector (gen/tuple id-gen
                                                (gen/one-of [number-gen
                                                             boolean-gen
                                                             string-gen
@@ -503,7 +528,7 @@
             (gen/tuple (gen/return 'assign)
                        (gen/fmap list*
                                  (gen/tuple (gen/return 'fn-call)
-                                            function-name-gen
+                                            name-gen
                                             function-arg-gen))
                        (gen/one-of [number-expression-gen
                                     set-expression-gen
@@ -512,22 +537,22 @@
 (def set-choice-gen
   (gen/fmap list*
             (gen/tuple (gen/elements '[becomes-element-of becomes-member])
-                       (gen/vector substitution-id-gen 1 3)
+                       (gen/vector id-gen 1 3)
                        set-gen)))
 
 (def predicate-choice-gen
   (gen/fmap list*
             (gen/tuple (gen/return 'becomes-such)
-                       (gen/vector substitution-id-gen 1 3)
+                       (gen/vector id-gen 1 3)
                        logical-predicate-gen)))
 
 (def assign-return-gen
   (gen/fmap list*
             (gen/tuple (gen/return '<--)
-                       (gen/vector substitution-id-gen 1 3)
+                       (gen/vector id-gen 1 3)
                        (gen/fmap (partial apply concat '(op-call))
-                                 (gen/tuple (gen/fmap list substitution-id-gen)
-                                            (gen/vector substitution-id-gen 1 3))))))
+                                 (gen/tuple (gen/fmap list id-gen)
+                                            (gen/vector id-gen 1 3))))))
 
 (def basic-substitution-gen
   (gen/one-of [skip-substitution-gen
@@ -546,7 +571,7 @@
 
 (def any-substitution-gen
   (gen/fmap (partial apply concat '(any))
-            (gen/tuple (gen/fmap list (gen/vector substitution-id-gen 1 3))
+            (gen/tuple (gen/fmap list (gen/vector id-gen 1 3))
                        (gen/fmap list logical-predicate-gen)
                        (gen/vector basic-substitution-gen 1 3))))
 
@@ -554,7 +579,7 @@
   (gen/fmap (partial apply concat '(let-sub))
             (gen/tuple (gen/fmap list
                                  (gen/fmap (partial reduce (partial apply conj) [])
-                                           (gen/vector (gen/tuple substitution-id-gen
+                                           (gen/vector (gen/tuple id-gen
                                                                   (gen/one-of [number-gen
                                                                                boolean-gen
                                                                                string-gen
@@ -566,7 +591,7 @@
                        (gen/vector basic-substitution-gen 1 3))))
 
 (def var-substituion-gen
-  (gen/bind (gen/vector substitution-id-gen 1 3)
+  (gen/bind (gen/vector id-gen 1 3)
             (fn [ids]
               (gen/fmap (partial concat ['var-sub ids])
                         (gen/vector basic-substitution-gen 1 3)))))
@@ -634,9 +659,7 @@
 
 ;; machine name / operation name
 
-(def machine-name-gen
-  (gen/fmap keyword
-            (gen/not-empty (gen/resize 10 gen/string-alphanumeric))))
+(def machine-name-gen name-gen)
 
 (def machine-arg-gen
   (gen/one-of [simple-number-gen
@@ -649,9 +672,7 @@
                         (gen/fmap (partial cons name)
                                   (gen/vector machine-arg-gen 0 3))))))
 
-(def operation-name-gen
-  (gen/fmap keyword
-            (gen/not-empty (gen/resize 10 gen/string-alphanumeric))))
+(def operation-name-gen name-gen)
 
 
 ;; machine inclusion
@@ -680,25 +701,21 @@
 
 ;; machine section
 
-(def section-id-gen
-  (gen/fmap keyword
-            (gen/not-empty (gen/resize 5 gen/string-alphanumeric))))
-
 (def deferred-set-gen
-  (gen/one-of [section-id-gen
+  (gen/one-of [id-gen
                (gen/fmap list*
                          (gen/tuple (gen/return 'deferred-set)
-                                    section-id-gen))]))
+                                    id-gen))]))
 
 (def enumerated-set-gen
   (let [element-gen (gen/one-of [simple-number-gen
                                  true-false-gen])]
     (gen/one-of [(gen/fmap list*
-                           (gen/tuple section-id-gen
+                           (gen/tuple id-gen
                                       (gen/set element-gen {:min-elements 1
                                                             :max-elements 3})))
                  (gen/fmap (partial apply concat '(enumerated-set))
-                           (gen/tuple (gen/fmap list section-id-gen)
+                           (gen/tuple (gen/fmap list id-gen)
                                       (gen/vector element-gen 1 3)))])))
 
 (def sets-section-gen
@@ -712,7 +729,7 @@
   (gen/bind (gen/elements '[constants variables])
             (fn [op]
               (gen/fmap (partial cons op)
-                        (gen/vector section-id-gen 1 3)))))
+                        (gen/vector id-gen 1 3)))))
 
 (def predicate-section-gen
   (gen/bind (gen/elements '[constraints properties invariants assertions])
@@ -727,11 +744,13 @@
 (def no-return-operation-gen
   (gen/fmap list*
             (gen/tuple operation-name-gen
-                       (gen/vector section-id-gen 0 3)
+                       (gen/vector id-gen 0 3)
                        (gen/one-of [;; dump unused gens
+                                    product-sum-gen
                                     record-get-gen
                                     card-gen
                                     union-inter-set-gen
+                                    generalised-union-inter-set-gen
                                     domain-range-gen
                                     image-gen
                                     iterate-relation-gen
@@ -746,7 +765,7 @@
 (def return-operation-gen
   (gen/fmap list*
             (gen/tuple (gen/return '<--)
-                       (gen/vector section-id-gen 1 3)
+                       (gen/vector id-gen 1 3)
                        no-return-operation-gen)))
 
 (def operation-section-gen
@@ -765,10 +784,6 @@
 
 ;; definitions
 
-(def definitions-name-gen
-  (gen/fmap keyword
-            (gen/not-empty (gen/resize 10 gen/string-alphanumeric))))
-
 (def definitions-arg-gen
   (gen/one-of [simple-number-gen
                true-false-gen]))
@@ -776,7 +791,7 @@
 (def expression-definition-gen
   (gen/fmap list*
             (gen/tuple (gen/return 'expression-definition)
-                       definitions-name-gen
+                       name-gen
                        (gen/vector definitions-arg-gen 0 3)
                        (gen/one-of [number-expression-gen
                                     set-expression-gen]))))
@@ -784,7 +799,7 @@
 (def predicate-definition-gen
   (gen/fmap list*
             (gen/tuple (gen/return 'predicate-definition)
-                       definitions-name-gen
+                       name-gen
                        (gen/vector definitions-arg-gen 0 3)
                        (gen/one-of [number-predicate-gen
                                     set-predicate-gen]))))
@@ -792,7 +807,7 @@
 (def substitution-definition-gen
   (gen/fmap list*
             (gen/tuple (gen/return 'substitution-definition)
-                       definitions-name-gen
+                       name-gen
                        (gen/vector definitions-arg-gen 0 3)
                        substitution-gen)))
 
@@ -873,6 +888,9 @@
                                true)]
     (get-in (tc/quick-check num-tests gen-prop) [:shrunk :smallest])))
 
+(test-gen id-gen)
+(test-gen name-gen)
+
 (test-gen min-max-integer-gen)
 (test-gen number-literal-gen)
 (test-gen number-neighbour-gen)
@@ -883,6 +901,7 @@
 (test-gen number-gen)
 (test-gen interval-set-gen)
 (test-gen number-predicate-gen)
+(test-gen product-sum-gen)
 
 (test-gen true-false-gen)
 (test-gen boolean-set-gen)
@@ -892,12 +911,12 @@
 (test-gen string-gen)
 (test-gen string-set-gen)
 
-(test-gen record-id-gen)
 (test-gen struct-gen)
 (test-gen record-gen)
 (test-gen record-get-gen)
 
 (test-gen basic-set-gen)
+(test-gen comprehension-set-gen)
 (test-gen pow-fin-set-gen)
 (test-gen simple-set-gen)
 (test-gen set-expression-gen)
@@ -909,6 +928,7 @@
 (test-gen neg-set-predicate-gen)
 (test-gen set-predicate-gen)
 (test-gen union-inter-set-gen)
+(test-gen generalised-union-inter-set-gen)
 
 (test-gen set-relation-gen)
 (test-gen maplet-relation-gen)
@@ -928,10 +948,8 @@
 (test-gen translate-relation-gen)
 
 (test-gen set-function-gen)
-(test-gen lambda-id-gen)
 (test-gen lambda-function-gen)
 (test-gen function-gen)
-(test-gen function-name-gen)
 (test-gen function-arg-gen)
 (test-gen function-call-gen)
 
@@ -951,6 +969,8 @@
 (test-gen basic-predicate-gen)
 (test-gen pos-logical-predicate-gen)
 (test-gen neg-logical-predicate-gen)
+(test-gen universal-quantification-gen)
+(test-gen existential-qunatification-gen)
 (test-gen logical-predicate-gen)
 
 (test-gen equality-element-gen)
@@ -958,7 +978,6 @@
 (test-gen distinct-gen)
 (test-gen equality-gen)
 
-(test-gen substitution-id-gen)
 (test-gen skip-substitution-gen)
 (test-gen assignment-gen)
 (test-gen functional-override-gen)
@@ -987,7 +1006,6 @@
 (test-gen promotes-gen)
 (test-gen inclusion-gen)
 
-(test-gen section-id-gen)
 (test-gen deferred-set-gen)
 (test-gen enumerated-set-gen)
 (test-gen sets-section-gen)
@@ -999,7 +1017,6 @@
 (test-gen operation-section-gen)
 (test-gen section-gen)
 
-(test-gen definitions-name-gen)
 (test-gen definitions-arg-gen)
 (test-gen expression-definition-gen)
 (test-gen predicate-definition-gen)
@@ -1013,7 +1030,7 @@
 (test-gen refinement-implementation-gen)
 
 (test-gen lisb-gen)
-(check-gen 1000 lisb-gen)
+(time (check-gen 1000 lisb-gen))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
