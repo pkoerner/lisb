@@ -503,6 +503,37 @@
                distinct-gen]))
 
 
+;; let and if-then-else
+
+(def if-expression-gen
+  (gen/fmap list*
+            (gen/tuple (gen/return 'if-expr)
+                       logical-predicate-gen
+                       number-expression-gen
+                       number-expression-gen)))
+
+(def if-predicate-gen
+  (gen/fmap list*
+            (gen/tuple (gen/return 'if-pred)
+                       logical-predicate-gen
+                       number-predicate-gen
+                       number-predicate-gen)))
+
+(def if-gen
+  (gen/one-of [if-expression-gen
+               if-predicate-gen]))
+
+(def let-gen
+  (gen/fmap list*
+            (gen/tuple (gen/return 'let)
+                       (gen/fmap (partial reduce (partial apply conj) [])
+                                 (gen/vector (gen/tuple id-gen
+                                                        number-gen)
+                                             1 3))
+                       (gen/one-of [number-expression-gen
+                                    number-predicate-gen]))))
+
+
 ;; substitutions
 
 (def skip-substitution-gen
@@ -760,7 +791,9 @@
                                     sequence-size-gen
                                     first-last-gen
                                     concat-sequence-of-sequences-gen
-                                    equality-gen]))))
+                                    equality-gen
+                                    if-gen
+                                    let-gen]))))
 
 (def return-operation-gen
   (gen/fmap list*
@@ -1001,6 +1034,11 @@
 (test-gen equal-not-euqal-gen)
 (test-gen distinct-gen)
 (test-gen equality-gen)
+
+(test-gen if-expression-gen)
+(test-gen if-predicate-gen)
+(test-gen if-gen)
+(test-gen let-gen)
 
 (test-gen skip-substitution-gen)
 (test-gen assignment-gen)
