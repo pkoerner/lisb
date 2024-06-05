@@ -827,12 +827,36 @@
                         3)))
 
 
+;; freetypes
+
+(def freetype-constructor-gen
+  (gen/bind (gen/tuple (gen/return 'constructor)
+                       name-gen
+                       (gen/one-of [integer-set-gen
+                                    boolean-set-gen
+                                    string-set-gen]))
+            (fn [[op name arg]]
+              (gen/one-of [(gen/return (list op name))
+                           (gen/return (list op name arg))]))))
+
+(def freetype-definition-gen
+  (gen/fmap (partial apply concat '(freetype))
+            (gen/tuple (gen/fmap list name-gen)
+                       (gen/fmap list (gen/vector id-gen 0 3))
+                       (gen/vector freetype-constructor-gen 1 3))))
+
+(def freetypes-gen
+  (gen/fmap (partial cons 'freetypes)
+            (gen/vector freetype-definition-gen 1 3)))
+
+
 ;; machine clauses
 
 (def machine-clause-gen
   (gen/one-of [inclusion-gen
                section-gen
-               definitions-gen]))
+               definitions-gen
+               freetypes-gen]))
 
 
 ;; machine
@@ -1023,6 +1047,10 @@
 (test-gen substitution-definition-gen)
 (test-gen file-definition-gen)
 (test-gen definitions-gen)
+
+(test-gen freetype-constructor-gen)
+(test-gen freetype-definition-gen)
+(test-gen freetypes-gen)
 
 (test-gen machine-clause-gen)
 
