@@ -10,7 +10,7 @@
   :jvm-opts ["-Xss1g"]
   :dependencies [[org.clojure/clojure "1.11.2"]
                  [org.clojure/math.combinatorics "0.3.0"]
-                 [org.clojure/test.check "0.9.0"]
+                 [org.clojure/test.check "1.1.1"]
                  [potemkin "0.4.7"]
                  [com.rpl/specter "1.1.4"]
                  [clj-wallhack "1.0.1"]
