@@ -1740,10 +1740,10 @@
            ; trees
 
            ; reals - (alpha - besser nicht verwenden)
-           ~'real 'bto-real
-           ~'real-set 'breal-set
-           ~'floor 'bfloor
-           ~'ceil 'bceil
+           ~'real bto-real
+           ~'real-set breal-set
+           ~'floor bfloor
+           ~'ceil bceil
 
            ; strings
            ~'string-set bstring-set
