@@ -1,5 +1,4 @@
 (ns lisb.translation.ast2lisb
-  (:require [lisb.translation.lisb2ir :refer :all])
   (:import (de.be4.classicalb.core.parser.node
             Start
             AAbstractMachineParseUnit
