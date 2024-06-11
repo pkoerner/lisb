@@ -1,6 +1,6 @@
 (ns lisb.core
   (:require [lisb.prob.animator :refer [eval-formula state-space!]]
-            [lisb.translation.util :refer [ir->ast bempty-machine band]]))
+            [lisb.translation.util :refer [ir->ast bempty-machine band bmember? bnot=]]))
 
 
 (defn ir-state-space! [ir-machine]
@@ -63,3 +63,23 @@
   {:pre [(seq (rest conjuncts))
          (= :timeout (eval-ir-formula (apply band conjuncts)))]}
   (unsat-core-aux (partial apply (complement timeout-conjuncts?)) conjuncts))
+
+
+
+;; TODO: handle timeouts
+(defn try-get-solutions 
+  ;; TODO: n solutions can be obtained by using the external function CHOOSE_n
+  ([bset] (try-get-solutions bset #{}))
+  ([bset seen]
+   (lazy-seq 
+     (let [freshkw (keyword (gensym "lisb__internal"))
+           formula (apply band (bmember? freshkw bset)
+                          (map #(bnot= freshkw %) seen))
+           res (eval-ir-formula formula)
+;; TODO: the solution map maps *strings* to solutions
+;;       even though the variables are keywords.
+;;       I do not particularly like this. (pk, 05.06.2024)
+           element (get res (name freshkw))] 
+       (if res
+         (cons element (try-get-solutions bset (conj seen element)))
+         ())))))
