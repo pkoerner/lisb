@@ -11,6 +11,7 @@
             AAssignSubstitution
             AMemberPredicate
             AIntegerExpression
+            ARealExpression
             ANatSetExpression
             AAddExpression
             AMinusExpression
@@ -740,6 +741,13 @@
 ; ASuccessorExpression - processed in AFunctionExpression
 ; APredecessorExpression - processed in AFunctionExpression
 
+
+(defmethod ast->lisb ARealExpression [node]
+  (let [num-string (.getText (.getLiteral node))
+        d (parse-double num-string)]
+    (if (= (str d) num-string) ;; precision good enough
+      d
+      (bigdec num-string))))
 
 ;;; sets
 
