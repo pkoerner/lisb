@@ -689,7 +689,8 @@
 ;;; numbers
 
 (defmethod ast->lisb AIntegerExpression [node]
-  (Long/parseLong (.getText (.getLiteral node))))
+  (let [num-string (.getText (.getLiteral node))]
+    (or (parse-long num-string) (bigint num-string))))
 (defmethod ast->lisb AUnaryMinusExpression [node]
   (let [expr (ast->lisb (.getExpression node))]
     (if (number? expr)
