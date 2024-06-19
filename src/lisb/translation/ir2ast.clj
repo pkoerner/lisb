@@ -1,5 +1,5 @@
 (ns lisb.translation.ir2ast
-  (:require [lisb.translation.lisb2ir :refer [band b= bmember? 
+  (:require [lisb.translation.lisb2ir :refer [band b= bmember? bmaplet
                                               machine-clause-tags substitution-tags set-tags rel-tags fn-tags seq-tags num-tags pred-tags]])
   (:require [clojure.spec.alpha :as s])
   (:import (de.be4.classicalb.core.parser.node Start
@@ -1189,6 +1189,7 @@
   (cond
     (map? ir) (ir-node->ast-node ir)
     (set? ir) (set-expression (map ir->ast-node ir))
+    (and (vector? ir) (= (count ir) 2)) (ir-node->ast-node (bmaplet (first ir) (second ir)))
     (keyword? ir) (AIdentifierExpression. [(TIdentifierLiteral. (name ir))])
     (string? ir) (AStringExpression. (TStringLiteral. ir)) ;; hack-y thing to avoid renaming of rec-get parameters in preds
     (integer? ir) (AIntegerExpression. (TIntegerLiteral. (str ir)))
