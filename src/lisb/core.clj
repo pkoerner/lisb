@@ -66,20 +66,42 @@
 
 
 
-;; TODO: handle timeouts
-(defn try-get-solutions 
-  ;; TODO: n solutions can be obtained by using the external function CHOOSE_n
-  ([bset] (try-get-solutions bset #{}))
-  ([bset seen]
-   (lazy-seq 
-     (let [freshkw (keyword (gensym "lisb__internal"))
-           formula (apply band (bmember? freshkw bset)
-                          (map #(bnot= freshkw %) seen))
-           res (eval-ir-formula formula)
-;; TODO: the solution map maps *strings* to solutions
-;;       even though the variables are keywords.
-;;       I do not particularly like this. (pk, 05.06.2024)
-           element (get res (name freshkw))] 
-       (if res
-         (cons element (try-get-solutions bset (conj seen element)))
-         ())))))
+
+(comment (set! *print-length* 100)
+(use 'lisb.prob.animator)
+(use 'lisb.translation.util)
+(eval-formula'
+  @secret-state-space
+  (lisb->ast '(= :x natural-set))
+  {:val-output :value
+   :val-aggression :lazy
+   }
+  )
+
+(eval-formula'
+  @secret-state-space
+  (lisb->ast '(= :x (+ 1 2)))
+  {:val-output :value}
+  )
+
+;; Problem: tuples are not represented in Clojure :-(
+(eval-formula'
+  @secret-state-space
+  (lisb->ast '(= :x (seq #{1 2})))
+  {:val-output :value}
+  )
+
+(eval-formula'
+  @secret-state-space
+  (lisb->ast '(and (= :x (+ 1 2)) (= :x 4) ))
+  {:val-output :value}
+  )
+
+(take 3 (try-get-solutions {:tag :nat-set} @secret-state-space))
+(eval-formula @secret-state-space (ir->ast {:tag :member, :elem :lisb__internal10991, :set {:tag :nat-set}}))
+(use 'clojure.repl)
+(pst))
+
+(eval-ir-formula {:tag :nat-set})
+(eval-ir-formula 
+  '{:tag :and, :preds ({:tag :member, :elem :lisb__internal10797, :set {:tag :power-set, :set #{1 2}}} {:tag :not-equals, :left :lisb__internal10797, :right #{}} {:tag :not-equals, :left :lisb__internal10797, :right #{2}} {:tag :not-equals, :left :lisb__internal10797, :right #{1}} {:tag :not-equals, :left :lisb__internal10797, :right #{1 2}})})
