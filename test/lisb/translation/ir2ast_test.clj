@@ -1,6 +1,7 @@
 (ns lisb.translation.ir2ast-test
   (:require [clojure.test :refer :all]
             [lisb.translation.util :refer :all]
+            [lisb.translation.types :refer :all]
             [lisb.examples.simple :as simple]
             [lisb.examples.marriages :as marriages]
             [lisb.examples.function-returns :as function-returns]
@@ -435,3 +436,7 @@
                 "#(x).(x:NAT & 0=x)" (b (exists [:x] (and (member? :x nat-set) (= 0 :x))))
                 "#(x,y).(x:NAT & y:NAT & 0=x+y)" (b (exists [:x :y] (and (member? :x nat-set) (member? :y nat-set) (= 0 (+ :x :y)))))
                 )))
+
+(deftest tuples-test
+  (testing "tuples are indeed translated to the correct AST"
+    (is (= "(1, 2)" (ast->b (ir->ast (->Tuple 1 2)))))))

@@ -208,3 +208,10 @@
            an alias is used"
     (is (= (b #{(inc 42) (successor 42)})
            #{{:tag :successor, :num 42}}))))
+
+
+(deftest tuple-test
+  (testing "DSL for tuples works"
+    (is (= 1 (first (b [1 -> 2]))))
+    (is (= 2 (second (b [1 -> 2]))))
+    (is (= 1 (ffirst (b [[1 -> 2] -> 3]))))))

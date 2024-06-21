@@ -84,6 +84,12 @@
   {:val-output :value}
   )
 
+(eval-formula'
+  @secret-state-space
+  (lisb->ast '(= :x [1 -> 2]))
+  {:val-output :value}
+  )
+
 ;; Problem: tuples are not represented in Clojure :-(
 (eval-formula'
   @secret-state-space

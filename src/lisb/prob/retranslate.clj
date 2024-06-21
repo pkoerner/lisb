@@ -1,5 +1,6 @@
 (ns lisb.prob.retranslate
   (:require [wall.hack :refer [method]])
+  (:require [lisb.translation.types :refer [->Tuple]])
   (:import
     (de.hhu.stups.prob.translator BAtom BBoolean BNumber BRecord BSet BString BTuple BReal)
     (de.hhu.stups.prob.translator.interpretations BFunction BRelation BSequence)))
@@ -27,7 +28,7 @@
                 (.toRelationalMap data))
     ; collection types
     BSet (set (map retranslate (.toSet data)))
-    BTuple [(retranslate (.getFirst data)) (retranslate (.getSecond data))]
+    BTuple (->Tuple (retranslate (.getFirst data)) (retranslate (.getSecond data)))
     BRecord (reduce
               (fn [m e]
                 (assoc m (retranslate (.getKey e)) (retranslate (.getValue e))))

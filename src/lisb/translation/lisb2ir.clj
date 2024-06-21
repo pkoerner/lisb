@@ -1,4 +1,5 @@
 (ns lisb.translation.lisb2ir
+  (:require [lisb.translation.types :refer [->Tuple]])
   (:require [clojure.math.combinatorics :refer [combinations]])
   (:require [clojure.walk :refer [walk]])
   (:require [clojure.set])
@@ -1655,6 +1656,7 @@
 
 (defn pre-process-lisb [lisb]
   (cond
+    (and (vector? lisb) (= 3 (count lisb)) (= '-> (second lisb))) (->Tuple (first lisb) (nth lisb 2))
     (and (set? lisb) (contains? lisb '|)) (process-comprehension-set lisb)
     (and (seq? lisb) (= 'sets (first lisb))) (process-set-definitions lisb)
     (and (seq? lisb) (= 'operations (first lisb))) (process-op-definitions lisb)
