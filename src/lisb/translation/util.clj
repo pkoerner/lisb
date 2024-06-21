@@ -47,8 +47,8 @@
               binteger-set bnatural-set bnatural1-set bint-set bnat-set bnat1-set binterval brange bmin-int bmax-int
               b< b> b<= b>= bmax bmin b+ b- b* bdiv b** bmod bpi bsigma bsuccessor bpredecessor
               ;;; sets
-              bcartesian-product
-              bcomprehension-set bpow bpow1 bfin bfin1 bcard bunion bintersection bset- bmember? bcontains? bsubset?
+              bcomprehension-set beventb-comprehension-set
+              bcartesian-product bpow bpow1 bfin bfin1 bcard bunion bintersection bset- bmember? bcontains? bsubset?
               bstrict-subset? bsuperset? bstrict-superset? bunite-sets bunion-pe bintersect-sets bintersection-pe
               ;;; booleans
               bbool-set bpred->bool

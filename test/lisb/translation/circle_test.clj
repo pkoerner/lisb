@@ -212,6 +212,7 @@
               (b #{:E})
               (b #{:E :F})
               (b (comprehension-set [:x] (contains? nat-set :x)))
+              (b (eventb-comprehension-set [:x] (contains? nat-set :x) :x))
               (b (pow #{}))
               (b (pow1 #{}))
               (b (fin #{}))

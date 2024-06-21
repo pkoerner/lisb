@@ -303,6 +303,7 @@
                   #{:E} "{E}"
                   #{:E :F} "{E, F}"
                   '(comprehension-set [:x] (member? :x nat-set)) "{x|x:NAT}"
+                  '(eventb-comprehension-set [:x] (member? :x nat-set) :x) "{x·x:NAT|x}"
                   '(pow #{}) "POW({})"
                   '(pow1 #{}) "POW1({})"
                   '(fin #{}) "FIN({})"

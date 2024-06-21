@@ -15,6 +15,9 @@
       "{1}" (eventb #{1})
       "{1,x}" (eventb #{:x 1}) ;;enumerated sets are not orderd!
       "DOMAIN-->RANGE" (eventb (--> :DOMAIN :RANGE))
+      "{x|x:0..5}" (eventb #{[:x] | (in :x (interval 0 5))})
+      "{x.x:0..5|x*x}" (eventb (eventb-comprehension-set [:x] (in :x (interval 0 5)) (* :x :x)))
+      "{x,y.x:0..5&y:0..5|x*y}" (eventb (eventb-comprehension-set [:x :y] (and (in :x (interval 0 5)) (in :y (interval 0 5))) (* :x :y)))
       "%(x|->y)|->z.x:0..5&y:0..5&z:0..5|x+y+z" (eventb (lambda [:x :y :z] (contains? (interval 0 5) :x :y :z) (+ :x :y :z)))
       )))
 

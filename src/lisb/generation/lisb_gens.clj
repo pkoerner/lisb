@@ -150,6 +150,8 @@
               (gen/one-of [(gen/return (list 'comprehension-set ids pred))
                            (gen/return #{ids '| pred})]))))
 
+; TODO: eventb-comprehension-set-gen
+
 (def pow-fin-set-gen
   (gen/fmap list*
             (gen/tuple (gen/elements '[pow pow1 fin fin1])

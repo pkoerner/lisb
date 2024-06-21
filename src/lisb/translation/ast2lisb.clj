@@ -749,7 +749,7 @@
   (into #{} (map ast->lisb (.getExpressions node))))
 
 (defmethod ast->lisb AComprehensionSetExpression [node]
- (lisbify 'comprehension-set (.getIdentifiers node) (.getPredicates node)))  ; .getPredicates returns ONE predicate)
+ (lisbify 'comprehension-set (.getIdentifiers node) (.getPredicates node)))  ; .getPredicates returns ONE predicate
 
 (defmethod ast->lisb APowSubsetExpression [node]
   (expression 'pow node))
@@ -899,7 +899,7 @@
   (apply lisbify 'partition (.getSet node) (.getElements node)))
 
 (defmethod ast->lisb AEventBComprehensionSetExpression [node]
-  (lisbify 'comprehension-set (.getIdentifiers node) (.getPredicates node)))
+  (lisbify 'eventb-comprehension-set (.getIdentifiers node) (.getPredicates node) (.getExpression node)))  ; .getPredicates returns ONE predicate
 
 ;;; misc
 
