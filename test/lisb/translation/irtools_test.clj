@@ -18,6 +18,7 @@
          (bfor-all [:x] (b= :x :y)) #{:y}
          (bexists [:x] (b= :x :y)) #{:y}
          (bcomprehension-set [:x] (bmember? :x (binterval 1 :y))) #{:y}
+         (beventb-comprehension-set [:x] (bmember? :x (binterval 1 :y)) :x) #{:y}
          (bunion-pe #{:z} (bcontains? bnat-set :z) :y) #{:y}
          (bintersection-pe #{:z} (bcontains? bnat-set :z) :y) #{:y}
          (bpi [:z] (bcontains? bnat-set :z) :y) #{:y}

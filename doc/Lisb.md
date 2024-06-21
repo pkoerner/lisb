@@ -30,37 +30,38 @@
 | `bool(pred)` | `(pred->bool pred)` | `{:tag :pred->bool, :pred pred}` | convert predicate into BOOL value    |
 
 ## Sets
-| B                                        | Lisb                              | IR                                                                 | Description                                |
-|------------------------------------------|-----------------------------------|--------------------------------------------------------------------|--------------------------------------------|
-| `{elem1,elem2,...}`                      | `#{elem1 elem2 ...}`              | `#{elem1 elem2 ...}`                                               | set enumeration                            |
-| <code>{id1,id2,...&#124;pred}</code>     | `(comprehension-set ids pred)`    | `{:tag :comprehension-set, :ids ids, :pred pred}`                  | comprehension set                          |
-|                                          | <code>#{ids &#124; pred}</code>   | `{:tag :comprehension-set, :ids ids, :pred pred}`                  | sugar                                      |
-| `POW(set)`                               | `(pow set)`                       | `{:tag :power-set, :set set}`                                      | power set                                  |
-| `POW1(set)`                              | `(pow1 set)`                      | `{:tag :power1-set, :set set}`                                     | set of non-empty subsets                   |
-| `FIN(set)`                               | `(fin set)`                       | `{:tag :fin, :set set}`                                            | set of all finite subsets                  |
-| `FIN1(set)`                              | `(fin1 set)`                      | `{:tag :fin1, :set set}`                                           | set of all non-empty finite subsets        |
-| `card(set)`                              | `(card set)`                      | `{:tag :cardinality, :set set}`                                    | cardinality                                |
-| `set1*set2*...`                          | `(cart-or-mult & sets)`           | `{:tag :cartesian-product-or-multiplication, :nums-or-sets sets}`  | cartesian product or multiplication        |
-|                                          | `(cartesian-product & sets)`      | `{:tag :cartesian-product, :sets sets}`                            | cartesian product                          | 
-|                                          | `(x & sets)`                      | `{:tag :cartesian-product, :sets set}`                             | sugar                                      |
-| `set1\/set2\/...`                        | `(union & sets)`                  | `{:tag :union, :sets sets}`                                        | set union                                  |
-| `set1/\set2/\...`                        | `(intersection & sets)`           | `{:tag :intersection, :sets sets}`                                 | set intersection                           |
-| `set1-set2-...`                          | `(set- & sets)`                   | `{:tag :difference, :sets sets}`                                   | set difference                             |
-| `elem:set`                               | `(member? elem set)`              | `{:tag :member, :elem elem, :set set}`                             | element of                                 |
-|                                          | `(in elem set)`                   | `{:tag :member, :elem elem, :set set}`                             | sugar                                      | 
-|                                          | `(contains? set & elems)`         | `(and (member? elem1 set) (member? elem2 set) ...)`                | sugar                                      | 
-| `elem/:set`                              | `(not (member? set elem))`        |                                                                    | not element of                             | 
-| `set1<:set2&set2<:...`                   | `(subset? & sets)`                | `{:tag :subset?, :sets sets}`                                      | subset of                                  |
-|                                          | `(superset? & sets)`              | `{:tag :subset?, :sets (clore.core/reverse sets)}`                 | sugar                                      |
-| `set1/<:set2&set2/<:...`                 | `(not (subset? sets))`            |                                                                    | not subset of                              |
-| `set1<<:set2&set2<<:...`                 | `(strict-subset? sets)`           | `{:tag :strict-subset?, :sets sets}`                               | strict subset of                           |
-|                                          | `(strict-superset? sets)`         | `{:tag :strict-subset?, :sets (clojure.core/reverse sets)}`        | sugar                                      |
-| `set1/<<:set2&set2/<<:...`               | `(not (strict-subset? sets))`     |                                                                    | not strict subset of                       |
-| `union(set-of-sets)`                     | `(unite-sets set-of-sets)`        | `{:tag :unite-sets, :set-of-sets set-of-sets}`                     | generalised union over sets of sets        |
-| `inter(set-of-sets)`                     | `(intersect-sets set-of-sets)`    | `{:tag :intersect-sets, :set-of-sets set-of-sets}`                 | generalised intersection over sets of sets |
-| <code>UNION(ids).(pred&#124;expr)</code> | `(union-pe ids pred expr)`        | `{:tag :union-pe, :ids ids, :pred pred, :expr expr}`               | generalised union with predicate           |
-| <code>INTER(ids).(pred&#124;expr)</code> | `(intersection-pe ids pred expr)` | `{:tag :intersection-pe, :ids ids, :pred pred, :expr expr}`        | generalised intersection with predicate    |
-
+| B                                         | Lisb                                       | IR                                                                   | Description                                |
+|-------------------------------------------|--------------------------------------------|----------------------------------------------------------------------|--------------------------------------------|
+| `{elem1,elem2,...}`                       | `#{elem1 elem2 ...}`                       | `#{elem1 elem2 ...}`                                                 | set enumeration                            |
+| <code>{id1,id2,...&#124;pred}</code>      | `(comprehension-set ids pred)`             | `{:tag :comprehension-set, :ids ids, :pred pred}`                    | comprehension set                          |
+|                                           | <code>#{ids &#124; pred}</code>            | `{:tag :comprehension-set, :ids ids, :pred pred}`                    | sugar                                      |
+| <code>{id1,id2,...·pred&#124;expr}</code> | `(eventb-comprehension-set ids pred expr)` | `{:tag :eventb-comprehension-set, :ids ids, :pred pred, :expr expr}` | event b style comprehension set            |
+| `POW(set)`                                | `(pow set)`                                | `{:tag :power-set, :set set}`                                        | power set                                  |
+| `POW1(set)`                               | `(pow1 set)`                               | `{:tag :power1-set, :set set}`                                       | set of non-empty subsets                   |
+| `FIN(set)`                                | `(fin set)`                                | `{:tag :fin, :set set}`                                              | set of all finite subsets                  |
+| `FIN1(set)`                               | `(fin1 set)`                               | `{:tag :fin1, :set set}`                                             | set of all non-empty finite subsets        |
+| `card(set)`                               | `(card set)`                               | `{:tag :cardinality, :set set}`                                      | cardinality                                |
+| `set1*set2*...`                           | `(cart-or-mult & sets)`                    | `{:tag :cartesian-product-or-multiplication, :nums-or-sets sets}`    | cartesian product or multiplication        |
+|                                           | `(cartesian-product & sets)`               | `{:tag :cartesian-product, :sets sets}`                              | cartesian product                          | 
+|                                           | `(x & sets)`                               | `{:tag :cartesian-product, :sets set}`                               | sugar                                      |
+| `set1\/set2\/...`                         | `(union & sets)`                           | `{:tag :union, :sets sets}`                                          | set union                                  |
+| `set1/\set2/\...`                         | `(intersection & sets)`                    | `{:tag :intersection, :sets sets}`                                   | set intersection                           |
+| `set1-set2-...`                           | `(set- & sets)`                            | `{:tag :difference, :sets sets}`                                     | set difference                             |
+| `elem:set`                                | `(member? elem set)`                       | `{:tag :member, :elem elem, :set set}`                               | element of                                 |
+|                                           | `(in elem set)`                            | `{:tag :member, :elem elem, :set set}`                               | sugar                                      | 
+|                                           | `(contains? set & elems)`                  | `(and (member? elem1 set) (member? elem2 set) ...)`                  | sugar                                      | 
+| `elem/:set`                               | `(not (member? set elem))`                 |                                                                      | not element of                             | 
+| `set1<:set2&set2<:...`                    | `(subset? & sets)`                         | `{:tag :subset?, :sets sets}`                                        | subset of                                  |
+|                                           | `(superset? & sets)`                       | `{:tag :subset?, :sets (clore.core/reverse sets)}`                   | sugar                                      |
+| `set1/<:set2&set2/<:...`                  | `(not (subset? sets))`                     |                                                                      | not subset of                              |
+| `set1<<:set2&set2<<:...`                  | `(strict-subset? sets)`                    | `{:tag :strict-subset?, :sets sets}`                                 | strict subset of                           |
+|                                           | `(strict-superset? sets)`                  | `{:tag :strict-subset?, :sets (clojure.core/reverse sets)}`          | sugar                                      |
+| `set1/<<:set2&set2/<<:...`                | `(not (strict-subset? sets))`              |                                                                      | not strict subset of                       |
+| `union(set-of-sets)`                      | `(unite-sets set-of-sets)`                 | `{:tag :unite-sets, :set-of-sets set-of-sets}`                       | generalised union over sets of sets        |
+| `inter(set-of-sets)`                      | `(intersect-sets set-of-sets)`             | `{:tag :intersect-sets, :set-of-sets set-of-sets}`                   | generalised intersection over sets of sets |
+| <code>UNION(ids).(pred&#124;expr)</code>  | `(union-pe ids pred expr)`                 | `{:tag :union-pe, :ids ids, :pred pred, :expr expr}`                 | generalised union with predicate           |
+| <code>INTER(ids).(pred&#124;expr)</code>  | `(intersection-pe ids pred expr)`          | `{:tag :intersection-pe, :ids ids, :pred pred, :expr expr}`          | generalised intersection with predicate    |
+       
 ## Numbers
 | B                                | Lisb                    | IR                                                                | Description                                                   |
 |----------------------------------|-------------------------|-------------------------------------------------------------------|---------------------------------------------------------------|

@@ -112,8 +112,19 @@
 
 (defmethod ir-expr->str :comprehension-set [ir]
   (str "{"
-       (str/join "," (map rodin-name (:ids ir))) "|"
-       (ir-pred->str (:pred ir)) "}" ))
+       (str/join "," (map rodin-name (:ids ir)))
+       "|"
+       (ir-pred->str (:pred ir))
+       "}" ))
+
+(defmethod ir-expr->str :eventb-comprehension-set [ir]
+  (str "{"
+       (str/join "," (map rodin-name (:ids ir)))
+       "."
+       (ir-pred->str (:pred ir))
+       "|"
+       (ir-expr->str (:expr ir))
+       "}"))
 
 (defmethod ir-expr->str :power-set [ir]
   (str "POW(" (ir-expr->str (:set ir)) ")"))
