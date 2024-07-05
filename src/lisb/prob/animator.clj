@@ -99,7 +99,7 @@
 ;;       even though the variables are keywords.
 ;;       I do not particularly like this. (pk, 05.06.2024)
            element (get res freshkw)] 
-       (println :ele element)
+       ;(println :ele element)
        (if res
          (cons element (try-get-solutions bset ss (conj seen element) opts))
          ())))))
@@ -126,11 +126,14 @@
   (case (.getValue v) 
     "time_out" :timeout
     "FALSE" nil
-    (let [sol-map (.getSolutions v)]
-      (into {} 
-            (for [[k v] (remove (comp (:exclude opts #{}) #(.getKey %)) sol-map)] 
-              [((:vars-fn opts) k) 
-               ((handle-val-output (:val-output opts) ss opts) v)])))))
+    "TRUE"
+      (let [sol-map (.getSolutions v)]
+        (into {} 
+              (for [[k v] (remove (comp (:exclude opts #{}) #(.getKey %)) sol-map)] 
+                [((:vars-fn opts) k) 
+                 ((handle-val-output (:val-output opts) ss opts) v)])))
+      ((handle-val-output (:val-output opts) ss opts)  (.getValue v))
+      ))
 
 (defmethod get-result' ComputationNotCompletedResult [v _ opts]
   (let [reason (.getReason v)]

@@ -70,6 +70,35 @@
 (comment (set! *print-length* 100)
 (use 'lisb.prob.animator)
 (use 'lisb.translation.util)
+
+(defpred square [x]
+  (* x x))
+
+(eval-formula'
+  @secret-state-space
+  ;(lisb->ast '(= :x (+ 1 2 3 4)))
+  (lisb->ast '(lambda [:y] (member? :y (range 0 10)) (* :y :y)))
+  {:val-output :value
+   :val-aggression 10
+   }
+  )
+
+(eval-formula'
+  @secret-state-space
+  (lisb->ast '(= :x (lambda [:y] (member? :y (range 0 10)) (* :y :y))))
+  {:val-output :value
+   :val-aggression 10
+   }
+  )
+
+(eval-formula'
+  @secret-state-space
+  (lisb->ast 'natural-set)
+  {:val-output :value
+   :val-aggression :lazy
+   }
+  )
+
 (eval-formula'
   @secret-state-space
   (lisb->ast '(= :x natural-set))
