@@ -31,7 +31,7 @@
                 :size
                 :sigma :pi
                 })                                          ; numbers
-(def set-tags #{:comprehension-set :power-set :power1-set :fin :fin1 :cartesian-product
+(def set-tags #{:comprehension-set :eventb-comprehension-set :power-set :power1-set :fin :fin1 :cartesian-product
                 :cartesian-product-or-multiplication :union :intersection :difference :unite-sets :intersect-sets
                 :union-pe :intersection-pe
                 :iterate
@@ -1315,6 +1315,16 @@
         :ret (s/and (s/keys :req-un [::tag] :req [::ids ::pred])
                     #(= :comprehension-set (:tag %))))
 
+(defn beventb-comprehension-set [ids pred expr]
+  {:tag  :eventb-comprehension-set
+   :ids  (to-vec ids)
+   :pred pred
+   :expr expr})
+(s/fdef beventb-comprehension-set
+  :args (s/cat :ids ::ids :pred ::pred :expr ::expr)
+  :ret (s/and (s/keys :req-un [::tag] :req [::ids ::pred ::expr])
+              #(= :eventb-comprehension-set (:tag %))))
+
 (defn bpow [set]
   {:tag :power-set
    :set set})
@@ -1872,6 +1882,7 @@
 
            ;;; sets
            ~'comprehension-set bcomprehension-set
+           ~'eventb-comprehension-set beventb-comprehension-set
            ~'pow bpow
            ~'pow1 bpow1
            ~'fin bfin

@@ -187,6 +187,7 @@
            'predecessor 'lisb.translation.lisb2ir/bpredecessor
            'dec 'lisb.translation.lisb2ir/bpredecessor                               ; sugar
            'comprehension-set 'lisb.translation.lisb2ir/bcomprehension-set
+           'eventb-comprehension-set 'lisb.translation.lisb2ir/beventb-comprehension-set
            'pow 'lisb.translation.lisb2ir/bpow
            'pow1 'lisb.translation.lisb2ir/bpow1
            'fin 'lisb.translation.lisb2ir/bfin
