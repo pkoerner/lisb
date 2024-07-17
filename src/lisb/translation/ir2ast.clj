@@ -1191,7 +1191,7 @@
   (cond
     (map? ir) (ir-node->ast-node ir)
     (set? ir) (set-expression (map ir->ast-node ir))
-    (instance? lisb.translation.types.Tuple ir) (ir-node->ast-node (bmaplet (first ir) (second ir)))
+    (instance? lisb.translation.types.Tuple ir) (ACoupleExpression. (map ir->ast-node ir))
     ;(and (vector? ir) (= (count ir) 2)) (ir-node->ast-node (bmaplet (first ir) (second ir)))
     (keyword? ir) (AIdentifierExpression. [(TIdentifierLiteral. (name ir))])
     (string? ir) (AStringExpression. (TStringLiteral. ir)) ;; hack-y thing to avoid renaming of rec-get parameters in preds

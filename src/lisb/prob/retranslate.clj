@@ -28,7 +28,7 @@
                 (.toRelationalMap data))
     ; collection types
     BSet (set (map retranslate (.toSet data)))
-    BTuple (->Tuple (retranslate (.getFirst data)) (retranslate (.getSecond data)))
+    BTuple (->Tuple [(retranslate (.getFirst data)) (retranslate (.getSecond data))]) ;; TODO: check if second is also a Tuple, collect all data
     BRecord (reduce
               (fn [m e]
                 (assoc m (retranslate (.getKey e)) (retranslate (.getValue e))))

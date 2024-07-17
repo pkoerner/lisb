@@ -1656,13 +1656,16 @@
 
 (defn pre-process-lisb [lisb]
   (cond
-    (and (vector? lisb) (= 3 (count lisb)) (= '-> (second lisb))) (->Tuple (first lisb) (nth lisb 2))
+    (and (vector? lisb) (<= 3 (count lisb)) (apply = '-> (take-nth 2 (rest lisb))))
+         ;; catch all tuples in the form of [1 -> 2 -> 3 -> ...]
+         (let [elems (take-nth 2 lisb)]
+           (->Tuple (map pre-process-lisb elems)))
     (and (set? lisb) (contains? lisb '|)) (process-comprehension-set lisb)
     (and (seq? lisb) (= 'sets (first lisb))) (process-set-definitions lisb)
     (and (seq? lisb) (= 'operations (first lisb))) (process-op-definitions lisb)
     (and (seq? lisb) (= '<-- (first lisb))) (process-assign-returns lisb)
     (and (seq? lisb) (= 'if (first lisb))) (pre-process-lisb (list* bif (rest lisb)))
-    (set? lisb) `(hash-set ~@lisb)
+    (set? lisb) (set (map pre-process-lisb (distinct (map lisb->ir lisb))))
     (seqable? lisb) (walk pre-process-lisb identity lisb)
     :else lisb))
 
@@ -1921,7 +1924,6 @@
 
 (defn lisb->ir [lisb]
   (eval `(b ~lisb)))
-
 
 (def bempty-machine (bmachine :Empty))
 

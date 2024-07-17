@@ -119,6 +119,21 @@
   {:val-output :value}
   )
 
+(eval-formula'
+  @secret-state-space
+  (lisb->ast '(= :x [1 -> 2 -> 3]))
+  {:val-output :value}
+  )
+
+(eval-formula'
+  @secret-state-space
+  (lisb->ast '(member? [1 -> 2] #{[1 -> 2]}))
+  {:val-output :value}
+  )
+
+(lisb->ir '(= :x [1 -> 2]))
+(type (lisb->ir '[1 -> 2]))
+
 ;; Problem: tuples are not represented in Clojure :-(
 (eval-formula'
   @secret-state-space
