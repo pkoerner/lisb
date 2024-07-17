@@ -1604,7 +1604,7 @@
   (bran (blambda [:x] (bmember? :x s) (p :x))))
 
 
-(declare pre-process-lisb)
+(declare pre-process-lisb lisb->ir)
 
 (defn process-comprehension-set [lisb]
   (if (= 3 (count lisb))
