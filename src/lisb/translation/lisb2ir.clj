@@ -1665,7 +1665,7 @@
     (and (seq? lisb) (= 'operations (first lisb))) (process-op-definitions lisb)
     (and (seq? lisb) (= '<-- (first lisb))) (process-assign-returns lisb)
     (and (seq? lisb) (= 'if (first lisb))) (pre-process-lisb (list* bif (rest lisb)))
-    (set? lisb) (set (map pre-process-lisb (distinct (map lisb->ir lisb))))
+    (set? lisb) `(hash-set ~@(map pre-process-lisb lisb))
     (seqable? lisb) (walk pre-process-lisb identity lisb)
     :else lisb))
 
