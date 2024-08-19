@@ -1,5 +1,6 @@
 (ns lisb.prob.retranslate-test
   (:require [clojure.test :refer :all]
+            [lisb.translation.types :refer [->Tuple]]
             [lisb.prob.retranslate :refer [retranslate]])
   (:import (de.hhu.stups.prob.translator BAtom BBoolean BNumber BString BSet BTuple BRecord)
            (de.hhu.stups.prob.translator.interpretations BRelation BFunction BSequence)))
@@ -57,10 +58,10 @@
   (let [e1 (BNumber. "1")
         e2 (BNumber. "2")]
     (testing "retranslating a tuple retranslates its members and results in a vector"
-      (is (= [1 2]
+      (is (= (->Tuple [1 2])
              (retranslate (BTuple. e1 e2)))))
     (testing "retranslating a tuple results in a native data type"
-      (is (= (type [1 2])
+      (is (= (type (->Tuple [1 2]))
              (type (retranslate (BTuple. e1 e2))))))))
 
 

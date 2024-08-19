@@ -1,7 +1,8 @@
 (ns lisb.integration-test
   (:require [clojure.test :refer :all]
-            [lisb.core :refer [eval-ir-formula]]
-            [lisb.translation.util :refer :all]))
+            [lisb.core :refer [eval-ir-formula eval-ir-formula']]
+            [lisb.translation.util :refer :all])
+  (:import de.hhu.stups.prob.translator.exceptions.TranslationException))
 
 (deftest integration
   (testing "no exception is thrown when executing implemented command;
@@ -66,13 +67,18 @@
 
     (is (eval-ir-formula (b= #{1 2 3} (bcomprehension-set [:x] (b< 0 :x 4)))))
 
-    (is (eval-ir-formula (b= :x (bpow #{1 2}))))
+    (is (thrown? TranslationException (eval-ir-formula (b= :x (bpow #{1 2})))))
+    (is (= '{:x (pow #{1 2})} (eval-ir-formula' (b= :x (bpow #{1 2})) {:val-output :lisb})))
 
-    (is (eval-ir-formula (b= :x (bpow1 #{1 2}))))
+    (is (thrown? TranslationException (eval-ir-formula (b= :x (bpow1 #{1 2})))))
+    (is (= '{:x (pow1 #{1 2})} (eval-ir-formula' (b= :x (bpow1 #{1 2})) {:val-output :lisb})))
 
-    (is (eval-ir-formula (b= :x (bfin #{1 2}))))
 
-    (is (eval-ir-formula (b= :x (bfin1 #{1 2}))))
+    (is (thrown? TranslationException (eval-ir-formula (b= :x (bfin #{1 2})))))
+    (is (= '{:x (fin #{1 2})} (eval-ir-formula' (b= :x (bfin #{1 2})) {:val-output :lisb})))
+
+    (is (thrown? TranslationException (eval-ir-formula (b= :x (bfin1 #{1 2})))))
+    (is (= '{:x (fin1 #{1 2})} (eval-ir-formula' (b= :x (bfin1 #{1 2})) {:val-output :lisb})))
 
     (is (eval-ir-formula (b= 2 (bcard #{1 2}))))
 
@@ -268,7 +274,7 @@
 
     (is (eval-ir-formula (b= (bsequence 3 1 4 1 5 9 2) (bconc (bsequence (bsequence 3 1 4) (bsequence 1 5 9 2))))))
 
-    (is (eval-ir-formula (b= :x (bstruct :x #{1 2 3}))))
+    (is (thrown? TranslationException (eval-ir-formula (b= :x (bstruct :x #{1 2 3})))))
 
     (is (eval-ir-formula (bmember? (brecord :x 1) (bstruct :x #{1 2 3}))))
 

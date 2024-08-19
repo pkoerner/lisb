@@ -1,5 +1,5 @@
 (ns lisb.core
-  (:require [lisb.prob.animator :refer [eval-formula state-space!]]
+  (:require [lisb.prob.animator :refer [eval-formula eval-formula' state-space!]]
             [lisb.translation.util :refer [ir->ast bempty-machine band bmember? bnot=]]))
 
 
@@ -10,10 +10,18 @@
 ; execute only commmands on this state-space which not implement IStateSpaceModifier!
 (defonce ^:private secret-state-space (delay (ir-state-space! bempty-machine)))
 
-(defn eval-ir-formula
+(defn ^{:deprecated "0.0.6"} eval-ir-formula
+  "This will evaluate a formula in its IR representation and return a solution map, nil or :timeout.
+  This function always tries to generate a Clojure value even for infinite sets or those which are kept symbolic.
+  Use eval-or-formula' instead to control this behaviour."
   ([state-space ir-formula] (eval-formula state-space (ir->ast ir-formula)))
   ([ir-formula] (eval-ir-formula @secret-state-space ir-formula)))
 
+(defn eval-ir-formula'
+  "Takes opts like lisb.prob.animator.default-eval-settings.
+  Additionally, you might specify a :state-space key to provide a state space (but no further options)."
+  ([ir-formula opts] (eval-formula' (if (:state-space opts) (:state-space opts) @secret-state-space) (ir->ast ir-formula) opts))
+  ([ir-formula] (eval-ir-formula' @secret-state-space ir-formula)))
 
 (defn choose-rest [c]
   (let [n (count c)]
@@ -75,7 +83,6 @@
   (* x x))
 
 (eval-formula'
-  @secret-state-space
   ;(lisb->ast '(= :x (+ 1 2 3 4)))
   (lisb->ast '(lambda [:y] (member? :y (range 0 10)) (* :y :y)))
   {:val-output :value
@@ -83,17 +90,24 @@
    }
   )
 
-(eval-formula'
+(fixate!! (eval-formula'
   @secret-state-space
   (lisb->ast '(= :x (lambda [:y] (member? :y (range 0 10)) (* :y :y))))
   {:val-output :value
    :val-aggression 10
    }
-  )
+  ))
 
 (eval-formula'
   @secret-state-space
   (lisb->ast 'natural-set)
+  {:val-output :value
+   :val-aggression :lazy
+   }
+  )
+
+(eval-ir-formula'
+  (b natural-set)
   {:val-output :value
    :val-aggression :lazy
    }

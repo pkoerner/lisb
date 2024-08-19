@@ -439,4 +439,4 @@
 
 (deftest tuples-test
   (testing "tuples are indeed translated to the correct AST"
-    (is (= "(1, 2)" (ast->b (ir->ast (->Tuple 1 2)))))))
+    (is (= "(1, 2)" (ast->b (ir->ast (->Tuple [1 2])))))))
