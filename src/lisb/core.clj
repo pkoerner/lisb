@@ -21,7 +21,7 @@
   "Takes opts like lisb.prob.animator.default-eval-settings.
   Additionally, you might specify a :state-space key to provide a state space (but no further options)."
   ([ir-formula opts] (eval-formula' (if (:state-space opts) (:state-space opts) @secret-state-space) (ir->ast ir-formula) opts))
-  ([ir-formula] (eval-ir-formula' @secret-state-space ir-formula)))
+  ([ir-formula] (eval-ir-formula' ir-formula {:state-space @secret-state-space})))
 
 (defn choose-rest [c]
   (let [n (count c)]
