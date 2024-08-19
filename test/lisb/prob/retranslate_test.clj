@@ -73,10 +73,10 @@
     (is (= (type {})
            (type (retranslate (BRecord. {}))))))
   (testing "retranslating a record retranslates its members and results in a map"
-    (is (= {"a" 1, "b" 2} (retranslate (BRecord. {(BString. "a") (BNumber. "1"), (BString. "b") (BNumber. "2")})))))
+    (is (= {:a 1, :b 2} (retranslate (BRecord. {"a" (BNumber. "1"), "b" (BNumber. "2")})))))
   (testing "retranslating a record results in a native data type"
-    (is (= (type {"a" 1, "b" 2})
-           (type (retranslate (BRecord. {(BString. "a") (BNumber. "1"), (BString. "b") (BNumber. "2")})))))))
+    (is (= (type {:a 1, :b 2})
+           (type (retranslate (BRecord. {"a" (BNumber. "1"), "b" (BNumber. "2")})))))))
 
 
 (deftest set-retranslation

@@ -33,7 +33,7 @@
              (->Tuple [(retranslate (.getFirst data)) (retranslate (.getSecond data))]))
     BRecord (reduce
               (fn [m e]
-                (assoc m (retranslate (.getKey e)) (retranslate (.getValue e))))
+                (assoc m (keyword (.getKey e)) (retranslate (.getValue e))))
               {}
               (.toMap data))
     de.hhu.stups.prob.translator.TranslatingVisitor$RecordEntry [(method de.hhu.stups.prob.translator.TranslatingVisitor$RecordEntry 'getKey [] data)

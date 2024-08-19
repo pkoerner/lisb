@@ -157,7 +157,25 @@
 
 (eval-formula'
   @secret-state-space
-  (lisb->ast '(and (= :x (+ 1 2)) (= :x 4) ))
+  (lisb->ast '(= :x (seq #{1 2})))
+  {:val-output :value}
+  )
+
+(eval-formula'
+  @secret-state-space
+  (lisb->ast '(= :y (struct :x nat-set)))
+  {:val-output :value}
+  )
+
+(eval-formula'
+  @secret-state-space
+  (lisb->ast '(and (member? :y (struct :x nat-set)) (= :y (record :x 1))))
+  {:val-output :value}
+  )
+
+(eval-formula'
+  @secret-state-space
+  (lisb->ast '(struct :x nat-set))
   {:val-output :value}
   )
 
