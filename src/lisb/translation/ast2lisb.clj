@@ -12,6 +12,10 @@
             AMemberPredicate
             AIntegerExpression
             ARealExpression
+            AConvertIntCeilingExpression
+            AConvertIntFloorExpression
+            AConvertRealExpression
+            ARealSetExpression
             ANatSetExpression
             AAddExpression
             AMinusExpression
@@ -702,6 +706,7 @@
 (defmethod ast->lisb ANatural1SetExpression [_] 'natural1-set)
 (defmethod ast->lisb AIntSetExpression [_] 'int-set)
 (defmethod ast->lisb ANatSetExpression [_] 'nat-set)
+(defmethod ast->lisb ARealSetExpression [_] 'real-set)
 (defmethod ast->lisb ANat1SetExpression [_] 'nat1-set)
 (defmethod ast->lisb AIntervalExpression [node]
   (lisbify 'interval (.getLeftBorder node) (.getRightBorder node)))
@@ -741,6 +746,13 @@
 ; ASuccessorExpression - processed in AFunctionExpression
 ; APredecessorExpression - processed in AFunctionExpression
 
+
+(defmethod ast->lisb AConvertIntCeilingExpression [node]
+  (expression 'ceil node))
+(defmethod ast->lisb AConvertIntFloorExpression [node]
+  (expression 'floor node))
+(defmethod ast->lisb AConvertRealExpression [node]
+  (expression 'real node))
 
 (defmethod ast->lisb ARealExpression [node]
   (let [num-string (.getText (.getLiteral node))
