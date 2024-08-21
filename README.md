@@ -2,6 +2,9 @@
 
 Write B in Clojure. Interact with the ProB constraint solver.
 
+## Documentation
+
+Documentation is can be found on the [project website](https://pkoerner.github.io/lisb-doc/docs/home/)
 
 ## Examples
 
