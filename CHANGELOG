@@ -9,8 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added support for a tuple type. Tuples can now be written as [x y z ...] in the B DSL.
   - Added another eval-ir-formula' function and deprecate eval-ir-formula.
     eval-ir-formula' gives the user more control over the representation of large and symbolic sets.
+  - Added `bb` as a function that transforms DSL code into the IR.
   ### Changed
   - Moved `bfile->b` to `lisb.prob.animator` namespace
+  - BREAKING (but only in rare cases): The `b` macro now may ignore the namespace of symbols, such as `<--` or `|`.
 
 ## [0.0.5]
   ### Added

@@ -179,6 +179,17 @@
   {:val-output :value}
   )
 
+  (lisb->b '[[:x -> :v] -> [:y -> :w]]) 
+  (lisb->b ' (and (member? [:x -> :y] #{[3 -> 4] [1 -> 2]}) (member? [:y -> :w] #{[5 -> 6] [7 -> 8]})))
+  (lisb->b '#{[[:x -> :v] -> [:y -> :w]] | (and (member? [:x -> :y] #{[3 -> 4] [1 -> 2]}) (member? [:y -> :w] #{[5 -> 6] [7 -> 8]}))})
+  (lisb->b '(and (member? [:x -> :y] #{[3 -> 4] [1 -> 2]}) (member? [:y -> :w] #{[5 -> 6] [7 -> 8]})) )
+  (lisb->b '[:x -> :y] )
+(eval-formula'
+  @secret-state-space
+  (lisb->ast '(b** 2 100))
+  {:val-output :value}
+  )
+
 (take 3 (try-get-solutions {:tag :nat-set} @secret-state-space))
 (eval-formula @secret-state-space (ir->ast {:tag :member, :elem :lisb__internal10991, :set {:tag :nat-set}}))
 (use 'clojure.repl)
