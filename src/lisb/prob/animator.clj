@@ -1,7 +1,7 @@
 (ns lisb.prob.animator
   (:require [lisb.prob.java-api :refer :all])
   (:require [lisb.prob.retranslate :refer [retranslate]])
-  (:require [lisb.translation.lisb2ir :refer [b= band bmember? bnot=]])
+  (:require [lisb.translation.lisb2ir :refer [b= band bmember?]])
   (:require [lisb.translation.util :refer [ir->b ir->ast b-expression->lisb b-expression->ir]]) ;; TODO: change this to avoid cyclic dependencies
   (:require [clojure.pprint :refer [pprint]])
   (:import 
@@ -112,32 +112,7 @@
    (let [transs (.getTransitions state)]
      (map #(translate-transition % add-op-namespace-to-kw) transs))))
 
-;; TODO: states should probably be proxy objects
-;; that print as maps but delegate the relevant methods to the original state object
 
-
-#_(defn reify-mappy [state]
-  (reify
-    clojure.lang.ILookup
-    (valAt [this k]
-      (.valAt this k nil))
-    (valAt [this k not-found]
-      (println :mappy-get this k)
-      (if (vector? k)
-        ;; vector: assume operation
-        (apply successor this k)
-        ;; not vector: assume variable 
-        (let [m (merge (into {} (.getConstantValues state FormulaExpand/TRUNCATE)) (into {} (.getVariableValues state FormulaExpand/TRUNCATE)))
-              formalism (type (first (keys m)))
-              key-var (first (filter #(= (.getCode %) (name k)) (keys m)))
-              ;; TODO use this line instead once the AbstractEvalElement is fixed
-              ;key-var (clojure.lang.Reflector/invokeConstructor formalism (into-array [(name k)]))
-              ]
-          (def vv (get m key-var))
-          (if key-var
-            (retranslate (de.hhu.stups.prob.translator.Translator/translate (.getValue (get m key-var))))
-            not-found))))
-    ))
 
 ;; TODO: refactor, duplicate code
 (require '[flatland.ordered.map :refer [ordered-map]])
@@ -150,7 +125,7 @@
                  (concat (.getConstantValues this FormulaExpand/EXPAND)
                          (.getVariableValues this FormulaExpand/EXPAND)))
         transs (map (fn [op] [op '...]) (get-transitions this true)) ]
-  (print-simple  ;; TODO: load clojure.pprint
+  (print-simple
     (into (ordered-map) (concat kvs transs))
     writer)))
 
@@ -163,7 +138,7 @@
                  (concat (.getConstantValues this FormulaExpand/EXPAND)
                          (.getVariableValues this FormulaExpand/EXPAND)))
         transs (map (fn [op] [op '...]) (get-transitions this true)) ]
-  (pprint  ;; TODO: load clojure.pprint
+  (pprint
     (into (ordered-map) (concat kvs transs))
     ))
   
