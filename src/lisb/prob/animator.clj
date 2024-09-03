@@ -1,8 +1,8 @@
 (ns lisb.prob.animator
   (:require [lisb.prob.java-api :refer :all])
   (:require [lisb.prob.retranslate :refer [retranslate]])
-  (:require [lisb.translation.lisb2ir :refer [b=]])
-  (:require [lisb.translation.util :refer [ir->b]]) ;; TODO: change this to avoid cyclic dependencies
+  (:require [lisb.translation.lisb2ir :refer [b= band bmember? bnot=]])
+  (:require [lisb.translation.util :refer [ir->b ir->ast b-expression->lisb b-expression->ir]]) ;; TODO: change this to avoid cyclic dependencies
   (:require [clojure.pprint :refer [pprint]])
   (:import 
            de.prob.animator.command.EvaluateFormulasCommand
@@ -231,7 +231,6 @@
 
   )
 
-(use 'lisb.translation.util)
 (declare eval-formula' try-get-solutions)
 
 (def default-eval-settings 
@@ -268,7 +267,6 @@
          ())))))
 
 
-(use 'lisb.translation.util)
 (defmulti handle-val-output (fn [kw ss opts] kw))
 (defmethod handle-val-output :bstr [_ _ _opts] identity)
 (defmethod handle-val-output :lisb [_ _ _opts] b-expression->lisb)
