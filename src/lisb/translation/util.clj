@@ -9,7 +9,7 @@
 (import-vars [lisb.translation.ast2lisb ast->lisb])
 (import-vars [lisb.translation.ir2ast ir->ast])
 (import-vars [lisb.translation.data-conversion ensure-list convert])
-(import-vars [lisb.translation.lisb2ir lisb->ir b
+(import-vars [lisb.translation.lisb2ir lisb->ir b bb
               ;;; parse units
               bmachine bmodel bsystem brefinement bimplementation
               ;;; machine clauses
