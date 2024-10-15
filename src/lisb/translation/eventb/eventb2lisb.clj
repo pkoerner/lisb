@@ -52,7 +52,7 @@
       (when (seq sees) (list* 'sees (map name-as-keyword sees)))
       (when (seq variables) (list* 'variables (prob->lisb variables)))
       (when (seq invariants) (list* 'invariants (prob->lisb invariants)))
-      (when (seq variant) (list 'variant (prob->lisb variant)))
+      (when variant (list 'variant (prob->lisb variant)))
       (when init (list* 'init (-> init .getActions prob->lisb)))
       (when (seq events) (list* 'events (map prob->lisb events))))))
 
