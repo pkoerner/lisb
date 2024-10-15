@@ -90,6 +90,18 @@
   {:tag :finite
    :set set})
 
+(defn eventb-extended-expr [identifier exprs preds]
+  {:tag :extended-expr
+   :identifier identifier
+   :exprs exprs
+   :preds preds})
+
+(defn eventb-extended-pred [identifier exprs preds]
+  {:tag :extended-pred
+   :identifier identifier
+   :exprs exprs
+   :preds preds})
+
 (defmacro eventb [lisb]
   `(b (let [~'axioms ~'properties
             ~'theorems ~'assertions
@@ -106,6 +118,8 @@
             ~'event-extends event-extends
             ~'status event-status
             ~'with event-with
-            ~'finite eventb-finite]
+            ~'finite eventb-finite
+            ~'extended-expr eventb-extended-expr
+            ~'extended-pred eventb-extended-pred] 
         ~lisb)))
 

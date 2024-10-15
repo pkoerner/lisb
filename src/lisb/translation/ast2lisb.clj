@@ -195,6 +195,8 @@
             APartitionPredicate
             ATruthPredicate
             ADescriptionExpression ADescriptionPredicate ALabelPredicate
+            AExtendedExprExpression
+            AExtendedPredPredicate
             ;; for some reason unused
             ; TIntegerLiteral
             ; AConcreteVariablesMachineClause
@@ -921,6 +923,12 @@
 
 (defmethod ast->lisb AEventBComprehensionSetExpression [node]
   (lisbify 'comprehension-set (.getIdentifiers node) (.getPredicates node)))
+
+(defmethod ast->lisb AExtendedExprExpression [node]
+  (lisbify 'extended-expr (.getIdentifier node) (.getExpressions node) (.getPredicates node)))
+
+(defmethod ast->lisb AExtendedPredPredicate [node]
+  (lisbify 'extended-pred (.getIdentifier node) (.getExpressions node) (.getPredicates node)))
 
 ;;; misc
 

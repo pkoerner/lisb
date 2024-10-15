@@ -232,6 +232,15 @@
 (defmethod ir-expr->str :iteration [{:keys [rel num]}]
   (str (ir-expr->str rel) "^" (ir-expr->str num)))
 
+(defmethod ir-expr->str :extended-expr [{:keys [identifier exprs preds] :as xx}]
+  (println xx)
+  (assert (empty? preds)) ;; do not know what happens with preds
+  (str (name identifier) "(" (clojure.string/join "," (map ir-expr->str exprs)) ")"))
+
+(defmethod ir-expr->str :extended-pred [{:keys [identifier exprs preds]}]
+  (assert false) ;; do not know what happens here
+  (str (name identifier) "(" (clojure.string/join "," (map ir-expr->str exprs)) ")"))
+
 ;; TODO: missing Closures
 
 
