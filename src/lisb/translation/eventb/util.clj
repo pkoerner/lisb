@@ -76,3 +76,11 @@
                    model (prob-model machine)]
                (.load model machine {})))))
 
+(comment 
+  (def xx (rodin->lisb "/home/philipp/tmp/rodin/workspace/NewProject/ClockDeepInstance.buc"))
+  (def xx (rodin->lisb "/home/philipp/tmp/rodin/workspace/NewProject/Clock.bum"))
+  xx
+  (def ir (lisb->ir xx))
+
+  (prob-model->rodin (apply ir->prob-model ir) "MyModel" "/home/philipp/tmp/rodin/workspace/")
+  )
