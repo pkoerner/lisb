@@ -16,6 +16,7 @@
     Event$Inheritance
     Context
     EventBConstant
+    Variant
     )
    de.prob.animator.domainobjects.EventB
    de.prob.model.representation.ModelElementList))
@@ -406,6 +407,9 @@
 (defmethod ir->prob :sees [{:keys [values]}]
   ;;TODO: get real context
   (ModelElementList. (map (fn [x] (Context. (rodin-name x))) values)))
+
+(defmethod ir->prob :variant [ir]
+  (Variant. (ir-expr->str (:expr ir)) #{}))
 
 (defmethod ir->prob :machine [{m-name :name clauses :machine-clauses}]
  (-> (EventBMachine. (rodin-name m-name))
