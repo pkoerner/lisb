@@ -102,9 +102,14 @@
    :exprs exprs
    :preds preds})
 
+(defn eventb-theorem [pred]
+  {:tag :theorem
+   :pred pred})
+
 (defmacro eventb [lisb]
   `(b (let [~'axioms ~'properties
             ~'theorems ~'assertions
+            ~'theorem eventb-theorem
             ~'context eventb-context
             ~'machine eventb-machine
             ~'variant eventb-variant

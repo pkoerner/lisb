@@ -60,7 +60,10 @@
   (-> node .getExpression .getAst ast->lisb))
 
 (defmethod prob->lisb EventBInvariant [node]
-  (-> node .getPredicate .getAst ast->lisb))
+  (let [code (-> node .getPredicate .getAst ast->lisb)]
+    (if (.isTheorem node)
+      `(~'theorem ~code)
+      code)))
 
 (defmethod prob->lisb Variant [node]
   (-> node .getExpression .getAst ast->lisb))

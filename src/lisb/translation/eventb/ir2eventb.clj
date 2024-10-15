@@ -321,7 +321,8 @@
   "converts all the invariants and assertions to EventBInvariant objects, where assertions are marked as theorems"
   [clauses]
   (let [invariant (map-indexed
-                   (fn [i pred] (EventBInvariant. (str "inv" @label-postfix i) (ir-pred->str pred) false #{}))
+                   (fn [i pred] 
+                     (EventBInvariant. (str "inv" @label-postfix i) (ir-pred->str (if (= :theorem (:tag pred)) (:pred pred) pred)) (= :theorem (:tag pred)) #{}))
                    (:values (find-clause :invariants clauses)))
         theorems  (map-indexed
                    (fn [i pred] (EventBInvariant. (str "thm" @label-postfix i) (ir-pred->str pred) true #{}))
