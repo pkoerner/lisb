@@ -79,7 +79,7 @@
 (comment 
   (def xx (rodin->lisb "/home/philipp/tmp/rodin/workspace/NewProject/ClockDeepInstance.buc"))
   (def xx (rodin->lisb "/home/philipp/tmp/rodin/workspace/NewProject/Clock.bum"))
-  xx
+  (eval `(eventb ~(first xx)))
   (def ir (lisb->ir xx))
 
   (prob-model->rodin (apply ir->prob-model ir) "MyModel" "/home/philipp/tmp/rodin/workspace/")

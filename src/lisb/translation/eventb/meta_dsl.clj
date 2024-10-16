@@ -2,8 +2,34 @@
   (:require [lisb.translation.eventb.dsl :refer [eventb]]
             [com.rpl.specter :as s]
             [lisb.translation.irtools :as irt]
-            [lisb.translation.lisb2ir :refer [band]]
+            [lisb.translation.lisb2ir :refer [band b= bexists]]
             ))
+
+(defn bappify-subst [action]
+  (case (:tag :action)
+    :skip true
+    :assignment (let [kvs (partition 2 (:id-vals action))]
+                  (apply band (map (fn [[k v]] (b= (keyword (str (name k) "p")) v)) kvs))) ;; TODO: LHS might be function call
+    :becomes-such nil ;; todo: replace all m'
+    :becomes-element-of nil
+    )
+  )
+
+(defn predify-event [evt-id variables evt-ir]
+  (let [namey (:name evt-ir)
+        clauses (:clauses evt-ir)
+        params (:values (first (filter #(= (:tag %) :args) clauses)))
+        guards (:values (first (filter #(= (:tag %) :guards) clauses)))
+        actions (:values (first (filter #(= (:tag %) :actions) clauses)))
+        bap (band (b= evt-id namey))
+        ]
+
+    
+    )
+  )
+
+(def evt-ir '{:tag :event, :name :tick_min, :clauses ({:tag
+:status, :value :convergent} {:tag :args, :values (:prm1)} {:tag :guards, :values ({:tag :and, :preds ({:tag :less, :nums (:m 59)} {:tag :equals, :left :prm1, :right 1})})} {:tag :actions, :values ({:tag :becomes-such, :ids [:m], :pred {:tag :equals, :left :m', :right {:tag :add, :nums (:m 1)}}})})})
 
 (defn transform [evtb-mch-ir]
   (let [mch-name (:name evtb-mch-ir)
@@ -13,7 +39,8 @@
         convergent (set (map :name (filter (fn [evt] (some #(= {:tag :status, :value :convergent} %) (:clauses evt))) events-clause)))
         ordinary (conj (clojure.set/difference (set event-names) convergent) :init)
         variant (:expr (s/select-one (irt/CLAUSE :variant) evtb-mch-ir))
-        inv (apply band (:values (s/select-one (irt/CLAUSE :invariants) evtb-mch-ir)))
+        inv (apply band (remove #(= (:tag %) :theorem) (:values (s/select-one (irt/CLAUSE :invariants) evtb-mch-ir))))
+        thm (apply band (map :pred (filter #(= (:tag %) :theorem) (:values (s/select-one (irt/CLAUSE :invariants) evtb-mch-ir)))))
         ]
     `(eventb
       (~'context ~mch-name
@@ -25,7 +52,7 @@
                  (~'= (~'extended-expr :Event [~mch-name] []) :Ev)
                  (~'= (~'extended-expr :Init  [~mch-name] []) :init)
                  (~'= (~'extended-expr :State [~mch-name] []) (~'cartesian-product ~@types))
-                 (~'= (~'extended-expr :Thm   [~mch-name] []) nil)
+                 (~'= (~'extended-expr :Thm   [~mch-name] []) '~thm)
                  (~'= (~'extended-expr :Inv   [~mch-name] []) '~inv)
                  (~'= (~'extended-expr :AP    [~mch-name] []) nil)
                  (~'= (~'extended-expr :BAP   [~mch-name] []) nil)
@@ -43,6 +70,7 @@
   [form]
   (transform (eval `(eventb ~form))))
 
+(comment
 (clojure.repl/pst)
 (def xx 
 (event-b-meta 
@@ -64,4 +92,4 @@
                          {:tag :event, :name :tick_midnight, :clauses ({:tag :guards, :values ({:tag :and, :preds ({:tag :equals, :left :m, :right 59} {:tag :equals, :left :h, :right 23})})} {:tag :actions, :values ({:tag :becomes-such, :ids [:m :h], :pred {:tag :and, :preds ({:tag :equals, :left :m', :right 0} {:tag :equals, :left :h', :right 0})}})})})})
 (:values (first (filter #(= (:tag %) :events) (:machine-clauses evtb-mch-ir))))
 (:values (first (filter #(= (:tag %) :events) (:machine-clauses evtb-mch-ir))))
-(apply band (:values (s/select-one (irt/CLAUSE :invariants) evtb-mch-ir)))
+(apply band (:values (s/select-one (irt/CLAUSE :invariants) evtb-mch-ir))))
