@@ -77,10 +77,34 @@
                (.load model machine {})))))
 
 (comment 
-  (def xx (rodin->lisb "/home/philipp/tmp/rodin/workspace/NewProject/ClockDeepInstance.buc"))
+  (def xx (rodin->lisb "/home/philipp/Downloads/rodin/workspace/NewProject/ClockDeepInstance2.buc"))
+  xx
+  (eventb (context :ClockDeepInstance2 (sets :Ev) (constants :x) (axioms (= :x (comprehension-set [:t :m :h :mp :hp] true (|-> :t (|-> (|-> :m :h) (|-> :mp :hp))))))))
+  (eventb (comprehension-set [:t] true (|-> :t (|-> (|-> :m :h) (|-> :mp :hp)))))
+  (eventb (|-> :t (|-> (|-> :m :h) (|-> :mp :hp))))
   (def xx (rodin->lisb "/home/philipp/tmp/rodin/workspace/NewProject/Clock.bum"))
   (eval `(eventb ~(first xx)))
   (def ir (lisb->ir xx))
 
-  (prob-model->rodin (apply ir->prob-model ir) "MyModel" "/home/philipp/tmp/rodin/workspace/")
+(def ir (eventb (machine :Clock
+           (variables :h :m)
+           (invariants (and (member? :m natural-set) (member? :h natural-set)) (and (< :m 60) (< :h 24)) (theorem (or (< :m 59) (or (and (= :m 59) (< :h 23)) (and (= :m 59) (= :h 23))))))
+           (variant (- (* 24 60) 1 (+ :m (* :h 60))))
+           (init (becomes-such [:m :h] (and (= :m' 0) (= :h' 0))))
+           (events (event :tick_min (status :convergent) (when (< :m 59)) (then (becomes-such [:m] (= :m' (+ :m 1)))))
+                   (event :tick_hour (status :convergent) (when (and (= :m 59) (< :h 23))) (then (becomes-such [:m :h] (and (= :m' 0) (= :h' (+ :h 1))))))
+                   (event :tick_midnight (when (and (= :m 59) (= :h 23))) (then (becomes-such [:m :h] (and (= :m' 0) (= :h' 0)))))))))
+  (prob-model->rodin (ir->prob-model ir) "MyModel" "/home/philipp/tmp/rodin/workspace/")
+
+  ir
+  (def xx (rodin->lisb "/home/philipp/Downloads/rodin/workspace/NewProject/Clock.bum"))
+  (use 'lisb.translation.eventb.meta-dsl)
+  (def irr (eval `(eventb ~(first xx))))
+  (def irr2 (eval (transform irr)))
+  irr2
+  (def irr2 '{:tag :context, :name :Clock, :machine-clauses ({:tag :sets, :values ({:tag :deferred-set, :id :Ev})} {:tag :constants, :values (:init :Clock :tick_min :tick_hour :tick_midnight)} 
+        {:tag :properties, :values ( 
+   {:tag :equals, :left :x, :right {:tag :comprehension-set, :ids [:x], :pred {:tag :equals :left 1 :right 1}, :expr {:tag :maplet, :elems ([:tag :maplet] [:elems (:t {:tag :maplet, :elems (:h :m)})])}}}   )})})
+  (prob-model->rodin (ir->prob-model irr2) "MyModel" "/home/philipp/tmp/rodin/workspace/")
+
   )
