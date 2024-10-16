@@ -112,9 +112,15 @@
   (str "{" (str/join "," (map ir-expr->str ir)) "}"))
 
 (defmethod ir-expr->str :comprehension-set [ir]
-  (str "{"
+  (if (:expr ir)
+    (str "{"
+          (ir-expr->str (:expr ir))
+          "|"
+          (ir-pred->str (:pred ir))
+         "}")
+    (str "{"
        (str/join "," (map rodin-name (:ids ir))) "|"
-       (ir-pred->str (:pred ir)) "}" ))
+       (ir-pred->str (:pred ir)) "}" )))
 
 (defmethod ir-expr->str :power-set [ir]
   (str "POW(" (ir-expr->str (:set ir)) ")"))

@@ -32,6 +32,7 @@
                                                AEmptySetExpression
                                                ASetExtensionExpression
                                                AComprehensionSetExpression
+                                               AEventBComprehensionSetExpression
                                                APowSubsetExpression
                                                APow1SubsetExpression
                                                AFinSubsetExpression
@@ -1047,7 +1048,9 @@
 (defmethod ir-node->ast-node :comprehension-set [ir-node]
   (s/assert (s/keys :req-un [::ids ::pred]) ir-node)
   (let [ids (map ir->ast-node (:ids ir-node))]
-    (AComprehensionSetExpression. ids (ir-node-pred->ast ir-node))))
+    (if (:expr ir-node)
+      (AEventBComprehensionSetExpression. ids (ir-node-expr->ast ir-node) (ir-node-pred->ast ir-node))
+      (AComprehensionSetExpression. ids (ir-node-pred->ast ir-node)))))
 
 (defmethod ir-node->ast-node :power-set [ir-node]
   (s/assert (s/keys :req-un [::set]) ir-node)

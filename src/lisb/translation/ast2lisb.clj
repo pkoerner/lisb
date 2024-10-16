@@ -922,7 +922,7 @@
   (apply lisbify 'partition (.getSet node) (.getElements node)))
 
 (defmethod ast->lisb AEventBComprehensionSetExpression [node]
-  (lisbify 'comprehension-set (.getIdentifiers node) (.getPredicates node)))
+  (lisbify 'comprehension-set (.getIdentifiers node) (.getPredicates node) (.getExpression node)))
 
 (defmethod ast->lisb AExtendedExprExpression [node]
   (lisbify 'extended-expr (.getIdentifier node) (.getExpressions node) (.getPredicates node)))
