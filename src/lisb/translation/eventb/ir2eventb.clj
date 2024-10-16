@@ -40,7 +40,7 @@
                         (ir-expr->str ir))) irs)))
 
 (defn chain-pred [op ir]
-   (str/join op (map ir-pred->str ir)))
+   (str "(" (str/join op (map ir-pred->str ir)) ")"))
 
 ;; Primitives
 
