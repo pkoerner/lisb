@@ -16,4 +16,5 @@
                  [clj-wallhack "1.0.1"]
                  [de.hhu.stups/prob-java "4.13.1"]
                  [de.hhu.stups/value-translator "0.1.4-SNAPSHOT"]
+                 [ch.qos.logback/logback-classic "1.5.11" :scope "provided"]
                  ])
