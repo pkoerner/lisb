@@ -20,7 +20,7 @@
 (import-vars [lisb.translation.eventb.ir2eventb ir->prob ir-pred->str ir-expr->str])
 (import-vars [lisb.translation.eventb.eventb2lisb prob->lisb])
 
-(def modelCreator (.getProvider injector EventBModel))
+(def modelCreator (delay (.getProvider @injector EventBModel)))
 
 (defn lisb->ir [lisb]
   (eval `(eventb ~lisb)))
@@ -46,7 +46,7 @@
             (condp = (type value)
               de.prob.model.eventb.Context (model-with-context model value)
               de.prob.model.eventb.EventBMachine (model-with-machine model value)))
-          (.get modelCreator) machines-or-contexts))
+          (.get @modelCreator) machines-or-contexts))
 
 (defn ir->prob-model [& ir] (->> ir
                                  (map  b2eventb/transform-all-expressions)
@@ -58,7 +58,7 @@
   (.writeToRodin (ModelToXML.) model model-name path))
 
 (defn rodin->prob-model [filename]
-  (-> (.eventb_load api filename)
+  (-> (.eventb_load @api filename)
       .getModel))
 
 
