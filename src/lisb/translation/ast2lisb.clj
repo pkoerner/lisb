@@ -189,7 +189,7 @@
             AOperationReference
             AOperation
             AMachineReferenceNoParams
-            AMachineClauseParseUnit AUsesMachineClause AExtendsMachineClause AMachineReference AIncludesMachineClause APromotesMachineClause AOpSubstitution ARefinementMachineParseUnit AImplementationMachineParseUnit AModelMachineVariant ASystemMachineVariant ASeesMachineClause ACaseSubstitution ACaseOrSubstitution ASubstitutionDefinitionDefinition TDefLiteralPredicate TDefLiteralSubstitution
+            AMachineClauseParseUnit AUsesMachineClause AExtendsMachineClause AMachineReference AIncludesMachineClause APromotesMachineClause ARefinementMachineParseUnit AImplementationMachineParseUnit AModelMachineVariant ASystemMachineVariant ASeesMachineClause ACaseSubstitution ACaseOrSubstitution ASubstitutionDefinitionDefinition TDefLiteralPredicate TDefLiteralSubstitution
             ATypeofExpression
             AEventBComprehensionSetExpression
             APartitionPredicate
@@ -504,14 +504,16 @@
 (defmethod ast->lisb ACaseOrSubstitution [node]
   [(return-element-if-only-one (map ast->lisb (.getExpressions node))) (ast->lisb (.getSubstitution node))])
 
-(defmethod ast->lisb AOpSubstitution [node]
-  (concat-last 'op-call (.getName node) (.getParameters node)))
+;(defmethod ast->lisb AOpSubstitution [node]
+;  (concat-last 'op-call (.getName node) (.getParameters node)))
 
 (defmethod ast->lisb AOperationCallSubstitution [node]
   (let [returns (mapv ast->lisb (.getResultIdentifiers node))
         op (first (.getOperation node))                     ; there should be exact one identifier in .getOperation
         params (.getParameters node)]
-    (list '<-- returns (concat-last 'op-call op params))))
+    (if (empty? returns)
+      (concat-last 'op-call op params)  
+      (list '<-- returns (concat-last 'op-call op params)))))
 
 (defmethod ast->lisb AOperationReference [node]
   (ast->lisb (last (.getOperationName node))))

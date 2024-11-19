@@ -191,7 +191,7 @@
                                                PSubstitution
                                                AOperationReference
                                                AMachineReferenceNoParams
-                                               PDefinition AExtendsMachineClause AIncludesMachineClause AMachineReference AUsesMachineClause APromotesMachineClause AOpSubstitution ASystemMachineVariant AModelMachineVariant ARefinementMachineParseUnit AImplementationMachineParseUnit ASeesMachineClause ACaseOrSubstitution ACaseSubstitution AExpressionDefinitionDefinition APredicateDefinitionDefinition ASubstitutionDefinitionDefinition TDefLiteralSubstitution TDefLiteralPredicate AFileDefinitionDefinition
+                                               PDefinition AExtendsMachineClause AIncludesMachineClause AMachineReference AUsesMachineClause APromotesMachineClause ASystemMachineVariant AModelMachineVariant ARefinementMachineParseUnit AImplementationMachineParseUnit ASeesMachineClause ACaseOrSubstitution ACaseSubstitution AExpressionDefinitionDefinition APredicateDefinitionDefinition ASubstitutionDefinitionDefinition TDefLiteralSubstitution TDefLiteralPredicate AFileDefinitionDefinition
                                                ;; unused for some reason
                                                ;POperation
                                                ;ADefinitionFileParseUnit
@@ -576,9 +576,7 @@
   (let [returns (map ir->ast-node (:returns ir-node))
         name (list (TIdentifierLiteral. (name (:op ir-node))))
         args (ir-node-args->ast ir-node)]
-    (if (empty? returns)
-      (AOpSubstitution. (AIdentifierExpression. name) args)
-      (AOperationCallSubstitution. returns name args))))
+    (AOperationCallSubstitution. returns name args)))
 (defmethod ir-node->ast-node :parallel-sub [ir-node]
   (s/assert (s/keys :req-un [::subs]) ir-node)
   (AParallelSubstitution. (ir-node-subs->ast ir-node)))
@@ -690,18 +688,18 @@
 (defmethod ir-node->ast-node :struct [ir-node]
   (s/assert (s/keys :req-un [::id-types]) ir-node)
   (AStructExpression. (map
-                        (fn [[k v]] (ARecEntry. (ir->ast-node k) (ir->ast-node v)))
+                        (fn [[k v]] (ARecEntry. (TIdentifierLiteral. (name k)) (ir->ast-node v)))
                         (partition 2 (:id-types ir-node)))))
 
 (defmethod ir-node->ast-node :record [ir-node]
   (s/assert (s/keys :req-un [::id-vals]) ir-node)
   (ARecExpression. (map
-                     (fn [[k v]] (ARecEntry. (ir->ast-node k) (ir->ast-node v)))
+                     (fn [[k v]] (ARecEntry. (TIdentifierLiteral. (name k)) (ir->ast-node v)))
                      (partition 2 (:id-vals ir-node)))))
 
 (defmethod ir-node->ast-node :record-get [ir-node]
   (s/assert (s/keys :req-un [::rec ::id]) ir-node)
-  (ARecordFieldExpression. (ir->ast-node (:rec ir-node)) (ir-node-id->ast ir-node)))
+  (ARecordFieldExpression. (ir->ast-node (:rec ir-node)) (TIdentifierLiteral. (name (:id ir-node)))))
 
 
 ;;; sequences
