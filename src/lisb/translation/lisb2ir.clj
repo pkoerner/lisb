@@ -1307,11 +1307,15 @@
 
 ;;; sets
 
-(defn bcomprehension-set [ids pred & expr]
-  {:tag  :comprehension-set
-   :ids  (to-vec ids)
-   :pred pred
-   :expr (if expr (first expr) (apply bmaplet ids)) })
+(defn bcomprehension-set
+  ([ids pred] {:tag  :comprehension-set
+               :ids  (to-vec ids)
+               :pred pred
+               :expr nil})
+  ([ids pred expr] {:tag  :comprehension-set
+                    :ids  (to-vec ids)
+                    :pred pred
+                    :expr expr}))
 #_(s/fdef bcomprehension-set
         :args (s/cat :ids ::ids :pred ::pred)
         :ret (s/and (s/keys :req-un [::tag] :req [::ids ::pred])
