@@ -33,7 +33,7 @@ jobs:
       if: runner.os == 'macOS'
       run: |
         brew update
-        brew install lein
+        brew install leiningen
 
     - name: Install dependencies
       run: lein deps
