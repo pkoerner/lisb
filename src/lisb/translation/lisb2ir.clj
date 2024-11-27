@@ -1984,17 +1984,19 @@
      code))
 
 (defn beval 
-  "Like eval, but also evaluates all elements in a tuple to the IR."
+  "Similar to eval, but also evaluates all elements in a tuple to the IR.
+  Maps will not be evaluated."
   [code]
-  (clojure.walk/postwalk 
-    (fn [x] (if (instance? lisb.translation.types.Tuple x)
-              (->Tuple (map beval x))
-           (eval x)))
-    code))
+  (eval (clojure.walk/postwalk 
+    (fn [x] (cond (instance? lisb.translation.types.Tuple x)
+                    (->Tuple (map beval x))
+                  (map? x)
+                    `'~x
+                  :otherwise x))
+    code)))
 
 (defn bb [code]
   (beval (bexpand (pre-process-lisb code))))
-
 
 (comment (bb `(= ~(= 1 2) 3))
          (bexpand (pre-process-lisb `[1 -> (+ 1 1)])) 
