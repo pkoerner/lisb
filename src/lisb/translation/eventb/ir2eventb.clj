@@ -156,8 +156,8 @@
   (str (ir-expr->str (:elem ir)) ":" (ir-expr->str (:set ir))))
 
 (defn chain-expr-explicit [op elems]
-  (str/join "&" (map (fn [a b] (str (ir-expr->str a) op (ir-expr->str b)))
-                     (butlast elems) (rest elems))))
+  (str "(" (str/join "&" (map (fn [a b] (str (ir-expr->str a) op (ir-expr->str b)))
+                     (butlast elems) (rest elems))) ")"))
 
 (defmethod ir-pred->str :subset [ir]
   (chain-expr-explicit "<:" (:sets ir)))
