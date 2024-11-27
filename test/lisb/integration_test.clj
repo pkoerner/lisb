@@ -143,6 +143,8 @@
     (is (eval-ir-formula (b= :x (bmaplet 1 2))))
     (is (eval-ir-formula (b= :x (bmaplet 1 2 3))))
 
+    (is (eval-ir-formula (bb `(= :x [1 -> 2]))))
+
     (is (eval-ir-formula (b= :x #{(bmaplet 1 2)})))
 
     (is (eval-ir-formula (bmember? :x (brelation #{1 2} #{3 4}))))

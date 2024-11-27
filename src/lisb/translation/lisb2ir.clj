@@ -1665,7 +1665,9 @@
     (and (vector? lisb) (<= 3 (count lisb)) (apply = "->" (map #(when (symbol? %) (name %)) (take-nth 2 (rest lisb)))))
          ;; catch all tuples in the form of [1 -> 2 -> 3 -> ...]
          (let [elems (take-nth 2 lisb)]
-           (list* lisb.translation.lisb2ir/bmaplet (map pre-process-lisb elems)))
+           ;(list* lisb.translation.lisb2ir/bmaplet (map pre-process-lisb elems))
+           (->Tuple (map pre-process-lisb elems))
+           )
     (and (set? lisb) (some #(and (symbol? %) (= "|" (name %))) lisb)) (process-comprehension-set lisb)
     (and (seq? lisb) (symbol? (first lisb)) (= "sets" (name (first lisb)))) (process-set-definitions lisb)
     (and (seq? lisb) (symbol? (first lisb)) (= "operations" (name (first lisb)))) (process-op-definitions lisb)
@@ -1981,12 +1983,22 @@
            :other form))
      code))
 
+(defn beval 
+  "Like eval, but also evaluates all elements in a tuple to the IR."
+  [code]
+  (clojure.walk/postwalk 
+    (fn [x] (if (instance? lisb.translation.types.Tuple x)
+              (->Tuple (map beval x))
+           (eval x)))
+    code))
+
 (defn bb [code]
-  (eval (bexpand (pre-process-lisb code))))
+  (beval (bexpand (pre-process-lisb code))))
 
 
 (comment (bb `(= ~(= 1 2) 3))
          (bexpand (pre-process-lisb `[1 -> (+ 1 1)])) 
+         (bb `[1 -> [(+ 1 1) -> (+ 1 1)]]) 
          (bb `#{[:x] | :x + 1 = 0})
          (bb `#{[:x] | (= 0 (+ :x 1))})
          (b #{[:x] | (= 0 (+ :x 1))})
