@@ -140,6 +140,7 @@
                                                ALetExpressionExpression
                                                ALetPredicatePredicate
                                                AConstantsMachineClause
+                                               AAbstractConstantsMachineClause
                                                APropertiesMachineClause
                                                AConstraintsMachineClause
                                                ASetsMachineClause
@@ -499,6 +500,10 @@
 (defmethod ir-node->ast-node :constants [ir-node]
   (s/assert (s/keys :req-un [::values]) ir-node)
   (AConstantsMachineClause. (ir-node-values->ast ir-node)))
+
+(defmethod ir-node->ast-node :abstract-constants [ir-node]
+  (s/assert (s/keys :req-un [::values]) ir-node)
+  (AAbstractConstantsMachineClause. (ir-node-values->ast ir-node)))
 
 (defmethod ir-node->ast-node :properties [ir-node]
   (s/assert (s/keys :req-un [::values]) ir-node)

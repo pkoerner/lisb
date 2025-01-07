@@ -235,6 +235,14 @@
         :ret (s/and (s/keys :req-un [::tag] :req [::values])
                     #(= :constants (:tag %))))
 
+(defn babstract-constants [& ids]
+  {:tag :abstract-constants
+   :values ids})
+(s/fdef babstract-constants
+        :args (s/cat :ids ::ids)
+        :ret (s/and (s/keys :req-un [::tag] :req [::values])
+                    #(= :constants (:tag %))))
+
 (defn bproperties [& preds]
   {:tag :properties
    :values preds})
@@ -1699,6 +1707,7 @@
                 "deferred-set" 'lisb.translation.lisb2ir/bdeferred-set
                 "enumerated-set" 'lisb.translation.lisb2ir/benumerated-set
                 "constants" 'lisb.translation.lisb2ir/bconstants
+                "abstract-constants" 'lisb.translation.lisb2ir/babstract-constants
                 "properties" 'lisb.translation.lisb2ir/bproperties
                 "definitions" 'lisb.translation.lisb2ir/bdefinitions
                 "expression-definition" 'lisb.translation.lisb2ir/bexpression-definition
