@@ -24,6 +24,11 @@ jobs:
         java-version: ${{ matrix.java-version }}
         distribution: ${{ matrix.distribution }}
         
+    - name: Install Leiningen on Ubuntu
+      if: runner.os == 'Ubuntu'
+      run: |
+        apt install leiningen
+
     - name: Install Leiningen on Windows
       if: runner.os == 'Windows'
       run: |
