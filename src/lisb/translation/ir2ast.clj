@@ -193,6 +193,11 @@
                                                AOperationReference
                                                AMachineReferenceNoParams
                                                PDefinition AExtendsMachineClause AIncludesMachineClause AMachineReference AUsesMachineClause APromotesMachineClause ASystemMachineVariant AModelMachineVariant ARefinementMachineParseUnit AImplementationMachineParseUnit ASeesMachineClause ACaseOrSubstitution ACaseSubstitution AExpressionDefinitionDefinition APredicateDefinitionDefinition ASubstitutionDefinitionDefinition TDefLiteralSubstitution TDefLiteralPredicate AFileDefinitionDefinition
+                                               ASymbolicCompositionExpression
+                                               ASymbolicComprehensionSetExpression
+                                               ASymbolicEventBComprehensionSetExpression
+                                               ASymbolicLambdaExpression
+                                               ASymbolicQuantifiedUnionExpression
                                                ;; unused for some reason
                                                ;POperation
                                                ;ADefinitionFileParseUnit
@@ -821,7 +826,9 @@
 
 (defmethod ir-node->ast-node :lambda [ir-node]
   (s/assert (s/keys :req-un [::ids ::pred ::expr]) ir-node)
-  (ALambdaExpression. (ir-node-ids->ast ir-node) (ir-node-pred->ast ir-node) (ir-node-expr->ast ir-node)))
+  (if (:symbolic (meta ir-node))
+    (ASymbolicLambdaExpression. (ir-node-ids->ast ir-node) (ir-node-pred->ast ir-node) (ir-node-expr->ast ir-node))
+    (ALambdaExpression. (ir-node-ids->ast ir-node) (ir-node-pred->ast ir-node) (ir-node-expr->ast ir-node))))
 
 (defmethod ir-node->ast-node :fn-call [ir-node]
   (s/assert (s/keys :req-un [::f ::args]) ir-node)
@@ -896,7 +903,11 @@
 
 (defmethod ir-node->ast-node :composition [ir-node]
   (s/assert (s/keys :req-un [::rels]) ir-node)
-  (left-associative #(ACompositionExpression. %1 %2) (ir-node-rels->ast ir-node)))
+  (left-associative 
+    (if (:symbolic (meta ir-node))
+      #(ASymbolicCompositionExpression. %1 %2) 
+      #(ACompositionExpression. %1 %2))
+    (ir-node-rels->ast ir-node)))
 
 (defmethod ir-node->ast-node :parallel-product [ir-node]
   (s/assert (s/keys :req-un [::rels]) ir-node)
@@ -1052,8 +1063,12 @@
   (s/assert (s/keys :req-un [::ids ::pred]) ir-node)
   (let [ids (map ir->ast-node (:ids ir-node))]
     (if (:expr ir-node)
-      (AEventBComprehensionSetExpression. ids (ir-node-expr->ast ir-node) (ir-node-pred->ast ir-node))
-      (AComprehensionSetExpression. ids (ir-node-pred->ast ir-node)))))
+      (if (:symbolic (meta ir-node))
+        (ASymbolicEventBComprehensionSetExpression. ids (ir-node-expr->ast ir-node) (ir-node-pred->ast ir-node))
+        (AEventBComprehensionSetExpression. ids (ir-node-expr->ast ir-node) (ir-node-pred->ast ir-node))) 
+      (if (:symbolic (meta ir-node))
+        (ASymbolicComprehensionSetExpression. ids (ir-node-pred->ast ir-node))
+        (AComprehensionSetExpression. ids (ir-node-pred->ast ir-node))))))
 
 (defmethod ir-node->ast-node :power-set [ir-node]
   (s/assert (s/keys :req-un [::set]) ir-node)
@@ -1113,7 +1128,9 @@
 
 (defmethod ir-node->ast-node :union-pe [ir-node]
   (s/assert (s/keys :req-un [::ids ::pred ::expr]) ir-node)
-  (AQuantifiedUnionExpression. (ir-node-ids->ast ir-node) (ir-node-pred->ast ir-node) (ir-node-expr->ast ir-node)))
+  (if (:symbolic (meta ir-node))
+    (ASymbolicQuantifiedUnionExpression. (ir-node-ids->ast ir-node) (ir-node-pred->ast ir-node) (ir-node-expr->ast ir-node)) 
+    (AQuantifiedUnionExpression. (ir-node-ids->ast ir-node) (ir-node-pred->ast ir-node) (ir-node-expr->ast ir-node))))
 
 (defmethod ir-node->ast-node :intersection-pe [ir-node]
   (s/assert (s/keys :req-un [::ids ::pred ::expr]) ir-node)

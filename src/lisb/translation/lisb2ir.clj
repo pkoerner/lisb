@@ -1606,6 +1606,11 @@
         :ret (s/and (s/keys :req-un [::tag] :req [::ids ::pred])
                     #(= :exists (:tag %))))
 
+;; pragmas
+
+(defn symbolic [ir]
+  (vary-meta ir assoc :symbolic true))
+
 ;;; misc
 
 
@@ -1936,6 +1941,11 @@
                 "not" 'lisb.translation.lisb2ir/bnot
                 "for-all" 'lisb.translation.lisb2ir/bfor-all
                 "exists" 'lisb.translation.lisb2ir/bexists  
+
+
+                ; pragmas
+                "symbolic" 'lisb.translation.lisb2ir/symbolic
+
 
                 ;'| :lisb-internal/any-value
                 ;'<-- 'lisb.translation.lisb2ir/bop-call-with-returns

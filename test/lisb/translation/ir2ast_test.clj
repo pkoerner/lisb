@@ -440,3 +440,28 @@
 (deftest tuples-test
   (testing "tuples are indeed translated to the correct AST"
     (is (= "(1, 2)" (ast->b (ir->ast (->Tuple [1 2])))))))
+
+
+
+(deftest symbolic-pragma-test
+  (testing "symbolic annotation is respected"
+    (are [b ir] (= b (ast->b (ir->ast ir)))
+         "(r1;r2)" (b (composition :r1 :r2))
+         "(r1 /*@symbolic*/ ;r2)" (b (symbolic (composition :r1 :r2)))
+         "(r1 /*@symbolic*/ ;r2)" (bb `(symbolic (composition :r1 :r2)))
+         "UNION(z).(z:NAT|1)" (b (union-pe #{:z} (contains? nat-set :z) 1))
+         "/*@symbolic*/ UNION(z).(z:NAT|1)" (b (symbolic (union-pe #{:z} (contains? nat-set :z) 1)))
+         "/*@symbolic*/ UNION(z).(z:NAT|1)" (bb `(symbolic (union-pe #{:z} (contains? nat-set :z) 1)))
+         "%(x).(1=1|1)" (b (lambda [:x] (= 1 1) 1))
+         "/*@symbolic*/ %(x).(1=1|1)" (b (symbolic (lambda [:x] (= 1 1) 1)))
+         "/*@symbolic*/ %(x).(1=1|1)" (bb `(symbolic (lambda [:x] (= 1 1) 1)))
+         "{x|x:NAT}" (b (comprehension-set :x (contains? nat-set :x)))
+         "{x|x:NAT}" (b #{:x | (in :x nat-set)})
+         "/*@symbolic*/ {x|x:NAT}" (b (symbolic (comprehension-set :x (contains? nat-set :x))))
+         "/*@symbolic*/ {x|x:NAT}" (b (symbolic #{:x | (in :x nat-set)}))
+         "/*@symbolic*/ {x|x:NAT}" (bb `(symbolic (comprehension-set :x (contains? nat-set :x))))
+         "/*@symbolic*/ {x|x:NAT}" (bb `(symbolic #{:x | (in :x nat-set)}))
+         "{(x).x < 5|-x}" (b (comprehension-set :x (< :x 5) (- :x)))
+         "/*@symbolic*/ {(x).x < 5|-x}" (b (symbolic (comprehension-set :x (< :x 5) (- :x))))
+         "/*@symbolic*/ {(x).x < 5|-x}" (bb `(symbolic (comprehension-set :x (< :x 5) (- :x))))
+         )))
