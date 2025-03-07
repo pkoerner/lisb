@@ -102,6 +102,9 @@
    :exprs exprs
    :preds preds})
 
+(defn eventb-label [label formula]
+  (assoc formula :label label))
+
 (defn eventb-theorem [pred]
   {:tag :theorem
    :pred pred})
@@ -125,6 +128,8 @@
             ~'with event-with
             ~'finite eventb-finite
             ~'extended-expr eventb-extended-expr
-            ~'extended-pred eventb-extended-pred] 
+            ~'extended-pred eventb-extended-pred
+            ~'label eventb-label
+            ] 
         ~lisb)))
 

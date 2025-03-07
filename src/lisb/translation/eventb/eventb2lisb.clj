@@ -62,8 +62,8 @@
 (defmethod prob->lisb EventBInvariant [node]
   (let [code (-> node .getPredicate .getAst ast->lisb)]
     (if (.isTheorem node)
-      `(~'theorem ~code)
-      code)))
+      `(~'label ~(.getName node) (~'theorem  ~code))
+      `(~'label ~(.getName node) ~code))))
 
 (defmethod prob->lisb Variant [node]
   (-> node .getExpression .getAst ast->lisb))
@@ -91,13 +91,15 @@
   (-> node .getExpression .getAst ast->lisb))
 
 (defmethod prob->lisb EventBGuard [node]
-  (-> node .getPredicate .getAst ast->lisb))
+  (let [code (-> node .getPredicate .getAst ast->lisb)]
+    `(~'label ~(.getName node) ~code)))
 
 (defmethod prob->lisb Witness [node]
   (-> node .getPredicate .getAst ast->lisb))
 
 (defmethod prob->lisb EventBAction [node]
-  (-> node .getCode .getAst ast->lisb))
+  (let [code (-> node .getCode .getAst ast->lisb)]
+    `(~'label ~(.getName node) ~code)))
 
 (defmethod prob->lisb EventB [node]
   (-> node .getAst ast->lisb))
@@ -119,7 +121,8 @@
   (name-as-keyword node))
 
 (defmethod prob->lisb EventBAxiom [node]
-  (-> node .getPredicate .getAst ast->lisb))
+  (let [code (-> node .getPredicate .getAst ast->lisb)]
+    `(~'label ~(.getName node) ~code)))
 
 ;; Misc
 

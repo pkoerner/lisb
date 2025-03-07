@@ -13,18 +13,19 @@
     (eventb (machine :foo
                      (variables :x :y :z)
                      (init
-                      (assign :x 1 :y 2)
-                      (assign :z :nat))
+                      (label "init0" (assign :x 1 :y 2))
+                      (label "init1" (assign :z :nat)))
                      (events
-                      (event :magic (any :t) (when (> :x 0)) (then (assign :x :t))))))))
+                      (event :magic (any :t) (when (label "grd0" (> :x 0))) (then (label "act0" (assign :x :t)))))))))
 
 (deftest event-test
   (are [ir] (= ir (-> ir ir->prob prob->lisb lisb->ir))
     (eventb (event :empty))
-    (eventb (event :event1 (then (assign :x 1 :y 2))))
-    (eventb (event :event1 (when (> :y 2))))
+    (eventb (event :event1 (then (label "act0" (assign :x 1 :y 2)))))
+    (eventb (event :event1 (when (label "grd0" (> :y 2)))))
     (eventb (event :event1 (any :t)))
     ))
+
 
 (comment
   (-> (eventb (event :event1 (any :t)))
