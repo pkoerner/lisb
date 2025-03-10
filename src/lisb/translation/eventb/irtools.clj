@@ -13,7 +13,7 @@
      (for [e events]
        [(name (:name e))
         (let [guards (:values (first (filter #(= (:tag %) :guards) (:clauses e))))
-             actions (:values (first (filter #(= (:tag %) :guards) (:clauses e))))]
+             actions (:values (first (filter #(= (:tag %) :actions) (:clauses e))))]
          (into (sorted-map) (for [el (concat guards actions)] [(:label el) (dissoc el :label)])))]))))
 
 (comment
