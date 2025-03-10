@@ -1,5 +1,6 @@
 (ns lisb.translation.eventb.irtools
   (:require [com.rpl.specter :as s] 
+            [lisb.translation.util :as butil]
             [lisb.translation.irtools :as irt]))
 
 
@@ -7,14 +8,17 @@
   (let [events (:values (s/select-one (irt/CLAUSE :events) ir))
         init (:values (s/select-one (irt/CLAUSE :init) ir))
         invariants (:values (s/select-one (irt/CLAUSE :invariants) ir))]
-    (into {"INVARIANT" (into (sorted-map) (for [inv invariants] [(:label inv) (dissoc inv :label)]))}
+    (into {"INVARIANT" (into (sorted-map "complete invariant" (apply butil/band invariants)) (for [inv invariants] [(:label inv) (dissoc inv :label)]))}
      ;; TODO: not to sure about parameters in initialisation
      ;;"INITIALISATION" (into (sorted-map) (for [inv invariants] [(:label inv) (dissoc inv :label)]))
      (for [e events]
        [(name (:name e))
         (let [guards (:values (first (filter #(= (:tag %) :guards) (:clauses e))))
-             actions (:values (first (filter #(= (:tag %) :actions) (:clauses e))))]
-         (into (sorted-map) (for [el (concat guards actions)] [(:label el) (dissoc el :label)])))]))))
+              actions (:values (first (filter #(= (:tag %) :actions) (:clauses e))))]
+         (into (sorted-map "complete guard" (apply butil/band guards)
+                           ;; "complete action" () ;; TODO: handle all substitution types
+                           ) 
+               (for [el (concat guards actions)] [(:label el) (dissoc el :label)])))]))))
 
 (comment
   (def ir '{:tag :machine, :name :Clock, :machine-clauses ({:tag :variables, :values (:h :m)}
