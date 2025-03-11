@@ -225,7 +225,7 @@
             statespace (.getStateSpace state) ]
         (to-state statespace bindingsmap)))
     (cons [v] (conj this v))
-    (count [v] (count (concat (.getConstantValues state FormulaExpand/EXPAND) (.getVariableValues state FormulaExpand/EXPAND))))
+    (count [] (count (concat (.getConstantValues state FormulaExpand/EXPAND) (.getVariableValues state FormulaExpand/EXPAND))))
     (without [k] (throw (Exception.)))
     (iterator []
       (clojure.lang.RT/iter (seq this))
