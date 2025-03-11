@@ -228,16 +228,15 @@
     (count [] (count (concat (.getConstantValues state FormulaExpand/EXPAND) (.getVariableValues state FormulaExpand/EXPAND))))
     (without [k] (throw (Exception.)))
     (iterator []
-      (clojure.lang.RT/iter (seq this))
-      )
+      (clojure.lang.RT/iter (seq this)))
     (seq [] ;; TODO: do I really need seq / Seqable?
       (let [constants (.getConstantValues state FormulaExpand/EXPAND)
             variables (.getVariableValues state FormulaExpand/EXPAND)
-            bindings (map (fn [[k v]] [(keyword (.getCode k)) (if-not (instance? de.prob.animator.domainobjects.IdentifierNotInitialised v)
-                                                                (b-expression->ir (.getValue v))
-                                                                :prob/uninitialised)])
+            bindings (map (fn [[k v]] (clojure.lang.MapEntry. (keyword (.getCode k)) (if-not (instance? de.prob.animator.domainobjects.IdentifierNotInitialised v)
+                                                                                       (b-expression->ir (.getValue v))
+                                                                                       :prob/uninitialised)))
                           (merge (into {} constants) (into {} variables)))
-            transs (map (fn [op] [op '...]) (get-transitions state true))]
+            transs (map (fn [op] (clojure.lang.MapEntry. op '...)) (get-transitions state true))]
         (concat bindings transs)))
     (meta [] {:state state})))
 
