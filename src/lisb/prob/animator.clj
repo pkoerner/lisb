@@ -193,8 +193,7 @@
      (map #(translate-transition % add-op-namespace-to-kw) transs))))
 
 (defn wrap-state [state] 
-  ;; TODO: maybe save a state ID so we still have access to the original object
-  (proxy [clojure.lang.APersistentMap] []
+  (proxy [clojure.lang.APersistentMap clojure.lang.IMeta] []
     (valAt [k & not-found]
       (cond (vector? k)
         ;; vector: assume operation
@@ -239,7 +238,8 @@
                                                                 :prob/uninitialised)])
                           (merge (into {} constants) (into {} variables)))
             transs (map (fn [op] [op '...]) (get-transitions state true))]
-        (concat bindings transs)))))
+        (concat bindings transs)))
+    (meta [] {:state state})))
 
 
 (defn root-state [state-space]
