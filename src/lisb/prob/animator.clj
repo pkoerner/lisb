@@ -176,7 +176,9 @@
         newstate (.getDestination (.getOperation fsc))]
     (wrap-state newstate)) )
 
+
 (defn wrap-state [state] 
+  ;; TODO: do I really need to proxy the state here? would I be better off proxying APersistentMap or something?
   (proxy [State clojure.lang.ILookup clojure.lang.Associative clojure.lang.Seqable] [(.getId state) (.getStateSpace state)]
     (valAt [k & not-found]
       (cond (vector? k)
@@ -208,11 +210,10 @@
             bindingsmap (assoc (into {} bindings) k v)
             statespace (.getStateSpace state) ]
         (to-state statespace bindingsmap)))
-    (seq []
-      ;; TODO: lisb-ify
+    (seq [] ;; TODO: do I really need seq / Seqable?
       (let [constants (.getConstantValues state FormulaExpand/EXPAND)
             variables (.getVariableValues state FormulaExpand/EXPAND)
-            bindings (map (fn [[k v]] [(.getCode k) (.getValue v)]) (merge (into {} constants) (into {} variables)))]
+            bindings (map (fn [[k v]] [(keyword (.getCode k)) (b-expression->ir (.getValue v))]) (merge (into {} constants) (into {} variables)))]
         bindings))))
 
 
@@ -333,6 +334,7 @@
   (use 'clojure.repl)
   (source update)
 
-  (to-state ss3 {:curfloor 42})
-  
+  (seq (to-state ss3 {:curfloor 42}))
+
+  (source merge)
   )
