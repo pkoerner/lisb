@@ -2,10 +2,11 @@
   (:require [lisb.prob.java-api :refer :all])
   (:require [lisb.prob.retranslate :refer [retranslate]])
   (:require [lisb.translation.lisb2ir :refer [b= band bmember?]])
-  (:require [lisb.translation.util :refer [ir->b ir->ast b-expression->lisb b-expression->ir]]) ;; TODO: change this to avoid cyclic dependencies
+  (:require [lisb.translation.util :refer [ir->b ir->ast b-expression->lisb b-expression->ir b-predicate->ast b-expression->lisb]]) ;; TODO: change this to avoid cyclic dependencies
   (:require [clojure.pprint :refer [pprint]])
   (:import 
            de.prob.animator.command.EvaluateFormulasCommand
+           de.prob.animator.command.FindStateCommand
            de.prob.animator.domainobjects.ClassicalB
            de.prob.animator.domainobjects.FormulaExpand
            de.prob.animator.domainobjects.EvalResult
@@ -165,8 +166,16 @@
                                           parameter-map))))))
 
 
+(defn to-state [statespace bindings]
+  (let [formula (apply band (map (fn [[id v]] (b= id v)) bindings))
+        formula-str (ir->b formula)
+        fsc (FindStateCommand. statespace (ClassicalB. (b-predicate->ast formula-str) FormulaExpand/EXPAND "") false)
+        _ (.execute statespace fsc)
+        newstate (.getDestination (.getOperation fsc))]
+    (wrap-state newstate)) )
+
 (defn wrap-state [state] 
-  (proxy [State clojure.lang.ILookup] [(.getId state) (.getStateSpace state)]
+  (proxy [State clojure.lang.ILookup clojure.lang.Associative clojure.lang.Seqable] [(.getId state) (.getStateSpace state)]
     (valAt [k & not-found]
       (cond (vector? k)
         ;; vector: assume operation
@@ -181,10 +190,28 @@
               ;; TODO use this line instead once the AbstractEvalElement is fixed
               ;key-var (clojure.lang.Reflector/invokeConstructor formalism (into-array [(name k)]))
               ]
-          (def vv (get m key-var))
           (if key-var
             ((handle-val-output :value (.getStateSpace state) default-eval-settings #_de.hhu.stups.prob.translator.Translator/translate) (.getValue (get m key-var)))
-            not-found))))))
+            not-found))))
+    (containsKey [k]
+      (let [constant-ids (map #(.getCode %) (keys (.getConstantValues state FormulaExpand/EXPAND)))
+            variable-ids (map #(.getCode %) (keys (.getVariableValues state FormulaExpand/EXPAND)))]
+        (contains? (set (map keyword (concat constant-ids variable-ids))) k)))
+    (entryAt [k]
+      (clojure.lang.MapEntry. k (.valAt this k)))
+    (assoc [k v]
+      (let [constants (.getConstantValues state FormulaExpand/EXPAND)
+            variables (.getVariableValues state FormulaExpand/EXPAND)
+            bindings (map (fn [[k v]] [(keyword (.getCode k)) (b-expression->ir (.getValue v))]) (merge (into {} constants) (into {} variables)))
+            bindingsmap (assoc (into {} bindings) k v)
+            statespace (.getStateSpace state) ]
+        (to-state statespace bindingsmap)))
+    (seq []
+      ;; TODO: lisb-ify
+      (let [constants (.getConstantValues state FormulaExpand/EXPAND)
+            variables (.getVariableValues state FormulaExpand/EXPAND)
+            bindings (map (fn [[k v]] [(.getCode k) (.getValue v)]) (merge (into {} constants) (into {} variables)))]
+        bindings))))
 
 
 (defn root-state [state-space]
@@ -296,4 +323,14 @@
   ;; TODO: how much translation of values is desirable?
   ;; TODO: what is a good way to make states (accessing values) and transtions (getting successors) feel clojure-y?
 
+  (def ss3 (state-space! (b->ast (slurp "/home/philipp/repos/prob_prolog/distribution_examples/Simple/Lift.mch"))))
+  (map #(.getCode %) (keys (.getVariableValues (root-state ss3) FormulaExpand/EXPAND)))
+  (.getValue (first (vals (.getVariableValues (-> (root-state ss3) :op/$initialise_machine) FormulaExpand/EXPAND))))
+  (.entryAt (-> (root-state ss3) :op/$initialise_machine) :curfloor)
+  (seq (update (assoc (-> (root-state ss3) :op/$initialise_machine) :curfloor 99) :curfloor dec))
+  (use 'clojure.repl)
+  (source update)
+
+  (to-state ss3 {:curfloor 42})
+  
   )
