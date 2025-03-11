@@ -41,3 +41,9 @@
     (let [state (to-state @lift-state-space {:etage 97})]
       (is (= 97 (:etage state)))
       (is (= 98 (:etage (:op/inc state)))))))
+
+(deftest state-equiv-test
+  (testing "state is equivalent to hash map containing its bindings"
+    (let [state (to-state @lift-state-space {:etage 97})]
+      (is (= {:etage 97} state))
+      (is (= state {:etage 97})))))
