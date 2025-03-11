@@ -169,7 +169,7 @@
 
 
 (defn to-state [statespace bindings]
-  (let [bindings' (filter (fn [[k _]] (println k) (and (keyword k) (not= "op" (namespace k)))) bindings)
+  (let [bindings' (filter (fn [[k _]] (and (keyword k) (not= "op" (namespace k)))) bindings)
         formula (apply band (map (fn [[id v]] (b= id v)) bindings'))
         formula-str (ir->b formula)
         fsc (FindStateCommand. statespace (ClassicalB. (b-predicate->ast formula-str) FormulaExpand/EXPAND "") false)
