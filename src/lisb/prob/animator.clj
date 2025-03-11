@@ -178,6 +178,20 @@
     (wrap-state newstate)) )
 
 
+(defn translate-transition 
+  ([trans] (translate-transition trans false))
+  ([trans add-op-namespace-to-kw]
+   (if (seq (.getParameterValues trans))
+     [(keyword (when add-op-namespace-to-kw "op") (.getName trans)) 
+      (zipmap (.getParameterNames trans) (.getParameterValues trans))]
+     (keyword (when add-op-namespace-to-kw "op") (.getName trans)))))
+
+(defn get-transitions 
+  ([state] (get-transitions false))
+  ([state add-op-namespace-to-kw] (.explore state)
+   (let [transs (.getTransitions state)]
+     (map #(translate-transition % add-op-namespace-to-kw) transs))))
+
 (defn wrap-state [state] 
   ;; TODO: do I really need to proxy the state here? would I be better off proxying APersistentMap or something?
   (proxy [clojure.lang.APersistentMap] []
@@ -230,20 +244,6 @@
 
 (defn root-state [state-space]
   (wrap-state (.getRoot state-space)))
-
-(defn translate-transition 
-  ([trans] (translate-transition trans false))
-  ([trans add-op-namespace-to-kw]
-   (if (seq (.getParameterValues trans))
-     [(keyword (when add-op-namespace-to-kw "op") (.getName trans)) 
-      (zipmap (.getParameterNames trans) (.getParameterValues trans))]
-     (keyword (when add-op-namespace-to-kw "op") (.getName trans)))))
-
-(defn get-transitions 
-  ([state] (get-transitions false))
-  ([state add-op-namespace-to-kw] (.explore state)
-   (let [transs (.getTransitions state)]
-     (map #(translate-transition % add-op-namespace-to-kw) transs))))
 
 
 
