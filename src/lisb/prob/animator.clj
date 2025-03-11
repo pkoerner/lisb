@@ -169,7 +169,8 @@
 
 
 (defn to-state [statespace bindings]
-  (let [formula (apply band (map (fn [[id v]] (b= id v)) bindings))
+  (let [bindings' (filter (fn [[k _]] (println k) (and (keyword k) (not= "op" (namespace k)))) bindings)
+        formula (apply band (map (fn [[id v]] (b= id v)) bindings'))
         formula-str (ir->b formula)
         fsc (FindStateCommand. statespace (ClassicalB. (b-predicate->ast formula-str) FormulaExpand/EXPAND "") false)
         _ (.execute statespace fsc)
@@ -179,13 +180,13 @@
 
 (defn wrap-state [state] 
   ;; TODO: do I really need to proxy the state here? would I be better off proxying APersistentMap or something?
-  (proxy [State clojure.lang.ILookup clojure.lang.Associative clojure.lang.Seqable] [(.getId state) (.getStateSpace state)]
+  (proxy [clojure.lang.APersistentMap] []
     (valAt [k & not-found]
       (cond (vector? k)
         ;; vector: assume operation
-        (apply successor this (update k 0 (comp keyword name)))
+        (apply successor state (update k 0 (comp keyword name)))
         (and (keyword? k) (= "op" (namespace k)))
-        (successor this (keyword (name k)))
+        (successor state (keyword (name k)))
         :otherwise
         ;; not vector: assume variable 
         (let [m (merge (into {} (.getConstantValues state FormulaExpand/TRUNCATE)) (into {} (.getVariableValues state FormulaExpand/TRUNCATE)))
@@ -210,11 +211,21 @@
             bindingsmap (assoc (into {} bindings) k v)
             statespace (.getStateSpace state) ]
         (to-state statespace bindingsmap)))
+    (cons [v] (conj this v))
+    (count [v] (count (concat (.getConstantValues state FormulaExpand/EXPAND) (.getVariableValues state FormulaExpand/EXPAND))))
+    (without [k] (throw (Exception.)))
+    (iterator []
+      (clojure.lang.RT/iter (seq this))
+      )
     (seq [] ;; TODO: do I really need seq / Seqable?
       (let [constants (.getConstantValues state FormulaExpand/EXPAND)
             variables (.getVariableValues state FormulaExpand/EXPAND)
-            bindings (map (fn [[k v]] [(keyword (.getCode k)) (b-expression->ir (.getValue v))]) (merge (into {} constants) (into {} variables)))]
-        bindings))))
+            bindings (map (fn [[k v]] [(keyword (.getCode k)) (if-not (instance? de.prob.animator.domainobjects.IdentifierNotInitialised v)
+                                                                (b-expression->ir (.getValue v))
+                                                                :prob/uninitialised)])
+                          (merge (into {} constants) (into {} variables)))
+            transs (map (fn [op] [op '...]) (get-transitions state true))]
+        (concat bindings transs)))))
 
 
 (defn root-state [state-space]
@@ -234,35 +245,6 @@
    (let [transs (.getTransitions state)]
      (map #(translate-transition % add-op-namespace-to-kw) transs))))
 
-
-
-;; TODO: refactor, duplicate code
-(require '[flatland.ordered.map :refer [ordered-map]])
-(defmethod clojure.core/print-method State [this writer]
-  (let [kvs (map (fn [[k v]]
-                   [(keyword (.getCode k))
-                    (if-not (instance? de.prob.animator.domainobjects.IdentifierNotInitialised v)
-                      (.getValue v) 
-                      :prob/uninitialised)]) 
-                 (concat (.getConstantValues this FormulaExpand/EXPAND)
-                         (.getVariableValues this FormulaExpand/EXPAND)))
-        transs (map (fn [op] [op '...]) (get-transitions this true)) ]
-  (print-simple
-    (into (ordered-map) (concat kvs transs))
-    writer)))
-
-(defmethod clojure.pprint/simple-dispatch State [this]
-  (let [kvs (map (fn [[k v]]
-                   [(keyword (.getCode k))
-                    (if-not (instance? de.prob.animator.domainobjects.IdentifierNotInitialised v)
-                      (.getValue v) 
-                      :prob/uninitialised)]) 
-                 (concat (.getConstantValues this FormulaExpand/EXPAND)
-                         (.getVariableValues this FormulaExpand/EXPAND)))
-        transs (map (fn [op] [op '...]) (get-transitions this true)) ]
-  (pprint
-    (into (ordered-map) (concat kvs transs))
-    )))
 
 
 
@@ -298,14 +280,15 @@
 
   (do stat)
 
-  (def ss2 (state-space! (b->ast (slurp "/home/philipp/CAN_BUS_tlc.mch"))))
+  (def ss2 (state-space! (b->ast (slurp (clojure.java.io/resource "machines/b/CAN_BUS_tlc.mch")))))
 
   (root-state ss2)
   (pprint (-> ss2 root-state :op/$setup_constants :op/$initialise_machine ))
-  (-> ss2 root-state :op/$setup_constants :op/$initialise_machine (.findTransition "Update" []) (.getDestination))
+  ;; (-> ss2 root-state :op/$setup_constants :op/$initialise_machine (.findTransition "Update" []) (.getDestination))
   (class (-> ss2 root-state :op/$setup_constants :op/$initialise_machine ))
   (-> ss2 root-state :op/$setup_constants :op/$initialise_machine :op/Update :op/T3Initiate :op/T3writebus)
   (get-in (root-state ss2) [:op/$setup_constants :op/$initialise_machine [:Update {:pmax 0}] :op/T3Initiate])
+  (to-state ss2 (get-in (root-state ss2) [:op/$setup_constants :op/$initialise_machine :op/Update] :op/T3Initiate))
   (successor (.getRoot ss2) :$setup_constants)
   (def st (-> (.getRoot ss2)
       (successor :$setup_constants)
