@@ -5,7 +5,7 @@
         [clojure.test]))
 
 (def lift-state-space 
-  (delay (state-space! (b->ast (slurp (clojure.java.io/resource "machines/b//simple/Lift.mch"))))))
+  (delay (state-space! (b->ast (slurp (clojure.java.io/resource "machines/b/simple/Lift.mch"))))))
 
 (deftest root-state-test
   (testing "can retrieve root state"
