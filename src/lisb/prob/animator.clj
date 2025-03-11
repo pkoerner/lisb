@@ -238,6 +238,14 @@
                           (merge (into {} constants) (into {} variables)))
             transs (map (fn [op] (clojure.lang.MapEntry. op '...)) (get-transitions state true))]
         (concat bindings transs)))
+    (equiv [obj]
+      (let [constants (.getConstantValues state FormulaExpand/EXPAND)
+            variables (.getVariableValues state FormulaExpand/EXPAND)
+            bindings (into {} (map (fn [[k v]] (clojure.lang.MapEntry. (keyword (.getCode k)) (if-not (instance? de.prob.animator.domainobjects.IdentifierNotInitialised v)
+                                                                                                (b-expression->ir (.getValue v))
+                                                                                                :prob/uninitialised)))
+                                   (merge (into {} constants) (into {} variables))))]
+        (.equiv bindings obj)))
     (meta [] {:state state})))
 
 
@@ -316,7 +324,9 @@
   (use 'clojure.repl)
   (source update)
 
-  (seq (to-state ss3 {:curfloor 42}))
+  (= {:curfloor 42} (to-state ss3 {:curfloor 42}) )
+  (=  (to-state ss3 {:curfloor 42}) {:curfloor 42})
+  (count (to-state ss3 {:curfloor 42}))
 
   (source merge)
   )
