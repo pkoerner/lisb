@@ -193,7 +193,7 @@
      (map #(translate-transition % add-op-namespace-to-kw) transs))))
 
 (defn wrap-state [state] 
-  ;; TODO: do I really need to proxy the state here? would I be better off proxying APersistentMap or something?
+  ;; TODO: maybe save a state ID so we still have access to the original object
   (proxy [clojure.lang.APersistentMap] []
     (valAt [k & not-found]
       (cond (vector? k)
