@@ -227,7 +227,7 @@
       (clojure.lang.MapEntry. k (.valAt this k)))
     (assoc [k v]
       (let [m (constants-and-variables-map state)
-            bindings (update-vals m #(b-expression->ir (.getValue %)))
+            bindings (update-vals m uninit-safe-bexpression->ir)
             bindingsmap (assoc bindings k v)
             statespace (.getStateSpace state)]
         (to-state statespace bindingsmap)))
