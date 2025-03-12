@@ -43,9 +43,12 @@
     (throw (Exception. ^String message))))
 
 
+;; TODO: find out whether we want this in all cases
+(def FORMULA-EXPANSION FormulaExpand/EXPAND)
+
 (defn eval-formula
   ([state-space formula-ast]
-   (let [eval-element (ClassicalB. formula-ast FormulaExpand/EXPAND "")
+   (let [eval-element (ClassicalB. formula-ast FORMULA-EXPANSION "")
          cmd (EvaluateFormulasCommand. (list eval-element) "root")
          _ (.execute state-space cmd)]
      (get-result (first (.getValues cmd))))))
@@ -143,7 +146,7 @@
    (eval-formula' state-space formula-ast default-eval-settings))
   ([state-space formula-ast settings]
    (let [settings (merge default-eval-settings settings)
-         eval-element (ClassicalB. formula-ast FormulaExpand/EXPAND "")
+         eval-element (ClassicalB. formula-ast FORMULA-EXPANSION "")
          cmd (EvaluateFormulasCommand. (list eval-element) "root")
          _ (.execute state-space cmd)]
      (get-result' (first (.getValues cmd)) state-space settings))))
@@ -172,7 +175,7 @@
   (let [bindings' (filter (fn [[k _]] (and (keyword k) (not= "op" (namespace k)))) bindings)
         formula (apply band (map (fn [[id v]] (b= id v)) bindings'))
         formula-str (ir->b formula)
-        fsc (FindStateCommand. statespace (ClassicalB. (b-predicate->ast formula-str) FormulaExpand/EXPAND "") false)
+        fsc (FindStateCommand. statespace (ClassicalB. (b-predicate->ast formula-str) FORMULA-EXPANSION "") false)
         _ (.execute statespace fsc)
         newstate (.getDestination (.getOperation fsc))]
     (wrap-state newstate)) )
@@ -192,6 +195,16 @@
    (let [transs (.getTransitions state)]
      (map #(translate-transition % add-op-namespace-to-kw) transs))))
 
+(defn constants-and-variables-map [state]
+  (update-keys (merge (into {} (.getConstantValues state FORMULA-EXPANSION))
+                      (into {} (.getVariableValues state FORMULA-EXPANSION)))
+               #(keyword (.getCode %))))
+
+(defn uninit-safe-bexpression->ir [v]
+  (if-not (instance? de.prob.animator.domainobjects.IdentifierNotInitialised v)
+    (b-expression->ir (.getValue v))
+    :prob/uninitialised))
+
 (defn wrap-state [state] 
   (proxy [clojure.lang.APersistentMap clojure.lang.IMeta] []
     (valAt [k & not-found]
@@ -202,49 +215,35 @@
         (successor state (keyword (name k)))
         :otherwise
         ;; not vector: assume variable 
-        (let [m (merge (into {} (.getConstantValues state FormulaExpand/TRUNCATE)) (into {} (.getVariableValues state FormulaExpand/TRUNCATE)))
-              formalism (type (first (keys m)))
-              key-var (first (filter #(= (.getCode %) (name k)) (keys m)))
-              ;; TODO use this line instead once the AbstractEvalElement is fixed
-              ;key-var (clojure.lang.Reflector/invokeConstructor formalism (into-array [(name k)]))
-              ]
-          (if key-var
-            ((handle-val-output :value (.getStateSpace state) default-eval-settings #_de.hhu.stups.prob.translator.Translator/translate) (.getValue (get m key-var)))
+        (let [m (constants-and-variables-map state)]
+          (if (get m k)
+            ((handle-val-output :value (.getStateSpace state) default-eval-settings #_de.hhu.stups.prob.translator.Translator/translate)
+             (.getValue (get m k)))
             not-found))))
     (containsKey [k]
-      (let [constant-ids (map #(.getCode %) (keys (.getConstantValues state FormulaExpand/EXPAND)))
-            variable-ids (map #(.getCode %) (keys (.getVariableValues state FormulaExpand/EXPAND)))]
-        (contains? (set (map keyword (concat constant-ids variable-ids))) k)))
+      (let [m (constants-and-variables-map state)]
+        (contains? (set (keys m)) k)))
     (entryAt [k]
       (clojure.lang.MapEntry. k (.valAt this k)))
     (assoc [k v]
-      (let [constants (.getConstantValues state FormulaExpand/EXPAND)
-            variables (.getVariableValues state FormulaExpand/EXPAND)
-            bindings (map (fn [[k v]] [(keyword (.getCode k)) (b-expression->ir (.getValue v))]) (merge (into {} constants) (into {} variables)))
-            bindingsmap (assoc (into {} bindings) k v)
-            statespace (.getStateSpace state) ]
+      (let [m (constants-and-variables-map state)
+            bindings (update-vals m #(b-expression->ir (.getValue %)))
+            bindingsmap (assoc bindings k v)
+            statespace (.getStateSpace state)]
         (to-state statespace bindingsmap)))
     (cons [v] (conj this v))
-    (count [] (count (concat (.getConstantValues state FormulaExpand/EXPAND) (.getVariableValues state FormulaExpand/EXPAND))))
+    (count [] (count (constants-and-variables-map state)))
     (without [k] (throw (Exception.)))
     (iterator []
       (clojure.lang.RT/iter (seq this)))
     (seq [] ;; TODO: do I really need seq / Seqable?
-      (let [constants (.getConstantValues state FormulaExpand/EXPAND)
-            variables (.getVariableValues state FormulaExpand/EXPAND)
-            bindings (map (fn [[k v]] (clojure.lang.MapEntry. (keyword (.getCode k)) (if-not (instance? de.prob.animator.domainobjects.IdentifierNotInitialised v)
-                                                                                       (b-expression->ir (.getValue v))
-                                                                                       :prob/uninitialised)))
-                          (merge (into {} constants) (into {} variables)))
+      (let [m (constants-and-variables-map state)
+            bindings (seq (update-vals m uninit-safe-bexpression->ir))
             transs (map (fn [op] (clojure.lang.MapEntry. op '...)) (get-transitions state true))]
         (concat bindings transs)))
     (equiv [obj]
-      (let [constants (.getConstantValues state FormulaExpand/EXPAND)
-            variables (.getVariableValues state FormulaExpand/EXPAND)
-            bindings (into {} (map (fn [[k v]] (clojure.lang.MapEntry. (keyword (.getCode k)) (if-not (instance? de.prob.animator.domainobjects.IdentifierNotInitialised v)
-                                                                                                (b-expression->ir (.getValue v))
-                                                                                                :prob/uninitialised)))
-                                   (merge (into {} constants) (into {} variables))))]
+      (let [m (constants-and-variables-map state)
+            bindings (update-vals m uninit-safe-bexpression->ir) ]
         (.equiv bindings obj)))
     (meta [] {:state state})))
 
@@ -320,12 +319,15 @@
   (map #(.getCode %) (keys (.getVariableValues (root-state ss3) FormulaExpand/EXPAND)))
   (.getValue (first (vals (.getVariableValues (-> (root-state ss3) :op/$initialise_machine) FormulaExpand/EXPAND))))
   (.entryAt (-> (root-state ss3) :op/$initialise_machine) :curfloor)
-  (seq (update (assoc (-> (root-state ss3) :op/$initialise_machine) :curfloor 99) :curfloor dec))
+  (seq (update (assoc (-> (root-state ss3) :op/$initialise_machine :curfloor) :curfloor 99) :curfloor dec))
+  (def rs (root-state ss3))
+  (= {:curfloor 4} (-> rs :op/$initialise_machine))
+  (= (seq (-> rs :op/$initialise_machine)) {:curfloor 4})
   (use 'clojure.repl)
   (source update)
 
   (= {:curfloor 42} (to-state ss3 {:curfloor 42}) )
-  (=  (to-state ss3 {:curfloor 42}) {:curfloor 42})
+  (= (to-state ss3 {:curfloor 42}) {:curfloor 42})
   (count (to-state ss3 {:curfloor 42}))
 
   (source merge)
