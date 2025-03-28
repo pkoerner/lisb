@@ -46,6 +46,7 @@
 
 (defmethod ir-expr->str clojure.lang.Keyword [ir] (rodin-name ir))
 (defmethod ir-expr->str java.lang.Long [ir] (str ir))
+(defmethod ir-expr->str java.lang.Integer [ir] (str ir))
 
 ;; Boolean
 
@@ -173,6 +174,9 @@
   (str "finite(" (ir-expr->str (:set ir)) ")"))
 
 ;; Relations
+
+(defmethod ir-expr->str lisb.translation.types.Tuple [tuple]
+  (str "(" (chain-expr "|->" tuple) ")"))
 
 (defmethod ir-expr->str :maplet [{:keys [elems]}]
   (chain-expr "|->" elems))

@@ -303,7 +303,7 @@
 
 ;; Set of B expression tags which can be transformed to Event-B an expression.
 ;; All tags should have an implementation of transform-expression
-(def transformable-expressions #{:fin :fin1})
+(def transformable-expressions #{:fin :fin1 :sequence})
 
 (defmulti transform-expression :tag)
 
@@ -322,13 +322,27 @@
                 (finite set-keyword)
                 (not= set-keyword #{}))))))
 
+(defmethod transform-expression :sequence [ir]
+  (let [tuples (set (map-indexed (fn [i v]
+                                   `[~(inc i) -> ~v])
+                                 (:elems ir)))]
+    (lisb.translation.lisb2ir/bb tuples)))
+
 (defn IR-NODE-IN [x] (s/walker #(contains? x (:tag %))))
 
 (defn transform-all-expressions
   "Replaces the B expression which are implemented by *transform-expression*
   with an equivalent Event-B construct"
   [ir]
-  (s/transform (IR-NODE-IN transformable-expressions)
-               transform-expression
-               ir))
-
+  (s/transform
+   ((s/recursive-path [afn] p
+                      (s/cond-path (s/pred afn) s/STAY
+                                   coll? [s/ALL p]
+                                   #(instance? lisb.translation.types.Tuple %)
+                                   [(s/nav [] (select* [this structure next-fn] (next-fn (seq structure)))
+                                           (transform* [this structure next-fn]
+                                                       (lisb.translation.types/->Tuple (map next-fn structure))))
+                                    p]))
+    #(contains? transformable-expressions (:tag %)))
+   transform-expression
+   ir))
