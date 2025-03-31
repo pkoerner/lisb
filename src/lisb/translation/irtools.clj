@@ -9,7 +9,7 @@
 
 (def IR-WALKER (s/recursive-path [] p
                                  (s/cond-path
-                                  map? (s/continue-then-stay s/MAP-VALS p)
+                                  map? (s/continue-then-stay s/ALL (s/pred #(not (= (first %) :tag))) s/LAST p)
                                   coll? (s/continue-then-stay s/ALL p)
                                   #(instance? lisb.translation.types.Tuple %) [tuple-nav p]
                                   (constantly true) s/STAY)))

@@ -171,7 +171,7 @@
 
 (defn- replace-vars-with-vals [ir id-vals]
   (let [replacement (apply hash-map id-vals)]
-    (s/transform [ALL-KEYWORDS #(contains? replacement %)] replacement ir))) ;;FIXME: keys and tag value can also be replaced
+    (s/transform [ALL-KEYWORDS #(contains? replacement %)] replacement ir))) ;;FIXME: scoping
 
 (defmethod sub->events :let-sub [base-event {:keys [id-vals subs]}]
   [(-> base-event
@@ -194,7 +194,7 @@
   "Replaces all occurrences of arguments with the values"
   [op values]
   (let [replacement (into {} (map vector (:args op) values))]
-    (:body (s/transform [:body ALL-KEYWORDS #(contains? replacement %)] replacement op)))) ;;FIXME: keys and tag value can also be replaced
+    (:body (s/transform [:body ALL-KEYWORDS #(contains? replacement %)] replacement op)))) ;;FIXME: scoping
 
 (defn update-clause-values [ir clause f & args]
   (update
