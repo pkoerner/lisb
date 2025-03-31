@@ -1,12 +1,27 @@
 (ns lisb.translation.irtools
   (:require [com.rpl.specter :as s]))
 
+(s/defnav tuple-nav []
+  (select* [this structure next-fn]
+           (next-fn (seq structure)))
+  (transform* [this structure next-fn]
+              (lisb.translation.types/->Tuple (map next-fn structure))))
 
-(defn TAG [t] (s/path #(= (:tag %) t)))
-(def CLAUSES (s/if-path (s/must :ir) [:ir :clauses] [:machine-clauses]))
+(def IR-WALKER (s/recursive-path [] p
+                                 (s/cond-path
+                                  map? (s/continue-then-stay s/MAP-VALS p)
+                                  coll? (s/continue-then-stay s/ALL p)
+                                  #(instance? lisb.translation.types.Tuple %) [tuple-nav p]
+                                  (constantly true) s/STAY)))
+
+(def IR-NODE-WALKER [IR-WALKER (s/pred #(and (map? %)
+                                             (contains? % :tag)))])
+
+(defn TAG [^clojure.lang.Keyword t] (s/pred #(= (:tag %) t)))
+(def CLAUSES (s/if-path (s/must :clauses) :clauses :machine-clauses))
 (defn CLAUSE [^clojure.lang.Keyword name] (s/path [CLAUSES s/ALL (TAG name)]))
-(def ALL-KEYWORDS (s/walker keyword?))
-(defn IR-NODE [x] (s/walker #(= (:tag %) x)))
+(def ALL-KEYWORDS [IR-WALKER keyword?])
+(defn IR-NODE [^clojure.lang.Keyword name] [IR-WALKER (TAG name)])
 (defn OPERATION [opname]
   [(CLAUSE :operations) :values s/ALL (s/path #(= (:name %) opname))])
 

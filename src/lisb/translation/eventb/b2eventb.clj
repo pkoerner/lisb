@@ -3,8 +3,8 @@
             [lisb.translation.util :as butil]
             [lisb.translation.lisb2ir :refer [bnot]]
             [lisb.translation.eventb.dsl :refer [eventb eventb-event] :as dsl]
-            [lisb.translation.eventb.specter-util :refer [CLAUSES CLAUSE NAME TAG INCLUDES]]))
-
+            [lisb.translation.irtools :refer [CLAUSES CLAUSE TAG IR-WALKER ALL-KEYWORDS IR-NODE]]
+            [lisb.translation.eventb.specter-util :refer [NAME INCLUDES]]))
 
 
 (defn- add-guards
@@ -171,7 +171,7 @@
 
 (defn- replace-vars-with-vals [ir id-vals]
   (let [replacement (apply hash-map id-vals)]
-    (s/transform (s/walker replacement) replacement ir))) ;;FIXME: keys and tag value can also be replaced
+    (s/transform [ALL-KEYWORDS #(contains? replacement %)] replacement ir))) ;;FIXME: keys and tag value can also be replaced
 
 (defmethod sub->events :let-sub [base-event {:keys [id-vals subs]}]
   [(-> base-event
@@ -194,7 +194,7 @@
   "Replaces all occurrences of arguments with the values"
   [op values]
   (let [replacement (into {} (map vector (:args op) values))]
-    (:body (s/transform [:body (s/walker replacement)] replacement op)))) ;;FIXME: keys and tag value can also be replaced
+    (:body (s/transform [:body ALL-KEYWORDS #(contains? replacement %)] replacement op)))) ;;FIXME: keys and tag value can also be replaced
 
 (defn update-clause-values [ir clause f & args]
   (update
@@ -228,7 +228,7 @@
       (-> (->> base-machine
                (s/setval [(INCLUDES (:name included-machine))] s/NONE)
                (s/setval [(CLAUSE :promotes) :values s/ALL promoted] s/NONE)
-               (s/transform (s/walker (and (TAG :op-call) #(operations (:op %))))
+               (s/transform [(IR-NODE :op-call) #(operations (:op %))]
                             (fn [call]
                               (replace-args-in-body
                                (operations (:op call))
@@ -266,7 +266,7 @@
              (merge-clause included-machine :variables))
            ;;TODO: copy variables
          (s/setval [(INCLUDES (:name included-machine))] s/NONE)
-         (s/transform (s/walker (TAG :op-call)) (partial op-call->extends included-machine)))
+         (s/transform (IR-NODE :op-call) (partial op-call->extends included-machine)))
     base-machine))
 
 (defn context-name [machine-name] (keyword (str (name machine-name) "-ctx")))
@@ -313,22 +313,20 @@
       (assoc machine :tag :refinement :abstract-machine-name (:abstract-machine-name ir))
       machine)))
 
-;; Expressions
+;; Transform IR
 
-;; Set of B expression tags which can be transformed to Event-B an expression.
-;; All tags should have an implementation of transform-expression
-(def transformable-expressions #{:fin :fin1 :empty-sequence :sequence :size :seq})
+(defmulti transform-ir
+  #(or (:tag %) (type %))
+  :default nil)
 
-(defmulti transform-expression :tag)
-
-(defmethod transform-expression :fin [ir]
+(defmethod transform-ir :fin [ir]
   (let [set-keyword (keyword (gensym "lisbset"))]
     (eventb
      (comprehension-set
       set-keyword (and (subset? set-keyword (:set ir))
                        (finite set-keyword))))))
 
-(defmethod transform-expression :fin1 [ir]
+(defmethod transform-ir :fin1 [ir]
   (let [set-keyword (keyword (gensym "lisbset"))]
     (eventb
      (comprehension-set
@@ -336,39 +334,30 @@
                        (finite set-keyword)
                        (not= set-keyword #{}))))))
 
-(defmethod transform-expression :empty-sequence [_]
+(defmethod transform-ir :empty-sequence [_]
   (eventb #{}))
 
-(defmethod transform-expression :sequence [ir]
+(defmethod transform-ir :sequence [ir]
   (let [tuples (set (map-indexed (fn [i v]
                                    `[~(inc i) -> ~v])
                                  (:elems ir)))]
     (lisb.translation.lisb2ir/bb tuples)))
 
-(defmethod transform-expression :size [ir]
+(defmethod transform-ir :size [ir]
   (eventb (card (:seq ir))))
 
-(defmethod transform-expression :seq [ir]
+(defmethod transform-ir :seq [ir]
   (let [ident (keyword (gensym "n"))]
     (eventb (union-pe [ident]
                       (member? ident nat-set)
                       (total-function (interval 1 ident) (:set ir))))))
 
-(defn IR-NODE-IN [x] (s/walker #(contains? x (:tag %))))
+; default case
+(defmethod transform-ir nil [ir]
+  ir)
 
 (defn transform-all-expressions
-  "Replaces the B expression which are implemented by *transform-expression*
+  "Replaces the B expression which are implemented by *transform-ir*
   with an equivalent Event-B construct"
   [ir]
-  (s/transform
-   ((s/recursive-path [afn] p
-                      (s/cond-path (s/pred afn) (s/continue-then-stay p)
-                                   coll? [s/ALL p]
-                                   #(instance? lisb.translation.types.Tuple %)
-                                   [(s/nav [] (select* [this structure next-fn] (next-fn (seq structure)))
-                                           (transform* [this structure next-fn]
-                                                       (lisb.translation.types/->Tuple (map next-fn structure))))
-                                    p]))
-    #(contains? transformable-expressions (:tag %)))
-   transform-expression
-   ir))
+  (s/transform IR-WALKER transform-ir ir))

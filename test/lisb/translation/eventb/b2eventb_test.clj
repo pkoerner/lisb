@@ -2,7 +2,7 @@
   (:require [clojure.test :refer :all]
             [lisb.translation.util :refer [b]]
             [lisb.translation.eventb.util :refer [eventb]]
-            [lisb.translation.eventb.specter-util :refer [CLAUSE]]
+            [lisb.translation.irtools :refer [CLAUSE]]
             [com.rpl.specter :as s]
             [lisb.translation.eventb.b2eventb :refer [sub->events] :as sut]))
 

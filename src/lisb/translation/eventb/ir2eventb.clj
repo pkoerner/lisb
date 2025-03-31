@@ -1,7 +1,7 @@
 (ns lisb.translation.eventb.ir2eventb
   (:require [clojure.string :as str] 
             [com.rpl.specter :as s] 
-            [lisb.translation.eventb.specter-util :refer [CLAUSE TAG]])
+            [lisb.translation.irtools :refer [CLAUSE TAG]])
   (:import
    (de.prob.model.eventb
     EventParameter
