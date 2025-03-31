@@ -1,8 +1,7 @@
 (ns lisb.prob.retranslate
-  (:require [wall.hack :refer [method]])
   (:require [lisb.translation.types :refer [->Tuple]])
   (:import
-    (de.hhu.stups.prob.translator BAtom BBoolean BNumber BRecord BSet BString BTuple BReal BSmallNumber BBigNumber)
+    (de.hhu.stups.prob.translator BAtom BBoolean BNumber BRecord BSet BString BTuple BReal)
     (de.hhu.stups.prob.translator.interpretations BFunction BRelation BSequence)))
 
 
@@ -11,9 +10,8 @@
     ; value types
     BAtom (.stringValue data)
     BBoolean (.booleanValue data)
-    BSmallNumber (.longValue data)     ;; not sure if needed
-    BBigNumber (.bigIntegerValue data) ;; not sure if needed
-    BNumber (if (.longValueExact data) (.longValue data) (.bigIntegerValue data))
+    BNumber (try (.longValueExact data)
+                 (catch ArithmeticException _ (.bigIntegerValue data)))
     BString (.stringValue data)
     BReal (.floatValue data)
     ; interpreted collection types of set
@@ -38,6 +36,4 @@
                 (assoc m (keyword (.getKey e)) (retranslate (.getValue e))))
               {}
               (.toMap data))
-    de.hhu.stups.prob.translator.TranslatingVisitor$RecordEntry [(method de.hhu.stups.prob.translator.TranslatingVisitor$RecordEntry 'getKey [] data)
-                                                                 (retranslate (method de.hhu.stups.prob.translator.TranslatingVisitor$RecordEntry 'getValue [] data))]))
-
+    (throw (IllegalArgumentException. (str "unexpected value to retranslate: " data)))))
