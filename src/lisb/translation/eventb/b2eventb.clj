@@ -352,6 +352,9 @@
                       (member? ident nat-set)
                       (total-function (interval 1 ident) (:set ir))))))
 
+(defmethod transform-ir :let [{:keys [id-vals expr-or-pred]}]
+  (replace-vars-with-vals expr-or-pred id-vals))
+
 ; default case
 (defmethod transform-ir nil [ir]
   ir)
