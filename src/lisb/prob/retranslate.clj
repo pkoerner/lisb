@@ -2,7 +2,7 @@
   (:require [wall.hack :refer [method]])
   (:require [lisb.translation.types :refer [->Tuple]])
   (:import
-    (de.hhu.stups.prob.translator BAtom BBoolean BNumber BRecord BSet BString BTuple BReal)
+    (de.hhu.stups.prob.translator BAtom BBoolean BNumber BRecord BSet BString BTuple BReal BSmallNumber BBigNumber)
     (de.hhu.stups.prob.translator.interpretations BFunction BRelation BSequence)))
 
 
@@ -11,7 +11,9 @@
     ; value types
     BAtom (.stringValue data)
     BBoolean (.booleanValue data)
-    BNumber (.longValue data)
+    BSmallNumber (.longValue data)     ;; not sure if needed
+    BBigNumber (.bigIntegerValue data) ;; not sure if needed
+    BNumber (if (.longValueExact data) (.longValue data) (.bigIntegerValue data))
     BString (.stringValue data)
     BReal (.floatValue data)
     ; interpreted collection types of set
