@@ -57,24 +57,33 @@
 (defmethod sub->events :skip [base-event _ir]
   [base-event])
 
-(defn- subs->events [base-event subs]
+(defn- parallel-subs->sequential-subs [subs]
+  `(~(apply butil/bsequential-sub subs)))
+
+(defn- replace-subs-with-sequential-sub [ir key]
+  (update ir key parallel-subs->sequential-subs))
+
+(defn- parallel-subs->events [base-event subs]
   (reduce (fn [events sub] (mapcat #(sub->events % sub) events)) [base-event] subs))
+
+(defn- sequential-subs->events [base-event subs]
+  (parallel-subs->events base-event (parallel-subs->sequential-subs subs)))
 
 (defmethod sub->events :any [base-event ir]
   (-> base-event
       (add-args (:ids ir))
       (add-guards (:pred ir))
-      (subs->events (:subs ir))))
+      (sequential-subs->events (:subs ir))))
 
 (defmethod sub->events :parallel-sub [base-event ir]
-  (subs->events base-event (:subs ir)))
+  (parallel-subs->events base-event (:subs ir)))
 
 (defmethod sub->events :precondition [base-event ir]
     (-> (apply add-guards base-event
              (if (= (-> ir :pred :tag) :and)
                      (-> ir :pred :preds)
                      [(:pred ir)]))
-      (sub->events (first (:subs ir))))) ;; there should be only one sub
+      (sequential-subs->events (:subs ir))))
 
 (defmethod sub->events :op-call->extends [base-event {:keys [event-names arg-names arg-vals]}]
   (assert (not (s/selected-any? [:clauses s/ALL (TAG :event-reference)] base-event))
@@ -162,7 +171,6 @@
          (add-guards (butil/bnot (butil/bmember? expr (set (take-nth 2 (butlast cases))))))
          (sub->events (last cases)))))
   )
-
 
 (defn op->events [ir]
   (sub->events
@@ -285,14 +293,16 @@
   [ir]
   (let [events (apply dsl/eventb-events
                       (mapcat op->events (s/select [(CLAUSE :operations) :values s/ALL] ir)))
+        inits (map #(replace-subs-with-sequential-sub % :values)
+                   (s/select (CLAUSE :init) ir))
         sees (butil/bsees (context-name (:name ir)))
         ;; only keep "dynamic" machine-clauses
         machine (->> ir
                      (s/select [(s/multi-path
                                  (CLAUSE :invariants)
-                                 (CLAUSE :init)
                                  (CLAUSE :variables)
                                  (CLAUSE :assertions))])
+                     (concat inits)
                      (apply dsl/eventb-machine (:name ir) sees events)
                      remove-empty-clauses)]
     (if (= :refinement (:tag ir))
