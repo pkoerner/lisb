@@ -79,20 +79,20 @@
   (parallel-subs->events base-event (:subs ir)))
 
 (defmethod sub->events :precondition [base-event ir]
-    (-> (apply add-guards base-event
+  (-> (apply add-guards base-event
              (if (= (-> ir :pred :tag) :and)
-                     (-> ir :pred :preds)
-                     [(:pred ir)]))
+               (-> ir :pred :preds)
+               [(:pred ir)]))
       (sequential-subs->events (:subs ir))))
 
 (defmethod sub->events :op-call->extends [base-event {:keys [event-names arg-names arg-vals]}]
   (assert (not (s/selected-any? [:clauses s/ALL (TAG :event-reference)] base-event))
           "An event can only refine one event")
   (map-indexed (fn [i event-name]
-         (-> (apply add-guards base-event (map butil/b= arg-names arg-vals))
-             (append-name "-" i)
-            (update :clauses conj (dsl/event-extends event-name))))
-       event-names))
+                 (-> (apply add-guards base-event (map butil/b= arg-names arg-vals))
+                     (append-name "-" i)
+                     (update :clauses conj (dsl/event-extends event-name))))
+               event-names))
 
 (defmethod sub->events :if-sub [base-event ir]
   (concat
@@ -102,8 +102,7 @@
        (sub->events (:then ir)))
    (-> base-event (append-name "-else")
        (add-guards (bnot (:cond ir)))
-       (sub->events (or (:else ir) (butil/b skip))))
-     ))
+       (sub->events (or (:else ir) (butil/b skip))))))
 
 (defmethod sub->events :cond [base-event {:keys [clauses]}]
   (let [guards  (reduce (fn [acc cur]
@@ -113,18 +112,18 @@
                         [[(first clauses)]] (rest (take-nth 2 clauses)))
         pairs (map vector guards (take-nth 2 (rest clauses)))]
     (concat (apply concat
-                 (map-indexed
-                  (fn [i [guards sub]]
+                   (map-indexed
+                    (fn [i [guards sub]]
                       (-> (apply add-guards base-event guards)
-                         (append-name "-cond" i)
-                         (sub->events sub)))
-                  pairs))
-          (when (odd? (count clauses))
-            (sub->events
-             (apply add-guards
-                    (append-name base-event "-condelse")
-                    (map bnot (take-nth 2 (butlast clauses))))
-             (last clauses))))))
+                          (append-name "-cond" i)
+                          (sub->events sub)))
+                    pairs))
+            (when (odd? (count clauses))
+              (sub->events
+               (apply add-guards
+                      (append-name base-event "-condelse")
+                      (map bnot (take-nth 2 (butlast clauses))))
+               (last clauses))))))
 
 (defmethod sub->events :select [base-event {:keys [clauses]}]
   (if (= (count clauses) 2)
@@ -144,8 +143,7 @@
                (apply add-guards
                       (append-name base-event "-selectelse")
                       (map bnot (take-nth 2 (butlast clauses))))
-               (last clauses)))))
-  )
+               (last clauses))))))
 
 
 (defn literal? [x] (or (keyword? x) (number? x)))
@@ -169,24 +167,30 @@
      (-> base-event
          (append-name "-caseelse")
          (add-guards (butil/bnot (butil/bmember? expr (set (take-nth 2 (butlast cases))))))
-         (sub->events (last cases)))))
-  )
+         (sub->events (last cases))))))
+
+(defn- replace-vars-with-vals [ir id-vals]
+  (let [replacement (apply hash-map id-vals)]
+    (s/transform (s/walker replacement) replacement ir))) ;;FIXME: keys and tag value can also be replaced
+
+(defmethod sub->events :let-sub [base-event {:keys [id-vals subs]}]
+  [(-> base-event
+       (sequential-subs->events (map #(replace-vars-with-vals % id-vals) subs)))])
 
 (defn op->events [ir]
   (sub->events
    (if (seq (:args ir))
      (eventb-event (:name ir) (apply dsl/event-any (:args ir)))
      (eventb-event (:name ir)))
-    (:body ir)))
+   (:body ir)))
 
 (comment
   (def MAP-NODES
     (s/recursive-path [] p
                       (s/if-path map?
-                                 (s/continue-then-stay s/MAP-VALS p))))
-  )
+                                 (s/continue-then-stay s/MAP-VALS p)))))
 
-(defn replace-args-in-body 
+(defn replace-args-in-body
   "Replaces all occurrences of arguments with the values"
   [op values]
   (let [replacement (into {} (map vector (:args op) values))]
@@ -256,14 +260,14 @@
   All operation calls are converted into extends"
   [base-machine included-machine]
   (assert (= 1 (count (s/select INCLUDES base-machine))))
-    (if (s/selected-any? [(INCLUDES (:name included-machine))] base-machine)
-      (->> (-> base-machine
-               (assoc :tag :refinement :abstract-machine-name (:name included-machine))
-               (merge-clause included-machine :variables))
+  (if (s/selected-any? [(INCLUDES (:name included-machine))] base-machine)
+    (->> (-> base-machine
+             (assoc :tag :refinement :abstract-machine-name (:name included-machine))
+             (merge-clause included-machine :variables))
            ;;TODO: copy variables
-           (s/setval [(INCLUDES (:name included-machine))] s/NONE)
-           (s/transform (s/walker (TAG :op-call)) (partial op-call->extends included-machine)))
-      base-machine))
+         (s/setval [(INCLUDES (:name included-machine))] s/NONE)
+         (s/transform (s/walker (TAG :op-call)) (partial op-call->extends included-machine)))
+    base-machine))
 
 (defn context-name [machine-name] (keyword (str (name machine-name) "-ctx")))
 
@@ -275,8 +279,8 @@
                         (s/select [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set)] ir))
         properties (s/select [(CLAUSE :properties) :values s/ALL] ir)
         constants (s/select [(s/multi-path
-                             [(CLAUSE :constants) :values]
-                             [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set) :elems]) s/ALL]
+                              [(CLAUSE :constants) :values]
+                              [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set) :elems]) s/ALL]
                             ir)]
     (->> (dsl/eventb-context (context-name (:name ir))
                              (if (= :refinement (:tag ir))
@@ -313,7 +317,7 @@
 
 ;; Set of B expression tags which can be transformed to Event-B an expression.
 ;; All tags should have an implementation of transform-expression
-(def transformable-expressions #{:fin :fin1 :sequence})
+(def transformable-expressions #{:fin :fin1 :empty-sequence :sequence :size :seq})
 
 (defmulti transform-expression :tag)
 
@@ -329,14 +333,26 @@
     (eventb
      (comprehension-set
       set-keyword (and (subset? set-keyword (:set ir))
-                (finite set-keyword)
-                (not= set-keyword #{}))))))
+                       (finite set-keyword)
+                       (not= set-keyword #{}))))))
+
+(defmethod transform-expression :empty-sequence [_]
+  (eventb #{}))
 
 (defmethod transform-expression :sequence [ir]
   (let [tuples (set (map-indexed (fn [i v]
                                    `[~(inc i) -> ~v])
                                  (:elems ir)))]
     (lisb.translation.lisb2ir/bb tuples)))
+
+(defmethod transform-expression :size [ir]
+  (eventb (card (:seq ir))))
+
+(defmethod transform-expression :seq [ir]
+  (let [ident (keyword (gensym "n"))]
+    (eventb (union-pe [ident]
+                      (member? ident nat-set)
+                      (total-function (interval 1 ident) (:set ir))))))
 
 (defn IR-NODE-IN [x] (s/walker #(contains? x (:tag %))))
 

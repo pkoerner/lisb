@@ -147,8 +147,14 @@
 (defmethod ir-expr->str :union [ir]
   (chain-expr "\\/" (:sets ir)))
 
+(defmethod ir-expr->str :union-pe [{:keys [ids pred expr]}]
+  (str "(UNION " (str/join "," (map ir-expr->str ids)) "." (ir-pred->str pred) "|" (ir-expr->str expr) ")"))
+
 (defmethod ir-expr->str :intersection [ir]
   (chain-expr "/\\" (:sets ir)))
+
+(defmethod ir-expr->str :intersection-pe [{:keys [ids pred expr]}]
+  (str "(INTER " (str/join "," (map ir-expr->str ids)) "." (ir-pred->str pred) "|" (ir-expr->str expr) ")"))
 
 (defmethod ir-expr->str :difference [ir]
   (chain-expr "\\" (:sets ir)))
@@ -281,13 +287,9 @@
 (defmethod ir-expr->str :total-bijection [ir]
   (chain-expr ">->>" (:sets ir)))
 
-(defn tuple->maplet [tuple]
-  (reduce (fn [acc cur] {:tag :maplet :elems [acc cur]})
-           tuple))
-
 (defmethod ir-expr->str :lambda [{:keys [ids pred expr]}]
   ;;TODO: In Event-B ids can be arbitrarily nested.
-  (str "%" (ir-expr->str (tuple->maplet ids)) "." (ir-pred->str pred) "|" (ir-expr->str expr)))
+  (str "(%" (str/join "," (map ir-expr->str ids)) "." (ir-pred->str pred) "|" (ir-expr->str expr) ")"))
 
  ;; TODO: allow multiple args
 (defmethod ir-expr->str :fn-call [ir]

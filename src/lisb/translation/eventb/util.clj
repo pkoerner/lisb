@@ -49,7 +49,7 @@
           (.get modelCreator) machines-or-contexts))
 
 (defn ir->prob-model [& ir] (->> ir
-                                 (map  b2eventb/transform-all-expressions)
+                                 (map b2eventb/transform-all-expressions)
                                  (map-indexed (fn [n ir] (ir->prob-with-label ir (str n "-"))))
                                  (apply prob-model)))
 
