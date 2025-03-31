@@ -13,7 +13,7 @@
     BNumber (try (.longValueExact data)
                  (catch ArithmeticException _ (.bigIntegerValue data)))
     BString (.stringValue data)
-    BReal (.floatValue data)
+    BReal (.doubleValue data)
     ; interpreted collection types of set
     BSequence (mapv retranslate (.toList data))
     BFunction (reduce
