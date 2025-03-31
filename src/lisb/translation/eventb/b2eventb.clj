@@ -37,15 +37,42 @@
   [event & postfixes]
   (update event :name (fn [n] (keyword (apply str (name n) postfixes)))))
 
-;; Substitutions
+;; Build events
 
 (declare sub->events)
+(declare expr->events)
+(declare pred->events)
+
+(defmulti expr->events
+  "Expects the expression and a base-event and returns a list of pairs of events based on the base-event and expr"
+  (fn [_base-event ir & _args] (:tag ir))
+  :default nil)
+
+(defmethod expr->events nil [base-event ir]
+  [[base-event ir]])
+
+(defmulti pred->events
+  "Expects the predicate and a base-event and returns a list of pairs of events based on the base-event and pred"
+  (fn [_base-event ir & _args] (:tag ir))
+  :default nil)
+
+(defmethod pred->events nil [base-event ir]
+  [[base-event ir]])
 
 (defmulti sub->events
-  "Expects the substitutions and a base-event and returns a translated as a list of events based on the base-event"
+  "Expects the substitutions and a base-event and returns a list of events based on the base-event"
   (fn [_base-event ir & _args] (:tag ir)))
 
 (defmethod sub->events :assignment [base-event ir]
+  ; TODO
+  (->> ir
+       :id-vals
+       (partition 2)
+       (mapcat (fn [[id expr]]
+                 (map (fn [[event expr]]
+                        [event nil])
+                      (expr->events base-event expr))))
+       (map (partial apply add-actions)))
   [(add-actions base-event ir)])
 
 (defmethod sub->events :becomes-element-of [base-event ir]
