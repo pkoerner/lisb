@@ -346,7 +346,7 @@
   [ir]
   (s/transform
    ((s/recursive-path [afn] p
-                      (s/cond-path (s/pred afn) s/STAY
+                      (s/cond-path (s/pred afn) (s/continue-then-stay p)
                                    coll? [s/ALL p]
                                    #(instance? lisb.translation.types.Tuple %)
                                    [(s/nav [] (select* [this structure next-fn] (next-fn (seq structure)))
