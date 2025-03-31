@@ -174,8 +174,8 @@
     (s/transform [ALL-KEYWORDS #(contains? replacement %)] replacement ir))) ;;FIXME: scoping
 
 (defmethod sub->events :let-sub [base-event {:keys [id-vals subs]}]
-  [(-> base-event
-       (sequential-subs->events (map #(replace-vars-with-vals % id-vals) subs)))])
+  (-> base-event
+      (sequential-subs->events (map #(replace-vars-with-vals % id-vals) subs))))
 
 (defn op->events [ir]
   (sub->events

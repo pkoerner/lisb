@@ -381,6 +381,7 @@
                          events))))
 
 (defmethod ir->prob :init [{:keys [values]}]
+ (assert (= (count values) 1))
  (->> values
       (mapcat ir-sub->strs)
       (map-indexed (fn [i code] (EventBAction. (if (:label code) (name (:label code)) (str "init" @label-postfix i))
