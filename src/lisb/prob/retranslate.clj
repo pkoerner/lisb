@@ -36,4 +36,4 @@
                 (assoc m (keyword (.getKey e)) (retranslate (.getValue e))))
               {}
               (.toMap data))
-    (throw (IllegalArgumentException. (str "unexpected value to retranslate: " data)))))
+    (throw (IllegalArgumentException. (str "unsupported value for retranslate: " data)))))
