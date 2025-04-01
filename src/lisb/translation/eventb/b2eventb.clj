@@ -373,6 +373,12 @@
 (defmethod transform-ir :size [ir]
   (eventb (card (:seq ir))))
 
+(defmethod transform-ir :tail [ir]
+  (let [sym (gensym "i")]
+    (eventb (lambda [sym]
+                    (member? sym (interval 1 (- (card ir) 1)))
+                    (fn-call ir (+ sym 1))))))
+
 (defmethod transform-ir :seq [ir]
   (let [ident (keyword (gensym "n"))]
     (eventb (union-pe [ident]
