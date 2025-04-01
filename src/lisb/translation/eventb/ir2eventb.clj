@@ -1,6 +1,6 @@
 (ns lisb.translation.eventb.ir2eventb
-  (:require [clojure.string :as str] 
-            [com.rpl.specter :as s] 
+  (:require [clojure.string :as str]
+            [com.rpl.specter :as s]
             [lisb.translation.irtools :refer [CLAUSE TAG]])
   (:import
    (de.prob.model.eventb
@@ -16,8 +16,7 @@
     Event$Inheritance
     Context
     EventBConstant
-    Variant
-    )
+    Variant)
    de.prob.animator.domainobjects.EventB
    de.prob.model.representation.ModelElementList))
 
@@ -40,7 +39,7 @@
                         (ir-expr->str ir))) irs)))
 
 (defn chain-pred [op ir]
-   (str "(" (str/join op (map ir-pred->str ir)) ")"))
+  (str "(" (str/join op (map ir-pred->str ir)) ")"))
 
 ;; Primitives
 
@@ -115,13 +114,13 @@
 (defmethod ir-expr->str :comprehension-set [ir]
   (if (:expr ir)
     (str "{"
-          (ir-expr->str (:expr ir))
-          "|"
-          (ir-pred->str (:pred ir))
+         (ir-expr->str (:expr ir))
+         "|"
+         (ir-pred->str (:pred ir))
          "}")
     (str "{"
-       (str/join "," (map rodin-name (:ids ir))) "|"
-       (ir-pred->str (:pred ir)) "}" )))
+         (str/join "," (map rodin-name (:ids ir))) "|"
+         (ir-pred->str (:pred ir)) "}")))
 
 (defmethod ir-expr->str :power-set [ir]
   (str "POW(" (ir-expr->str (:set ir)) ")"))
@@ -164,7 +163,7 @@
 
 (defn chain-expr-explicit [op elems]
   (str "(" (str/join "&" (map (fn [a b] (str (ir-expr->str a) op (ir-expr->str b)))
-                     (butlast elems) (rest elems))) ")"))
+                              (butlast elems) (rest elems))) ")"))
 
 (defmethod ir-pred->str :subset [ir]
   (chain-expr-explicit "<:" (:sets ir)))
@@ -318,7 +317,7 @@
   :tag)
 
 (defmethod ir-sub->strs :becomes-element-of [{:keys [ids set]}]
- [(str (str/join "," (map ir-expr->str ids)) " :: " (ir-expr->str set))])
+  [(str (str/join "," (map ir-expr->str ids)) " :: " (ir-expr->str set))])
 
 (defmethod ir-sub->strs :becomes-such [{:keys [ids pred]}]
   [(str (str/join "," (map ir-expr->str ids)) " :| " (ir-pred->str pred))])
@@ -341,7 +340,7 @@
   "converts all the invariants and assertions to EventBInvariant objects, where assertions are marked as theorems"
   [clauses]
   (let [invariant (map-indexed
-                   (fn [i pred] 
+                   (fn [i pred]
                      (EventBInvariant. (if (:label pred) (name (:label pred)) (str "inv" @label-postfix i))
                                        (ir-pred->str (if (= :theorem (:tag pred)) (:pred pred) pred))
                                        (= :theorem (:tag pred))
@@ -350,7 +349,7 @@
         theorems  (map-indexed
                    (fn [i pred] (EventBInvariant. (if (:label pred) (name (:label pred)) (str "thm" @label-postfix i))
                                                   (ir-pred->str pred)
-                                                  true 
+                                                  true
                                                   #{}))
                    (:values (find-clause :assertions clauses)))]
     (ModelElementList. (concat invariant theorems))))
@@ -363,9 +362,9 @@
                       :extends Event$Inheritance/EXTENDS
                       Event$Inheritance/NONE)
         status (case status
-                    :convergent Event$EventType/CONVERGENT
-                    :anticipated Event$EventType/ANTICIPATED
-                    Event$EventType/ORDINARY)]
+                 :convergent Event$EventType/CONVERGENT
+                 :anticipated Event$EventType/ANTICIPATED
+                 Event$EventType/ORDINARY)]
     (Event. name status inheritance)))
 
 
@@ -385,14 +384,14 @@
                          events))))
 
 (defmethod ir->prob :init [{:keys [values]}]
- (assert (= (count values) 1))
- (->> values
-      (mapcat ir-sub->strs)
-      (map-indexed (fn [i code] (EventBAction. (if (:label code) (name (:label code)) (str "init" @label-postfix i))
-                                               code
-                                               #{})))
-      ModelElementList.
-      (.withActions (new-event "INITIALISATION" :ordinary :none))))
+  (assert (= (count values) 1))
+  (->> values
+       (mapcat ir-sub->strs)
+       (map-indexed (fn [i code] (EventBAction. (if (:label code) (name (:label code)) (str "init" @label-postfix i))
+                                                code
+                                                #{})))
+       ModelElementList.
+       (.withActions (new-event "INITIALISATION" :ordinary :none))))
 
 (defmethod ir->prob :events [{:keys [values]}]
   (ModelElementList. (map ir->prob values)))
@@ -401,27 +400,27 @@
   (ModelElementList. (map (fn [x] (EventParameter. (clojure.core/name x))) values)))
 
 (defmethod ir->prob :guards [{:keys [values]}]
- (ModelElementList. (map-indexed (fn [i x] (EventBGuard. (if (:label x) (name (:label x)) (str "grd" @label-postfix i))
-                                                         (ir-pred->str x)
-                                                         false 
-                                                         #{}))
-                                 values)))
+  (ModelElementList. (map-indexed (fn [i x] (EventBGuard. (if (:label x) (name (:label x)) (str "grd" @label-postfix i))
+                                                          (ir-pred->str x)
+                                                          false
+                                                          #{}))
+                                  values)))
 
 (defmethod ir->prob :witnesses [{:keys [values]}]
   (ModelElementList. (map ir->prob values)))
 
 (defmethod ir->prob :actions [{:keys [values]}]
   (ModelElementList. (map-indexed
-                       (fn [i code] (EventBAction. (if (:label code) (name (:label code)) (str "act" @label-postfix i))
-                                                   code 
-                                                   #{}))
-                       (mapcat ir-sub->strs values))))
+                      (fn [i code] (EventBAction. (if (:label code) (name (:label code)) (str "act" @label-postfix i))
+                                                  code
+                                                  #{}))
+                      (mapcat ir-sub->strs values))))
 
 (defmethod ir->prob :event [{:keys [name clauses]}]
   (let [parent-event (find-clause :event-reference clauses)
         e (-> (new-event (rodin-name name)
-                     (:value (find-clause :status clauses))
-                     (:type parent-event))
+                         (:value (find-clause :status clauses))
+                         (:type parent-event))
               (.withParameters (clause->prob :args clauses))
               (.withGuards (clause->prob :guards clauses))
               (.withWitnesses (clause->prob :witnesses clauses))
@@ -448,7 +447,7 @@
   (Variant. (ir-expr->str (:expr ir)) #{}))
 
 (defmethod ir->prob :machine [{m-name :name clauses :machine-clauses}]
- (-> (EventBMachine. (rodin-name m-name))
+  (-> (EventBMachine. (rodin-name m-name))
       (.withSees (clause->prob :sees clauses))
       (.withInvariants (extract-invariants clauses))
       (.withVariant (clause->prob :variant clauses))
@@ -467,24 +466,24 @@
   "Gets constants from constants clause and enumerated sets"
   [ir]
   (ModelElementList. (map (fn [c] (EventBConstant. (rodin-name c) false ""))
-       (distinct (s/select (s/multi-path
-                             [(CLAUSE :constants) :values s/ALL]
-                             [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set) :elems s/ALL]) ir)))))
+                          (distinct (s/select (s/multi-path
+                                               [(CLAUSE :constants) :values s/ALL]
+                                               [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set) :elems s/ALL]) ir)))))
 (defn extract-axioms [ir]
   (ModelElementList. (map-indexed
-                       (fn [i pred] (EventBAxiom. (if (:label pred) (name (:label pred)) (str "axm" @label-postfix i))
-                                                  (ir-pred->str pred)
-                                                  false
-                                                  #{}))
-                       (s/select [(CLAUSE :properties) :values s/ALL] ir))))
+                      (fn [i pred] (EventBAxiom. (if (:label pred) (name (:label pred)) (str "axm" @label-postfix i))
+                                                 (ir-pred->str pred)
+                                                 false
+                                                 #{}))
+                      (s/select [(CLAUSE :properties) :values s/ALL] ir))))
 
 (defn extract-theorems [ir]
   (ModelElementList. (map-indexed
-                  (fn [i pred] (EventBAxiom. (if (:label pred) (name (:label pred)) (str "thm" @label-postfix i))
-                                             (ir-pred->str pred)
-                                             true
-                                             #{}))
-                  (s/select [(CLAUSE :theorems) :values s/ALL] ir))))
+                      (fn [i pred] (EventBAxiom. (if (:label pred) (name (:label pred)) (str "thm" @label-postfix i))
+                                                 (ir-pred->str pred)
+                                                 true
+                                                 #{}))
+                      (s/select [(CLAUSE :theorems) :values s/ALL] ir))))
 
 (defmethod ir->prob :extends [ir]
   ;;TODO: get real context
@@ -493,12 +492,12 @@
 (defmethod ir->prob :context [ir]
   (let [clauses (:machine-clauses ir)]
     (-> (Context. (rodin-name (:name ir)))
-      (.withExtends (clause->prob :extends clauses))
-      (.withSets (extract-sets ir))
-      (.withConstants (extract-constants ir))
-      (.withAxioms (ModelElementList.
-                     (concat (extract-axioms ir)
-                             (extract-theorems ir)))))))
+        (.withExtends (clause->prob :extends clauses))
+        (.withSets (extract-sets ir))
+        (.withConstants (extract-constants ir))
+        (.withAxioms (ModelElementList.
+                      (concat (extract-axioms ir)
+                              (extract-theorems ir)))))))
 
 (defmethod ir->prob nil [_] nil)
 
