@@ -296,7 +296,12 @@
   (str "%" (ir-expr->str (tuple->maplet ids)) "." (ir-pred->str pred) "|" (ir-expr->str expr)))
 
 (defmethod ir-expr->str :fn-call [ir]
-  (str (ir-expr->str (:f ir)) "(" (ir-expr->str (ir-expr->str (tuple->maplet (:args ir)))) ")"))
+  (str (ir-expr->str (:f ir))
+       "("
+       (if-let [args (seq (:args ir))]
+         (ir-expr->str (tuple->maplet args))
+         "")
+       ")"))
 
 ;; Construct ProB Model
 
