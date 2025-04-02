@@ -1,10 +1,12 @@
 (ns lisb.translation.eventb.b2eventb
-  (:require [com.rpl.specter :as s]
-            [lisb.translation.util :as butil]
-            [lisb.translation.lisb2ir :refer [bnot]]
-            [lisb.translation.eventb.dsl :refer [eventb eventb-event] :as dsl]
-            [lisb.translation.irtools :refer [CLAUSES CLAUSE TAG IR-WALKER ALL-KEYWORDS IR-NODE]]
-            [lisb.translation.eventb.specter-util :refer [NAME INCLUDES]]))
+  (:require
+   [com.rpl.specter :as s]
+   [lisb.translation.eventb.dsl :refer [eventb-event eventb-finite] :as dsl]
+   [lisb.translation.eventb.specter-util :refer [INCLUDES NAME]]
+   [lisb.translation.irtools :refer [ALL-KEYWORDS CLAUSE CLAUSES IR-NODE
+                                     IR-WALKER TAG]]
+   [lisb.translation.types :refer [->Tuple]]
+   [lisb.translation.util :as butil]))
 
 
 (defn- add-guards
@@ -43,69 +45,219 @@
 (declare expr->events)
 (declare pred->events)
 
-(defmulti expr->events
-  "Expects the expression and a base-event and returns a list of pairs of events based on the base-event and expr"
-  (fn [_base-event ir & _args] (:tag ir))
-  :default nil)
+(defn preds-exprs-reducer [event preds exprs]
+  (reduce (fn [event-exprs-preds [type pred-or-expr]]
+            (mapcat (fn [[event preds exprs]]
+                      (case type
+                        :expr (map (fn [[new-event new-expr]]
+                                     [new-event preds (conj exprs new-expr)])
+                                   (expr->events event pred-or-expr))
+                        :pred (map (fn [[new-event new-pred]]
+                                     [new-event (conj preds new-pred) exprs])
+                                   (pred->events event pred-or-expr))))
+                    event-exprs-preds))
+          [[event [] []]]
+          (concat (map (partial vector :pred) preds)
+                  (map (partial vector :expr) exprs))))
 
-(defmethod expr->events nil [base-event ir]
-  [[base-event ir]])
+(defn preds-reducer [event preds]
+  (->> (preds-exprs-reducer event preds [])
+       (map (fn [[event preds _exprs]]
+              [event preds]))))
 
-(defmulti pred->events
-  "Expects the predicate and a base-event and returns a list of pairs of events based on the base-event and pred"
-  (fn [_base-event ir & _args] (:tag ir))
-  :default nil)
-
-(defmethod pred->events nil [base-event ir]
-  [[base-event ir]])
-
-(defmulti sub->events
-  "Expects the substitutions and a base-event and returns a list of events based on the base-event"
-  (fn [_base-event ir & _args] (:tag ir)))
-
-(defmethod sub->events :assignment [base-event ir]
-  ; TODO
+(defn pred->ir [event ir & keys]
   (->> ir
-       :id-vals
-       (partition 2)
-       (mapcat (fn [[id expr]]
-                 (map (fn [[event expr]]
-                        [event nil])
-                      (expr->events base-event expr))))
-       (map (partial apply add-actions)))
-  [(add-actions base-event ir)])
+       ((apply juxt keys))
+       (preds-reducer event)
+       (map (fn [[event preds]]
+              (assert (= (count keys) (count preds)))
+              [event (apply assoc ir (interleave keys preds))]))))
 
-(defmethod sub->events :becomes-element-of [base-event ir]
-  [(add-actions base-event ir)])
+(defn preds->ir [event ir key]
+  (->> ir
+       key
+       (preds-reducer event)
+       (map (fn [[event preds]]
+              [event (assoc ir key preds)]))))
 
-(defmethod sub->events :becomes-such [base-event ir]
-  [(add-actions base-event ir)])
+(defn exprs-reducer [event exprs]
+  (->> (preds-exprs-reducer event [] exprs)
+       (map (fn [[event _preds exprs]]
+              [event exprs]))))
 
-(defmethod sub->events :skip [base-event _ir]
-  [base-event])
+(defn expr->ir [event ir & keys]
+  (->> ir
+       ((apply juxt keys))
+       (exprs-reducer event)
+       (map (fn [[event exprs]]
+              (assert (= (count keys) (count exprs)))
+              [event (apply assoc ir (interleave keys exprs))]))))
+
+(defn exprs->ir [event ir key]
+  (->> ir
+       key
+       (exprs-reducer event)
+       (map (fn [[event exprs]]
+              [event (assoc ir key exprs)]))))
 
 (defn- parallel-subs->sequential-subs [subs]
-  `(~(apply butil/bsequential-sub subs)))
+  [(apply butil/bsequential-sub subs)])
 
 (defn- replace-subs-with-sequential-sub [ir key]
   (update ir key parallel-subs->sequential-subs))
 
 (defn- parallel-subs->events [base-event subs]
-  (reduce (fn [events sub] (mapcat #(sub->events % sub) events)) [base-event] subs))
+  (reduce (fn [events sub]
+            (mapcat #(sub->events % sub) events))
+          [base-event]
+          subs))
 
 (defn- sequential-subs->events [base-event subs]
   (parallel-subs->events base-event (parallel-subs->sequential-subs subs)))
 
+(defmulti expr->events
+  "Expects the expression and a base-event and returns a list of pairs of events based on the base-event and expr"
+  (fn [_base-event ir & _args] (or (:tag ir) (type ir)))
+  :default nil)
+
+(defmethod expr->events nil [base-event ir]
+  (cond
+    (map? ir) (case (-> ir keys set (disj :tag))
+                #{} [[base-event ir]]
+                #{:expr} (expr->ir base-event ir :expr)
+                #{:from :to} (expr->ir base-event ir :from :to)
+                #{:num} (expr->ir base-event ir :num)
+                (#{:pred} #{:ids :pred}) (pred->ir base-event ir :pred)
+                #{:rel} (expr->ir base-event ir :rel)
+                #{:seq} (expr->ir base-event ir :seq)
+                #{:set} (expr->ir base-event ir :set)
+                #{:rel :set} (expr->ir base-event ir :rel :set)
+                #{:set1 :set2} (expr->ir base-event ir :set1 :set2)
+                #{:elems} (exprs->ir base-event ir :elems)
+                #{:nums} (exprs->ir base-event ir :nums)
+                #{:nums-or-sets} (exprs->ir base-event ir :nums-or-sets)
+                #{:rels} (exprs->ir base-event ir :rels)
+                #{:sets} (exprs->ir base-event ir :sets)
+                #{:sets-of-sets} (exprs->ir base-event ir :sets-of-sets)
+                #{:ids :pred :expr} (->> (preds-exprs-reducer base-event [(:pred ir)] [(:expr ir)])
+                                         (map (fn [[event [pred] [expr]]]
+                                                [event (assoc ir :pred pred :expr expr)])))
+                #{:elems :seq} (->> (apply vector (:seq ir) (:elems ir))
+                                    (exprs-reducer base-event)
+                                    (map (fn [[event [seq & elems]]]
+                                           [event (assoc ir :seq seq :elems elems)])))
+                #{:f :args} (->> (apply vector (:f ir) (:args ir))
+                                 (exprs-reducer base-event)
+                                 (map (fn [[event [f & args]]]
+                                        [event (assoc ir :f f :args args)]))))
+    (set? ir) (->> ir
+                   (exprs-reducer base-event)
+                   (map (fn [[event exprs]]
+                          [event (set exprs)])))
+    (instance? lisb.translation.types.Tuple ir) (->> ir
+                                                     (exprs-reducer base-event)
+                                                     (map (fn [[event exprs]]
+                                                            [event (->Tuple exprs)])))
+    (or (keyword? ir)
+        (string? ir)
+        (integer? ir)
+        (float? ir)
+        (boolean? ir)
+        (nil? ir)) [[base-event ir]]
+    :else (throw (IllegalArgumentException. (str "unsupported ir: " ir)))))
+
+(defmethod expr->events :if [base-event ir]
+  (-> base-event
+      (preds-reducer [(:cond ir)])
+      (->> (mapcat (fn [[event [cond]]]
+                     (let [event-thens (-> event
+                                           (append-name "-then")
+                                           (add-guards cond)
+                                           (exprs-reducer [(:then ir)]))
+                           event-elses (-> event
+                                           (append-name "-else")
+                                           (add-guards (butil/bnot cond))
+                                           (exprs-reducer [(:else ir)]))]
+                       (->> (concat event-thens event-elses)
+                            (map (fn [[event [expr]]]
+                                   [event expr])))))))))
+
+(defmethod expr->events :let [base-event ir]
+  (let [ids (take-nth 2 (:id-vals ir))
+        exprs (take-nth 2 (rest (:id-vals ir)))
+        expr (:expr-or-pred ir)]
+    (-> base-event
+        (exprs-reducer (concat exprs [expr]))
+        (->> (map (fn [[event exprs]]
+                    [event (assoc ir :id-vals (interleave ids (butlast exprs)) :expr-or-pred (last exprs))]))))))
+
+(defmulti pred->events
+  "Expects the predicate and a base-event and returns a list of pairs of events based on the base-event and pred"
+  (fn [_base-event ir & _args] (or (:tag ir) (type ir)))
+  :default nil)
+
+(defmethod pred->events nil [base-event ir]
+  (cond
+    (map? ir) (case (-> ir keys set (disj :tag))
+                #{} [[base-event ir]]
+                #{:elem :set} (expr->ir base-event ir :elem :set)
+                #{:implication} (pred->ir base-event ir :implication)
+                #{:left :right} (expr->ir base-event ir :left :right)
+                #{:pred} (pred->ir base-event ir :pred)
+                #{:nums} (exprs->ir base-event ir :nums)
+                #{:preds} (preds->ir base-event ir :preds))
+    :else (throw (IllegalArgumentException. (str "unsupported ir: " ir)))))
+
+(defmethod pred->events :let [base-event ir]
+  (let [ids (take-nth 2 (:id-vals ir))
+        exprs (take-nth 2 (rest (:id-vals ir)))
+        pred (:expr-or-pred ir)]
+    (-> base-event
+        (preds-exprs-reducer [pred] exprs) ; might want to have custom logic where the exprs are processed first
+        (->> (map (fn [[event [pred] exprs]]
+                    [event (assoc ir :id-vals (interleave ids exprs) :expr-or-pred pred)]))))))
+
+(defmulti sub->events
+  "Expects the substitutions and a base-event and returns a list of events based on the base-event"
+  (fn [_base-event ir & _args] (or (:tag ir) (type ir)))
+  :default nil)
+
+(defmethod sub->events :assignment [base-event ir]
+  (let [ids (take-nth 2 (:id-vals ir))
+        exprs (take-nth 2 (rest (:id-vals ir)))]
+    (-> base-event
+        (exprs-reducer exprs)
+        (->>
+         (map (fn [[event exprs]]
+                (-> event
+                    (add-actions (assoc ir :id-vals (interleave ids exprs))))))))))
+
+(defmethod sub->events :becomes-element-of [base-event ir]
+  (assert false) ; TODO
+  [(add-actions base-event ir)])
+
+(defmethod sub->events :becomes-such [base-event ir]
+  (assert false) ; TODO
+  [(add-actions base-event ir)])
+
+(defmethod sub->events :skip [base-event _ir]
+  [base-event])
+
 (defmethod sub->events :any [base-event ir]
   (-> base-event
       (add-args (:ids ir))
-      (add-guards (:pred ir))
-      (sequential-subs->events (:subs ir))))
+      (preds-reducer [(:pred ir)])
+      (->>
+       (mapcat (fn [[event [pred]]]
+                 (-> event
+                     (add-guards pred)
+                     (sequential-subs->events (:subs ir))))))))
 
 (defmethod sub->events :parallel-sub [base-event ir]
   (parallel-subs->events base-event (:subs ir)))
 
 (defmethod sub->events :precondition [base-event ir]
+  (assert false) ; TODO
   (-> (apply add-guards base-event
              (if (= (-> ir :pred :tag) :and)
                (-> ir :pred :preds)
@@ -113,6 +265,7 @@
       (sequential-subs->events (:subs ir))))
 
 (defmethod sub->events :op-call->extends [base-event {:keys [event-names arg-names arg-vals]}]
+  (assert false) ; TODO
   (assert (not (s/selected-any? [:clauses s/ALL (TAG :event-reference)] base-event))
           "An event can only refine one event")
   (map-indexed (fn [i event-name]
@@ -122,16 +275,18 @@
                event-names))
 
 (defmethod sub->events :if-sub [base-event ir]
+  (assert false) ; TODO
   (concat
    (-> base-event
        (append-name "-then")
        (add-guards (:cond ir))
        (sub->events (:then ir)))
    (-> base-event (append-name "-else")
-       (add-guards (bnot (:cond ir)))
+       (add-guards (butil/bnot (:cond ir)))
        (sub->events (or (:else ir) (butil/b skip))))))
 
 (defmethod sub->events :cond [base-event {:keys [clauses]}]
+  (assert false) ; TODO
   (let [guards  (reduce (fn [acc cur]
                           (conj acc (conj
                                      (update (last acc) (- (count acc) 1) butil/bnot)
@@ -149,28 +304,34 @@
               (sub->events
                (apply add-guards
                       (append-name base-event "-condelse")
-                      (map bnot (take-nth 2 (butlast clauses))))
+                      (map butil/bnot (take-nth 2 (butlast clauses))))
                (last clauses))))))
 
 (defmethod sub->events :select [base-event {:keys [clauses]}]
   (if (= (count clauses) 2)
-    (-> base-event
-        (add-guards (first clauses))
-        (sub->events (second clauses)))
-    (concat (apply concat
-                   (map-indexed
-                    (fn [i [guard sub]]
-                      (-> base-event
-                          (append-name  "-select" i)
-                          (add-guards guard)
-                          (sub->events sub)))
-                    (partition 2 clauses)))
-            (when (odd? (count clauses))
-              (sub->events
-               (apply add-guards
-                      (append-name base-event "-selectelse")
-                      (map bnot (take-nth 2 (butlast clauses))))
-               (last clauses))))))
+    (let [[pred sub] clauses]
+      (-> base-event
+          (preds-reducer [pred])
+          (->>
+           (mapcat (fn [[event [pred]]]
+                     (-> event
+                         (add-guards pred)
+                         (sub->events sub)))))))
+    (assert false) ; TODO
+    #_(concat (apply concat
+                     (map-indexed
+                      (fn [i [guard sub]]
+                        (-> base-event
+                            (append-name  "-select" i)
+                            (add-guards guard)
+                            (sub->events sub)))
+                      (partition 2 clauses)))
+              (when (odd? (count clauses))
+                (sub->events
+                 (apply add-guards
+                        (append-name base-event "-selectelse")
+                        (map bnot (take-nth 2 (butlast clauses))))
+                 (last clauses))))))
 
 
 (defn literal? [x] (or (keyword? x) (number? x)))
@@ -181,6 +342,7 @@
     (str literal)))
 
 (defmethod sub->events :case [base-event {:keys [expr cases]}]
+  (assert false) ; TODO
   (concat
    (mapcat
     (fn [[case-literal sub]]
@@ -210,12 +372,6 @@
      (eventb-event (:name ir) (apply dsl/event-any (:args ir)))
      (eventb-event (:name ir)))
    (:body ir)))
-
-(comment
-  (def MAP-NODES
-    (s/recursive-path [] p
-                      (s/if-path map?
-                                 (s/continue-then-stay s/MAP-VALS p)))))
 
 (defn replace-args-in-body
   "Replaces all occurrences of arguments with the values"
@@ -346,44 +502,50 @@
   #(or (:tag %) (type %))
   :default nil)
 
-(defmethod transform-ir :fin [ir]
+(defmethod transform-ir :fin [{:keys [set]}]
   (let [set-keyword (keyword (gensym "lisbset"))]
-    (eventb
-     (comprehension-set
-      set-keyword (and (subset? set-keyword (:set ir))
-                       (finite set-keyword))))))
+    (butil/bcomprehension-set
+     [set-keyword]
+     (butil/band (butil/bsubset? set-keyword set)
+                 (eventb-finite set-keyword)))))
 
-(defmethod transform-ir :fin1 [ir]
+(defmethod transform-ir :fin1 [{:keys [set]}]
   (let [set-keyword (keyword (gensym "lisbset"))]
-    (eventb
-     (comprehension-set
-      set-keyword (and (subset? set-keyword (:set ir))
-                       (finite set-keyword)
-                       (not= set-keyword #{}))))))
+    (butil/bcomprehension-set
+     [set-keyword]
+     (butil/band (butil/bsubset? set-keyword set)
+                 (eventb-finite set-keyword)
+                 (butil/bnot= set-keyword #{})))))
 
 (defmethod transform-ir :empty-sequence [_]
-  (eventb #{}))
+  #{})
 
-(defmethod transform-ir :sequence [ir]
-  (let [tuples (set (map-indexed (fn [i v]
-                                   `[~(inc i) -> ~v])
-                                 (:elems ir)))]
-    (lisb.translation.lisb2ir/bb tuples)))
+(defmethod transform-ir :sequence [{:keys [elems]}]
+  (set (map-indexed (fn [i v]
+                      (->Tuple [(inc i) v]))
+                    elems)))
 
-(defmethod transform-ir :size [ir]
-  (eventb (card (:seq ir))))
+(defmethod transform-ir :size [{:keys [seq]}]
+  (butil/bcard seq))
 
-(defmethod transform-ir :tail [ir]
-  (let [sym (gensym "i")]
-    (eventb (lambda [sym]
-                    (member? sym (interval 1 (- (card ir) 1)))
-                    (fn-call ir (+ sym 1))))))
+(defmethod transform-ir :tail [{:keys [seq]}]
+  (let [sym (keyword (gensym "i"))]
+    (butil/blambda [sym]
+                   (butil/bmember? sym (butil/binterval 1 (butil/b- (butil/bcard seq) 1)))
+                   (butil/bfn-call seq (butil/b+ sym 1)))))
 
-(defmethod transform-ir :seq [ir]
-  (let [ident (keyword (gensym "n"))]
-    (eventb (union-pe [ident]
-                      (member? ident nat-set)
-                      (total-function (interval 1 ident) (:set ir))))))
+(defmethod transform-ir :append [{:keys [seq elems]}]
+  (butil/bunion seq
+                (set (map-indexed
+                      (fn [i x]
+                        (->Tuple [(butil/b+ (butil/bcard seq) (inc i)) x]))
+                      elems))))
+
+(defmethod transform-ir :seq [{:keys [set]}]
+  (let [sym (keyword (gensym "n"))]
+    (butil/bunion-pe [sym]
+                     (butil/bmember? sym butil/bnat-set)
+                     (butil/btotal-function (butil/binterval 1 sym) set))))
 
 (defmethod transform-ir :let [{:keys [id-vals expr-or-pred]}]
   (replace-vars-with-vals expr-or-pred id-vals))
@@ -396,4 +558,7 @@
   "Replaces the B expression which are implemented by *transform-ir*
   with an equivalent Event-B construct"
   [ir]
-  (s/transform IR-WALKER transform-ir ir))
+  #_(spit (str "before_" (name (:name ir)) ".edn") (with-out-str (clojure.pprint/pprint ir)))
+  (let [changed (s/transform IR-WALKER transform-ir ir)]
+    #_(spit (str "after_" (name (:name ir)) ".edn") (with-out-str (clojure.pprint/pprint changed)))
+    changed))

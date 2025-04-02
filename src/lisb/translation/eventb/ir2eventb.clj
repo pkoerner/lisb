@@ -27,10 +27,15 @@
 
 (defmulti ir-expr->str
   "converts expression into string"
-  (fn [ir] (or (:tag ir) (class ir))))
+  #(or (:tag %) (type %))
+  :default nil)
 (defmulti ir-pred->str
   "converts predicate into string"
-  :tag)
+  #(or (:tag %) (type %))
+  :default nil)
+
+#_(defmethod ir-expr->str nil [ir] (println "unsupported expr:" ir) (str ir))
+#_(defmethod ir-pred->str nil [ir] (println "unsupported pred:" ir) (str ir))
 
 (defn chain-expr [op irs]
   (str/join op (map (fn [ir]
@@ -249,7 +254,6 @@
   (str (ir-expr->str rel) "^" (ir-expr->str num)))
 
 (defmethod ir-expr->str :extended-expr [{:keys [identifier exprs preds] :as xx}]
-  (println xx)
   (assert (empty? preds)) ;; do not know what happens with preds
   (str (name identifier) "(" (clojure.string/join "," (map ir-expr->str exprs)) ")"))
 
