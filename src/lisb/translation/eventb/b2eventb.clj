@@ -558,7 +558,4 @@
   "Replaces the B expression which are implemented by *transform-ir*
   with an equivalent Event-B construct"
   [ir]
-  #_(spit (str "before_" (name (:name ir)) ".edn") (with-out-str (clojure.pprint/pprint ir)))
-  (let [changed (s/transform IR-WALKER transform-ir ir)]
-    #_(spit (str "after_" (name (:name ir)) ".edn") (with-out-str (clojure.pprint/pprint changed)))
-    changed))
+  (s/transform IR-WALKER transform-ir ir))
