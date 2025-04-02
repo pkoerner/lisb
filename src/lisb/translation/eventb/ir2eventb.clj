@@ -388,7 +388,7 @@
                          events))))
 
 (defmethod ir->prob :init [{:keys [values]}]
-  (assert (= (count values) 1))
+  (assert (= (count values) 1)) ; more than one means sequential composition!
   (->> values
        (mapcat ir-sub->strs)
        (map-indexed (fn [i code] (EventBAction. (if (:label code) (name (:label code)) (str "init" @label-postfix i))

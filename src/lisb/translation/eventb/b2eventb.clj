@@ -17,6 +17,11 @@
         other (s/setval [s/ALL (TAG :guards)] s/NONE (:clauses event))]
     (assoc event :clauses (conj other updated))))
 
+(defn- add-multi-guard [event guard]
+  (if (= (:tag guard) :and)
+    (apply add-guards event (:preds guard))
+    (add-guards event guard)))
+
 (defn- add-actions
   "Adds *actions* to *event*"
   [event & actions]
@@ -57,8 +62,8 @@
                                    (pred->events event pred-or-expr))))
                     event-exprs-preds))
           [[event [] []]]
-          (concat (map (partial vector :pred) preds)
-                  (map (partial vector :expr) exprs))))
+          (concat (map vector (repeat :pred) preds)
+                  (map vector (repeat :expr) exprs))))
 
 (defn preds-reducer [event preds]
   (->> (preds-exprs-reducer event preds [])
@@ -183,13 +188,10 @@
                                    [event expr])))))))))
 
 (defmethod expr->events :let [base-event ir]
-  (let [ids (take-nth 2 (:id-vals ir))
-        exprs (take-nth 2 (rest (:id-vals ir)))
-        expr (:expr-or-pred ir)]
-    (-> base-event
-        (exprs-reducer (concat exprs [expr]))
-        (->> (map (fn [[event exprs]]
-                    [event (assoc ir :id-vals (interleave ids (butlast exprs)) :expr-or-pred (last exprs))]))))))
+  (-> base-event
+      (exprs-reducer (concat (:id-vals ir) [(:expr-or-pred ir)]))
+      (->> (map (fn [[event exprs]]
+                  [event (assoc ir :id-vals (butlast exprs) :expr-or-pred (last exprs))])))))
 
 (defmulti pred->events
   "Expects the predicate and a base-event and returns a list of pairs of events based on the base-event and pred"
@@ -205,17 +207,21 @@
                 #{:left :right} (expr->ir base-event ir :left :right)
                 #{:pred} (pred->ir base-event ir :pred)
                 #{:nums} (exprs->ir base-event ir :nums)
-                #{:preds} (preds->ir base-event ir :preds))
+                #{:preds} (preds->ir base-event ir :preds)
+                #{:sets} (exprs->ir base-event ir :sets))
+    (or (keyword? ir)
+        (string? ir)
+        (integer? ir)
+        (float? ir)
+        (boolean? ir)
+        (nil? ir)) [[base-event ir]]
     :else (throw (IllegalArgumentException. (str "unsupported ir: " ir)))))
 
 (defmethod pred->events :let [base-event ir]
-  (let [ids (take-nth 2 (:id-vals ir))
-        exprs (take-nth 2 (rest (:id-vals ir)))
-        pred (:expr-or-pred ir)]
-    (-> base-event
-        (preds-exprs-reducer [pred] exprs) ; might want to have custom logic where the exprs are processed first
-        (->> (map (fn [[event [pred] exprs]]
-                    [event (assoc ir :id-vals (interleave ids exprs) :expr-or-pred pred)]))))))
+  (-> base-event
+      (preds-exprs-reducer [(:expr-or-pred ir)] (:id-vals ir)) ; might want to have custom logic where the exprs are processed first
+      (->> (map (fn [[event [pred] id-vals]]
+                  [event (assoc ir :id-vals id-vals :expr-or-pred pred)])))))
 
 (defmulti sub->events
   "Expects the substitutions and a base-event and returns a list of events based on the base-event"
@@ -223,33 +229,39 @@
   :default nil)
 
 (defmethod sub->events :assignment [base-event ir]
-  (let [ids (take-nth 2 (:id-vals ir))
-        exprs (take-nth 2 (rest (:id-vals ir)))]
-    (-> base-event
-        (exprs-reducer exprs)
-        (->>
-         (map (fn [[event exprs]]
-                (-> event
-                    (add-actions (assoc ir :id-vals (interleave ids exprs))))))))))
+  (-> base-event
+      (exprs-reducer (:id-vals ir))
+      (->>
+       (map (fn [[event id-vals]]
+              (-> event
+                  (add-actions (assoc ir :id-vals id-vals))))))))
 
 (defmethod sub->events :becomes-element-of [base-event ir]
-  (assert false) ; TODO
-  [(add-actions base-event ir)])
+  (-> base-event
+      (exprs-reducer (concat (:ids ir) [(:set ir)]))
+      (->>
+       (map (fn [[event exprs]]
+              (-> event
+                  (add-actions (assoc ir :ids (butlast exprs) :set (last exprs)))))))))
 
 (defmethod sub->events :becomes-such [base-event ir]
-  (assert false) ; TODO
-  [(add-actions base-event ir)])
+  (-> base-event
+      (preds-exprs-reducer [(:pred ir)] (:ids ir)) ; might want to have custom logic where the exprs are processed first
+      (->>
+       (map (fn [[event [pred] ids]]
+              (-> event
+                  (add-actions (assoc ir :ids ids :pred pred))))))))
 
 (defmethod sub->events :skip [base-event _ir]
   [base-event])
 
 (defmethod sub->events :any [base-event ir]
   (-> base-event
-      (add-args (:ids ir))
-      (preds-reducer [(:pred ir)])
+      (preds-exprs-reducer [(:pred ir)] (:ids ir))
       (->>
-       (mapcat (fn [[event [pred]]]
+       (mapcat (fn [[event [pred] ids]]
                  (-> event
+                     (add-args ids)
                      (add-guards pred)
                      (sequential-subs->events (:subs ir))))))))
 
@@ -257,55 +269,70 @@
   (parallel-subs->events base-event (:subs ir)))
 
 (defmethod sub->events :precondition [base-event ir]
-  (assert false) ; TODO
-  (-> (apply add-guards base-event
-             (if (= (-> ir :pred :tag) :and)
-               (-> ir :pred :preds)
-               [(:pred ir)]))
-      (sequential-subs->events (:subs ir))))
+  (-> base-event
+      (preds-reducer [(:pred ir)])
+      (->>
+       (mapcat (fn [[event [pred]]]
+                 (-> event
+                     (add-guards pred)
+                     (sequential-subs->events (:subs ir))))))))
 
 (defmethod sub->events :op-call->extends [base-event {:keys [event-names arg-names arg-vals]}]
-  (assert false) ; TODO
   (assert (not (s/selected-any? [:clauses s/ALL (TAG :event-reference)] base-event))
           "An event can only refine one event")
-  (map-indexed (fn [i event-name]
-                 (-> (apply add-guards base-event (map butil/b= arg-names arg-vals))
-                     (append-name "-" i)
-                     (update :clauses conj (dsl/event-extends event-name))))
-               event-names))
+  (->> event-names
+       (map-indexed (fn [i event-name]
+                      (-> base-event
+                          (exprs-reducer (interleave arg-names arg-vals))
+                          (->>
+                           (mapcat (fn [[event args]]
+                                     (-> event
+                                         (append-name "-" i)
+                                         (apply add-guards (apply butil/band
+                                                                  (map butil/b=
+                                                                       (take-nth 2 args)
+                                                                       (take-nth 2 (rest args)))))
+                                         (update :clauses conj (dsl/event-extends event-name)))))))))
+       (mapcat identity)))
 
 (defmethod sub->events :if-sub [base-event ir]
-  (assert false) ; TODO
-  (concat
-   (-> base-event
-       (append-name "-then")
-       (add-guards (:cond ir))
-       (sub->events (:then ir)))
-   (-> base-event (append-name "-else")
-       (add-guards (butil/bnot (:cond ir)))
-       (sub->events (or (:else ir) (butil/b skip))))))
+  (-> base-event
+      (preds-reducer [(:cond ir)])
+      (->> (mapcat (fn [[event [cond]]]
+                     (let [event-thens (-> event
+                                           (append-name "-then")
+                                           (add-guards cond)
+                                           (sub->events (:then ir)))
+                           event-elses (-> event
+                                           (append-name "-else")
+                                           (add-guards (butil/bnot cond))
+                                           (sub->events (or (:else ir) butil/bskip)))]
+                       (concat event-thens event-elses)))))))
 
 (defmethod sub->events :cond [base-event {:keys [clauses]}]
-  (assert false) ; TODO
-  (let [guards  (reduce (fn [acc cur]
-                          (conj acc (conj
-                                     (update (last acc) (- (count acc) 1) butil/bnot)
-                                     cur)))
-                        [[(first clauses)]] (rest (take-nth 2 clauses)))
-        pairs (map vector guards (take-nth 2 (rest clauses)))]
-    (concat (apply concat
-                   (map-indexed
-                    (fn [i [guards sub]]
-                      (-> (apply add-guards base-event guards)
-                          (append-name "-cond" i)
-                          (sub->events sub)))
-                    pairs))
-            (when (odd? (count clauses))
-              (sub->events
-               (apply add-guards
-                      (append-name base-event "-condelse")
-                      (map butil/bnot (take-nth 2 (butlast clauses))))
-               (last clauses))))))
+  (let [conds (map first (partition 2 clauses))
+        subs (map second (partition 2 clauses))
+        guards (map (partial apply butil/band)
+                    (map-indexed (fn [i cond]
+                                   (concat (map butil/bnot (take i conds))
+                                           cond
+                                           (map butil/bnot (drop (inc i) conds))))
+                                 conds))
+        pairs (concat (map-indexed (fn [i [guard sub]]
+                                     [(str "-cond" i) guard sub])
+                                   (map vector guards subs))
+                      (when (odd? (count clauses))
+                        [["-condelse" (apply butil/band (map butil/bnot conds)) (last clauses)]]))]
+    (mapcat (fn [[suffix guard sub]]
+              (-> base-event
+                  (append-name suffix)
+                  (preds-reducer [guard])
+                  (->>
+                   (mapcat (fn [[event [guard]]]
+                             (-> event
+                                 (add-guards guard)
+                                 (sub->events sub)))))))
+            pairs)))
 
 (defmethod sub->events :select [base-event {:keys [clauses]}]
   (if (= (count clauses) 2)
@@ -317,46 +344,54 @@
                      (-> event
                          (add-guards pred)
                          (sub->events sub)))))))
-    (assert false) ; TODO
-    #_(concat (apply concat
-                     (map-indexed
-                      (fn [i [guard sub]]
-                        (-> base-event
-                            (append-name  "-select" i)
-                            (add-guards guard)
-                            (sub->events sub)))
-                      (partition 2 clauses)))
-              (when (odd? (count clauses))
-                (sub->events
-                 (apply add-guards
-                        (append-name base-event "-selectelse")
-                        (map bnot (take-nth 2 (butlast clauses))))
-                 (last clauses))))))
-
-
-(defn literal? [x] (or (keyword? x) (number? x)))
-
-(defn literal-name [literal]
-  (if (keyword? literal)
-    (name literal)
-    (str literal)))
+    (concat (mapcat identity
+                    (->> clauses
+                         (partition 2)
+                         (map-indexed (fn [i [guard sub]]
+                                        (-> base-event
+                                            (append-name  "-select" i)
+                                            (preds-reducer [guard])
+                                            (->>
+                                             (mapcat (fn [[event [guard]]]
+                                                       (-> event
+                                                           (add-guards guard)
+                                                           (sub->events sub))))))))))
+            (when (odd? (count clauses))
+              (-> base-event
+                  (append-name  "-selectelse")
+                  (preds-reducer [(apply butil/band (map butil/bnot (map first (partition 2 clauses))))])
+                  (->>
+                   (mapcat (fn [[event [guard]]]
+                             (-> event
+                                 (add-guards guard)
+                                 (sub->events (last clauses)))))))))))
 
 (defmethod sub->events :case [base-event {:keys [expr cases]}]
-  (assert false) ; TODO
-  (concat
-   (mapcat
-    (fn [[case-literal sub]]
-      (assert (literal? case-literal))
-      (-> base-event
-          (append-name "-" (literal-name case-literal))
-          (add-guards (butil/b= case-literal expr))
-          (sub->events sub)))
-    (partition 2 cases))
-   (when (odd? (count cases))
-     (-> base-event
-         (append-name "-caseelse")
-         (add-guards (butil/bnot (butil/bmember? expr (set (take-nth 2 (butlast cases))))))
-         (sub->events (last cases))))))
+  (-> base-event
+      (exprs-reducer [expr])
+      (->> (mapcat (fn [[event [expr]]]
+                     (concat
+                      (->> cases
+                           (partition 2)
+                           (map-indexed (fn [i [case-expr sub]]
+                                          (-> event
+                                              (append-name  "-case" i)
+                                              (exprs-reducer [case-expr])
+                                              (->>
+                                               (mapcat (fn [[event [case-expr]]]
+                                                         (-> event
+                                                             (add-guards (butil/b= expr case-expr))
+                                                             (sub->events sub))))))))
+                           (mapcat identity))
+                      (when (odd? (count cases))
+                        (-> event
+                            (append-name  "-caseelse")
+                            (preds-reducer [(butil/bnot (butil/bmember? expr (set (map first (partition 2 cases)))))])
+                            (->>
+                             (mapcat (fn [[event [guard]]]
+                                       (-> event
+                                           (add-guards guard)
+                                           (sub->events (last cases))))))))))))))
 
 (defn- replace-vars-with-vals [ir id-vals]
   (let [replacement (apply hash-map id-vals)]
