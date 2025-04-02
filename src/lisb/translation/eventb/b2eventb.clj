@@ -178,14 +178,16 @@
        (map (fn [[event [cond] [then else]]]
               [event
                (butil/bfn-call
-                (butil/bunion (butil/blambda [:t]
-                                             (butil/band (butil/bmember? :t #{true})
-                                                         cond)
-                                             then)
-                              (butil/blambda [:t]
-                                             (butil/band (butil/bmember? :t #{true})
-                                                         (butil/bnot cond))
-                                             else))
+                (butil/bunion (let [sym (keyword (gensym "t"))]
+                                (butil/blambda [sym]
+                                               (butil/band (butil/bmember? sym #{true})
+                                                           cond)
+                                               then))
+                              (let [sym (keyword (gensym "t"))]
+                                (butil/blambda [sym]
+                                               (butil/band (butil/bmember? sym #{true})
+                                                           (butil/bnot cond))
+                                               else)))
                 true)])))))
 
 (defmethod expr->events :let [base-event ir]
