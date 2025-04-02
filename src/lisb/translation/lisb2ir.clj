@@ -1681,7 +1681,6 @@
     (and (seq? lisb) (symbol? (first lisb)) (= "operations" (name (first lisb)))) (process-op-definitions lisb)
     (and (seq? lisb) (symbol? (first lisb)) (= "<--" (name (first lisb)))) (process-assign-returns lisb)
     (and (seq? lisb) (symbol? (first lisb)) (= "if" (name (first lisb)))) (pre-process-lisb (list* lisb.translation.lisb2ir/bif (rest lisb)))
-    (set? lisb) `(hash-set ~@(map pre-process-lisb lisb))
     (seqable? lisb) (walk pre-process-lisb identity lisb)
     :else lisb))
 
