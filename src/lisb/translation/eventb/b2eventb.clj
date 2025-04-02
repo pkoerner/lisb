@@ -171,21 +171,22 @@
         (nil? ir)) [[base-event ir]]
     :else (throw (IllegalArgumentException. (str "unsupported ir: " ir)))))
 
-(defmethod expr->events :if [base-event ir]
+(defmethod expr->events :if [base-event {:keys [cond then else]}]
   (-> base-event
-      (preds-reducer [(:cond ir)])
-      (->> (mapcat (fn [[event [cond]]]
-                     (let [event-thens (-> event
-                                           (append-name "-then")
-                                           (add-guards cond)
-                                           (exprs-reducer [(:then ir)]))
-                           event-elses (-> event
-                                           (append-name "-else")
-                                           (add-guards (butil/bnot cond))
-                                           (exprs-reducer [(:else ir)]))]
-                       (->> (concat event-thens event-elses)
-                            (map (fn [[event [expr]]]
-                                   [event expr])))))))))
+      (preds-exprs-reducer [cond] [then else])
+      (->>
+       (map (fn [[event [cond] [then else]]]
+              [event
+               (butil/bfn-call
+                (butil/bunion (butil/blambda [:t]
+                                             (butil/band (butil/bmember? :t #{true})
+                                                         cond)
+                                             then)
+                              (butil/blambda [:t]
+                                             (butil/band (butil/bmember? :t #{true})
+                                                         (butil/bnot cond))
+                                             else))
+                true)])))))
 
 (defmethod expr->events :let [base-event ir]
   (-> base-event
@@ -216,6 +217,16 @@
         (boolean? ir)
         (nil? ir)) [[base-event ir]]
     :else (throw (IllegalArgumentException. (str "unsupported ir: " ir)))))
+
+(defmethod pred->events :if [base-event {:keys [cond then else]}]
+  (-> base-event
+      (preds-reducer [cond then else])
+      (->>
+       (map (fn [[event [cond then else]]]
+              [event
+               (butil/band
+                (butil/bimplication cond then)
+                (butil/bimplication (butil/bnot cond) else))])))))
 
 (defmethod pred->events :let [base-event ir]
   (-> base-event
@@ -489,10 +500,15 @@
 
 (defn context-name [machine-name] (keyword (str (name machine-name) "-ctx")))
 
+;; B -> EventB
+
+(declare transform-ir transform-all-expressions)
+
 (defn extract-context
   "Extracts an Event-B context from an classical B machine"
   [ir]
-  (let [partitions (map (fn [ir]
+  (let [ir (transform-all-expressions ir)
+        partitions (map (fn [ir]
                           (apply dsl/eventb-partition (:id ir) (map (fn [x] #{x}) (:elems ir))))
                         (s/select [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set)] ir))
         properties (s/select [(CLAUSE :properties) :values s/ALL] ir)
@@ -513,7 +529,8 @@
 (defn extract-machine
   "Extracts an Event-B machine from an classical B machine. Operations are converted to Events"
   [ir]
-  (let [events (apply dsl/eventb-events
+  (let [ir (transform-all-expressions ir)
+        events (apply dsl/eventb-events
                       (mapcat op->events (s/select [(CLAUSE :operations) :values s/ALL] ir)))
         inits (map #(replace-subs-with-sequential-sub % :values)
                    (s/select (CLAUSE :init) ir))
@@ -532,6 +549,12 @@
       machine)))
 
 ;; Transform IR
+
+(defn transform-all-expressions
+  "Replaces the B expression which are implemented by *transform-ir*
+  with an equivalent Event-B construct"
+  [ir]
+  (s/transform IR-WALKER transform-ir ir))
 
 (defmulti transform-ir
   #(or (:tag %) (type %))
@@ -588,9 +611,3 @@
 ; default case
 (defmethod transform-ir nil [ir]
   ir)
-
-(defn transform-all-expressions
-  "Replaces the B expression which are implemented by *transform-ir*
-  with an equivalent Event-B construct"
-  [ir]
-  (s/transform IR-WALKER transform-ir ir))
