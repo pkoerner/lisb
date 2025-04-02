@@ -400,7 +400,7 @@
 
 (defn bbecomes-element-of [ids set]
   {:tag :becomes-element-of
-   :ids ids
+   :ids (to-vec ids)
    :set set})
 (s/fdef bbecomes-element-of
         :args (s/cat :ids ::ids :set ::set)
@@ -409,7 +409,7 @@
 
 (defn bbecomes-such [ids pred]
   {:tag :becomes-such
-   :ids ids
+   :ids (to-vec ids)
    :pred pred})
 (s/fdef bbecomes-such
         :args (s/cat :ids ::ids :pred ::pred)
@@ -457,7 +457,7 @@
 
 (defn bany [ids pred & subs]
   {:tag :any
-   :ids ids
+   :ids (to-vec ids)
    :pred pred
    :subs subs})
 (s/fdef bany
@@ -476,7 +476,7 @@
 
 (defn bvar [ids & subs]
   {:tag :var
-   :ids ids
+   :ids (to-vec ids)
    :subs subs})
 (s/fdef bvar
         :args (s/cat :ids ::ids :subs ::subs)
@@ -862,7 +862,7 @@
 
 (defn blambda [ids pred expr]
   {:tag :lambda
-   :ids ids
+   :ids (to-vec ids)
    :pred pred
    :expr expr})
 (s/fdef blambda
@@ -1278,7 +1278,7 @@
 
 (defn bpi [ids pred expr]
   {:tag :pi
-   :ids ids
+   :ids (to-vec ids)
    :pred pred
    :expr expr})
 (s/fdef bpi
@@ -1288,7 +1288,7 @@
 
 (defn bsigma [ids pred expr]
   {:tag :sigma
-   :ids ids
+   :ids (to-vec ids)
    :pred pred
    :expr expr})
 (s/fdef bsigma
@@ -1471,7 +1471,7 @@
 
 (defn bunion-pe [ids pred expr]
   {:tag :union-pe
-   :ids ids
+   :ids (to-vec ids)
    :pred pred
    :expr expr})
 (s/fdef bunion-pe
@@ -1481,7 +1481,7 @@
 
 (defn bintersection-pe [ids pred expr]
   {:tag :intersection-pe
-   :ids ids
+   :ids (to-vec ids)
    :pred pred
    :expr expr})
 (s/fdef bintersection-pe
@@ -1587,7 +1587,7 @@
 (defn bfor-all
   ([ids implication]
    {:tag :for-all
-    :ids ids
+    :ids (to-vec ids)
     :implication implication})
   ([ids premise conclusion]
    (bfor-all ids (bimplication premise conclusion))))
@@ -1599,7 +1599,7 @@
 
 (defn bexists [ids pred]
   {:tag :exists
-   :ids ids
+   :ids (to-vec ids)
    :pred pred})
 (s/fdef bexists
         :args (s/cat :ids ::ids :pred ::pred)
