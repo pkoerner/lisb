@@ -296,7 +296,7 @@
 
 (defmethod ir-expr->str :lambda [{:keys [ids pred expr]}]
   ;;TODO: In Event-B ids can be arbitrarily nested.
-  (str "%" (ir-expr->str (tuple->maplet ids)) "." (ir-pred->str pred) "|" (ir-expr->str expr)))
+  (str "(%" (ir-expr->str (tuple->maplet ids)) "." (ir-pred->str pred) "|" (ir-expr->str expr) ")"))
 
 (defmethod ir-expr->str :fn-call [ir]
   (str (ir-expr->str (:f ir))
