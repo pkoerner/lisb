@@ -1,17 +1,18 @@
 (ns lisb.translation.irtools
-  (:require [com.rpl.specter :as s]))
+  (:require [com.rpl.specter :as s]
+            [lisb.translation.types]))
 
 (s/defnav tuple-nav []
   (select* [this structure next-fn]
            (next-fn (seq structure)))
   (transform* [this structure next-fn]
-              (lisb.translation.types/->Tuple (map next-fn structure))))
+              (lisb.translation.types/->Tuple (next-fn (seq structure)))))
 
 (def IR-WALKER (s/recursive-path [] p
                                  (s/cond-path
                                   map? (s/continue-then-stay s/ALL (s/pred #(not (= (first %) :tag))) s/LAST p)
                                   coll? (s/continue-then-stay s/ALL p)
-                                  #(instance? lisb.translation.types.Tuple %) [tuple-nav p]
+                                  #(instance? lisb.translation.types.Tuple %) (s/continue-then-stay tuple-nav s/ALL p)
                                   (constantly true) s/STAY)))
 
 (def IR-NODE-WALKER [IR-WALKER (s/pred #(and (map? %)
