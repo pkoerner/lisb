@@ -1,5 +1,5 @@
 (ns lisb.translation.eventb.dsl
-  (:require [lisb.translation.lisb2ir :refer [b]]
+  (:require [lisb.translation.lisb2ir :refer [b beventb-prj1 beventb-prj2]]
             [clojure.spec.alpha :as s]))
 
 
@@ -129,6 +129,8 @@
             ~'finite eventb-finite
             ~'extended-expr eventb-extended-expr
             ~'extended-pred eventb-extended-pred
+            ~'prj1 beventb-prj1
+            ~'prj2 beventb-prj2
             ~'label eventb-label
             ] 
         ~lisb)))

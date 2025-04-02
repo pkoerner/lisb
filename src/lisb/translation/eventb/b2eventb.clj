@@ -610,6 +610,16 @@
 (defmethod transform-ir :let [{:keys [id-vals expr-or-pred]}]
   (replace-vars-with-vals expr-or-pred id-vals))
 
+(defmethod transform-ir :fn-call [{:keys [f args] :as ir}]
+  (cond
+    (and (map? f)
+         (= (:tag f) :prj1)
+         (= (count args) 1)) (butil/beventb-prj1 (first args))
+    (and (map? f)
+         (= (:tag f) :prj2)
+         (= (count args) 1)) (butil/beventb-prj2 (first args))
+    :else ir))
+
 ; default case
 (defmethod transform-ir nil [ir]
   ir)

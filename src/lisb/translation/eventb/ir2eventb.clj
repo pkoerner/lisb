@@ -244,11 +244,11 @@
 (defmethod ir-expr->str :parallel-product [{:keys [rels]}]
   (chain-expr "||" rels))
 
-(defmethod ir-expr->str :prj1 [{:keys [set1 set2]}]
-  (str "prj1(" (ir-expr->str set1) "," (ir-expr->str set2) ")"))
+(defmethod ir-expr->str :eventb-prj1 [{:keys [expr]}]
+  (str "prj1(" (ir-expr->str expr) ")"))
 
-(defmethod ir-expr->str :prj2 [{:keys [set1 set2]}]
-  (str "prj2(" (ir-expr->str set1) "," (ir-expr->str set2) ")"))
+(defmethod ir-expr->str :eventb-prj2 [{:keys [expr]}]
+  (str "prj2(" (ir-expr->str expr) ")"))
 
 (defmethod ir-expr->str :iteration [{:keys [rel num]}]
   (str (ir-expr->str rel) "^" (ir-expr->str num)))

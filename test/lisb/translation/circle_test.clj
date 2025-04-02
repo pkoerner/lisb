@@ -159,6 +159,8 @@
               (b (parallel-product :r1 :r2))
               (b (prj1 :S :T))
               (b (prj2 :S :T))
+              (b (eventb-prj1 :e))
+              (b (eventb-prj2 :e))
               (b (closure1 :r))
               (b (closure :r))
               (b (iterate :r :n))

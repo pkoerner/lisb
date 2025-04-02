@@ -197,6 +197,10 @@
             ADescriptionExpression ADescriptionPredicate ALabelPredicate
             AExtendedExprExpression
             AExtendedPredPredicate
+            AEventBFirstProjectionExpression
+            AEventBSecondProjectionExpression
+            AEventBFirstProjectionV2Expression
+            AEventBSecondProjectionV2Expression
             ;; for some reason unused
             ; TIntegerLiteral
             ; AConcreteVariablesMachineClause
@@ -638,8 +642,9 @@
     (cond
       (= (class f) ASuccessorExpression) (concat-last 'inc params)
       (= (class f) APredecessorExpression) (concat-last 'dec params)
+      (= (class f) AEventBFirstProjectionV2Expression) (concat-last 'eventb-prj1 params)
+      (= (class f) AEventBSecondProjectionV2Expression) (concat-last 'eventb-prj2 params)
       :else (concat-last 'fn-call f params))))
-
 
 ;;; relations
 
@@ -683,6 +688,10 @@
   (list 'prj1 (ast->lisb (.getExp1 node)) (ast->lisb (.getExp2 node))))
 (defmethod ast->lisb ASecondProjectionExpression [node]
   (list 'prj2 (ast->lisb (.getExp1 node)) (ast->lisb (.getExp2 node))))
+(defmethod ast->lisb AEventBFirstProjectionExpression [node]
+  (list 'eventb-prj1 (ast->lisb (.getExpression node))))
+(defmethod ast->lisb AEventBSecondProjectionExpression [node]
+  (list 'eventb-prj2 (ast->lisb (.getExpression node))))
 (defmethod ast->lisb AClosureExpression [node]
   (expression 'closure1 node))
 (defmethod ast->lisb AReflexiveClosureExpression [node]

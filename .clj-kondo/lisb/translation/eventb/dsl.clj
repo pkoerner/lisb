@@ -23,7 +23,9 @@
                          'event-extends 'lisb.translation.eventb.dsl/event-extends
                          'status 'lisb.translation.eventb.dsl/event-status
                          'with 'lisb.translation.eventb.dsl/event-with
-                         'finite 'lisb.translation.eventb.dsl/eventb-finite}
+                         'finite 'lisb.translation.eventb.dsl/eventb-finite
+                         'prj1 'lisb.translation.lisb2ir/beventb-prj1
+                         'prj2 'lisb.translation.lisb2ir/beventb-prj2}
                         (first form)
                         (first form))
                    (rest form))

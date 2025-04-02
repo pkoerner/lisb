@@ -269,6 +269,8 @@
                 "(((r1||r2)||r3)||r4)" (b (parallel-product :r1 :r2 :r3 :r4))
                 "prj1(S, T)" (b (prj1 :S :T))
                 "prj2(S, T)" (b (prj2 :S :T))
+                "@prj1(e)" (b (eventb-prj1 :e))
+                "@prj2(e)" (b (eventb-prj2 :e))
                 "closure1(r)" (b (closure1 :r))
                 "closure(r)" (b (closure :r))
                 "iterate(r, n)" (b (iterate :r :n))

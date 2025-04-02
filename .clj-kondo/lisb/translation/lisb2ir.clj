@@ -155,6 +155,8 @@
            'parallel-product 'lisb.translation.lisb2ir/bparallel-product
            'prj1 'lisb.translation.lisb2ir/bprj1
            'prj2 'lisb.translation.lisb2ir/bprj2
+           'eventb-prj1 'lisb.translation.lisb2ir/beventb-prj1
+           'eventb-prj2 'lisb.translation.lisb2ir/beventb-prj2
            'closure1 'lisb.translation.lisb2ir/bclosure1
            'closure 'lisb.translation.lisb2ir/bclosure
            'iterate 'lisb.translation.lisb2ir/biterate
