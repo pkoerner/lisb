@@ -1,5 +1,7 @@
 (ns lisb.translation.types)
 
+(def ^:dynamic *as-ir* false)
+
 (defprotocol Flattable
   (make-flat [this]))
 
@@ -21,15 +23,19 @@
 
   Object
   (equals [this other] (and (instance? Tuple other)  (= (.-xs (make-flat this)) (.-xs (make-flat other)))))
-  (toString [this] (str \[ (clojure.string/join " -> " xs) \])))
+  (toString [this] (if *as-ir*
+                     (str {:tag :maplet, :elems xs})
+                     (str \[ (clojure.string/join " -> " xs) \]))))
 
 (defmethod clojure.core/print-method Tuple [this writer]
   (print-simple
-    (vec (interpose '-> (.-xs this)))
+    (if *as-ir*
+      {:tag :maplet, :elems (.-xs this)}
+      (vec (interpose '-> (.-xs this))))
     writer))
 
 (comment
-  (->Tuple [1 2]) ;; => [1 -> 2]
+  (binding [*as-ir* true] (println (->Tuple [1 2]))) ;; => [1 -> 2]
   (->Tuple [1 2 3]) ;; => [1 -> 2 -> 3]
   (fixate!! (first (->Tuple [1 2])))
   (second (->Tuple [1 2]))

@@ -3,7 +3,9 @@
   (:require [clojure.math.combinatorics :refer [combinations]])
   (:require [clojure.walk :refer [walk postwalk]])
   (:require [clojure.set])
-  (:require [clojure.spec.alpha :as s]))
+  (:require [clojure.spec.alpha :as s])
+  (:require [com.rpl.specter :as specter])
+  )
 
 
 ;; TODO: check where iterate needs to be listed as well
@@ -2016,13 +2018,13 @@
   "Similar to eval, but also evaluates all elements in a tuple to the IR.
   Maps will not be evaluated."
   [code]
-  (eval (clojure.walk/postwalk 
-    (fn [x] (cond (instance? lisb.translation.types.Tuple x)
-                    (->Tuple (map beval x))
-                  (map? x)
-                    `'~x
-                  :otherwise x))
-    code)))
+  (eval 
+    (specter/transform
+      (specter/walker (fn [x] (or (map? x) (or (instance? lisb.translation.types.Tuple x)))))
+      (fn [x] (if (map? x) `'~x
+                (do (assert (instance? lisb.translation.types.Tuple x))
+                    (->Tuple (map beval x)))))
+      code)))
 
 (defn bb [code]
   (beval (bexpand (pre-process-lisb code))))
@@ -2033,8 +2035,10 @@
          (bb `#{[:x] | :x + 1 = 0})
          (bb `#{[:x] | (= 0 (+ :x 1))})
          (b #{[:x] | (= 0 (+ :x 1))})
+         (bb `(+ 1 (* 2 [1 -> [(+ 1 1) -> [(+ 1 2) -> [(+ 1 3) -> (+ 1 4)]] ]])))
          (pre-process-lisb `#{[:x] | :x})
          (pre-process-lisb2 `[2 -> [3 -> 4]])
          (b (+ 1 2))
-         )
+         (let [ir (b+ 1 (b* 2 3))]
+           (bb `[1 -> ~ir])))
 
