@@ -140,27 +140,35 @@
 
 ;; Equality
 
-(defmethod ir-pred->str :equals [ir]
-  (str (ir-expr->str (:left ir)) "=" (ir-expr->str (:right ir))))
+(defmethod ir-pred->str :equals [{:keys [left right]}]
+  (chain-expr "=" [left right]))
 
-(defmethod ir-pred->str :not-equals [ir]
-  (str (ir-expr->str (:left ir)) "/=" (ir-expr->str (:right ir))))
+(defmethod ir-pred->str :not-equals [{:keys [left right]}]
+  (chain-expr "/=" [left right]))
 
 ;; Sets
 
 (defmethod ir-expr->str clojure.lang.PersistentHashSet [ir]
   (str "{" (str/join "," (map ir-expr->str ir)) "}"))
 
-(defmethod ir-expr->str :comprehension-set [ir]
-  (if (:expr ir)
+(defmethod ir-expr->str :comprehension-set [{:keys [ids pred expr]}]
+  (str "{"
+       (str/join "," (map rodin-name ids))
+       "."
+       (ir-pred->str pred)
+       (when expr
+         (str "|" (ir-expr->str expr)))
+       "}")
+
+  (if expr
     (str "{"
-         (ir-expr->str (:expr ir))
+         (ir-expr->str expr)
          "|"
-         (ir-pred->str (:pred ir))
+         (ir-pred->str pred)
          "}")
     (str "{"
-         (str/join "," (map rodin-name (:ids ir))) "|"
-         (ir-pred->str (:pred ir)) "}")))
+         (str/join "," (map rodin-name ids)) "|"
+         (ir-pred->str pred) "}")))
 
 (defmethod ir-expr->str :power-set [ir]
   (str "POW(" (ir-expr->str (:set ir)) ")"))
@@ -202,10 +210,10 @@
   (str "(" (ir-expr->str (:elem ir)) ":" (ir-expr->str (:set ir)) ")"))
 
 (defmethod ir-pred->str :subset [ir]
-  (chain-expr-explicit "<:" (:sets ir)))
+  (chain-expr-explicit " <: " (:sets ir)))
 
 (defmethod ir-pred->str :strict-subset [ir]
-  (chain-expr-explicit "<<:" (:sets ir)))
+  (chain-expr-explicit " <<: " (:sets ir)))
 
 (defmethod ir-pred->str :partition [ir]
   (str "partition(" (ir-expr->str (:set ir)) ","
@@ -255,10 +263,10 @@
   (str (ir-expr->str rel) "[" (ir-expr->str set) "]"))
 
 (defmethod ir-expr->str :domain-restriction [{:keys [rel set]}]
-  (str (ir-expr->str set) "<|" (ir-expr->str rel)))
+  (str (ir-expr->str set) " <| " (ir-expr->str rel)))
 
 (defmethod ir-expr->str :domain-subtraction [{:keys [rel set]}]
-  (str (ir-expr->str set) "<<|" (ir-expr->str rel)))
+  (str (ir-expr->str set) " <<| " (ir-expr->str rel)))
 
 (defmethod ir-expr->str :range-restriction [{:keys [rel set]}]
   (str (ir-expr->str rel) " |> " (ir-expr->str set)))
@@ -267,10 +275,10 @@
   (str (ir-expr->str rel) " |>> " (ir-expr->str set)))
 
 (defmethod ir-expr->str :override [{:keys [rels]}]
-  (chain-expr "<+" rels))
+  (chain-expr " <+ " rels))
 
 (defmethod ir-expr->str :direct-product [{:keys [rels]}]
-  (chain-expr "><" rels))
+  (chain-expr " >< " rels))
 
 (defmethod ir-expr->str :parallel-product [{:keys [rels]}]
   (chain-expr "||" rels))
