@@ -601,11 +601,28 @@
                         (->Tuple [(butil/b+ (butil/bcard seq) (inc i)) x]))
                       elems))))
 
+(def ^:dynamic *seq-translation* :comprehension-set-exists)
+
 (defmethod transform-ir :seq [{:keys [set]}]
-  (let [sym (keyword (gensym "n"))]
-    (butil/bunion-pe [sym]
-                     (butil/bmember? sym butil/bnat-set)
-                     (butil/btotal-function (butil/binterval 1 sym) set))))
+  (case *seq-translation*
+    :union
+    (let [sym (keyword (gensym "n"))]
+      (butil/bunion-pe [sym]
+                       (butil/bmember? sym butil/bnatural-set)
+                       (butil/btotal-function (butil/binterval 1 sym) set)))
+    :comprehension-set-exists
+    (let [f (keyword (gensym "f"))
+          n (keyword (gensym "n"))]
+      (butil/bcomprehension-set [f]
+                                (butil/band (butil/bmember? f (butil/bpartial-function butil/binteger-set set))
+                                            (butil/bexists [n] (butil/band (butil/bmember? n butil/bnatural-set)
+                                                                           (butil/bmember? f (butil/btotal-function (butil/binterval 1 n) set)))))))
+    :comprehension-set-domain
+    (let [f (keyword (gensym "f"))]
+      (butil/bcomprehension-set [f]
+                                (butil/band (butil/bmember? f (butil/bpartial-function butil/binteger-set set))
+                                            (eventb-finite f)
+                                            (butil/b= (butil/bdom f) (butil/binterval 1 (butil/bcard f))))))))
 
 (defmethod transform-ir :let [{:keys [id-vals expr-or-pred]}]
   (replace-vars-with-vals expr-or-pred id-vals))
