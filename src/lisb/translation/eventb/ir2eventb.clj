@@ -38,13 +38,48 @@
 #_(defmethod ir-pred->str nil [ir] (println "unsupported pred:" ir) (str ir))
 
 (defn chain-expr [op irs]
-  (str/join op (map (fn [ir]
-                      (if (:tag ir)
-                        (str "(" (ir-expr->str ir) ")")
-                        (ir-expr->str ir))) irs)))
+  (->> irs
+       (map ir-expr->str)
+       (str/join op)
+       (#(str "(" % ")"))))
 
-(defn chain-pred [op ir]
-  (str "(" (str/join op (map ir-pred->str ir)) ")"))
+(defn chain-expr-explicit [op elems]
+  (str "(" (str/join "&" (map (fn [a b] (str (ir-expr->str a) op (ir-expr->str b)))
+                              (butlast elems) (rest elems))) ")"))
+
+(defn chain-expr-left [op irs]
+  (->> irs
+       (map ir-expr->str)
+       (reduce (fn [a e]
+                 (str "(" a op e ")"))
+               irs)))
+
+(defn chain-expr-right [op irs]
+  (->> irs
+       (map ir-expr->str)
+       reverse
+       (reduce (fn [a e]
+                 (str "(" e op a ")")))))
+
+(defn chain-pred [op irs]
+  (->> irs
+       (map ir-pred->str)
+       (str/join op)
+       (#(str "(" % ")"))))
+
+(defn chain-pred-left [op irs]
+  (->> irs
+       (map ir-pred->str)
+       (reduce (fn [a e]
+                 (str "(" a op e ")"))
+               irs)))
+
+(defn chain-pred-right [op irs]
+  (->> irs
+       (map ir-pred->str)
+       reverse
+       (reduce (fn [a e]
+                 (str "(" e op a ")")))))
 
 ;; Primitives
 
@@ -54,7 +89,7 @@
 
 ;; Boolean
 
-(defmethod ir-expr->str java.lang.Boolean [ir] (str/upper-case (str ir)))
+(defmethod ir-expr->str java.lang.Boolean [ir] (if ir "TRUE" "FALSE"))
 (defmethod ir-expr->str :bool-set [_] "BOOL")
 (defmethod ir-expr->str :pred->bool [ir]
   (str "bool(" (ir-pred->str (:pred ir)) ")"))
@@ -62,7 +97,7 @@
 ;; Numbers
 
 (defmethod ir-expr->str :add [ir] (chain-expr "+" (:nums ir)))
-(defmethod ir-expr->str :sub [ir] (chain-expr "-" (:nums ir)))
+(defmethod ir-expr->str :sub [ir] (chain-expr " - " (:nums ir)))
 (defmethod ir-expr->str :mul [ir] (chain-expr "*" (:nums ir)))
 (defmethod ir-expr->str :div [ir] (chain-expr "/" (:nums ir)))
 (defmethod ir-expr->str :mod [ir] (chain-expr "mod" (:nums ir)))
@@ -87,15 +122,15 @@
 
 ;; Logical predicates
 
-(defmethod ir-pred->str :less [ir] (chain-expr "<" (:nums ir)))
-(defmethod ir-pred->str :less-equals [ir] (chain-expr "<=" (:nums ir)))
-(defmethod ir-pred->str :greater [ir] (chain-expr ">" (:nums ir)))
-(defmethod ir-pred->str :greater-equals [ir] (chain-expr ">=" (:nums ir)))
+(defmethod ir-pred->str :less [ir] (chain-expr " < " (:nums ir)))
+(defmethod ir-pred->str :less-equals [ir] (chain-expr " <= " (:nums ir)))
+(defmethod ir-pred->str :greater [ir] (chain-expr " > " (:nums ir)))
+(defmethod ir-pred->str :greater-equals [ir] (chain-expr " >= " (:nums ir)))
 
 (defmethod ir-pred->str :and [ir] (chain-pred "&" (:preds ir)))
 (defmethod ir-pred->str :or [ir] (chain-pred " or " (:preds ir)))
-(defmethod ir-pred->str :implication [ir] (chain-pred "=>" (:preds ir)))
-(defmethod ir-pred->str :equivalence [ir] (chain-pred "<=>" (:preds ir)))
+(defmethod ir-pred->str :implication [ir] (chain-pred " => " (:preds ir)))
+(defmethod ir-pred->str :equivalence [ir] (chain-pred " <=> " (:preds ir)))
 (defmethod ir-pred->str :not [ir]
   (str "not(" (ir-pred->str (:pred ir)) ")"))
 (defmethod ir-pred->str :for-all [ir]
@@ -164,11 +199,7 @@
   (chain-expr "\\" (:sets ir)))
 
 (defmethod ir-pred->str :member [ir]
-  (str (ir-expr->str (:elem ir)) ":" (ir-expr->str (:set ir))))
-
-(defn chain-expr-explicit [op elems]
-  (str "(" (str/join "&" (map (fn [a b] (str (ir-expr->str a) op (ir-expr->str b)))
-                              (butlast elems) (rest elems))) ")"))
+  (str "(" (ir-expr->str (:elem ir)) ":" (ir-expr->str (:set ir)) ")"))
 
 (defmethod ir-pred->str :subset [ir]
   (chain-expr-explicit "<:" (:sets ir)))
@@ -186,13 +217,13 @@
 ;; Relations
 
 (defmethod ir-expr->str lisb.translation.types.Tuple [tuple]
-  (str "(" (chain-expr "|->" tuple) ")"))
+  (chain-expr " |-> " tuple))
 
 (defmethod ir-expr->str :maplet [{:keys [elems]}]
-  (chain-expr "|->" elems))
+  (chain-expr " |-> " elems))
 
 (defmethod ir-expr->str :relation [ir]
-  (chain-expr "<->" (:sets ir)))
+  (chain-expr " <-> " (:sets ir)))
 
 (defmethod ir-expr->str :dom [{:keys [rel]}]
   (str "dom(" (ir-expr->str rel) ")"))
@@ -201,13 +232,13 @@
   (str "ran(" (ir-expr->str rel) ")"))
 
 (defmethod ir-expr->str :total-relation [ir]
-  (chain-expr "<<->" (:sets ir)))
+  (chain-expr " <<-> " (:sets ir)))
 
 (defmethod ir-expr->str :surjective-relation [ir]
-  (chain-expr "<->>" (:sets ir)))
+  (chain-expr " <->> " (:sets ir)))
 
 (defmethod ir-expr->str :total-surjective-relation [ir]
-  (chain-expr "<<->>" (:sets ir)))
+  (chain-expr " <<->> " (:sets ir)))
 
 (defmethod ir-expr->str :composition [ir]
   (chain-expr ";" (:rels ir)))
@@ -230,10 +261,10 @@
   (str (ir-expr->str set) "<<|" (ir-expr->str rel)))
 
 (defmethod ir-expr->str :range-restriction [{:keys [rel set]}]
-  (str (ir-expr->str rel) "|>" (ir-expr->str set)))
+  (str (ir-expr->str rel) " |> " (ir-expr->str set)))
 
 (defmethod ir-expr->str :range-subtraction [{:keys [rel set]}]
-  (str (ir-expr->str rel) "|>>" (ir-expr->str set)))
+  (str (ir-expr->str rel) " |>> " (ir-expr->str set)))
 
 (defmethod ir-expr->str :override [{:keys [rels]}]
   (chain-expr "<+" rels))
@@ -251,15 +282,15 @@
   (str "prj2(" (ir-expr->str expr) ")"))
 
 (defmethod ir-expr->str :iteration [{:keys [rel num]}]
-  (str (ir-expr->str rel) "^" (ir-expr->str num)))
+  (str "(" (ir-expr->str rel) "^" (ir-expr->str num)) ")")
 
 (defmethod ir-expr->str :extended-expr [{:keys [identifier exprs preds] :as xx}]
   (assert (empty? preds)) ;; do not know what happens with preds
-  (str (name identifier) "(" (clojure.string/join "," (map ir-expr->str exprs)) ")"))
+  (str (name identifier) "(" (str/join "," (map ir-expr->str exprs)) ")"))
 
 (defmethod ir-expr->str :extended-pred [{:keys [identifier exprs preds]}]
   (assert false) ;; do not know what happens here
-  (str (name identifier) "(" (clojure.string/join "," (map ir-expr->str exprs)) ")"))
+  (str (name identifier) "(" (str/join "," (map ir-expr->str exprs)) ")"))
 
 ;; TODO: missing Closures
 
@@ -267,44 +298,43 @@
 ;; Functions
 
 (defmethod ir-expr->str :partial-fn [ir]
-  (chain-expr "+->" (:sets ir)))
+  (chain-expr " +-> " (:sets ir)))
 
 (defmethod ir-expr->str :total-fn [ir]
-  (chain-expr "-->" (:sets ir)))
+  (chain-expr " --> " (:sets ir)))
 
 (defmethod ir-expr->str :partial-surjection [ir]
-  (chain-expr "+->>" (:sets ir)))
+  (chain-expr " +->> " (:sets ir)))
 
 (defmethod ir-expr->str :total-surjection [ir]
-  (chain-expr "-->>" (:sets ir)))
+  (chain-expr " -->> " (:sets ir)))
 
 (defmethod ir-expr->str :partial-injection [ir]
-  (chain-expr ">+>" (:sets ir)))
+  (chain-expr " >+> " (:sets ir)))
 
 (defmethod ir-expr->str :total-injection [ir]
-  (chain-expr ">->" (:sets ir)))
+  (chain-expr " >-> " (:sets ir)))
 
 (defmethod ir-expr->str :partial-bijection [ir]
-  (chain-expr ">+>>" (:sets ir)))
+  (chain-expr " >+>> " (:sets ir)))
 
 (defmethod ir-expr->str :total-bijection [ir]
-  (chain-expr ">->>" (:sets ir)))
+  (chain-expr " >->> " (:sets ir)))
 
 (defn tuple->maplet [tuple]
   (reduce (fn [acc cur] {:tag :maplet :elems [acc cur]})
           tuple))
 
 (defmethod ir-expr->str :lambda [{:keys [ids pred expr]}]
-  ;;TODO: In Event-B ids can be arbitrarily nested.
   (str "(%" (ir-expr->str (tuple->maplet ids)) "." (ir-pred->str pred) "|" (ir-expr->str expr) ")"))
 
-(defmethod ir-expr->str :fn-call [ir]
-  (str (ir-expr->str (:f ir))
-       "("
-       (if-let [args (seq (:args ir))]
-         (ir-expr->str (tuple->maplet args))
-         "")
-       ")"))
+(defmethod ir-expr->str :fn-call [{:keys [f args]}]
+  (str
+   (ir-expr->str f)
+   "("
+   (when-let [args (seq args)]
+     (ir-expr->str (tuple->maplet args)))
+   ")"))
 
 ;; Construct ProB Model
 
