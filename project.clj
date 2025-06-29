@@ -8,11 +8,11 @@
   :deploy-repositories [["releases"  {:sign-releases false :url "https://repo.clojars.org/"}]
                         ["snapshots" {:sign-releases false :url "https://repo.clojars.org/"}]]
   :jvm-opts ["-Xss1g"]
-  :dependencies [[org.clojure/clojure "1.11.3"]
+  :dependencies [[org.clojure/clojure "1.12.1"]
                  [org.clojure/math.combinatorics "0.3.0"]
                  [org.clojure/test.check "1.1.1"]
                  [potemkin "0.4.7"]
                  [com.rpl/specter "1.1.4"]
-                 [de.hhu.stups/prob-java "4.13.2-SNAPSHOT"]
+                 [de.hhu.stups/prob-java "4.15.0-SNAPSHOT"]
                  [de.hhu.stups/value-translator "0.2.0-SNAPSHOT"]
                  ])
