@@ -13,6 +13,6 @@
                  [org.clojure/test.check "1.1.1"]
                  [potemkin "0.4.7"]
                  [com.rpl/specter "1.1.4"]
-                 [de.hhu.stups/prob-java "4.15.0-SNAPSHOT"]
+                 [de.hhu.stups/prob-java "4.15.1-SNAPSHOT"]
                  [de.hhu.stups/value-translator "0.2.0-SNAPSHOT"]
                  ])
