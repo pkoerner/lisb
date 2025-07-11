@@ -12,7 +12,7 @@
   :dependencies [[org.clojure/clojure "1.12.1"]
                  [org.clojure/math.combinatorics "0.3.0"]
                  [org.clojure/test.check "1.1.1"]
-                 [potemkin "0.4.7"]
+                 [potemkin "0.4.8"]
                  [com.rpl/specter "1.1.4"]
                  [de.hhu.stups/prob-java "4.15.1-SNAPSHOT"]
                  [de.hhu.stups/value-translator "0.2.1"]
