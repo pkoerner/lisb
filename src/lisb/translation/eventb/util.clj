@@ -22,17 +22,24 @@
 (defn lisb->ir [lisb]
   (eval `(eventb ~lisb)))
 
+(defn- with-main-component [model component]
+  (if (.getMainComponent model)
+    model
+    (.withMainComponent model component)))
+
 (defn model-with-context [model context]
   (reduce (fn [model extended]
             (.addRelationship model (.getName context) (.getName extended) DependencyGraph$ERefType/EXTENDS))
-          (.addContext model context)
+          (-> (.addContext model context)
+              (with-main-component context))
           (.getExtends context)))
 
 (defn model-with-machine [model machine]
   (let [refined (.getRefinesMachine machine)
         model (reduce (fn [model context]
                         (.addRelationship model (.getName machine) (.getName context) DependencyGraph$ERefType/SEES))
-                      (.addMachine model machine)
+                      (-> (.addMachine model machine)
+                          (with-main-component machine))
                       (.getSees machine))]
     (if refined
       (.addRelationship model (.getName machine) (.getName refined) DependencyGraph$ERefType/REFINES)
