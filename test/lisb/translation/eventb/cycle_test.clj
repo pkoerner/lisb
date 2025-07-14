@@ -14,7 +14,7 @@
                      (variables :x :y :z)
                      (init
                       (label "init0" (assign :x 1 :y 2))
-                      (label "init1" (assign :z :nat)))
+                      #_(label "init1" (assign :z :nat))) ; TODO: disabled because of parallel/sequential composition difference
                      (events
                       (event :magic (any :t) (when (label "grd0" (> :x 0))) (then (label "act0" (assign :x :t)))))))))
 

@@ -55,6 +55,8 @@
                                     :record :record-get
                                     ; seqs
                                     :first :last
+                                    ; tuples
+                                    :eventb-prj1 :eventb-prj2
                                     ; fns
                                     :fn-call
                                     }))
@@ -402,7 +404,7 @@
 
 (defn bbecomes-element-of [ids set]
   {:tag :becomes-element-of
-   :ids ids
+   :ids (to-vec ids)
    :set set})
 (s/fdef bbecomes-element-of
         :args (s/cat :ids ::ids :set ::set)
@@ -411,7 +413,7 @@
 
 (defn bbecomes-such [ids pred]
   {:tag :becomes-such
-   :ids ids
+   :ids (to-vec ids)
    :pred pred})
 (s/fdef bbecomes-such
         :args (s/cat :ids ::ids :pred ::pred)
@@ -459,7 +461,7 @@
 
 (defn bany [ids pred & subs]
   {:tag :any
-   :ids ids
+   :ids (to-vec ids)
    :pred pred
    :subs subs})
 (s/fdef bany
@@ -478,7 +480,7 @@
 
 (defn bvar [ids & subs]
   {:tag :var
-   :ids ids
+   :ids (to-vec ids)
    :subs subs})
 (s/fdef bvar
         :args (s/cat :ids ::ids :subs ::subs)
@@ -864,7 +866,7 @@
 
 (defn blambda [ids pred expr]
   {:tag :lambda
-   :ids ids
+   :ids (to-vec ids)
    :pred pred
    :expr expr})
 (s/fdef blambda
@@ -1054,6 +1056,22 @@
         :args (s/cat :set1 ::set1 :set2 ::set2)
         :ret (s/and (s/keys :req-un [::tag] :req [::set1 ::set2])
                     #(= :prj2 (:tag %))))
+
+(defn beventb-prj1 [expr]
+  {:tag :eventb-prj1
+   :expr expr})
+(s/fdef beventb-prj1
+  :args (s/cat :expr ::expr)
+  :ret (s/and (s/keys :req-un [::tag] :req [::expr])
+              #(= :eventb-prj1 (:tag %))))
+
+(defn beventb-prj2 [expr]
+  {:tag :eventb-prj2
+   :expr expr})
+(s/fdef beventb-prj2
+  :args (s/cat :expr ::expr)
+  :ret (s/and (s/keys :req-un [::tag] :req [::expr])
+              #(= :eventb-prj2 (:tag %))))
 
 (defn bclosure1 [rel]
   {:tag :closure1
@@ -1280,7 +1298,7 @@
 
 (defn bpi [ids pred expr]
   {:tag :pi
-   :ids ids
+   :ids (to-vec ids)
    :pred pred
    :expr expr})
 (s/fdef bpi
@@ -1290,7 +1308,7 @@
 
 (defn bsigma [ids pred expr]
   {:tag :sigma
-   :ids ids
+   :ids (to-vec ids)
    :pred pred
    :expr expr})
 (s/fdef bsigma
@@ -1473,7 +1491,7 @@
 
 (defn bunion-pe [ids pred expr]
   {:tag :union-pe
-   :ids ids
+   :ids (to-vec ids)
    :pred pred
    :expr expr})
 (s/fdef bunion-pe
@@ -1483,7 +1501,7 @@
 
 (defn bintersection-pe [ids pred expr]
   {:tag :intersection-pe
-   :ids ids
+   :ids (to-vec ids)
    :pred pred
    :expr expr})
 (s/fdef bintersection-pe
@@ -1589,7 +1607,7 @@
 (defn bfor-all
   ([ids implication]
    {:tag :for-all
-    :ids ids
+    :ids (to-vec ids)
     :implication implication})
   ([ids premise conclusion]
    (bfor-all ids (bimplication premise conclusion))))
@@ -1601,7 +1619,7 @@
 
 (defn bexists [ids pred]
   {:tag :exists
-   :ids ids
+   :ids (to-vec ids)
    :pred pred})
 (s/fdef bexists
         :args (s/cat :ids ::ids :pred ::pred)
@@ -1683,7 +1701,7 @@
     (and (seq? lisb) (symbol? (first lisb)) (= "operations" (name (first lisb)))) (process-op-definitions lisb)
     (and (seq? lisb) (symbol? (first lisb)) (= "<--" (name (first lisb)))) (process-assign-returns lisb)
     (and (seq? lisb) (symbol? (first lisb)) (= "if" (name (first lisb)))) (pre-process-lisb (list* lisb.translation.lisb2ir/bif (rest lisb)))
-    (set? lisb) `(hash-set ~@(map pre-process-lisb lisb))
+    (set? lisb) `(hash-set ~@(map pre-process-lisb lisb)) ; make sure we do not generate code that crashes when there are duplicate elements
     (seqable? lisb) (walk pre-process-lisb identity lisb)
     :else lisb))
 
@@ -1855,6 +1873,8 @@
                 "parallel-product" 'lisb.translation.lisb2ir/bparallel-product
                 "prj1" 'lisb.translation.lisb2ir/bprj1
                 "prj2" 'lisb.translation.lisb2ir/bprj2
+                "eventb-prj1" 'lisb.translation.lisb2ir/beventb-prj1
+                "eventb-prj2" 'lisb.translation.lisb2ir/beventb-prj2
                 "closure1" 'lisb.translation.lisb2ir/bclosure1
                 "closure" 'lisb.translation.lisb2ir/bclosure
                 "iterate" 'lisb.translation.lisb2ir/biterate

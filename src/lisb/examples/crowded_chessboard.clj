@@ -85,7 +85,7 @@
 
 (defn crowded-empty-state-space []
   (let [machine (create-machine)]
-    (.b_load api machine {"KODKOD" "true"
+    (.b_load @api machine {"KODKOD" "true"
                           "TIME_OUT" "50000"})))
 
 (defn crowded-chessboard

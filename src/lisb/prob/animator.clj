@@ -14,14 +14,14 @@
 
 ; XXX load an instance of MainModule.class to ensure Prob 2.0 is properly loaded.
 ; Among other things this sets prob.home to load files from the ProB stdlib.
-(def injector (Guice/createInjector Stage/PRODUCTION [(MainModule.)]))
+(def injector (delay (Guice/createInjector Stage/PRODUCTION [(MainModule.)])))
 
 
-(def api (.getInstance injector Api))
+(def api (delay (.getInstance @injector Api)))
 
 
 (defn state-space! [ast]
-  (.b_load api ast))
+  (.b_load @api ast))
 
 
 (defmulti get-result type)

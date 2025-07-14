@@ -192,6 +192,8 @@
                                                PSubstitution
                                                AOperationReference
                                                AMachineReferenceNoParams
+                                               AEventBFirstProjectionV2Expression
+                                               AEventBSecondProjectionV2Expression
                                                PDefinition AExtendsMachineClause AIncludesMachineClause AMachineReference AUsesMachineClause APromotesMachineClause ASystemMachineVariant AModelMachineVariant ARefinementMachineParseUnit AImplementationMachineParseUnit ASeesMachineClause ACaseOrSubstitution ACaseSubstitution AExpressionDefinitionDefinition APredicateDefinitionDefinition ASubstitutionDefinitionDefinition TDefLiteralSubstitution TDefLiteralPredicate AFileDefinitionDefinition
                                                ;; unused for some reason
                                                ;POperation
@@ -909,6 +911,14 @@
 (defmethod ir-node->ast-node :prj2 [ir-node]
   (s/assert (s/keys :req-un [::set1 ::set2]) ir-node)
   (ASecondProjectionExpression. (ir->ast-node (:set1 ir-node)) (ir->ast-node (:set2 ir-node))))
+
+(defmethod ir-node->ast-node :eventb-prj1 [ir-node]
+  (s/assert (s/keys :req-un [::expr]) ir-node)
+  (AFunctionExpression. (AEventBFirstProjectionV2Expression.) (list (ir-node-expr->ast ir-node))))
+
+(defmethod ir-node->ast-node :eventb-prj2 [ir-node]
+  (s/assert (s/keys :req-un [::expr]) ir-node)
+  (AFunctionExpression. (AEventBSecondProjectionV2Expression.) (list (ir-node-expr->ast ir-node))))
 
 (defmethod ir-node->ast-node :closure1 [ir-node]
   (s/assert (s/keys :req-un [::rel]) ir-node)

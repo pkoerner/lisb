@@ -1,11 +1,6 @@
 (ns lisb.translation.eventb.specter-util
-  (:require [com.rpl.specter :refer [if-path path must ALL]]))
+  (:require [com.rpl.specter :as s]
+            [lisb.translation.irtools :refer [CLAUSE]]))
 
-(defn TAG [t]  #(= (:tag %) t))
-(defn NAME [n]  #(= (:name %) n))
-(def CLAUSES (if-path (must :clauses)
-                        [:clauses]
-                        [:machine-clauses]))
-(defn CLAUSE [name] (path [CLAUSES ALL (TAG name)]))
-
-(defn INCLUDES [n] (path [(CLAUSE :includes) :values ALL (NAME n)] ))
+(defn NAME [n] (s/pred #(= (:name %) n)))
+(defn INCLUDES [n] (s/path [(CLAUSE :includes) :values s/ALL (NAME n)]))

@@ -42,6 +42,8 @@
               brelation btotal-relation bsurjective-relation btotal-surjective-relation bmaplet bdom bran bid
               bdomain-restriction bdomain-subtraction brange-restriction brange-subtraction binverse bimage boverride
               bdirect-product bcomposition bparallel-product bprj1 bprj2 bclosure1 bclosure biterate bfnc brel
+              ;;; tuples
+              beventb-prj1 beventb-prj2
               ;;; numbers
               binteger-set bnatural-set bnatural1-set bint-set bnat-set bnat1-set binterval brange bmin-int bmax-int
               b< b> b<= b>= bmax bmin b+ b- b* bdiv b** bmod bpi bsigma bsuccessor bpredecessor

@@ -2,7 +2,7 @@
   (:require [clojure.test :refer :all]
             [lisb.translation.util :refer [b]]
             [lisb.translation.eventb.util :refer [eventb]]
-            [lisb.translation.eventb.specter-util :refer [CLAUSE]]
+            [lisb.translation.irtools :refer [CLAUSE]]
             [com.rpl.specter :as s]
             [lisb.translation.eventb.b2eventb :refer [sub->events] :as sut]))
 
@@ -46,14 +46,14 @@
          4 (assign :y 5)
          (assign :x -1)
          ))
-    [(eventb (event :test-2
-                    (when (= 2 :x))
+    [(eventb (event :test-case0
+                    (when (= :x 2))
                     (then (assign :x 1))))
-     (eventb (event :test-3
-                    (when (= 3 :x))
+     (eventb (event :test-case1
+                    (when (= :x 3))
                     (then (assign :y 4 :x 2))))
-     (eventb (event :test-4
-                    (when (= 4 :x))
+     (eventb (event :test-case2
+                    (when (= :x 4))
                     (then (assign :y 5))))
      (eventb (event :test-caseelse
                     (when (not (in :x #{2, 3, 4})))
@@ -70,8 +70,8 @@
                     (then (assign :a -1) )))
      (eventb (event :test-selectelse
                     (when
-                     (not (> :x 10))
-                      (not (< :x 0)))
+                     (and (not (> :x 10))
+                          (not (< :x 0))))
                     (then (assign :a 42))))]
 
     (b (select :cond1 (assign :a 1)

@@ -133,6 +133,8 @@
 | <code>((rel1&#124;&#124;rel2)&#124;&#124;...)</code> | `(parallel-product & rels)`         | `{:tag :parallel-product, :rels rels}`           | parallel product <code>{((x,v),(y,w)) &#124; x,y:r1 & v,w:r2} </code>         | 
 | `prj1(set1, set2)`                                   | `(prj1 set1 set2)`                  | `{:tag :prj1, :set1 set1, :set2 set2}`           | projection function (usage prj1(Dom,Ran)(Pair))                  | 
 | `prj2(set1, set2)`                                   | `(prj2 set1 set2)`                  | `{:tag :prj2, :set1 set1, :set2 set2}`           | projection function (usage prj2(Dom,Ran)(Pair))                  | 
+| `prj1(expr)` and `@prj1(expr)`                       | `(eventb-prj1 expr)`                | `{:tag :eventb-prj1, :expr expr}`                | eventb projection function (usage prj1(Pair))                    | 
+| `prj2(expr)` and `@prj2(expr)`                       | `(eventb-prj2 expr)`                | `{:tag :eventb-prj2, :expr expr}`                | eventb projection function (usage prj2(Pair))                    | 
 | `closure1(rel)`                                      | `(closure1 rel)`                    | `{:tag :closure1, :rel rel}`                     | transitive closure                                               |
 | `closure(rel)`                                       | `(closure rel)`                     | `{:tag :closure, :rel rel}`                      | reflexive & transitive closure                                   |
 | `iterate(rel,num)`                                   | `(iterate rel num)`                 | `{:tag :iterate, :rel rel, :num num}`            | iteration of r with n>=0                                         |

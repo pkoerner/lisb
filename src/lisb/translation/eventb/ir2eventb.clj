@@ -1,7 +1,7 @@
 (ns lisb.translation.eventb.ir2eventb
-  (:require [clojure.string :as str] 
-            [com.rpl.specter :as s] 
-            [lisb.translation.eventb.specter-util :refer [CLAUSE TAG]])
+  (:require [clojure.string :as str]
+            [com.rpl.specter :as s]
+            [lisb.translation.irtools :refer [CLAUSE TAG]])
   (:import
    (de.prob.model.eventb
     EventParameter
@@ -16,8 +16,7 @@
     Event$Inheritance
     Context
     EventBConstant
-    Variant
-    )
+    Variant)
    de.prob.animator.domainobjects.EventB
    de.prob.model.representation.ModelElementList))
 
@@ -28,28 +27,69 @@
 
 (defmulti ir-expr->str
   "converts expression into string"
-  (fn [ir] (or (:tag ir) (class ir))))
+  #(or (:tag %) (type %))
+  :default nil)
 (defmulti ir-pred->str
   "converts predicate into string"
-  :tag)
+  #(or (:tag %) (type %))
+  :default nil)
+
+#_(defmethod ir-expr->str nil [ir] (println "unsupported expr:" ir) (str ir))
+#_(defmethod ir-pred->str nil [ir] (println "unsupported pred:" ir) (str ir))
 
 (defn chain-expr [op irs]
-  (str/join op (map (fn [ir]
-                      (if (:tag ir)
-                        (str "(" (ir-expr->str ir) ")")
-                        (ir-expr->str ir))) irs)))
+  (->> irs
+       (map ir-expr->str)
+       (str/join op)
+       (#(str "(" % ")"))))
 
-(defn chain-pred [op ir]
-   (str "(" (str/join op (map ir-pred->str ir)) ")"))
+(defn chain-expr-explicit [op elems]
+  (str "(" (str/join "&" (map (fn [a b] (str (ir-expr->str a) op (ir-expr->str b)))
+                              (butlast elems) (rest elems))) ")"))
+
+(defn chain-expr-left [op irs]
+  (->> irs
+       (map ir-expr->str)
+       (reduce (fn [a e]
+                 (str "(" a op e ")"))
+               irs)))
+
+(defn chain-expr-right [op irs]
+  (->> irs
+       (map ir-expr->str)
+       reverse
+       (reduce (fn [a e]
+                 (str "(" e op a ")")))))
+
+(defn chain-pred [op irs]
+  (->> irs
+       (map ir-pred->str)
+       (str/join op)
+       (#(str "(" % ")"))))
+
+(defn chain-pred-left [op irs]
+  (->> irs
+       (map ir-pred->str)
+       (reduce (fn [a e]
+                 (str "(" a op e ")"))
+               irs)))
+
+(defn chain-pred-right [op irs]
+  (->> irs
+       (map ir-pred->str)
+       reverse
+       (reduce (fn [a e]
+                 (str "(" e op a ")")))))
 
 ;; Primitives
 
 (defmethod ir-expr->str clojure.lang.Keyword [ir] (rodin-name ir))
 (defmethod ir-expr->str java.lang.Long [ir] (str ir))
+(defmethod ir-expr->str java.lang.Integer [ir] (str ir))
 
 ;; Boolean
 
-(defmethod ir-expr->str java.lang.Boolean [ir] (str/upper-case (str ir)))
+(defmethod ir-expr->str java.lang.Boolean [ir] (if ir "TRUE" "FALSE"))
 (defmethod ir-expr->str :bool-set [_] "BOOL")
 (defmethod ir-expr->str :pred->bool [ir]
   (str "bool(" (ir-pred->str (:pred ir)) ")"))
@@ -57,7 +97,7 @@
 ;; Numbers
 
 (defmethod ir-expr->str :add [ir] (chain-expr "+" (:nums ir)))
-(defmethod ir-expr->str :sub [ir] (chain-expr "-" (:nums ir)))
+(defmethod ir-expr->str :sub [ir] (chain-expr " - " (:nums ir)))
 (defmethod ir-expr->str :mul [ir] (chain-expr "*" (:nums ir)))
 (defmethod ir-expr->str :div [ir] (chain-expr "/" (:nums ir)))
 (defmethod ir-expr->str :mod [ir] (chain-expr "mod" (:nums ir)))
@@ -82,15 +122,15 @@
 
 ;; Logical predicates
 
-(defmethod ir-pred->str :less [ir] (chain-expr "<" (:nums ir)))
-(defmethod ir-pred->str :less-equals [ir] (chain-expr "<=" (:nums ir)))
-(defmethod ir-pred->str :greater [ir] (chain-expr ">" (:nums ir)))
-(defmethod ir-pred->str :greater-equals [ir] (chain-expr ">=" (:nums ir)))
+(defmethod ir-pred->str :less [ir] (chain-expr " < " (:nums ir)))
+(defmethod ir-pred->str :less-equals [ir] (chain-expr " <= " (:nums ir)))
+(defmethod ir-pred->str :greater [ir] (chain-expr " > " (:nums ir)))
+(defmethod ir-pred->str :greater-equals [ir] (chain-expr " >= " (:nums ir)))
 
 (defmethod ir-pred->str :and [ir] (chain-pred "&" (:preds ir)))
 (defmethod ir-pred->str :or [ir] (chain-pred " or " (:preds ir)))
-(defmethod ir-pred->str :implication [ir] (chain-pred "=>" (:preds ir)))
-(defmethod ir-pred->str :equivalence [ir] (chain-pred "<=>" (:preds ir)))
+(defmethod ir-pred->str :implication [ir] (chain-pred " => " (:preds ir)))
+(defmethod ir-pred->str :equivalence [ir] (chain-pred " <=> " (:preds ir)))
 (defmethod ir-pred->str :not [ir]
   (str "not(" (ir-pred->str (:pred ir)) ")"))
 (defmethod ir-pred->str :for-all [ir]
@@ -100,27 +140,35 @@
 
 ;; Equality
 
-(defmethod ir-pred->str :equals [ir]
-  (str (ir-expr->str (:left ir)) "=" (ir-expr->str (:right ir))))
+(defmethod ir-pred->str :equals [{:keys [left right]}]
+  (chain-expr "=" [left right]))
 
-(defmethod ir-pred->str :not-equals [ir]
-  (str (ir-expr->str (:left ir)) "/=" (ir-expr->str (:right ir))))
+(defmethod ir-pred->str :not-equals [{:keys [left right]}]
+  (chain-expr "/=" [left right]))
 
 ;; Sets
 
 (defmethod ir-expr->str clojure.lang.PersistentHashSet [ir]
   (str "{" (str/join "," (map ir-expr->str ir)) "}"))
 
-(defmethod ir-expr->str :comprehension-set [ir]
-  (if (:expr ir)
+(defmethod ir-expr->str :comprehension-set [{:keys [ids pred expr]}]
+  (str "{"
+       (str/join "," (map rodin-name ids))
+       "."
+       (ir-pred->str pred)
+       (when expr
+         (str "|" (ir-expr->str expr)))
+       "}")
+
+  (if expr
     (str "{"
-          (ir-expr->str (:expr ir))
-          "|"
-          (ir-pred->str (:pred ir))
+         (ir-expr->str expr)
+         "|"
+         (ir-pred->str pred)
          "}")
     (str "{"
-       (str/join "," (map rodin-name (:ids ir))) "|"
-       (ir-pred->str (:pred ir)) "}" )))
+         (str/join "," (map rodin-name ids)) "|"
+         (ir-pred->str pred) "}")))
 
 (defmethod ir-expr->str :power-set [ir]
   (str "POW(" (ir-expr->str (:set ir)) ")"))
@@ -146,24 +194,26 @@
 (defmethod ir-expr->str :union [ir]
   (chain-expr "\\/" (:sets ir)))
 
+(defmethod ir-expr->str :union-pe [{:keys [ids pred expr]}]
+  (str "(UNION " (str/join "," (map ir-expr->str ids)) "." (ir-pred->str pred) "|" (ir-expr->str expr) ")"))
+
 (defmethod ir-expr->str :intersection [ir]
   (chain-expr "/\\" (:sets ir)))
+
+(defmethod ir-expr->str :intersection-pe [{:keys [ids pred expr]}]
+  (str "(INTER " (str/join "," (map ir-expr->str ids)) "." (ir-pred->str pred) "|" (ir-expr->str expr) ")"))
 
 (defmethod ir-expr->str :difference [ir]
   (chain-expr "\\" (:sets ir)))
 
 (defmethod ir-pred->str :member [ir]
-  (str (ir-expr->str (:elem ir)) ":" (ir-expr->str (:set ir))))
-
-(defn chain-expr-explicit [op elems]
-  (str "(" (str/join "&" (map (fn [a b] (str (ir-expr->str a) op (ir-expr->str b)))
-                     (butlast elems) (rest elems))) ")"))
+  (str "(" (ir-expr->str (:elem ir)) ":" (ir-expr->str (:set ir)) ")"))
 
 (defmethod ir-pred->str :subset [ir]
-  (chain-expr-explicit "<:" (:sets ir)))
+  (chain-expr-explicit " <: " (:sets ir)))
 
 (defmethod ir-pred->str :strict-subset [ir]
-  (chain-expr-explicit "<<:" (:sets ir)))
+  (chain-expr-explicit " <<: " (:sets ir)))
 
 (defmethod ir-pred->str :partition [ir]
   (str "partition(" (ir-expr->str (:set ir)) ","
@@ -174,11 +224,14 @@
 
 ;; Relations
 
+(defmethod ir-expr->str lisb.translation.types.Tuple [tuple]
+  (chain-expr " |-> " tuple))
+
 (defmethod ir-expr->str :maplet [{:keys [elems]}]
-  (chain-expr "|->" elems))
+  (chain-expr " |-> " elems))
 
 (defmethod ir-expr->str :relation [ir]
-  (chain-expr "<->" (:sets ir)))
+  (chain-expr " <-> " (:sets ir)))
 
 (defmethod ir-expr->str :dom [{:keys [rel]}]
   (str "dom(" (ir-expr->str rel) ")"))
@@ -187,13 +240,13 @@
   (str "ran(" (ir-expr->str rel) ")"))
 
 (defmethod ir-expr->str :total-relation [ir]
-  (chain-expr "<<->" (:sets ir)))
+  (chain-expr " <<-> " (:sets ir)))
 
 (defmethod ir-expr->str :surjective-relation [ir]
-  (chain-expr "<->>" (:sets ir)))
+  (chain-expr " <->> " (:sets ir)))
 
 (defmethod ir-expr->str :total-surjective-relation [ir]
-  (chain-expr "<<->>" (:sets ir)))
+  (chain-expr " <<->> " (:sets ir)))
 
 (defmethod ir-expr->str :composition [ir]
   (chain-expr ";" (:rels ir)))
@@ -210,43 +263,42 @@
   (str (ir-expr->str rel) "[" (ir-expr->str set) "]"))
 
 (defmethod ir-expr->str :domain-restriction [{:keys [rel set]}]
-  (str (ir-expr->str set) "<|" (ir-expr->str rel)))
+  (str (ir-expr->str set) " <| " (ir-expr->str rel)))
 
 (defmethod ir-expr->str :domain-subtraction [{:keys [rel set]}]
-  (str (ir-expr->str set) "<<|" (ir-expr->str rel)))
+  (str (ir-expr->str set) " <<| " (ir-expr->str rel)))
 
 (defmethod ir-expr->str :range-restriction [{:keys [rel set]}]
-  (str (ir-expr->str rel) "|>" (ir-expr->str set)))
+  (str (ir-expr->str rel) " |> " (ir-expr->str set)))
 
 (defmethod ir-expr->str :range-subtraction [{:keys [rel set]}]
-  (str (ir-expr->str rel) "|>>" (ir-expr->str set)))
+  (str (ir-expr->str rel) " |>> " (ir-expr->str set)))
 
 (defmethod ir-expr->str :override [{:keys [rels]}]
-  (chain-expr "<+" rels))
+  (chain-expr " <+ " rels))
 
 (defmethod ir-expr->str :direct-product [{:keys [rels]}]
-  (chain-expr "><" rels))
+  (chain-expr " >< " rels))
 
 (defmethod ir-expr->str :parallel-product [{:keys [rels]}]
   (chain-expr "||" rels))
 
-(defmethod ir-expr->str :prj1 [{:keys [set1 set2]}]
-  (str "prj1(" (ir-expr->str set1) "," (ir-expr->str set2) ")"))
+(defmethod ir-expr->str :eventb-prj1 [{:keys [expr]}]
+  (str "prj1(" (ir-expr->str expr) ")"))
 
-(defmethod ir-expr->str :prj2 [{:keys [set1 set2]}]
-  (str "prj2(" (ir-expr->str set1) "," (ir-expr->str set2) ")"))
+(defmethod ir-expr->str :eventb-prj2 [{:keys [expr]}]
+  (str "prj2(" (ir-expr->str expr) ")"))
 
 (defmethod ir-expr->str :iteration [{:keys [rel num]}]
-  (str (ir-expr->str rel) "^" (ir-expr->str num)))
+  (str "(" (ir-expr->str rel) "^" (ir-expr->str num)) ")")
 
 (defmethod ir-expr->str :extended-expr [{:keys [identifier exprs preds] :as xx}]
-  (println xx)
   (assert (empty? preds)) ;; do not know what happens with preds
-  (str (name identifier) "(" (clojure.string/join "," (map ir-expr->str exprs)) ")"))
+  (str (name identifier) "(" (str/join "," (map ir-expr->str exprs)) ")"))
 
 (defmethod ir-expr->str :extended-pred [{:keys [identifier exprs preds]}]
   (assert false) ;; do not know what happens here
-  (str (name identifier) "(" (clojure.string/join "," (map ir-expr->str exprs)) ")"))
+  (str (name identifier) "(" (str/join "," (map ir-expr->str exprs)) ")"))
 
 ;; TODO: missing Closures
 
@@ -254,40 +306,43 @@
 ;; Functions
 
 (defmethod ir-expr->str :partial-fn [ir]
-  (chain-expr "+->" (:sets ir)))
+  (chain-expr " +-> " (:sets ir)))
 
 (defmethod ir-expr->str :total-fn [ir]
-  (chain-expr "-->" (:sets ir)))
+  (chain-expr " --> " (:sets ir)))
 
 (defmethod ir-expr->str :partial-surjection [ir]
-  (chain-expr "+->>" (:sets ir)))
+  (chain-expr " +->> " (:sets ir)))
 
 (defmethod ir-expr->str :total-surjection [ir]
-  (chain-expr "-->>" (:sets ir)))
+  (chain-expr " -->> " (:sets ir)))
 
 (defmethod ir-expr->str :partial-injection [ir]
-  (chain-expr ">+>" (:sets ir)))
+  (chain-expr " >+> " (:sets ir)))
 
 (defmethod ir-expr->str :total-injection [ir]
-  (chain-expr ">->" (:sets ir)))
+  (chain-expr " >-> " (:sets ir)))
 
 (defmethod ir-expr->str :partial-bijection [ir]
-  (chain-expr ">+>>" (:sets ir)))
+  (chain-expr " >+>> " (:sets ir)))
 
 (defmethod ir-expr->str :total-bijection [ir]
-  (chain-expr ">->>" (:sets ir)))
+  (chain-expr " >->> " (:sets ir)))
 
 (defn tuple->maplet [tuple]
   (reduce (fn [acc cur] {:tag :maplet :elems [acc cur]})
-           tuple))
+          tuple))
 
 (defmethod ir-expr->str :lambda [{:keys [ids pred expr]}]
-  ;;TODO: In Event-B ids can be arbitrarily nested.
-  (str "%" (ir-expr->str (tuple->maplet ids)) "." (ir-pred->str pred) "|" (ir-expr->str expr)))
+  (str "(%" (ir-expr->str (tuple->maplet ids)) "." (ir-pred->str pred) "|" (ir-expr->str expr) ")"))
 
- ;; TODO: allow multiple args
-(defmethod ir-expr->str :fn-call [ir]
-  (str (ir-expr->str (:f ir)) "(" (ir-expr->str (first (:args ir))) ")"))
+(defmethod ir-expr->str :fn-call [{:keys [f args]}]
+  (str
+   (ir-expr->str f)
+   "("
+   (when-let [args (seq args)]
+     (ir-expr->str (tuple->maplet args)))
+   ")"))
 
 ;; Construct ProB Model
 
@@ -304,7 +359,7 @@
   :tag)
 
 (defmethod ir-sub->strs :becomes-element-of [{:keys [ids set]}]
- [(str (str/join "," (map ir-expr->str ids)) " :: " (ir-expr->str set))])
+  [(str (str/join "," (map ir-expr->str ids)) " :: " (ir-expr->str set))])
 
 (defmethod ir-sub->strs :becomes-such [{:keys [ids pred]}]
   [(str (str/join "," (map ir-expr->str ids)) " :| " (ir-pred->str pred))])
@@ -327,7 +382,7 @@
   "converts all the invariants and assertions to EventBInvariant objects, where assertions are marked as theorems"
   [clauses]
   (let [invariant (map-indexed
-                   (fn [i pred] 
+                   (fn [i pred]
                      (EventBInvariant. (if (:label pred) (name (:label pred)) (str "inv" @label-postfix i))
                                        (ir-pred->str (if (= :theorem (:tag pred)) (:pred pred) pred))
                                        (= :theorem (:tag pred))
@@ -336,7 +391,7 @@
         theorems  (map-indexed
                    (fn [i pred] (EventBInvariant. (if (:label pred) (name (:label pred)) (str "thm" @label-postfix i))
                                                   (ir-pred->str pred)
-                                                  true 
+                                                  true
                                                   #{}))
                    (:values (find-clause :assertions clauses)))]
     (ModelElementList. (concat invariant theorems))))
@@ -349,9 +404,9 @@
                       :extends Event$Inheritance/EXTENDS
                       Event$Inheritance/NONE)
         status (case status
-                    :convergent Event$EventType/CONVERGENT
-                    :anticipated Event$EventType/ANTICIPATED
-                    Event$EventType/ORDINARY)]
+                 :convergent Event$EventType/CONVERGENT
+                 :anticipated Event$EventType/ANTICIPATED
+                 Event$EventType/ORDINARY)]
     (Event. name status inheritance)))
 
 
@@ -371,13 +426,14 @@
                          events))))
 
 (defmethod ir->prob :init [{:keys [values]}]
- (->> values
-      (mapcat ir-sub->strs)
-      (map-indexed (fn [i code] (EventBAction. (if (:label code) (name (:label code)) (str "init" @label-postfix i))
-                                               code
-                                               #{})))
-      ModelElementList.
-      (.withActions (new-event "INITIALISATION" :ordinary :none))))
+  (assert (= (count values) 1)) ; more than one means sequential composition!
+  (->> values
+       (mapcat ir-sub->strs)
+       (map-indexed (fn [i code] (EventBAction. (if (:label code) (name (:label code)) (str "init" @label-postfix i))
+                                                code
+                                                #{})))
+       ModelElementList.
+       (.withActions (new-event "INITIALISATION" :ordinary :none))))
 
 (defmethod ir->prob :events [{:keys [values]}]
   (ModelElementList. (map ir->prob values)))
@@ -386,27 +442,27 @@
   (ModelElementList. (map (fn [x] (EventParameter. (clojure.core/name x))) values)))
 
 (defmethod ir->prob :guards [{:keys [values]}]
- (ModelElementList. (map-indexed (fn [i x] (EventBGuard. (if (:label x) (name (:label x)) (str "grd" @label-postfix i))
-                                                         (ir-pred->str x)
-                                                         false 
-                                                         #{}))
-                                 values)))
+  (ModelElementList. (map-indexed (fn [i x] (EventBGuard. (if (:label x) (name (:label x)) (str "grd" @label-postfix i))
+                                                          (ir-pred->str x)
+                                                          false
+                                                          #{}))
+                                  values)))
 
 (defmethod ir->prob :witnesses [{:keys [values]}]
   (ModelElementList. (map ir->prob values)))
 
 (defmethod ir->prob :actions [{:keys [values]}]
   (ModelElementList. (map-indexed
-                       (fn [i code] (EventBAction. (if (:label code) (name (:label code)) (str "act" @label-postfix i))
-                                                   code 
-                                                   #{}))
-                       (mapcat ir-sub->strs values))))
+                      (fn [i code] (EventBAction. (if (:label code) (name (:label code)) (str "act" @label-postfix i))
+                                                  code
+                                                  #{}))
+                      (mapcat ir-sub->strs values))))
 
 (defmethod ir->prob :event [{:keys [name clauses]}]
   (let [parent-event (find-clause :event-reference clauses)
         e (-> (new-event (rodin-name name)
-                     (:value (find-clause :status clauses))
-                     (:type parent-event))
+                         (:value (find-clause :status clauses))
+                         (:type parent-event))
               (.withParameters (clause->prob :args clauses))
               (.withGuards (clause->prob :guards clauses))
               (.withWitnesses (clause->prob :witnesses clauses))
@@ -433,7 +489,7 @@
   (Variant. (ir-expr->str (:expr ir)) #{}))
 
 (defmethod ir->prob :machine [{m-name :name clauses :machine-clauses}]
- (-> (EventBMachine. (rodin-name m-name))
+  (-> (EventBMachine. (rodin-name m-name))
       (.withSees (clause->prob :sees clauses))
       (.withInvariants (extract-invariants clauses))
       (.withVariant (clause->prob :variant clauses))
@@ -452,24 +508,24 @@
   "Gets constants from constants clause and enumerated sets"
   [ir]
   (ModelElementList. (map (fn [c] (EventBConstant. (rodin-name c) false ""))
-       (distinct (s/select (s/multi-path
-                             [(CLAUSE :constants) :values s/ALL]
-                             [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set) :elems s/ALL]) ir)))))
+                          (distinct (s/select (s/multi-path
+                                               [(CLAUSE :constants) :values s/ALL]
+                                               [(CLAUSE :sets) :values s/ALL (TAG :enumerated-set) :elems s/ALL]) ir)))))
 (defn extract-axioms [ir]
   (ModelElementList. (map-indexed
-                       (fn [i pred] (EventBAxiom. (if (:label pred) (name (:label pred)) (str "axm" @label-postfix i))
-                                                  (ir-pred->str pred)
-                                                  false
-                                                  #{}))
-                       (s/select [(CLAUSE :properties) :values s/ALL] ir))))
+                      (fn [i pred] (EventBAxiom. (if (:label pred) (name (:label pred)) (str "axm" @label-postfix i))
+                                                 (ir-pred->str pred)
+                                                 false
+                                                 #{}))
+                      (s/select [(CLAUSE :properties) :values s/ALL] ir))))
 
 (defn extract-theorems [ir]
   (ModelElementList. (map-indexed
-                  (fn [i pred] (EventBAxiom. (if (:label pred) (name (:label pred)) (str "thm" @label-postfix i))
-                                             (ir-pred->str pred)
-                                             true
-                                             #{}))
-                  (s/select [(CLAUSE :theorems) :values s/ALL] ir))))
+                      (fn [i pred] (EventBAxiom. (if (:label pred) (name (:label pred)) (str "thm" @label-postfix i))
+                                                 (ir-pred->str pred)
+                                                 true
+                                                 #{}))
+                      (s/select [(CLAUSE :theorems) :values s/ALL] ir))))
 
 (defmethod ir->prob :extends [ir]
   ;;TODO: get real context
@@ -478,12 +534,12 @@
 (defmethod ir->prob :context [ir]
   (let [clauses (:machine-clauses ir)]
     (-> (Context. (rodin-name (:name ir)))
-      (.withExtends (clause->prob :extends clauses))
-      (.withSets (extract-sets ir))
-      (.withConstants (extract-constants ir))
-      (.withAxioms (ModelElementList.
-                     (concat (extract-axioms ir)
-                             (extract-theorems ir)))))))
+        (.withExtends (clause->prob :extends clauses))
+        (.withSets (extract-sets ir))
+        (.withConstants (extract-constants ir))
+        (.withAxioms (ModelElementList.
+                      (concat (extract-axioms ir)
+                              (extract-theorems ir)))))))
 
 (defmethod ir->prob nil [_] nil)
 
