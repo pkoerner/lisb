@@ -3,8 +3,8 @@
   :url "https://github.com/pkoerner/lisb" ;; subject to change
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :repositories [["snapshot" "https://oss.sonatype.org/content/repositories/snapshots"]
-                 ["release" "https://oss.sonatype.org/content/repositories/releases"]]
+  :repositories [["snapshot" "https://central.sonatype.com/repository/maven-snapshots/"]
+                 ["release" "https://ossrh-staging-api.central.sonatype.com/service/local/"]]
   :deploy-repositories [["releases"  {:sign-releases false :url "https://repo.clojars.org/"}]
                         ["snapshots" {:sign-releases false :url "https://repo.clojars.org/"}]]
   :jvm-opts ["-Xss1g"]
@@ -13,6 +13,6 @@
                  [org.clojure/test.check "1.1.1"]
                  [potemkin "0.4.7"]
                  [com.rpl/specter "1.1.4"]
-                 [de.hhu.stups/prob-java "4.13.2-SNAPSHOT"]
-                 [de.hhu.stups/value-translator "0.2.0-SNAPSHOT"]
+                 [de.hhu.stups/prob-java "4.15.0"]
+                 [de.hhu.stups/value-translator "0.2.1"]
                  ])
