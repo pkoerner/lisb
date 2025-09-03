@@ -25,8 +25,8 @@
                 :domain-restriction :domain-subtraction :range-restriction :range-subtraction :inverse :image :override
                 :direct-product :composition :parallel-product :prj1 :prj2 :closure :closure1 :rel})
 (def num-tags #{; numbers
-                :min-int :max-int :max :min :add :sub :cartesian-product-or-multiplication :mul :div :pow :mod :product
-                :sum :successor :predecessor
+                :min-int :max-int :max :min :add :sub :cartesian-product-or-multiplication :mul :div :pow :mod
+                :successor :predecessor
                 :convert-to-real :floor :ceil
                 ; set numbers
                 :cardinality
