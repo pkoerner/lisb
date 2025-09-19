@@ -18,11 +18,11 @@
          (bfor-all [:x] (b= :x :y)) #{:y}
          (bexists [:x] (b= :x :y)) #{:y}
          (bcomprehension-set [:x] (bmember? :x (binterval 1 :y))) #{:y}
-         (bunion-pe #{:z} (bcontains? bnat-set :z) :y) #{:y}
-         (bintersection-pe #{:z} (bcontains? bnat-set :z) :y) #{:y}
+         (bunion-pe [:z] (bcontains? bnat-set :z) :y) #{:y}
+         (bintersection-pe [:z] (bcontains? bnat-set :z) :y) #{:y}
          (bpi [:z] (bcontains? bnat-set :z) :y) #{:y}
          (bsigma [:z] (bcontains? bnat-set :z) :y) #{:y}
-         (bvar #{:x} :y) #{:y}  ;; invalid substituion but who cares
+         (bvar [:x] :y) #{:y}  ;; invalid substituion but who cares
          (bany [:x] (b< :x :y) bskip) #{:y}))
   (testing "shadowed variables which are also used are extracted"
     (are [ir ids] (= (find-identifiers ir) ids)
