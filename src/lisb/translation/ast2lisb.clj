@@ -663,7 +663,7 @@
 (defmethod ast->lisb ARangeExpression [node]
   (expression 'ran node))
 (defmethod ast->lisb AIdentityExpression [node]
-  (expression 'identity node))
+  (expression 'id node))
 (defmethod ast->lisb ADomainRestrictionExpression [node]
   (left-right '<| node))
 (defmethod ast->lisb ADomainSubtractionExpression [node]

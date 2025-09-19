@@ -21,12 +21,12 @@
                ; relations fns
                :fnc
                })
-(def rel-tags #{:relation :total-relation :surjective-realtion :total-surjective-relation :maplet :id
+(def rel-tags #{:relation :total-relation :surjective-relation :total-surjective-relation :maplet :id
                 :domain-restriction :domain-subtraction :range-restriction :range-subtraction :inverse :image :override
                 :direct-product :composition :parallel-product :prj1 :prj2 :closure :closure1 :rel})
 (def num-tags #{; numbers
-                :min-int :max-int :max :min :add :sub :cartesian-product-or-multiplication :mul :div :pow :mod :product
-                :sum :successor :predecessor
+                :min-int :max-int :max :min :add :sub :cartesian-product-or-multiplication :mul :div :pow :mod
+                :successor :predecessor
                 :convert-to-real :floor :ceil
                 ; set numbers
                 :cardinality
@@ -907,12 +907,12 @@
                     #(= :total-relation (:tag %))))
 
 (defn bsurjective-relation [& sets]
-  {:tag :surjective-realtion
+  {:tag :surjective-relation
    :sets sets})
 (s/fdef bsurjective-relation
         :args (s/cat :sets ::sets)
         :ret (s/and (s/keys :req-un [::tag] :req [::sets])
-                    #(= :surjective-realtion (:tag %))))
+                    #(= :surjective-relation (:tag %))))
 
 (defn btotal-surjective-relation [& sets]
   {:tag :total-surjective-relation

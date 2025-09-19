@@ -4,15 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.6] - SNAPSHOT
+## [0.0.7-SNAPSHOT]
+
+## [0.0.6]
   ### Added
   - Added support for a tuple type. Tuples can now be written as [x y z ...] in the B DSL.
   - Added another eval-ir-formula' function and deprecate eval-ir-formula.
     eval-ir-formula' gives the user more control over the representation of large and symbolic sets.
   - Added `bb` as a function that transforms DSL code into the IR.
+  - Added support for Event-B labels
+  - Added support to extract labeled elements, such as guards, invariants or actions from a machine
   ### Changed
   - Moved `bfile->b` to `lisb.prob.animator` namespace
   - BREAKING (but only in rare cases): The `b` macro now may ignore the namespace of symbols, such as `<--` or `|`.
+  - BREAKING: :surjective-relation IR key is now spelt correctly (prior: :surjective-realtion)
+  ### Fixed
+  - AIdentityExpressions from the parser are correctly translated to `(id ...)` now
 
 ## [0.0.5]
   ### Added

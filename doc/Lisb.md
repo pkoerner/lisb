@@ -42,7 +42,6 @@
 | `card(set)`                              | `(card set)`                      | `{:tag :cardinality, :set set}`                                    | cardinality                                |
 | `set1*set2*...`                          | `(cart-or-mult & sets)`           | `{:tag :cartesian-product-or-multiplication, :nums-or-sets sets}`  | cartesian product or multiplication        |
 |                                          | `(cartesian-product & sets)`      | `{:tag :cartesian-product, :sets sets}`                            | cartesian product                          | 
-|                                          | `(x & sets)`                      | `{:tag :cartesian-product, :sets set}`                             | sugar                                      |
 | `set1\/set2\/...`                        | `(union & sets)`                  | `{:tag :union, :sets sets}`                                        | set union                                  |
 | `set1/\set2/\...`                        | `(intersection & sets)`           | `{:tag :intersection, :sets sets}`                                 | set intersection                           |
 | `set1-set2-...`                          | `(set- & sets)`                   | `{:tag :difference, :sets sets}`                                   | set difference                             |
@@ -85,15 +84,15 @@
 | `num1+num2+...`                  | `(+ & nums)`            | `{:tag :add, :nums nums}`                                         | addition                                                      |
 | `num1-num2-...`                  | `(- & nums)`            | `{:tag :sub, :nums nums}`                                         | difference                                                    |
 | `num1*num2*...`                  | `(cart-or-mult & nums)` | `{:tag :cartesian-product-or-multiplication, :nums-or-sets nums}` | cartesian product or multiplication (by parser, pls dont use) |
-|                                  | `(* & elems)`           | `{:tag :mul, :elems elems}`                                       | multiplication                                                | 
+|                                  | `(* & nums)`            | `{:tag :mul, :nums nums}`                                         | multiplication                                                | 
 | `num1/num2/...`                  | `(div & nums)`          | `{:tag :div, :nums nums}`                                         | division                                                      |
 | `num1/num2/...`                  | `(/ & nums)`            | `{:tag :div, :nums nums}`                                         | sugar                                                         |
 | `num1**num2**...`                | `(** & nums)`           | `{:tag :pow, :nums nums}`                                         | power                                                         |
 | `num1 mod num2 mod ...`          | `(mod & nums)`          | `{:tag :mod, :nums nums}`                                         | remainder of division                                         |
-| <code>PI(z).(P&#124;E)</code>    | `(π #{z} P E)`          | `{:tag :product, :ids ids, :pred pred, :expr expr}`               | Set product                                                   | 
-|                                  | `(pi #{z} P E)`         | `{:tag :product, :ids ids, :pred pred, :expr expr}`               | sugar                                                         | 
-| <code>SIGMA(z).(P&#124;E)</code> | `(Σ #{z} P E)`          | `{:tag :sum, :ids ids, :pred pred, :expr expr}`                   | Set summation                                                 |
-|                                  | `(sigma #{z} P E)`      | `{:tag :sum, :ids ids, :pred pred, :expr expr}`                   | sugar                                                         | 
+| <code>PI(z).(P&#124;E)</code>    | `(π #{z} P E)`          | `{:tag :pi, :ids ids, :pred pred, :expr expr}`                    | Set product                                                   | 
+|                                  | `(pi #{z} P E)`         | `{:tag :pi, :ids ids, :pred pred, :expr expr}`                    | sugar                                                         | 
+| <code>SIGMA(z).(P&#124;E)</code> | `(Σ #{z} P E)`          | `{:tag :sigma, :ids ids, :pred pred, :expr expr}`                 | Set summation                                                 |
+|                                  | `(sigma #{z} P E)`      | `{:tag :sigma, :ids ids, :pred pred, :expr expr}`                 | sugar                                                         | 
 | `succ(n)`                        | `(successor n)`         | `{:tag :successor, :num num}`                                     | successor (n+1)                                               |
 |                                  | `(inc n)`               | `{:tag :successor, :num num}`                                     | sugar                                                         |
 | `pred(n)`                        | `(predecessor n)`       | `{:tag :predecessor, :num num}`                                   | predecessor (n-1)                                             |
@@ -166,31 +165,31 @@
 <!-- | `%id1,id2,... .(id1:type1&id2:type2&... &#124;expr)`        | `(fn [id-types] expr)`   | `{:tag :fn, :id-types id-types, :expr expr}`       | sugar                | -->
 
 ## Sequences
-| B                           | Lisb                  | IR                                       | Description                               |
-|-----------------------------|-----------------------|------------------------------------------|-------------------------------------------|
-| `<> or []`                  | `(sequence)`          | `{:tag :empty-sequence}`                 | empty sequence                            | <!-- [] in lisb and ir? -->
-| `[elem1,elem2,...]`         | `(sequence & elemes)` | `{:tag :sequence, :elems elems}`         | constructed sequence                      | <!-- [elem1,elem2,..] in lisb and ir? -->
-| `seq(set)`                  | `(seq set)`           | `{:tag :seq, :set set}`                  | set of sequences over Sequence            |
-| `seq1(set)`                 | `(seq1 set)`          | `{:tag :seq1, :set set}`                 | set of non-empty sequences over Sequence  |
-| `iseq(set)`                 | `(iseq set)`          | `{:tag :iseq, :set set}`                 | set of injective sequences                |
-| `iseq1(set)`                | `(iseq1 set)`         | `{:tag :iseq1, :set set}`                | set of non-empty injective sequences      |
-| `perm(set)`                 | `(perm set)`          | `{:tag :perm, :set set}`                 | set of bijective sequences (permutations) |
-| `size(seq)`                 | `(size seq)`          | `{:tag :size, :seq seq}`                 | size of sequence                          |
-| `seq1^seq2...`              | `(concat seqs)`       | `{:tag :concat, :seqs seqs}`             | concatenation                             |
-| `elem->seq`                 | `(-> elem seq)`       | `{:tag :prepend, :elem elem, :set seq}`  | prepend element                           |
-|                             | `(prepend elem seq)`  | `{:tag :prepend, :elem elem, :set seq}`  | prepend element                           |
-| `(seq<-elem1)<-elem2...`    | `(<- seq elems)`      | `{:tag :append, :set seq, :elem elems}`  | append element                            |
-|                             | `(append seq elems)`  | `{:tag :append, :set seq, :elem elems}`  | append element                            |
-| `rev(seq)`                  | `(reverse seq)`       | `{:tag :reverse, :seq seq}`              | reverse of sequence                       |
-| `first(seq)`                | `(first seq)`         | `{:tag :first, :seq seq}`                | first element                             |
-| `last(seq)`                 | `(last seq)`          | `{:tag :last, :seq seq}`                 | last element                              |
-| `front(seq)`                | `(front seq)`         | `{:tag :front, :seq seq}`                | front of sequence (all but last element)  |
-|                             | `(drop-last seq)`     | `{:tag :front, :seq seq}`                | clojure                                   |
-| `tail(seq)`                 | `(tail seq)`          | `{:tag :tail, :seq seq}`                 | tail of sequence (all but first element)  |
-|                             | `(rest seq)`          | `{:tag :tail, :seq seq}`                 | clojure                                   |
-| `conc(seq-of-seqs)`         | `(conc seq-of-seqs)`  | `{:tag :conc, :seq-of-seqs seq-of-seqs}` | concatenation of sequence of sequences    |
-| <code>seq/&#124;\num</code> | `(take num seq)`      | `{:tag :take, :num num, :seq seq}`       | take first n elements of sequence         |
-| <code>seq\&#124;/num</code> | `(drop num seq)`      | `{:tag :drop, :num num, :seq seq}`       | drop first n elements from sequence       |
+| B                           | Lisb                   | IR                                       | Description                               |
+|-----------------------------|------------------------|------------------------------------------|-------------------------------------------|
+| `<> or []`                  | `(sequence)`           | `{:tag :empty-sequence}`                 | empty sequence                            | <!-- [] in lisb and ir? -->
+| `[elem1,elem2,...]`         | `(sequence & elemes)`  | `{:tag :sequence, :elems elems}`         | constructed sequence                      | <!-- [elem1,elem2,..] in lisb and ir? -->
+| `seq(set)`                  | `(seq set)`            | `{:tag :seq, :set set}`                  | set of sequences over Sequence            |
+| `seq1(set)`                 | `(seq1 set)`           | `{:tag :seq1, :set set}`                 | set of non-empty sequences over Sequence  |
+| `iseq(set)`                 | `(iseq set)`           | `{:tag :iseq, :set set}`                 | set of injective sequences                |
+| `iseq1(set)`                | `(iseq1 set)`          | `{:tag :iseq1, :set set}`                | set of non-empty injective sequences      |
+| `perm(set)`                 | `(perm set)`           | `{:tag :perm, :set set}`                 | set of bijective sequences (permutations) |
+| `size(seq)`                 | `(size seq)`           | `{:tag :size, :seq seq}`                 | size of sequence                          |
+| `seq1^seq2...`              | `(concat seqs)`        | `{:tag :concat, :seqs seqs}`             | concatenation                             |
+| `elem->seq`                 | `(-> elem seq)`        | `{:tag :prepend, :elem elem, :set seq}`  | prepend element                           |
+|                             | `(prepend elem seq)`   | `{:tag :prepend, :elem elem, :set seq}`  | prepend element                           |
+| `(seq<-elem1)<-elem2...`    | `(<- seq & elems)`     | `{:tag :append, :seq seq, :elems elems}` | append element                            |
+|                             | `(append seq & elems)` | `{:tag :append, :seq seq, :elems elems}` | append element                            |
+| `rev(seq)`                  | `(reverse seq)`        | `{:tag :reverse, :seq seq}`              | reverse of sequence                       |
+| `first(seq)`                | `(first seq)`          | `{:tag :first, :seq seq}`                | first element                             |
+| `last(seq)`                 | `(last seq)`           | `{:tag :last, :seq seq}`                 | last element                              |
+| `front(seq)`                | `(front seq)`          | `{:tag :front, :seq seq}`                | front of sequence (all but last element)  |
+|                             | `(drop-last seq)`      | `{:tag :front, :seq seq}`                | clojure                                   |
+| `tail(seq)`                 | `(tail seq)`           | `{:tag :tail, :seq seq}`                 | tail of sequence (all but first element)  |
+|                             | `(rest seq)`           | `{:tag :tail, :seq seq}`                 | clojure                                   |
+| `conc(seq-of-seqs)`         | `(conc seq-of-seqs)`   | `{:tag :conc, :seq-of-seqs seq-of-seqs}` | concatenation of sequence of sequences    |
+| <code>seq/&#124;\num</code> | `(take num seq)`       | `{:tag :take, :num num, :seq seq}`       | take first n elements of sequence         |
+| <code>seq\&#124;/num</code> | `(drop num seq)`       | `{:tag :drop, :num num, :seq seq}`       | drop first n elements from sequence       |
 
 ## Records
 | B                                 | Lisb                  | IR                                     | Description                                          |
@@ -215,7 +214,7 @@
 |------------------------------------------------------------------|---------------------------------|-----------------------------------------------------------------|---------------------------------------------|
 | `IF cond THEN then ELSE else END`                                | `(if-expr cond then else)`      | `{:tag :if, :cond cond, :then then, :else else}`                | conditional for expressions                 |
 | `IF cond THEN then ELSE else END`                                | `(if-pred cond then else)`      | `{:tag :if, :cond cond, :then then, :else else}`                | conditional for predicates                  |
-| `LET id1,id2,... BE id1=val1 & id2=val2 ... IN expr-or-pred END` | `(let-in id-vals expr-or-pred)` | `{:tag :let-in, :id-vals id-vals, :expr-or-pred :expr-or-pred}` | let for expression and predicates           |
+| `LET id1,id2,... BE id1=val1 & id2=val2 ... IN expr-or-pred END` | `(let id-vals expr-or-pred)`    | `{:tag :let, :id-vals id-vals, :expr-or-pred :expr-or-pred}`    | let for expression and predicates           |
 
 ## Substitutions
 | B                                                                                  | Lisb                                          | IR                                                      | Description                            |

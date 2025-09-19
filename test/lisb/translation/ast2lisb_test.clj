@@ -228,7 +228,7 @@
                   '(|-> (|-> :E :F) :G) "E|->F|->G"
                   '(dom :r) "dom(r)"
                   '(ran :r) "ran(r)"
-                  '(identity :S) "id(S)"
+                  '(id :S) "id(S)"
                   '(<| :S :r) "S<|r"
                   '(<<| :S :r) "S<<|r"
                   '(|> :r :S)"r|>S"

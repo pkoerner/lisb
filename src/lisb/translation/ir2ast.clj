@@ -840,7 +840,7 @@
   (s/assert (s/keys :req-un [::sets]) ir-node)
   (left-associative #(ATotalRelationExpression. %1 %2) (ir-node-sets->ast ir-node)))
 
-(defmethod ir-node->ast-node :surjective-realtion [ir-node]
+(defmethod ir-node->ast-node :surjective-relation [ir-node]
   (s/assert (s/keys :req-un [::sets]) ir-node)
   (left-associative #(ASurjectionRelationExpression. %1 %2) (ir-node-sets->ast ir-node)))
 
