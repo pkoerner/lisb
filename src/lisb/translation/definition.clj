@@ -47,7 +47,17 @@
   (when long? (println "  " doc)))
 
 ;; NOTE: started work with https://pkoerner.github.io/lisb-doc/docs/numbers/
-;; covered 1. -- 3. 
+
+; Missing:
+;;    Predicates
+;;    Set Operators
+;;    Relations
+;;    Functions
+;;    Sequences
+;;    Records
+;;    Substitutions
+;; Machine Structure
+
 
 (def b-info [ 
 (literal 42 "Number literal.")
@@ -97,12 +107,12 @@
    If called with more than two numbers, will expand to a <= b & b <= c & etc.
    See also: <, >, >=.")
 
-(op ">" (< 1 2) [& nums] 
+(op ">" (> 1 2) [& nums] 
   "Comparison operator 'greater than' on numbers.
    If called with more than two numbers, will expand to a > b & b > c & etc.
    See also: <, <=, >=.")
 
-(op ">=" (< 1 2) [& nums] 
+(op ">=" (>= 1 2) [& nums] 
   "Comparison operator 'greater than or equal' on numbers.
    If called with more than two numbers, will expand to a >= b & b >= c & etc.
    See also: <, <=, >.")
@@ -194,7 +204,7 @@
    See also: real-set.")
 
 (op "floor" (floor 3.14) [num]
-  "Conversion operator. Takes a real number and calculates the smallest integer number
+  "Conversion operator. Takes a real number and calculates the highest integer number
    smaller or equal to it.
    See also: ceil, real.")
 
@@ -218,4 +228,4 @@
 
 
 (comment (bpropos "add" :short false)
-(bpropos "nil"))
+(bpropos "greater"))
