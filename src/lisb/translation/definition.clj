@@ -9,6 +9,7 @@
    :lisb-fn `'~(first (bexpand example))
    :arguments `(quote ~lisb-sig)
    :example `'~example
+   :bexample (lisb->b example)
    :doc docstr
    :ir `(b ~example)})
 
@@ -28,9 +29,9 @@
 
 
 (defmulti print-doc (fn [m long?] (:type m)))
-(defmethod print-doc :operator [{:keys [operator lisb-fn b-operator example arguments doc ir]} long?]
+(defmethod print-doc :operator [{:keys [operator lisb-fn b-operator example bexample arguments doc ir]} long?]
   (when long? (println "-------------------------"))
-  (println operator "|" (str lisb-fn " | " ir) "| B:" b-operator)
+  (println operator "|" (str lisb-fn " | " ir) "| B:" bexample #_b-operator)
   (when long? (println arguments " e.g." example))
   (when long? (println "Operator"))
   (when long? (println "  " doc)))
@@ -76,7 +77,132 @@
   "Set of all natural numbers (excluding zero).
    See also: natural-set.") 
 
-(op "+" (+ 1 2 3) [& nums] "Addition operator on numbers" )
+;; --
+(op "interval" (interval 1 10) [lower upper] 
+  "The set of integer numbers ranging from lower (inclusive) to upper (inclusive).
+   See also: range")
+
+(op "range" (range 1 10) [lower upper] 
+  "The set of integer numbers ranging from lower (inclusive) to upper (exclusive).
+   See also: interval")
+
+;; --
+(op "<" (< 1 2) [& nums] 
+  "Comparison operator 'less than' on numbers.
+   If called with more than two numbers, will expand to a < b & b < c & etc.
+   See also: <=, >, >=.")
+
+(op "<=" (<= 1 2) [& nums] 
+  "Comparison operator 'less than or equal' on numbers.
+   If called with more than two numbers, will expand to a <= b & b <= c & etc.
+   See also: <, >, >=.")
+
+(op ">" (< 1 2) [& nums] 
+  "Comparison operator 'greater than' on numbers.
+   If called with more than two numbers, will expand to a > b & b > c & etc.
+   See also: <, <=, >=.")
+
+(op ">=" (< 1 2) [& nums] 
+  "Comparison operator 'greater than or equal' on numbers.
+   If called with more than two numbers, will expand to a >= b & b >= c & etc.
+   See also: <, <=, >.")
+
+;; --
+(op "+" (+ 1 2 3) [& nums] 
+  "Arithmetics operator. Addition on numbers." )
+
+(op "-" (- 1 2 3) [& nums] 
+  "Arithmetics operator. Subtraction on numbers." )
+
+(op "*" (- 1 2 3) [& nums] 
+  "Arithmetics operator. Multiplication on numbers." )
+
+(op "/" (/ 100 5 2) [& nums] 
+  "Arithmetics operator. Floored integer division on numbers." )
+
+(op "**" (** 2 2 5) [& nums] 
+  "Arithmetics operator. Power operation on numbers. Right-associative.")
+
+(op "mod" (mod 5 2) [& nums] 
+  "Arithmetics operator. Modulo operation on numbers.")
+
+;; --
+(op "min" (min #{1 2 3}) [set] 
+  "Set operator. Returns minimum value of all values stored in the set.
+   Has a well-definedness condition: set must be finite and not empty.
+   See also: 2nd definition of min, max.")
+
+(op "min" (min 1 2 3) [num & nums] 
+  "Set operator. Returns minimum value of all values passed as arguments.
+   See also: 1st definition of min, max.")
+
+(op "max" (max #{1 2 3}) [set] 
+  "Set operator. Returns maximum value of all values stored in the set.
+   Has a well-definedness condition: set must be finite and not empty.
+   See also: 2nd definition of max, min.")
+
+(op "min" (max 1 2 3) [num & nums] 
+  "Set operator. Returns maximum value of all values passed as arguments.
+   See also: 1st definition of max, min.")
+
+;; --
+(op "predecessor" (predecessor 5) [num]
+  "Number operator. Returns the predecessor of the passed number (i.e., num - 1). 
+   See also: dec, successor.")
+
+(op "dec" (dec 5) [num]
+  "Number operator. Decrements the passed number. Same as predecessor.
+   See also: predecessor, inc.")
+
+(op "successor" (successor 5) [num] 
+  "Number operator. Returns the successor of the passed number (i.e., num + 1). 
+   See also: inc, predecessor.")
+
+(op "inc" (inc 5) [num] 
+  "Number operator. Increments the passed number. Same as successor.
+   See also: successor, inc.")
+
+
+;; --
+(op "sigma" (sigma [:x] (member? :x #{1 2 3}) (* :x :x)) [ids pred expr]
+  "Calculates all combinations of identifiers that fulfill the constraining predicate.
+   Then, map the expression over all those values and return the sum of the result.
+   In the example, the values of x are constrained to #{1,2,3}, each value is squared
+   and the sum of the squares 1,4,9 = 14 is calculated.
+   See also: +, pi.")
+
+(op "pi" (pi [:x] (member? :x #{1 2 3}) (* :x :x)) [ids pred expr]
+  "Calculates all combinations of identifiers that fulfill the constraining predicate.
+   Then, map the expression over all those values and return the product of the result.
+   See also: +, sigma")
+ 
+;; --
+
+(literal 3.14 "Real number literal.")
+
+(op "real" (real 3) [num]
+  "Conversion operator. Takes an integer number and casts it to a real number.
+   See also: floor, ceil.")
+
+(constant real-set 
+  "Set of all real numbers.
+   See also: float-set.") 
+
+#_(constant float-set
+  "Set of all (representable) floating point numbers.
+   Currently not implemented.
+   See also: real-set.")
+
+(op "floor" (floor 3.14) [num]
+  "Conversion operator. Takes a real number and calculates the smallest integer number
+   smaller or equal to it.
+   See also: ceil, real.")
+
+(op "ceil" (ceil 3.14) [num]
+  "Conversion operator. Takes a real number and calculates the smallest integer number
+   greater or equal to it.
+   See also: floor, real.")
+
 
 ])
 
@@ -90,4 +216,6 @@
                         b-info)]
       (print-doc res (not short)))))
 
-(comment (bpropos "add" :short false))
+
+(comment (bpropos "add" :short false)
+(bpropos "nil"))
