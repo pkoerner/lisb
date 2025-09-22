@@ -15,7 +15,7 @@
 
 (defmacro literal [example docstr]
   {:type :literal
-   :lisb-literal example
+   :lisb-literal `(quote ~example)
    :b-literal (lisb->b example)
    :doc docstr})
 
@@ -176,15 +176,15 @@
 ;; --
 (op "sigma" (sigma [:x] (member? :x #{1 2 3}) (* :x :x)) [ids pred expr]
   "Calculates all combinations of identifiers that fulfill the constraining predicate.
-   Then, map the expression over all those values and return the sum of the result.
+   Then, map the expression over all those values and return the sum of the results.
    In the example, the values of x are constrained to #{1,2,3}, each value is squared
    and the sum of the squares 1,4,9 = 14 is calculated.
-   See also: +, pi.")
+   See also: +, pi, union-pe.")
 
 (op "pi" (pi [:x] (member? :x #{1 2 3}) (* :x :x)) [ids pred expr]
   "Calculates all combinations of identifiers that fulfill the constraining predicate.
-   Then, map the expression over all those values and return the product of the result.
-   See also: +, sigma")
+   Then, map the expression over all those values and return the product of the results.
+   See also: +, sigma, union-pe")
  
 ;; --
 
@@ -214,7 +214,120 @@
    See also: floor, real.")
 
 
+;; ----
+
+
+(literal #{1 2 3}
+  "Set literal. Note that, contrary to B, you cannot write duplicate values in the set literal.")
+
+(literal #{[:x] | (< 0 :x 10)}
+  "Set literal. Order does not matter.
+   Important is that it contains the | symbol, a vector of identifiers and a predicate
+   constraining the introduced identifiers.
+   See also: comprehension-set")
+
+(op "comprehension-set" (comprehension-set [:x] (< 0 :x 10)) [ids pred]
+  "Comprehension set (or set comprehension).
+   Returns the set of values that are fulfilled by the predicate.
+   See also: Set literal.")
+
+(op "comprehension-set" (comprehension-set [:x] (< 0 :x 10) (* :x :x)) [ids pred expr]
+  "Event-B style comprehension set (or set comprehension).
+   Constrains the identifiers via the predicate and applies the expression to all derived values.")
+
+;; --
+(op "pow" (pow #{1 2 3}) [set]
+  "Set operator. Calculates the powerset of the given set.
+   See also: pow1, fin.")
+
+(op "pow1" (pow1 #{1 2 3}) [set]
+  "Set operator. Calculates the powerset of the given set.
+   The result does not contain the empty set.
+   See also: pow, fin1.")
+
+(op "fin" (fin #{1 2 3}) [set]
+  "Set operator. Calculates all *finite* subsets of the powerset of the given set.
+   See also: pow, fin1.")
+
+(op "fin1" (fin1 #{1 2 3}) [set]
+  "Set operator. Calculates all *finite* subsets of the powerset of the given set.
+   The result does not contain the empty set.
+   See also: pow1, fin.")
+
+;; --
+(op "card" (card #{1 2 3}) [set]
+  "Set operator. Calculates the cardinality of the given set.
+   Has a well-definedness condition: Set must be finite.")
+
+;; --
+
+(op "union" (union #{1 2} #{3 4}) [& sets] 
+  "Set operator. Calculates the union of sets.
+   See also: intersection, set-.")
+
+(op "intersection" (intersection #{1 2} #{2 3}) [& sets] 
+  "Set operator. Calculates the intersection of sets.
+   See also: union, set-.")
+
+(op "set-" (set- #{1 2} #{2 3}) [& sets] 
+  "Set operator. Calculates the difference of two sets.
+   See also: intersection, set-.")
+
+;; --
+
+(op "member?" (member? 1 #{1 2 3}) [elem set]
+  "Set operator. Checks whether the element is included in the set.
+   For the non-inclusion operator `/:`, use (not (member? ...)) instead. 
+   See also: contains?.")
+
+(op "contains?" (contains? #{1 2 3} 3 4 5) [set & elems]
+  "Set operator. Checks the given set includes all listed elements.
+   See also: member?.")
+
+;; --
+
+(op "subset?" (subset? #{1} #{1 2} #{1 2 3}) [& sets]
+  "Set operator. Checks whether the sets are subsets of (or equal to)
+   all the following sets.
+   See also: strict-subset?, superset?")
+
+(op "strict-subset?" (strict-subset? #{1 2} #{1 2} #{1 2 3}) [& sets]
+  "Set operator. Checks whether the sets are strict subsets of all the following sets.
+   See also: subset?, superset?")
+
+(op "superset?" (superset? #{1 2 3} #{1 2} #{1}) [& sets]
+  "Set operator. Checks whether the sets are supersets of (or equal to)
+   all the following sets.
+   See also: strict-subset? superset?")
+
+(op "strict-superset?" (strict-superset? #{1 2 3} #{1 2} #{1}) [& sets]
+  "Set operator. Checks whether the sets are strict supersets of all the following sets.
+   See also: subset?")
+
+;; --
+(op "unite-sets" (unite-sets #{#{2 3} #{1 3}}) [set-of-set]
+  "Set operator. Given a set of sets, calculate the union of all contained sets.
+   See also: union-pe, intersect-sets")
+
+(op "intersect-sets" (unite-sets #{#{2 3} #{1 3}}) [set-of-set]
+  "Set operator. Given a set of sets, calculate the intersection of all contained sets.
+   See also: intersection-pe, unite-sets")
+
+(op "union-pe" (union-pe [:x] (subset? :x #{7 8 9}) #{(card :x)}) [ids pred expr]
+  "Set operator. Generalized union of sets. \"*union* with *p*redicate and *e*xpression\"
+   Calculates all combinations of identifiers that fulfill the constraining predicate.
+   Then, map the expression over all those values and return the set union of the results.
+   See also: intersection-pe, union, unite-sets, sigma.")
+
+(op "intersection-pe" (intersection-pe [:x] (subset? :x #{7 8 9}) #{(card :x)}) [ids pred expr]
+  "Set operator. Generalized intersection of sets. \"*intersection* with *p*redicate and *e*xpression\"
+   Calculates all combinations of identifiers that fulfill the constraining predicate.
+   Then, map the expression over all those values and return the set intersection of the results.
+   See also: union-pe, intersection, intersect-sets, sigma.")
+
 ])
+
+
 
 (defn bpropos [search & {:as opts :keys [short]}]
   (let [search (clojure.string/lower-case search)]
