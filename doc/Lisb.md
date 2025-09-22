@@ -49,11 +49,11 @@
 |                                          | `(in elem set)`                   | `{:tag :member, :elem elem, :set set}`                             | sugar                                      | 
 |                                          | `(contains? set & elems)`         | `(and (member? elem1 set) (member? elem2 set) ...)`                | sugar                                      | 
 | `elem/:set`                              | `(not (member? set elem))`        |                                                                    | not element of                             | 
-| `set1<:set2&set2<:...`                   | `(subset? & sets)`                | `{:tag :subset?, :sets sets}`                                      | subset of                                  |
-|                                          | `(superset? & sets)`              | `{:tag :subset?, :sets (clore.core/reverse sets)}`                 | sugar                                      |
+| `set1<:set2&set2<:...`                   | `(subset & sets)`                 | `{:tag :subset, :sets sets}`                                       | subset of                                  |
+|                                          | `(superset & sets)`               | `{:tag :subset, :sets (clojure.core/reverse sets)}`                | sugar                                      |
 | `set1/<:set2&set2/<:...`                 | `(not (subset? sets))`            |                                                                    | not subset of                              |
-| `set1<<:set2&set2<<:...`                 | `(strict-subset? sets)`           | `{:tag :strict-subset?, :sets sets}`                               | strict subset of                           |
-|                                          | `(strict-superset? sets)`         | `{:tag :strict-subset?, :sets (clojure.core/reverse sets)}`        | sugar                                      |
+| `set1<<:set2&set2<<:...`                 | `(strict-subset? sets)`           | `{:tag :strict-subset, :sets sets}`                                | strict subset of                           |
+|                                          | `(strict-superset? sets)`         | `{:tag :strict-subset, :sets (clojure.core/reverse sets)}`         | sugar                                      |
 | `set1/<<:set2&set2/<<:...`               | `(not (strict-subset? sets))`     |                                                                    | not strict subset of                       |
 | `union(set-of-sets)`                     | `(unite-sets set-of-sets)`        | `{:tag :unite-sets, :set-of-sets set-of-sets}`                     | generalised union over sets of sets        |
 | `inter(set-of-sets)`                     | `(intersect-sets set-of-sets)`    | `{:tag :intersect-sets, :set-of-sets set-of-sets}`                 | generalised intersection over sets of sets |
