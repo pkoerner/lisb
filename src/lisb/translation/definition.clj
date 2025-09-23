@@ -3,6 +3,7 @@
   (:use lisb.translation.util))
 
 (defmacro op [bop example lisb-sig docstr & {:keys [related inverse alias]}]
+  (assert (= (name bop) (name (first example))))
   {:type :operator
    :operator `'~(first example)
    :b-operator (name bop)
@@ -11,7 +12,7 @@
    :example `'~example
    :bexample (lisb->b example)
    :doc docstr
-   :related (mapv name related)
+   :related (if (seq related) (mapv name related) nil)
    :inverse (when inverse (name inverse))
    :alias (when alias (name alias))
    :ir `(b ~example)})
@@ -20,36 +21,40 @@
   {:type :literal
    :lisb-literal `(quote ~example)
    :b-literal (lisb->b example)
-   :related (mapv name related)
+   :related (if (seq related) (mapv name related) nil)
    :doc docstr})
 
 (defmacro constant [const docstr & {:keys [related]}]
   {:type :constant
    :lisb-constant `'~const
    :b-literal (lisb->b const)
-   :related (mapv name related)
+   :related (if (seq related) (mapv name related) nil)
    :lisb-var `'~(bexpand const)
    :ir `(b ~const)
    :doc docstr})
 
 
 (defmulti print-doc (fn [m long?] (:type m)))
-(defmethod print-doc :operator [{:keys [operator lisb-fn b-operator example bexample arguments doc ir]} long?]
+(defmethod print-doc :operator [{:keys [operator lisb-fn b-operator example bexample arguments doc ir related inverse alias]} long?]
   (when long? (println "-------------------------"))
-  (println operator "|" (str lisb-fn " | " ir) "| B:" bexample #_b-operator)
+  (println operator (if alias (str "(alias: " alias ")") "") "|" (str lisb-fn " | " ir) "| B:" bexample #_b-operator)
   (when long? (println arguments " e.g." example))
   (when long? (println "Operator"))
-  (when long? (println "  " doc)))
-(defmethod print-doc :literal [{:keys [lisb-literal b-literal doc]} long?]
+  (when long? (println "  " doc))
+  (when (and long? related) (println "Related:  " related)) 
+  (when (and long? inverse) (println "inverse operation:  " inverse))) 
+(defmethod print-doc :literal [{:keys [lisb-literal b-literal doc related]} long?]
   (when long? (println "-------------------------"))
   (println lisb-literal "| B:" b-literal)
   (when long? (println "Literal"))
-  (when long? (println "  " doc)))
-(defmethod print-doc :constant [{:keys [lisb-constant b-literal lisb-var ir doc]} long?]
+  (when long? (println "  " doc))
+  (when (and long? related) (println "Related:  " related)))
+(defmethod print-doc :constant [{:keys [lisb-constant b-literal lisb-var ir doc related]} long?]
   (when long? (println "-------------------------"))
   (println lisb-constant "|" (str lisb-var " | " ir) "| B:" b-literal)
   (when long? (println "Constant"))
-  (when long? (println "  " doc)))
+  (when long? (println "  " doc))
+  (when (and long? related) (println "Related:  " related)))
 
 ;; NOTE: started work with https://pkoerner.github.io/lisb-doc/docs/numbers/
 
@@ -136,7 +141,7 @@
   :related [+ * / ** mod]
   :inverse +)
 
-(op "*" (- 1 2 3) [& nums] 
+(op "*" (* 1 2 3) [& nums] 
   "Arithmetics operator. Multiplication on numbers." 
   :related [+ - / ** mod]
   :inverse /)
@@ -317,7 +322,7 @@
   "Set operator. Given a set of sets, calculate the union of all contained sets."
   :related [union-pe intersect-sets])
 
-(op "intersect-sets" (unite-sets #{#{2 3} #{1 3}}) [set-of-set]
+(op "intersect-sets" (intersect-sets #{#{2 3} #{1 3}}) [set-of-set]
   "Set operator. Given a set of sets, calculate the intersection of all contained sets."
   :related [intersection-pe unite-sets])
 
@@ -408,7 +413,7 @@
    :alias domain-restriction
    :related [<|| |> |>>])
 
-(op "<||" (<| #{1 2 3} #{[0 -> 1] [1 -> 2]}) [set relation]
+(op "<<|" (<<| #{1 2 3} #{[0 -> 1] [1 -> 2]}) [set relation]
   "Subtracts the specified set from the domain of the relation, i.e., it removes all tuples
    whose left-hand side is contained in the set."
    :alias domain-subtraction
@@ -418,13 +423,13 @@
   "Restricts the range of a relation to the specified set, i.e., it removes all tuples
    whose right-hand side is not contained in the set."
    :alias range-restriction
-   :related [<|, <||, |>>])
+   :related [<|, <<|, |>>])
 
 (op "|>>" (|>> #{[0 -> 1] [1 -> 2]} #{1 2 3}) [relation set]
   "Subtracts the specified set from the range of the relation, i.e., it removes all tuples
    whose right-hand side is contained in the set."
    :alias range-restriction
-   :related [<| <|| |>])
+   :related [<| <<| |>])
 
 ;; ---
 (op "inverse" (inverse #{[1 -> 2]}) [relation]
@@ -660,7 +665,7 @@
   "Equality predicate. Tests if all passed values are the same."
   :related [not= pred->bool])
 
-(op "not=" (= 1 2) [val1 val2]
+(op "not=" (not= 1 2) [val1 val2]
   "Non-equality predicate. Tests if the first argument is not equal to the second."
    :related [= distinct?])
 
@@ -742,11 +747,11 @@
    the predicate, which can be used in the following substitutions."
    :related [choice])
 
-(op "let" (let-sub [:x 42 :y 1337] (assign :a :x :y 1337)) [id-value-pairs & substitutions]
+(op "let-sub" (let-sub [:x 42 :y 1337] (assign :a :x :y 1337)) [id-value-pairs & substitutions]
   "Let-binding for (fresh) identifiers which can be used in the following substitutions."
    :related [var])
 
-(op "var" (var-sub [:x] (assign :x 42) (assign :a :x)) [ids & substitutions]
+(op "var-sub" (var-sub [:x] (assign :x 42) (assign :a :x)) [ids & substitutions]
   "Introduces a local variable that can be assigned arbitrarily."
    :related [let])
 
@@ -788,21 +793,24 @@
 ])
 
 
-
-
-
-(defn bpropos [search & {:as opts :keys [short]}]
-  (let [search (clojure.string/lower-case search)]
-    (doseq [res (filter (fn [x] (some #(clojure.string/includes?
+(defn bpropos [search & {:as opts :keys [short level] :or {level 0}}]
+  (let [search (clojure.string/lower-case search)
+        ress (filter (fn [x] (some #(clojure.string/includes?
                                          (clojure.string/lower-case 
                                            (str %))
                                          search)
-                                      (vals x)))
+                                   (remove nil? (vals (case level
+                                                        0 (select-keys x [:operator :b-operator :bexample :alias])
+                                                        1 (select-keys x [:operator :b-operator :bexample :alias :doc])
+                                                        2 (select-keys x [:operator :b-operator :bexample :alias :doc :related])
+                                                        3 x)))))
                         b-info)]
-      (print-doc res (not short)))))
-
+    (cond (seq ress) (doseq [res ress] (print-doc res (not short)))
+          (< level 3) (recur search (update opts :level (fnil inc 0)))
+          :otherwise nil)))
 
 (comment (bpropos "add" :short false)
-(bpropos "greater")
-(bpropos "+") 
+         (bpropos "<|")
+(bpropos "greater") 
+(bpropos "set") 
 (bpropos "comprehension"))
