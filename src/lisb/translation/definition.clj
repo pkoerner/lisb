@@ -723,9 +723,66 @@
    See also: record")
 
 
-])
-
 ;; ---
+
+(literal "foobar"
+  "String literal.")
+
+(op "=" (= 1 1) [& values]
+  "Equality predicate. Tests if all passed values are the same.
+   See also: not=, pred->bool")
+
+(op "not=" (= 1 2) [val1 val2]
+  "Non-equality predicate. Tests if the first argument is not equal to the second.
+   See also: =, distinct?")
+
+(op "distinct?" (distinct? 1 2 3) [& values]
+  "Non-equality predicate. Tests if all values are different from each other.
+   See also: not=")
+
+(op "not" (not (= 1 2)) [predicate]
+  "Negation predicate. Transforms a predicate-true into predicate-false and vice versa.
+   See also: implication, equivalence, and, or")
+
+(op "and" (and (= 1 2) (= 3 4)) [predicate1 predicate2]
+  "Logical conjunction predicate.
+   See also: equivalence, not, implication, or")
+
+(op "or" (or (= 1 2) (= 3 4)) [predicate1 predicate2]
+  "Logical disjunction predicate.
+   See also: equivalence, not, implication, or")
+
+(op "implication" (implication (= 1 2) (= 3 4)) [predicate1 predicate2]
+  "Implication predicate. Checks whether the left predicate implies the right predicate.
+   See also: =>, equivalence, not, and, or")
+
+(op "=>" (=> (= 1 2) (= 3 4)) [predicate1 predicate2]
+  "Implication predicate. Checks whether the left predicate implies the right predicate.
+   Same as implication.
+   See also: implication, equivalence, not, and, or")
+
+(op "equivalence" (equivalence (= 1 2) (= 3 4)) [predicate1 predicate2]
+  "Equivalence predicate. Checks whether the left predicate is equivalent to the right predicate.
+   See also: <=>, implication, not, and, or")
+
+(op "<=>" (<=> (= 1 2) (= 3 4)) [predicate1 predicate2]
+  "Equivalence predicate. Checks whether the left predicate is equivalent to the right predicate.
+   Same as equivalence.
+   See also: <=>, implication, not, and, or")
+
+(op "for-all" (for-all [:x] (=> (member? :x nat1-set) (< 0 :x))) [ids implication]
+  "Universal quantification.
+   See also: 2nd definition of for-all, exists")
+
+(op "for-all" (for-all [:x] (member? :x nat1-set) (< 0 :x)) [ids premise conclusion]
+  "Universal quantification. Will automatically generate the implication as the body.
+   See also: 1st definition of for-all, exists")
+
+(op "exists" (exists [:x :y] (< :x 10 :y)) [ids predicate]
+  "Existential quantification.
+   See also: for-all")
+
+])
 
 
 
