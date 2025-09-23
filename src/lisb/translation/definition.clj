@@ -50,7 +50,6 @@
 
 ; Missing:
 ;;    Predicates
-;;    Records
 ;;    Substitutions
 ;; Machine Structure
 
@@ -711,7 +710,23 @@
 
 ;; ----
 
+(op "struct" (struct :foo nat-set :bar nat-set) [& id-type-pairs]
+  "Generates the set (type) of all records with the given field names and types.
+   See also: record.")
+
+(op "record" (record :foo 42 :bar "a") [& id-value-pairs]
+  "Record constructor. Generates a record from the given field names and values.
+   See also: struct, record-get")
+
+(op "record-get" ((record :foo 42 :bar "a") :foo) [record id]
+  "Look up the value of a specific field in a record.
+   See also: record")
+
+
 ])
+
+;; ---
+
 
 
 (defn bpropos [search & {:as opts :keys [short]}]
