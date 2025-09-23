@@ -782,7 +782,94 @@
   "Existential quantification.
    See also: for-all")
 
+
+(literal "skip"
+  "The empty substitution that does nothing.")
+
+(op "assign" (assign :x 42 :y 1337) [& id-value-pairs]
+  "Assignment substitution. Substitutes the specified variables
+   with the given values.
+   See also: becomes-element-of, becomes-such, <--")
+
+(op "becomes-element-of" (becomes-element-of [:x :y] #{[1 -> 2]}) [ids set]
+  "Assigning substitution. Substitutes the specified variables with any value
+   (non-deterministically) drawn from the set.
+   If multiple identifiers are given, the set be of the corresponding tuple type.
+   See also: assign, becomes-such, <--")
+
+(op "becomes-such" (becomes-such [:x :y] (= :x (inc :y))) [ids predicate]
+  "Assigning substitution. Substitutes the specified variables (non-deterministically)
+   with any value(s) that fulfill the given predicate.
+   See also: assign, becomes-element-of, <--")
+
+(op "<--" (<-- [:x :y] (op-call :foo :a 42)) [ids operation-call]
+  "Assigning substitution. Substitutes the specified variables (non-deterministically)
+   with any value(s) that are returned by the specified operation call.
+   See also: assign, becomes-element-of, becomes-such")
+
+(op "parallel-sub" (parallel-sub (assign :x 42) (assign :y 43) (assign :z 1337)) [& substitutions]
+  "Composed substitutions. Executes all given substitutions simultaneously.
+   See also: ||, sequential-sub")
+
+(op "||" (|| (assign :x 42) (assign :y 43) (assign :z 1337)) [& substitutions]
+  "Composed substitutions. Executes all given substitutions simultaneously.
+   Same as parallel-sub.
+   See also: parallel-sub, sequential-sub")
+
+(op "sequential-sub" (sequential-sub (assign :x 42) (assign :y 43) (assign :z 1337)) [& substitutions]
+  "Composed substitutions. Executes all given substitutions, one after the other,
+   from left to right.
+   See also: ||, parallel-sub")
+
+(op "any" (any [:x :y] (< min-int :x :y max-int) (assign :a :x :b :y)) [ids predicate & substitutions]
+  "Guarded substitution. (Non-deterministically) chooses values for the identifiers that fulfill
+   the predicate, which can be used in the following substitutions.")
+
+(op "let" (let-sub [:x 42 :y 1337] (assign :a :x :y 1337)) [id-value-pairs & substitutions]
+  "Let-binding for (fresh) identifiers which can be used in the following substitutions.
+   See also: var")
+
+(op "var" (var-sub [:x] (assign :x 42) (assign :a :x)) [ids & substitutions]
+  "Introduces a local variable that can be assigned arbitrarily.
+   See also: let")
+
+(op "pre" (pre (= :x 42) (assign :y 42)) [predicate & substitutions]
+  "Substitutions with precondition. The caller of the substitution is responsible
+   to ensure that the precondition holds.
+   See also: assert")
+
+(op "assert" (assert (= :x 42) (assign :y 42)) [predicate & substitutions]
+  "Substitutions with assertion.
+   See also: pre")
+
+(op "choice" (choice (assign :x 42) (assign :y 42)) [& substitutions]
+  "Non-deterministic choice between different substitutions (behaviours).") 
+
+(op "if-sub" (if-sub (= :x 0) (assign :x 100) (assign :x (dec :x))) [predicate substitution-then substitution-else?]
+  "Conditional substitution that only executes its then-branch, if the predicate is fulfilled.
+   Executes the else-branch if specified.
+   See also: cond, select, case") 
+
+(op "cond" (cond (= :x 0) (assign :x 1) (= :y 0) (assign :y 1)) [& predicate-substitution-pairs else-substitution?]
+  "Similar to if, but allows to specifiy multiple cases that are tested one after each other.
+   Will expand to if / else-if / else-if ... / else.
+   See also: if-sub, select, case") 
+
+(op "select" (select (= :x 0) (assign :x 1) (= :y 0) (assign :y 1) (assign :v "default")) [& predicate-substitution-pairs default-substitution?]
+  "Non-deterministic guarded substitutions. Can choose from any substitution whose matching predicate 
+   evaluates to true. If a default substitutiuon is given and all predicates evaluate to false,
+   the default substitution is executed.
+   See also: if-sub, cond, case")
+
+(op "case" (case :x 0 (assign :x 1) 1 (assign :y 1) (assign :v "default")) [variable & constant-substitution-pairs default-substitution?]
+  "Tests the value of a given variable to be one of the list of specified constant literals.
+   Variable expression and constants must be a simple type (integer, boolean, deferred or enumerated type).
+   If no value is matched, optional default-case is applied.
+   See also: if-sub, cond, select")
+
 ])
+
+
 
 
 
