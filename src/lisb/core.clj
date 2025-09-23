@@ -100,6 +100,14 @@
 
 (eval-formula'
   @secret-state-space
+  (lisb->ir '(rel #{[1 -> #{1 2}]} ))
+  {:val-output :value
+   :val-aggression 10
+   }
+  )
+
+(eval-formula'
+  @secret-state-space
   (lisb->ast 'natural-set)
   {:val-output :value
    :val-aggression :lazy

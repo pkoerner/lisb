@@ -50,7 +50,6 @@
 
 ; Missing:
 ;;    Predicates
-;;    Sequences
 ;;    Records
 ;;    Substitutions
 ;; Machine Structure
@@ -254,7 +253,8 @@
 ;; --
 (op "card" (card #{1 2 3}) [set]
   "Set operator. Calculates the cardinality of the given set.
-   Has a well-definedness condition: Set must be finite.")
+   Has a well-definedness condition: Set must be finite.
+   See also: size")
 
 ;; --
 
@@ -625,10 +625,93 @@
   "Function call. Will apply the function to the specified element.
    Has a well-definedness condition. The element must be in the domain of the function.")
  
+(op "sequence" (sequence 42 1337 97) [& elems]
+  "Sequence constructor. Will create the set of tuples mapping 1 to the first element,
+   2 to the second, etc.
+   The is no sequence literal available in lisb.")
+
+(op "seq" (seq #{1337 42}) [set]
+  "Set of sequences mapping indices to values from the given set.
+   Unlike seq1, will contain the empty sequence. 
+   Will contain an infinite number of elements (as there is an infinite number of indices).
+   See also: seq1, iseq, perm.")
+
+(op "seq1" (seq1 #{1337 42}) [set]
+  "Set of sequences mapping indices to values from the given set.
+   Unlike seq, will not contain the empty sequence. 
+   Will contain an infinite number of elements (as there is an infinite number of indices).
+   See also: seq, iseq1, perm.")
+
+(op "iseq" (iseq #{1337 42}) [set]
+  "Set of injective sequences mapping indices to values from the given set.
+   Thus, elements from the set will occur at most once on the right-hand side of the tuples.
+   Unlike iseq1, will contain the empty sequence. 
+   See also: seq, iseq1, perm.")
+
+(op "iseq1" (iseq1 #{1337 42}) [set]
+  "Set of injective sequences mapping indices to values from the given set.
+   Thus, elements from the set will occur at most once on the right-hand side of the tuples.
+   Unlike iseq, will not contain the empty sequence. 
+   See also: seq1, iseq, perm.")
+
+(op "perm" (perm #{1337 42}) [set]
+  "Set of permutations (bijective sequences) mapping indices to values from the given set.
+   Thus, elements from the set will occur exactly once on the right-hand side of the tuples.
+   See also: seq, seq1, iseq, iseq1.")
+
+;; --
+(op "size" (size (sequence 1 2 3)) [sequence]
+  "Returns the size of a given sequence. Must be a sequence, or results might be messed up.
+   Must be a finite sequence.
+   See also: card")
+
+;; --
+(op "concat" (concat (sequence 1 2 3) (sequence 4 5 6)) [sequence1 sequence2] 
+  "Concatenates two sequences.
+   See also: prepend, append, conc")
+
+(op "prepend" (prepend 42 (sequence 1 2 3)) [elem sequence]
+  "Adds the element as a first item to a sequence.
+   See also: tail, append, conc, concat")
+
+(op "append" (append (sequence 1 2 3) 42) [sequence elem]
+  "Adds the element as a last item to a sequence.
+   See also: front, prepend, conc, concat")
+
+(op "conc" (conc (sequence (sequence 1 2) (sequence 3 4) (sequence 4 5 6))) [sequence] 
+  "Concatenates a sequence of sequences.
+   See also: prepend, append, concat")
+;; --
+
+(op "front" (front (sequence 1 2 3)) [sequence]
+  "Removes the last element from the sequence.
+   See also: last, append, tail, drop-last")
+
+(op "drop-last" (drop-last (sequence 1 2 3)) [sequence]
+  "Removes the last element from the sequence.
+   Same as front.
+   See also: last, append, tail, front")
+
+(op "tail" (tail (sequence 1 2 3)) [sequence]
+  "Removes the first element from the sequence.
+   See also: first append, front, rest")
+
+(op "rest" (rest (sequence 1 2 3)) [sequence]
+  "Removes the first element from the sequence.
+   Same as tail
+   See also: first, append, front, tail")
+
+(op "first" (first (sequence 1 2 3)) [sequence]
+  "Returns the first element of a sequence.
+   See also: last, prepend, front")
+
+(op "last" (last (sequence 1 2 3)) [sequence]
+  "Returns the last element of a sequence.
+   See also: first, append, tail")
+
+;; ----
 
 ])
-
-
 
 
 (defn bpropos [search & {:as opts :keys [short]}]
@@ -643,5 +726,6 @@
 
 
 (comment (bpropos "add" :short false)
-(bpropos "greater"))
-(bpropos "NAT") 
+(bpropos "greater")
+(bpropos "+") 
+(bpropos "comprehension"))
